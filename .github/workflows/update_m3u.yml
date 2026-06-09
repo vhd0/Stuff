@@ -1,0 +1,37 @@
+name: Auto Update M3U Daily
+
+on:
+  schedule:
+    # Chạy tự động vào lúc 00:00 UTC hàng ngày (khoảng 07:00 sáng giờ Việt Nam)
+    - cron: '0 0 * * *'
+  workflow_dispatch: # Cho phép bạn bấm nút chạy thủ công bất cứ lúc nào nếu muốn
+
+jobs:
+  update-list:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Bước 1: Checkout code của repository của bạn về máy ảo
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # Bước 2: Tải file raw dữ liệu về đè lên file .m3u của bạn
+    # Thay thế 'duong_dan_file_cua_ban.m3u' bằng tên file m3u thực tế trong repo của bạn
+    - name: Fetch raw data and update file
+      run: |
+        curl -s "https://raw.githubusercontent.com/DinhLap96/ListTivi/refs/heads/main/ListTiVi/dltivi_v2.ndl" -o "listtivi.m3u"
+
+    # Bước 3: Commit và Push file đã cập nhật lên GitHub
+    - name: Commit and Push changes
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git add "listtivi.m3u"
+        
+        # Chỉ commit nếu file có sự thay đổi dữ liệu
+        if git diff --staged --quiet; then
+          echo "Không có thay đổi nào được tìm thấy."
+        else
+          git commit -m "Auto-update M3U list từ nguồn DinhLap96"
+          git push
+        fi
