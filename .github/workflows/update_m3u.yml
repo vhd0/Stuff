@@ -15,8 +15,8 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    # Bước 2: Tải, xử lý và chuẩn hóa file M3U bằng Python
-    - name: Fetch, Clean and Standardize M3U
+    # Bước 2: Tải, bóc tách và chuẩn hóa cấu trúc M3U bằng Python
+    - name: Fetch, Clean and Re-structure M3U
       run: |
         python3 -c '
         import urllib.request
@@ -26,25 +26,58 @@ jobs:
         
         try:
             with urllib.request.urlopen(req) as response:
-                # "utf-8-sig" sẽ tự động phát hiện và XÓA bỏ ký tự BOM ẩn đầu file
+                # utf-8-sig giúp loại bỏ hoàn toàn ký tự BOM ẩn đầu file
                 content = response.read().decode("utf-8-sig")
         except Exception as e:
-            print(f"Lỗi khi tải dữ liệu: {e}")
+            print(f"Lỗi khi tải dữ liệu từ nguồn: {e}")
             exit(1)
 
-        cleaned_lines = []
-        for line in content.splitlines():
-            line = line.strip() # Xóa khoảng trắng thừa ở đầu/cuối dòng
-            
-            # CHỈ GIỮ LẠI: Dòng header, Dòng thông tin kênh, và Đường dẫn luồng phát
-            if line.startswith("#EXTM3U") or line.startswith("#EXTINF") or line.startswith("http://") or line.startswith("https://"):
-                cleaned_lines.append(line)
+        lines = content.splitlines()
+        output_lines = []
+        
+        # Lấy dòng header EXTM3U chuẩn làm mặc định nếu file gốc có thay đổi
+        header = "#EXTM3U url-tvg=\"https://vnepg.site/epg.xml\""
+        for line in lines:
+            if line.strip().startswith("#EXTM3U"):
+                header = line.strip()
+                break
+        output_lines.append(header)
 
-        # Ghi lại thành file listtivi.m3u chuẩn chỉnh
-        with open("listtivi.m3u", "w", encoding="utf-8") as f:
-            f.write("\n".join(cleaned_lines) + "\n")
+        current_extinf = None
+        link_count = 0
+
+        for line in lines:
+            line_str = line.strip()
             
-        print("Đã chuẩn hóa và làm sạch file M3U thành công!")
+            # Ghi nhận dòng thông tin cấu hình kênh
+            if line_str.startswith("#EXTINF"):
+                current_extinf = line_str
+                link_count = 0  # Reset bộ đếm link cho kênh mới
+                continue
+                
+            # Xử lý các dòng chứa link phát sóng hợp lệ
+            if line_str.startswith("http://") or line_str.startswith("https://"):
+                if current_extinf:
+                    link_count += 1
+                    if link_count == 1:
+                        # Link đầu tiên giữ nguyên tên gốc
+                        output_lines.append(current_extinf)
+                    else:
+                        # Các link sau tự động tách thành dòng #EXTINF riêng và gắn chữ [Dự phòng X]
+                        if "," in current_extinf:
+                            parts = current_extinf.rsplit(",", 1)
+                            modified_extinf = f"{parts[0]},{parts[1]} [Dự phòng {link_count - 1}]"
+                            output_lines.append(modified_extinf)
+                        else:
+                            output_lines.append(f"{current_extinf} [Dự phòng {link_count - 1}]")
+                    
+                    output_lines.append(line_str)
+
+        # Lưu file đầu ra listtivi.m3u với định dạng UTF-8 chuẩn sạch
+        with open("listtivi.m3u", "w", encoding="utf-8") as f:
+            f.write("\n".join(output_lines) + "\n")
+            
+        print("Đã tái cấu trúc và chuẩn hóa file M3U thành công!")
         '
 
     # Bước 3: Commit và Push file đã cập nhật lên GitHub
@@ -58,6 +91,6 @@ jobs:
         if git diff --staged --quiet; then
           echo "Không có thay đổi nào được tìm thấy."
         else
-          git commit -m "Auto-update & Clean M3U list từ nguồn DinhLap96"
+          git commit -m "Auto-update & Chuẩn hóa cấu trúc M3U chuẩn quốc tế"
           git push
         fi
