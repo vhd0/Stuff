@@ -15,70 +15,110 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    # Bước 2: Tải, bóc tách và chuẩn hóa cấu trúc M3U bằng Python
-    - name: Fetch, Clean and Re-structure M3U
+    # Bước 2: Tải và Tối ưu hóa cấu trúc M3U chuyên nghiệp bằng Python
+    - name: Fetch and Fully Optimize M3U
       run: |
-        python3 -c '
+        cat << 'EOF' > optimize_m3u.py
         import urllib.request
+        import re
+        from collections import OrderedDict
 
         url = "https://raw.githubusercontent.com/DinhLap96/ListTivi/refs/heads/main/ListTiVi/dltivi_v2.ndl"
         req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
         
         try:
             with urllib.request.urlopen(req) as response:
-                # utf-8-sig giúp loại bỏ hoàn toàn ký tự BOM ẩn đầu file
                 content = response.read().decode("utf-8-sig")
         except Exception as e:
-            print(f"Lỗi khi tải dữ liệu từ nguồn: {e}")
+            print(f"Lỗi tải file: {e}")
             exit(1)
 
+        channels = OrderedDict()
         lines = content.splitlines()
-        output_lines = []
-        
-        # Lấy dòng header EXTM3U chuẩn làm mặc định nếu file gốc có thay đổi
-        header = "#EXTM3U url-tvg=\"https://vnepg.site/epg.xml\""
-        for line in lines:
-            if line.strip().startswith("#EXTM3U"):
-                header = line.strip()
-                break
-        output_lines.append(header)
 
-        current_extinf = None
-        link_count = 0
+        # Hàm bóc tách thuộc tính và làm sạch dữ liệu
+        def parse_attributes(line):
+            tvg_id = ""
+            group_title = ""
+            tvg_logo = ""
+            
+            id_match = re.search(r'tvg-id="([^"]*)"', line)
+            group_match = re.search(r'group-title="([^"]*)"', line)
+            logo_match = re.search(r'tvg-logo="([^"]*)"', line)
+            
+            if id_match: tvg_id = id_match.group(1).strip()
+            if group_match: group_title = group_match.group(1).strip()
+            if logo_match: tvg_logo = logo_match.group(1).strip()
+            
+            name = ""
+            if "," in line:
+                name = line.rsplit(",", 1)[1].strip()
+            return tvg_id, group_title, tvg_logo, name
+
+        last_key = None
 
         for line in lines:
             line_str = line.strip()
-            
-            # Ghi nhận dòng thông tin cấu hình kênh
-            if line_str.startswith("#EXTINF"):
-                current_extinf = line_str
-                link_count = 0  # Reset bộ đếm link cho kênh mới
+            if not line_str or line_str.startswith("#EXTM3U") or line_str.startswith("#PLAYLISTINF"):
                 continue
+            
+            if line_str.startswith("#EXTINF"):
+                tvg_id, group_title, tvg_logo, name = parse_attributes(line_str)
+                if not name:
+                    name = tvg_id if tvg_id else "Kênh Không Tên"
                 
-            # Xử lý các dòng chứa link phát sóng hợp lệ
-            if line_str.startswith("http://") or line_str.startswith("https://"):
-                if current_extinf:
-                    link_count += 1
-                    if link_count == 1:
-                        # Link đầu tiên giữ nguyên tên gốc
-                        output_lines.append(current_extinf)
-                    else:
-                        # Các link sau tự động tách thành dòng #EXTINF riêng và gắn chữ [Dự phòng X]
-                        if "," in current_extinf:
-                            parts = current_extinf.rsplit(",", 1)
-                            modified_extinf = f"{parts[0]},{parts[1]} [Dự phòng {link_count - 1}]"
-                            output_lines.append(modified_extinf)
-                        else:
-                            output_lines.append(f"{current_extinf} [Dự phòng {link_count - 1}]")
-                    
-                    output_lines.append(line_str)
+                # Tạo Khóa Định Danh kết hợp giữa Nhóm và Tên Kênh để gom cụm
+                key = (group_title, name)
+                if key not in channels:
+                    channels[key] = {
+                        "tvg-id": tvg_id,
+                        "group-title": group_title,
+                        "tvg-logo": tvg_logo,
+                        "urls": []
+                    }
+                else:
+                    # Bổ sung thuộc tính nếu luồng quét sau có mà luồng trước thiếu
+                    if not channels[key]["tvg-id"] and tvg_id: channels[key]["tvg-id"] = tvg_id
+                    if not channels[key]["tvg-logo"] and tvg_logo: channels[key]["tvg-logo"] = tvg_logo
+                last_key = key
+                
+            elif line_str.startswith("http://") or line_str.startswith("https://"):
+                if last_key and last_key in channels:
+                    # Lọc trùng link tuyệt đối cho cùng một kênh
+                    if line_str not in channels[last_key]["urls"]:
+                        channels[last_key]["urls"].append(line_str)
 
-        # Lưu file đầu ra listtivi.m3u với định dạng UTF-8 chuẩn sạch
+        # Tiến hành xuất file M3U chuẩn hóa cấu trúc 100%
+        output_lines = ["#EXTM3U url-tvg=\"https://vnepg.site/epg.xml\""]
+
+        for (group, name), info in channels.items():
+            urls = info["urls"]
+            if not urls:
+                continue
+            
+            # Xây dựng chuỗi thuộc tính sạch (Bỏ qua các thẻ rác rỗng)
+            attrs = []
+            if info["tvg-id"]: attrs.append(f'tvg-id="{info["tvg-id"]}"')
+            if info["group-title"]: attrs.append(f'group-title="{info["group-title"]}"')
+            if info["tvg-logo"]: attrs.append(f'tvg-logo="{info["tvg-logo"]}"')
+            
+            attr_str = " " + " ".join(attrs) if attrs else ""
+            
+            # Xuất link luồng phát chính
+            output_lines.append(f"#EXTINF:-1{attr_str},{name}")
+            output_lines.append(urls[0])
+            
+            # Xuất các link luồng phát dự phòng ngay phía dưới
+            for i, url_bak in enumerate(urls[1:], start=1):
+                output_lines.append(f"#EXTINF:-1{attr_str},{name} [Dự phòng {i}]")
+                output_lines.append(url_bak)
+
         with open("listtivi.m3u", "w", encoding="utf-8") as f:
             f.write("\n".join(output_lines) + "\n")
-            
-        print("Đã tái cấu trúc và chuẩn hóa file M3U thành công!")
-        '
+
+        print("Đã tối ưu hóa cấu trúc danh sách thành công!")
+        EOF
+        python3 optimize_m3u.py
 
     # Bước 3: Commit và Push file đã cập nhật lên GitHub
     - name: Commit and Push changes
@@ -91,6 +131,6 @@ jobs:
         if git diff --staged --quiet; then
           echo "Không có thay đổi nào được tìm thấy."
         else
-          git commit -m "Auto-update & Chuẩn hóa cấu trúc M3U chuẩn quốc tế"
+          git commit -m "Auto-update & Tối ưu cấu trúc M3U nâng cao"
           git push
         fi
