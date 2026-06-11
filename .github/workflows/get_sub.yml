@@ -21,7 +21,7 @@ jobs:
 
       - name: Cài đặt thư viện requests
         run: |
-          pip install requests
+          pip install -r requirements.txt
 
       - name: Chạy script lấy node HK, JP, SG
         run: python get_sub.py
