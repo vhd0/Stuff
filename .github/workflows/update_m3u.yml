@@ -6,6 +6,10 @@ on:
     - cron: '0 0 * * *'
   workflow_dispatch: # Cho phép bấm nút chạy thủ công bất cứ lúc nào
 
+# Thêm cấu hình môi trường ở cấp độ toàn workflow
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+  
 jobs:
   update-list:
     runs-on: ubuntu-latest
