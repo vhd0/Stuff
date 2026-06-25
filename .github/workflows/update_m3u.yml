@@ -2,11 +2,9 @@ name: Auto Update M3U Daily
 
 on:
   schedule:
-    # Chạy tự động vào lúc 00:00 UTC hàng ngày (khoảng 07:00 sáng giờ Việt Nam)
     - cron: '0 0 * * *'
-  workflow_dispatch: # Cho phép bấm nút chạy thủ công bất cứ lúc nào
+  workflow_dispatch:
 
-# Thêm cấu hình môi trường ở cấp độ toàn workflow
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
   
@@ -15,32 +13,48 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # Bước 1: Checkout code của repository về máy ảo
     - name: Checkout repository
       uses: actions/checkout@v5
 
-    # Bước 2: Tải và Tối ưu hóa cấu trúc M3U chuyên nghiệp bằng Python
     - name: Fetch and Fully Optimize M3U
       run: |
         cat << 'EOF' > optimize_m3u.py
         import urllib.request
         import re
+        import json
         from collections import OrderedDict
 
-        url = "https://raw.githubusercontent.com/DinhLap96/ListTivi/refs/heads/main/ListTiVi/dltivi_v2.ndl"
-        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-        
+        urls = [
+            "https://raw.githubusercontent.com/DinhLap96/ListTivi/refs/heads/main/ListTiVi/dltivi_v2.ndl",
+            "https://raw.githubusercontent.com/iptv-org/iptv/refs/heads/master/streams/vn.m3u"
+        ]
+
+        # 1. TẢI VÀ XÂY DỰNG BẢN ĐỒ LOGO TỪ VNEPG API (Cấu trúc mới)
+        vnepg_logos = {}
+        print("Đang đồng bộ kho logo từ VNEPG...")
         try:
-            with urllib.request.urlopen(req) as response:
-                content = response.read().decode("utf-8-sig")
+            req_epg = urllib.request.Request("https://vnepg.site/api/channels", headers={"User-Agent": "Mozilla/5.0"})
+            with urllib.request.urlopen(req_epg) as response:
+                raw_data = json.loads(response.read().decode("utf-8"))
+                
+                # Trích xuất mảng từ khóa "channels" theo cấu trúc API của bạn
+                epg_channels = raw_data.get("channels", [])
+                
+                for ch in epg_channels:
+                    ch_id = ch.get("id")
+                    ch_logo = ch.get("logo")
+                    if ch_id and ch_logo:
+                        # Chuyển id về chữ thường và xóa khoảng trắng để so khớp chính xác tuyệt đối
+                        vnepg_logos[str(ch_id).strip().lower()] = str(ch_logo).strip()
+                        
+            print(f"Đã nạp thành công {len(vnepg_logos)} logo chuẩn từ hệ thống VNEPG.")
         except Exception as e:
-            print(f"Lỗi tải file: {e}")
-            exit(1)
+            print(f"Không thể tải hoặc parse logo từ VNEPG ({e}), workflow sẽ dùng logo mặc định từ file nguồn.")
 
+        # Khởi tạo bộ lưu trữ dữ liệu kênh
         channels = OrderedDict()
-        lines = content.splitlines()
+        used_urls = set()  # Chặn trùng lặp luồng phát phát sinh từ các kênh khác tên
 
-        # Hàm bóc tách thuộc tính và làm sạch dữ liệu
         def parse_attributes(line):
             tvg_id = ""
             group_title = ""
@@ -54,87 +68,133 @@ jobs:
             if group_match: group_title = group_match.group(1).strip()
             if logo_match: tvg_logo = logo_match.group(1).strip()
             
-            name = ""
+            raw_name = ""
             if "," in line:
-                name = line.rsplit(",", 1)[1].strip()
-            return tvg_id, group_title, tvg_logo, name
-
-        last_key = None
-
-        for line in lines:
-            line_str = line.strip()
-            if not line_str or line_str.startswith("#EXTM3U") or line_str.startswith("#PLAYLISTINF"):
-                continue
+                raw_name = line.rsplit(",", 1)[1].strip()
             
-            if line_str.startswith("#EXTINF"):
-                tvg_id, group_title, tvg_logo, name = parse_attributes(line_str)
-                if not name:
-                    name = tvg_id if tvg_id else "Kênh Không Tên"
-                
-                # Tạo Khóa Định Danh kết hợp giữa Nhóm và Tên Kênh để gom cụm
-                key = (group_title, name)
-                if key not in channels:
-                    channels[key] = {
-                        "tvg-id": tvg_id,
-                        "group-title": group_title,
-                        "tvg-logo": tvg_logo,
-                        "urls": []
-                    }
-                else:
-                    # Bổ sung thuộc tính nếu luồng quét sau có mà luồng trước thiếu
-                    if not channels[key]["tvg-id"] and tvg_id: channels[key]["tvg-id"] = tvg_id
-                    if not channels[key]["tvg-logo"] and tvg_logo: channels[key]["tvg-logo"] = tvg_logo
-                last_key = key
-                
-            elif line_str.startswith("http://") or line_str.startswith("https://"):
-                if last_key and last_key in channels:
-                    # Lọc trùng link tuyệt đối cho cùng một kênh
-                    if line_str not in channels[last_key]["urls"]:
-                        channels[last_key]["urls"].append(line_str)
+            # CHUẨN HÓA TÊN KÊNH: Loại bỏ hậu tố độ phân giải (1080p, 720p...) và trạng thái [Geo-blocked]
+            clean_name = re.sub(r'\s*[\(\[][^\]\)]*[\)\]]', '', raw_name)
+            clean_name = " ".join(clean_name.split()).strip()
+            
+            return tvg_id, group_title, tvg_logo, clean_name
 
-        # Tiến hành xuất file M3U chuẩn hóa cấu trúc 100%
+        # 2. QUÉT VÀ XỬ LÝ DỮ LIỆU TỪ CÁC NGUỒN M3U
+        for url in urls:
+            print(f"Đang tải dữ liệu từ nguồn: {url}")
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            
+            try:
+                with urllib.request.urlopen(req) as response:
+                    content = response.read().decode("utf-8-sig")
+            except Exception as e:
+                print(f"Lỗi tải file từ nguồn {url}: {e}")
+                continue
+
+            lines = content.splitlines()
+            last_key = None
+
+            for line in lines:
+                line_str = line.strip()
+                if not line_str or line_str.startswith("#EXTM3U") or line_str.startswith("#PLAYLISTINF"):
+                    continue
+                
+                if line_str.startswith("#EXTINF"):
+                    tvg_id, group_title, tvg_logo, clean_name = parse_attributes(line_str)
+                    
+                    if not clean_name:
+                        clean_name = tvg_id if tvg_id else "Kênh Không Tên"
+                    
+                    key = clean_name
+                    
+                    # SO KHỚP VÀ ĐỒNG BỘ LOGO VNEPG QUA TVG-ID
+                    # Chuyển tvg_id về chữ thường để khớp với định dạng id của API (ví dụ: vtv1hd)
+                    lookup_id = tvg_id.lower() if tvg_id else ""
+                    if lookup_id in vnepg_logos:
+                        tvg_logo = vnepg_logos[lookup_id]
+                    
+                    if key not in channels:
+                        channels[key] = {
+                            "tvg-id": tvg_id,
+                            "group-title": group_title,
+                            "tvg-logo": tvg_logo,
+                            "urls": []
+                        }
+                    else:
+                        # Điền khuyết dữ liệu thông minh cho các nguồn quét sau
+                        if not channels[key]["tvg-id"] and tvg_id: 
+                            channels[key]["tvg-id"] = tvg_id
+                            # Bổ sung logo ngay khi cập nhật được tvg-id mới
+                            lookup_id = tvg_id.lower()
+                            if lookup_id in vnepg_logos:
+                                channels[key]["tvg-logo"] = vnepg_logos[lookup_id]
+                                
+                        if not channels[key]["group-title"] and group_title: 
+                            channels[key]["group-title"] = group_title
+                            
+                        if not channels[key]["tvg-logo"] and tvg_logo: 
+                            channels[key]["tvg-logo"] = tvg_logo
+                            
+                    last_key = key
+                    
+                elif line_str.startswith("http://") or line_str.startswith("https://"):
+                    if last_key and last_key in channels:
+                        # CHẶN TRÙNG LINK TUYỆT ĐỐI (Kể cả khi bị khác tên kênh ở nguồn khác)
+                        if line_str in used_urls:
+                            continue
+                        
+                        if line_str not in channels[last_key]["urls"]:
+                            channels[last_key]["urls"].append(line_str)
+                            used_urls.add(line_str)
+
+        # 3. TIẾN HÀNH XUẤT FILE M3U CHUẨN HÓA TỐI ƯU CAO
         output_lines = ["#EXTM3U url-tvg=\"https://vnepg.site/epg.xml\""]
 
-        for (group, name), info in channels.items():
-            urls = info["urls"]
-            if not urls:
+        for name, info in channels.items():
+            urls_list = info["urls"]
+            if not urls_list:
                 continue
             
-            # Xây dựng chuỗi thuộc tính sạch (Bỏ qua các thẻ rác rỗng)
+            # Gán group mặc định nếu cả 2 nguồn đều trống danh mục giúp hiển thị đẹp trên app
+            final_group = info["group-title"] if info["group-title"] else "Truyền Hình"
+            
+            # Kiểm tra và áp dụng bản đồ logo VNEPG lần cuối trước khi xuất bản
+            final_logo = info["tvg-logo"]
+            lookup_id = info["tvg-id"].lower() if info["tvg-id"] else ""
+            if lookup_id in vnepg_logos:
+                final_logo = vnepg_logos[lookup_id]
+            
             attrs = []
             if info["tvg-id"]: attrs.append(f'tvg-id="{info["tvg-id"]}"')
-            if info["group-title"]: attrs.append(f'group-title="{info["group-title"]}"')
-            if info["tvg-logo"]: attrs.append(f'tvg-logo="{info["tvg-logo"]}"')
+            attrs.append(f'group-title="{final_group}"')
+            if final_logo: attrs.append(f'tvg-logo="{final_logo}"')
             
-            attr_str = " " + " ".join(attrs) if attrs else ""
+            attr_str = " " + " ".join(attrs)
             
-            # Xuất link luồng phát chính
+            # Xuất luồng stream chính
             output_lines.append(f"#EXTINF:-1{attr_str},{name}")
-            output_lines.append(urls[0])
+            output_lines.append(urls_list[0])
             
-            # Xuất các link luồng phát dự phòng ngay phía dưới
-            for i, url_bak in enumerate(urls[1:], start=1):
+            # Xuất các luồng phát dự phòng phía dưới gọn gàng
+            for i, url_bak in enumerate(urls_list[1:], start=1):
                 output_lines.append(f"#EXTINF:-1{attr_str},{name} [Dự phòng {i}]")
                 output_lines.append(url_bak)
 
         with open("listtivi.m3u", "w", encoding="utf-8") as f:
             f.write("\n".join(output_lines) + "\n")
 
-        print("Đã tối ưu hóa cấu trúc danh sách thành công!")
+        print("Quy trình merge dữ liệu, loại trùng và đồng bộ logo VNEPG hoàn tất!")
         EOF
         python3 optimize_m3u.py
 
-    # Bước 3: Commit và Push file đã cập nhật lên GitHub
     - name: Commit and Push changes
       run: |
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
         git add "listtivi.m3u"
         
-        # Chỉ commit nếu file có sự thay đổi dữ liệu
         if git diff --staged --quiet; then
-          echo "Không có thay đổi nào được tìm thấy."
+          echo "Không phát hiện thay đổi dữ liệu."
         else
-          git commit -m "Auto-update & Tối ưu cấu trúc M3U nâng cao"
+          git commit -m "Auto-update & Đồng bộ cấu trúc Logo VNEPG API"
           git push
         fi
