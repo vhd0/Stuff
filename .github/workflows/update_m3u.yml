@@ -30,32 +30,34 @@ jobs:
         ]
 
         channels = OrderedDict() 
-        id_to_name_map = {}      # Ánh xạ: id_chuan_hoa -> Tên chuẩn VNEPG
-        name_to_id_map = {}      # Ánh xạ: tên_chuan_hoa -> ID gốc VNEPG
-        vnepg_id_to_logo = {}    # CHỐT CHẶN: Ánh xạ chuẩn tvg-id gốc -> Logo VNEPG chuẩn
+        id_to_name_map = {}      
+        name_to_id_map = {}      
+        vnepg_id_to_logo = {}    
 
-        # HÀM CHUẨN HÓA ID GỐC (Xóa sạch đuôi rác .vn, @HD, @SD, ký tự đặc biệt)
         def clean_tvg_id(raw_id):
             if not raw_id:
                 return ""
             ch_id = raw_id.lower()
             ch_id = ch_id.replace(".vn", "").replace("@hd", "").replace("@sd", "").replace("@qhd", "")
-            ch_id = re.sub(r'[^a-z0-9]', '', ch_id) # Chỉ giữ lại chữ cái và số
+            ch_id = re.sub(r'[^a-z0-9]', '', ch_id) 
             return ch_id.strip()
 
-        # HÀM CHUẨN HÓA TÊN KÊNH (Để làm phương án so khớp dự phòng)
         def clean_channel_name(raw_name):
             if not raw_name:
                 return ""
             name = raw_name.lower()
-            name = re.sub(r'\s*[\(\[][^\]\)]*[\)\]]', '', name) # Xóa (1080p), [Geo-blocked]
-            name = re.sub(r'[^a-z0-9]', '', name) # Xóa khoảng trắng, dấu
+            name = re.sub(r'\s*[\(\[][^\]\)]*[\)\]]', '', name) 
+            name = re.sub(r'[^a-z0-9]', '', name) 
             return name.strip()
 
-        # 1. TẢI VÀ KHỞI TẠO BỘ KHUNG TỪ VNEPG API
+        # 1. TẢI VÀ KHỞI TẠO BỘ KHUNG TỪ VNEPG API (ĐÃ SỬA LỖI 403)
         print("Đang tải dữ liệu gốc từ VNEPG API...")
         try:
-            req_epg = urllib.request.Request("https://vnepg.site/api/channels", headers={"User-Agent": "Mozilla/5.0"})
+            # Bổ sung headers User-Agent để vượt qua tường lửa/Cloudflare của vnepg.site
+            req_epg = urllib.request.Request(
+                "https://vnepg.site/api/channels", 
+                headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
+            )
             with urllib.request.urlopen(req_epg) as response:
                 raw_data = json.loads(response.read().decode("utf-8"))
                 epg_channels = raw_data.get("channels", [])
@@ -74,10 +76,8 @@ jobs:
                             "urls": []
                         }
                         
-                        # Lưu kho logo chuẩn theo ID gốc của VNEPG
                         vnepg_id_to_logo[ch_id] = ch_logo
                         
-                        # Tạo bảng tra cứu bằng ID chuẩn hóa và Tên chuẩn hóa
                         norm_id = clean_tvg_id(ch_id)
                         norm_name = clean_channel_name(ch_name)
                         
@@ -86,7 +86,7 @@ jobs:
                         if norm_name:
                             name_to_id_map[norm_name] = ch_id
                             
-            print(f" Đã nạp {len(channels)} kênh gốc từ VNEPG.")
+            print(f" Đã nạp thành công {len(channels)} kênh gốc từ VNEPG.")
         except Exception as e:
             print(f" Lỗi tải VNEPG API ({e}).")
 
@@ -113,7 +113,7 @@ jobs:
             
             return tvg_id, group_title, tvg_logo, clean_name
 
-        # 2. ĐỒNG BỘ DỮ LIỆU TỪ 2 LINK RAW VỚI THUẬT TOÁN ÁNH XẠ KÉP
+        # 2. ĐỒNG BỘ DỮ LIỆU TỪ CÁC LINK RAW
         used_urls = set()
 
         for url in urls:
@@ -173,7 +173,7 @@ jobs:
                             channels[last_key]["urls"].append(line_str)
                             used_urls.add(line_str)
 
-        # 3. XUẤT FILE M3U - ÉP CHẶN ĐỂ ƯU TIÊN LOGO VNEPG HÀNG ĐẦU
+        # 3. XUẤT FILE M3U
         output_lines = ["#EXTM3U url-tvg=\"https://vnepg.site/epg.xml\""]
 
         for name, info in channels.items():
@@ -181,7 +181,6 @@ jobs:
             if not urls_list:
                 continue 
             
-            # KIỂM TRA ĐÈ: Nếu tvg-id của kênh nằm trong kho VNEPG, bắt buộc lấy logo VNEPG
             final_logo = info["tvg-logo"]
             current_id = info["tvg-id"]
             if current_id in vnepg_id_to_logo:
@@ -194,11 +193,9 @@ jobs:
             
             attr_str = " " + " ".join(attrs)
             
-            # Xuất luồng phát chính
             output_lines.append(f"#EXTINF:-1{attr_str},{name}")
             output_lines.append(urls_list[0])
             
-            # Xuất các luồng dự phòng
             for i, url_bak in enumerate(urls_list[1:], start=1):
                 output_lines.append(f"#EXTINF:-1{attr_str},{name} [Dự phòng {i}]")
                 output_lines.append(url_bak)
@@ -219,6 +216,6 @@ jobs:
         if git diff --staged --quiet; then
           echo "Không phát hiện thay đổi."
         else
-          git commit -m "Auto-update & Fix cứng ép ưu tiên Logo VNEPG"
+          git commit -m "Auto-update & Sửa lỗi 403 Forbidden chặn API"
           git push
         fi
