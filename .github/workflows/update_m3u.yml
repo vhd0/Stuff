@@ -50,14 +50,17 @@ jobs:
             name = re.sub(r'[^a-z0-9]', '', name) 
             return name.strip()
 
-        # 1. TẢI VÀ KHỞI TẠO BỘ KHUNG TỪ VNEPG API (ĐÃ SỬA LỖI 403)
+        # 1. TẢI VÀ KHỞI TẠO BỘ KHUNG TỪ VNEPG API (BỔ SUNG HEADERS CHỐNG 403)
         print("Đang tải dữ liệu gốc từ VNEPG API...")
         try:
-            # Bổ sung headers User-Agent để vượt qua tường lửa/Cloudflare của vnepg.site
-            req_epg = urllib.request.Request(
-                "https://vnepg.site/api/channels", 
-                headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
-            )
+            # Mô phỏng đầy đủ một phiên chuẩn của trình duyệt Chrome để qua mặt hệ thống kiểm tra
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                "Accept": "application/json, text/plain, */*",
+                "Accept-Language": "vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7",
+                "Connection": "keep-alive"
+            }
+            req_epg = urllib.request.Request("https://vnepg.site/api/channels", headers=headers)
             with urllib.request.urlopen(req_epg) as response:
                 raw_data = json.loads(response.read().decode("utf-8"))
                 epg_channels = raw_data.get("channels", [])
@@ -71,7 +74,7 @@ jobs:
                         key = ch_name 
                         channels[key] = {
                             "tvg-id": ch_id, 
-                            "group-title": "Truyền Hình", 
+                            "group-title": "Truyền Hồng", 
                             "tvg-logo": ch_logo,
                             "urls": []
                         }
@@ -88,7 +91,7 @@ jobs:
                             
             print(f" Đã nạp thành công {len(channels)} kênh gốc từ VNEPG.")
         except Exception as e:
-            print(f" Lỗi tải VNEPG API ({e}).")
+            print(f" Vẫn bị chặn bởi VNEPG API ({e}). Tiến hành dùng danh sách rỗng để gộp thô.")
 
         # Hàm bóc tách thuộc tính từ dòng text M3U/NDL raw
         def parse_attributes(line):
@@ -216,6 +219,6 @@ jobs:
         if git diff --staged --quiet; then
           echo "Không phát hiện thay đổi."
         else
-          git commit -m "Auto-update & Sửa lỗi 403 Forbidden chặn API"
+          git commit -m "Auto-update & Bypass chặn API nâng cao"
           git push
         fi
