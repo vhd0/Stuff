@@ -16,12 +16,76 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v5
 
-    - name: Fetch and Fully Optimize M3U
+    - name: Fetch VNEPG API via Vietnam Proxy
+      run: |
+        cat << 'EOF' > get_vnepg.py
+        import urllib.request
+        import json
+        import re
+        import os
+
+        # 1. LẤY DANH SÁCH PROXY VIỆT NAM MỚI NHẤT TRÊN MẠNG
+        print("Đang tìm kiếm Proxy Việt Nam hoạt động...")
+        proxy_list = []
+        try:
+            # Lấy danh sách proxy miễn phí từ nguồn uy tín công cộng
+            req = urllib.request.Request("https://api.proxyscrape.com/v2/?request=displayproxies&protocol=http&timeout=10000&country=VN&ssl=all&anonymity=all", headers={"User-Agent": "Mozilla/5.0"})
+            with urllib.request.urlopen(req, timeout=10) as response:
+                proxies = response.read().decode("utf-8").strip().splitlines()
+                proxy_list = [p.strip() for p in proxies if p.strip()]
+            print(f"Tìm thấy {len(proxy_list)} Proxy Việt Nam tiềm năng.")
+        except Exception as e:
+            print(f"Không thể lấy danh sách proxy tự động ({e}).")
+
+        # Thêm một vài proxy dự phòng cố định nếu lấy tự động thất bại
+        proxy_list.extend([
+            "103.199.161.4:80",
+            "14.226.54.3:8080",
+            "113.160.222.115:80"
+        ])
+
+        # 2. THỬ TẢI FILE QUA TỪNG PROXY CHO ĐẾN KHI THÀNH CÔNG
+        success = False
+        api_url = "https://vnepg.site/api/channels"
+        
+        for proxy in proxy_list:
+            print(f"Thử kết nối tới VNEPG qua Proxy VN: {proxy} ...")
+            try:
+                proxy_support = urllib.request.ProxyHandler({'http': proxy, 'https': proxy})
+                opener = urllib.request.build_opener(proxy_support)
+                
+                # Cấu hình đầy đủ Header trình duyệt Việt Nam
+                opener.addheaders = [
+                    ("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"),
+                    ("Accept", "application/json, text/plain, */*"),
+                    ("Accept-Language", "vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7")
+                ]
+                
+                with opener.open(api_url, timeout=7) as response:
+                    data = json.loads(response.read().decode("utf-8"))
+                    if "channels" in data:
+                        with open("vnepg_raw.json", "w", encoding="utf-8") as f:
+                            json.dump(data, f, ensure_ascii=False, indent=4)
+                        print(" CHÚC MỪNG! Đã tải thành công dữ liệu VNEPG qua Proxy Việt Nam.")
+                        success = True
+                        break
+            except Exception as e:
+                print(f" -> Proxy {proxy} không phản hồi hoặc bị từ chối ({e}). Thử proxy khác...")
+                continue
+
+        if not success:
+            print(" CẢNH BÁO: Tất cả Proxy VN đều thất bại hoặc chặn kết nối. Khởi tạo file rỗng.")
+            with open("vnepg_raw.json", "w", encoding="utf-8") as f:
+                json.dump({"channels": []}, f)
+        EOF
+        python3 get_vnepg.py
+
+    - name: Process and Fully Optimize M3U
       run: |
         cat << 'EOF' > optimize_m3u.py
-        import urllib.request
         import re
         import json
+        import os
         from collections import OrderedDict
 
         urls = [
@@ -50,48 +114,43 @@ jobs:
             name = re.sub(r'[^a-z0-9]', '', name) 
             return name.strip()
 
-        # 1. TẢI VÀ KHỞI TẠO BỘ KHUNG TỪ VNEPG API (BỔ SUNG HEADERS CHỐNG 403)
-        print("Đang tải dữ liệu gốc từ VNEPG API...")
-        try:
-            # Mô phỏng đầy đủ một phiên chuẩn của trình duyệt Chrome để qua mặt hệ thống kiểm tra
-            headers = {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-                "Accept": "application/json, text/plain, */*",
-                "Accept-Language": "vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7",
-                "Connection": "keep-alive"
-            }
-            req_epg = urllib.request.Request("https://vnepg.site/api/channels", headers=headers)
-            with urllib.request.urlopen(req_epg) as response:
-                raw_data = json.loads(response.read().decode("utf-8"))
-                epg_channels = raw_data.get("channels", [])
-                
-                for ch in epg_channels:
-                    ch_id = str(ch.get("id", "")).strip()
-                    ch_name = str(ch.get("name", "")).strip()
-                    ch_logo = str(ch.get("logo", "")).strip()
+        # 1. ĐỌC FILE TẠM ĐÃ ĐƯỢC CÚP VỀ BẰNG PROXY
+        print("Đang xử lý dữ liệu từ file tạm VNEPG...")
+        if os.path.exists("vnepg_raw.json"):
+            try:
+                with open("vnepg_raw.json", "r", encoding="utf-8") as f:
+                    raw_data = json.load(f)
+                    epg_channels = raw_data.get("channels", [])
                     
-                    if ch_id and ch_name:
-                        key = ch_name 
-                        channels[key] = {
-                            "tvg-id": ch_id, 
-                            "group-title": "Truyền Hồng", 
-                            "tvg-logo": ch_logo,
-                            "urls": []
-                        }
+                    for ch in epg_channels:
+                        ch_id = str(ch.get("id", "")).strip()
+                        ch_name = str(ch.get("name", "")).strip()
+                        ch_logo = str(ch.get("logo", "")).strip()
                         
-                        vnepg_id_to_logo[ch_id] = ch_logo
-                        
-                        norm_id = clean_tvg_id(ch_id)
-                        norm_name = clean_channel_name(ch_name)
-                        
-                        if norm_id:
-                            id_to_name_map[norm_id] = ch_name
-                        if norm_name:
-                            name_to_id_map[norm_name] = ch_id
+                        if ch_id and ch_name:
+                            key = ch_name 
+                            channels[key] = {
+                                "tvg-id": ch_id, 
+                                "group-title": "Truyền Hình", 
+                                "tvg-logo": ch_logo,
+                                "urls": []
+                            }
                             
-            print(f" Đã nạp thành công {len(channels)} kênh gốc từ VNEPG.")
-        except Exception as e:
-            print(f" Vẫn bị chặn bởi VNEPG API ({e}). Tiến hành dùng danh sách rỗng để gộp thô.")
+                            vnepg_id_to_logo[ch_id] = ch_logo
+                            
+                            norm_id = clean_tvg_id(ch_id)
+                            norm_name = clean_channel_name(ch_name)
+                            
+                            if norm_id:
+                                id_to_name_map[norm_id] = ch_name
+                            if norm_name:
+                                name_to_id_map[norm_name] = ch_id
+                                
+                print(f" Đã trích lọc thành công {len(channels)} kênh gốc từ file tạm VNEPG.")
+            except Exception as e:
+                print(f" File tạm rỗng ({e}). Chuyển sang gộp thô các list raw.")
+        else:
+            print(" Không tìm thấy file tạm vnepg_raw.json!")
 
         # Hàm bóc tách thuộc tính từ dòng text M3U/NDL raw
         def parse_attributes(line):
@@ -116,8 +175,9 @@ jobs:
             
             return tvg_id, group_title, tvg_logo, clean_name
 
-        # 2. ĐỒNG BỘ DỮ LIỆU TỪ CÁC LINK RAW
+        # 2. ĐỒNG BỘ LUỒNG TỪ CÁC FILE RAW (Các file này nằm trên GitHub nên không cần proxy)
         used_urls = set()
+        import urllib.request
 
         for url in urls:
             print(f"Đang đồng bộ luồng từ nguồn: {url}")
@@ -176,7 +236,7 @@ jobs:
                             channels[last_key]["urls"].append(line_str)
                             used_urls.add(line_str)
 
-        # 3. XUẤT FILE M3U
+        # 3. XUẤT FILE M3U - Ghi đè bắt buộc Logo VNEPG
         output_lines = ["#EXTM3U url-tvg=\"https://vnepg.site/epg.xml\""]
 
         for name, info in channels.items():
@@ -206,7 +266,7 @@ jobs:
         with open("listtivi.m3u", "w", encoding="utf-8") as f:
             f.write("\n".join(output_lines) + "\n")
 
-        print(" Đã ép chặn ưu tiên và ghi đè Logo VNEPG thành công!")
+        print(" Đồng bộ hóa & Ép Logo VNEPG qua Proxy Việt Nam thành công hoàn tất!")
         EOF
         python3 optimize_m3u.py
 
@@ -219,6 +279,6 @@ jobs:
         if git diff --staged --quiet; then
           echo "Không phát hiện thay đổi."
         else
-          git commit -m "Auto-update & Bypass chặn API nâng cao"
+          git commit -m "Auto-update & Bypass Geo-Blocking bằng Proxy Việt Nam"
           git push
         fi
