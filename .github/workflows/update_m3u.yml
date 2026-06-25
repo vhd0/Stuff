@@ -32,6 +32,7 @@ jobs:
         channels = OrderedDict() 
         id_to_name_map = {}      # Ánh xạ: id_chuan_hoa -> Tên chuẩn VNEPG
         name_to_id_map = {}      # Ánh xạ: tên_chuan_hoa -> ID gốc VNEPG
+        vnepg_id_to_logo = {}    # CHỐT CHẶN: Ánh xạ chuẩn tvg-id gốc -> Logo VNEPG chuẩn
 
         # HÀM CHUẨN HÓA ID GỐC (Xóa sạch đuôi rác .vn, @HD, @SD, ký tự đặc biệt)
         def clean_tvg_id(raw_id):
@@ -48,7 +49,7 @@ jobs:
                 return ""
             name = raw_name.lower()
             name = re.sub(r'\s*[\(\[][^\]\)]*[\)\]]', '', name) # Xóa (1080p), [Geo-blocked]
-            name = re.sub(r'[^a-z0-9]', '', name) # Xóa khoảng trắng, dấu tiếng Việt (nếu đã bỏ dấu) hoặc ký tự lạ
+            name = re.sub(r'[^a-z0-9]', '', name) # Xóa khoảng trắng, dấu
             return name.strip()
 
         # 1. TẢI VÀ KHỞI TẠO BỘ KHUNG TỪ VNEPG API
@@ -73,6 +74,9 @@ jobs:
                             "urls": []
                         }
                         
+                        # Lưu kho logo chuẩn theo ID gốc của VNEPG
+                        vnepg_id_to_logo[ch_id] = ch_logo
+                        
                         # Tạo bảng tra cứu bằng ID chuẩn hóa và Tên chuẩn hóa
                         norm_id = clean_tvg_id(ch_id)
                         norm_name = clean_channel_name(ch_name)
@@ -82,7 +86,7 @@ jobs:
                         if norm_name:
                             name_to_id_map[norm_name] = ch_id
                             
-            print(f" Đã nạp {len(channels)} kênh gốc từ VNEPG. Sẵn sàng ánh xạ thông minh.")
+            print(f" Đã nạp {len(channels)} kênh gốc từ VNEPG.")
         except Exception as e:
             print(f" Lỗi tải VNEPG API ({e}).")
 
@@ -104,7 +108,6 @@ jobs:
             if "," in line:
                 raw_name = line.rsplit(",", 1)[1].strip()
             
-            # Tên kênh sạch để hiển thị
             clean_name = re.sub(r'\s*[\(\[][^\]\)]*[\)\]]', '', raw_name)
             clean_name = " ".join(clean_name.split()).strip()
             
@@ -135,30 +138,22 @@ jobs:
                 if line_str.startswith("#EXTINF"):
                     tvg_id, group_title, tvg_logo, clean_name = parse_attributes(line_str)
                     
-                    # Tiến hành chuẩn hóa dữ liệu thô để đối chiếu
                     raw_norm_id = clean_tvg_id(tvg_id)
                     raw_norm_name = clean_channel_name(clean_name)
                     
                     matched_standard_name = None
                     
-                    # HỆ THỐNG PHÂN CẤP ĐỐI CHIẾU THÔNG MINH (TRÁNH LỆCH ID)
-                    # Cách 1: So khớp qua ID sau khi đã gột sạch rác (.vn, @HD...)
                     if raw_norm_id in id_to_name_map:
                         matched_standard_name = id_to_name_map[raw_norm_id]
-                    
-                    # Cách 2 (Dự phòng): Nếu ID không khớp, thử so khớp qua Tên kênh chuẩn hóa
                     elif raw_norm_name in name_to_id_map:
                         standard_id = name_to_id_map[raw_norm_name]
                         matched_standard_name = id_to_name_map.get(clean_tvg_id(standard_id))
 
-                    # TIẾN HÀNH MERGE LUỒNG
                     if matched_standard_name:
-                        # Gộp luồng vào bộ khung VNEPG đã có sẵn
                         key = matched_standard_name
                         if group_title and group_title != "Truyền Hình":
                             channels[key]["group-title"] = group_title
                     else:
-                        # Kênh phụ không có trong danh mục VNEPG -> Giữ lại tạo kênh mới hoàn toàn
                         key = clean_name if clean_name else (tvg_id if tvg_id else "Kênh Phụ")
                         if key not in channels:
                             channels[key] = {
@@ -178,18 +173,24 @@ jobs:
                             channels[last_key]["urls"].append(line_str)
                             used_urls.add(line_str)
 
-        # 3. XUẤT FILE M3U
+        # 3. XUẤT FILE M3U - ÉP CHẶN ĐỂ ƯU TIÊN LOGO VNEPG HÀNG ĐẦU
         output_lines = ["#EXTM3U url-tvg=\"https://vnepg.site/epg.xml\""]
 
         for name, info in channels.items():
             urls_list = info["urls"]
             if not urls_list:
-                continue # Bỏ qua kênh trống luồng
+                continue 
+            
+            # KIỂM TRA ĐÈ: Nếu tvg-id của kênh nằm trong kho VNEPG, bắt buộc lấy logo VNEPG
+            final_logo = info["tvg-logo"]
+            current_id = info["tvg-id"]
+            if current_id in vnepg_id_to_logo:
+                final_logo = vnepg_id_to_logo[current_id]
             
             attrs = []
-            if info["tvg-id"]: attrs.append(f'tvg-id="{info["tvg-id"]}"')
+            if current_id: attrs.append(f'tvg-id="{current_id}"')
             if info["group-title"]: attrs.append(f'group-title="{info["group-title"]}"')
-            if info["tvg-logo"]: attrs.append(f'tvg-logo="{info["tvg-logo"]}"')
+            if final_logo: attrs.append(f'tvg-logo="{final_logo}"')
             
             attr_str = " " + " ".join(attrs)
             
@@ -205,7 +206,7 @@ jobs:
         with open("listtivi.m3u", "w", encoding="utf-8") as f:
             f.write("\n".join(output_lines) + "\n")
 
-        print(" Quy trình xử lý lệch ID và đồng bộ danh sách hoàn tất thành công!")
+        print(" Đã ép chặn ưu tiên và ghi đè Logo VNEPG thành công!")
         EOF
         python3 optimize_m3u.py
 
@@ -218,6 +219,6 @@ jobs:
         if git diff --staged --quiet; then
           echo "Không phát hiện thay đổi."
         else
-          git commit -m "Auto-update & Khắc phục lệch tvg-id từ nhiều nguồn raw"
+          git commit -m "Auto-update & Fix cứng ép ưu tiên Logo VNEPG"
           git push
         fi
