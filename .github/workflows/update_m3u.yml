@@ -16,7 +16,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v5
 
-    - name: Fetch VNEPG API with Browser Simulation & Backup Fallback
+    - name: Fetch VNEPG API with Smart XML Fallback
       run: |
         cat << 'EOF' > get_vnepg.py
         import urllib.request
@@ -24,52 +24,78 @@ jobs:
         import ssl
         import os
         import shutil
+        import xml.etree.ElementTree as ET
 
         api_url = "https://vnepg.site/api/channels"
+        xml_url = "https://vnepg.site/epg.xml"
         raw_file = "vnepg_raw.json"
         backup_file = "vnepg_backup.json"
 
-        print("Đang giả lập trình duyệt Chrome để kết nối trực tiếp VNEPG API...")
-        
-        # Cấu hình chuỗi Headers siêu thực giống như một trình duyệt Windows thực thụ
+        ctx = ssl._create_unverified_context()
+        success = False
+
+        # LỚP ĐỀ KHÁNG 1: Thử gọi API trực tiếp (Giả lập Chrome)
+        print("Lớp 1: Đang kết nối trực tiếp VNEPG API...")
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
             "Accept": "application/json, text/plain, */*",
-            "Accept-Language": "vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7",
-            "Referer": "https://vnepg.site/",
-            "Origin": "https://vnepg.site",
-            "Cache-Control": "no-cache"
+            "Referer": "https://vnepg.site/"
         }
-        
-        ctx = ssl._create_unverified_context()
         req = urllib.request.Request(api_url, headers=headers)
-        success = False
-
+        
         try:
             with urllib.request.urlopen(req, context=ctx, timeout=15) as response:
                 data = json.loads(response.read().decode("utf-8"))
                 if "channels" in data and len(data["channels"]) > 0:
-                    # Ghi ra file chạy hiện tại
                     with open(raw_file, "w", encoding="utf-8") as f:
                         json.dump(data, f, ensure_ascii=False, indent=4)
-                    # Ghi đè cập nhật vào file backup để lưu lại cho các lần sau
                     with open(backup_file, "w", encoding="utf-8") as f:
                         json.dump(data, f, ensure_ascii=False, indent=4)
-                    print(f" CẬP NHẬT THÀNH CÔNG! Đã lưu mới {len(data['channels'])} kênh vào file hệ thống và file backup.")
+                    print(f" -> THÀNH CÔNG: Tải trực tiếp API! Lấy được {len(data['channels'])} kênh kèm Logo.")
                     success = True
         except Exception as e:
-            print(f" KHÔNG THỂ KẾT NỐI API TRỰC TIẾP ({e}). Thắt nút cổ chai do chặn IP Datacenter.")
+            print(f" -> Thất bại: API bị chặn chặn hoặc lỗi ({e}).")
 
-        # NẾU BỊ CHẶN (403...) -> KÍCH HOẠT HỆ THỐNG DỰ PHÒNG LOCAL BẤT TỬ
+        # LỚP ĐỀ KHÁNG 2: Nếu API tạch, tìm file Backup cũ trong Repo
         if not success:
-            print(" -> Kích hoạt cơ chế ĐỒNG BỘ DỰ PHÒNG TỪ REPO...")
+            print("Lớp 2: Đang tìm kiếm file sao lưu [vnepg_backup.json] trên Repo...")
             if os.path.exists(backup_file):
-                print(" CHÚC MỪNG: Đã tìm thấy file [vnepg_backup.json] cũ từ lần chạy trước. Khôi phục dữ liệu thành công!")
                 shutil.copy(backup_file, raw_file)
+                print(" -> THÀNH CÔNG: Đã khôi phục toàn bộ danh mục và logo từ file Backup!")
+                success = True
             else:
-                print(" CẢNH BÁO: Không có sẵn file backup trong kho lưu trữ. Khởi tạo dữ liệu trống để tránh treo lỗi.")
-                with open(raw_file, "w", encoding="utf-8") as f:
-                    json.dump({"channels": []}, f)
+                print(" -> Thất bại: Không tìm thấy file Backup (Lần đầu chạy workflow).")
+
+        # LỚP ĐỀ KHÁNG 3: Nếu chưa có backup, tự động cứu cánh bằng cấu trúc epg.xml
+        if not success:
+            print("Lớp 3: Kích hoạt chế độ khẩn cấp - Cào khung kênh từ epg.xml...")
+            req_xml = urllib.request.Request(xml_url, headers={"User-Agent": "TiviMate/4.7.0"})
+            try:
+                with urllib.request.urlopen(req_xml, context=ctx, timeout=25) as response:
+                    xml_data = response.read()
+                
+                root = ET.fromstring(xml_data)
+                channels_list = []
+                for channel in root.findall('channel'):
+                    ch_id = channel.get('id', '').strip()
+                    display_elem = channel.find('display-name')
+                    ch_name = display_elem.text.strip() if display_elem is not None and display_elem.text else ""
+                    if ch_id and ch_name:
+                        channels_list.append({"id": ch_id, "name": ch_name, "logo": ""})
+                
+                if channels_list:
+                    with open(raw_file, "w", encoding="utf-8") as f:
+                        json.dump({"channels": channels_list}, f, ensure_ascii=False, indent=4)
+                    print(f" -> THÀNH CÔNG: Đã dựng tạm bộ khung {len(channels_list)} kênh từ XML (Không logo).")
+                    success = True
+            except Exception as e:
+                print(f" -> Thất bại: Không thể đọc cấu trúc XML ({e}).")
+
+        # ĐƯỜNG CÙNG
+        if not success:
+            print("Hệ thống sập toàn tập. Khởi tạo dữ liệu rỗng.")
+            with open(raw_file, "w", encoding="utf-8") as f:
+                json.dump({"channels": []}, f)
         EOF
         python3 get_vnepg.py
 
@@ -107,7 +133,7 @@ jobs:
             name = RE_CLEAN_NAME.sub('', raw_name.lower())
             return RE_NON_ALPHANUM.sub('', name).strip()
 
-        # 1. ĐỌC DỮ LIỆU JSON TỪ FILE TẠM (HOẶC TỪ FILE BACKUP VỪA ĐƯỢC CỨU)
+        # 1. ĐỌC DỮ LIỆU TỪ FILE TIẾP NHẬN BẢO VỆ
         if os.path.exists("vnepg_raw.json"):
             try:
                 with open("vnepg_raw.json", "r", encoding="utf-8") as f:
@@ -117,11 +143,11 @@ jobs:
                         ch_name = str(ch.get("name", "")).strip()
                         ch_logo = str(ch.get("logo", "")).strip()
                         if ch_id and ch_name:
-                            channels[ch_name] = {"tvg-id": ch_id, "group-title": "Truyền Hỏi", "tvg-logo": ch_logo, "urls": []}
-                            vnepg_id_to_logo[ch_id] = ch_logo
+                            channels[ch_name] = {"tvg-id": ch_id, "group-title": "Truyền Hình", "tvg-logo": ch_logo, "urls": []}
+                            if ch_logo: vnepg_id_to_logo[ch_id] = ch_logo
                             id_to_name_map[clean_tvg_id(ch_id)] = ch_name
                             name_to_id_map[clean_channel_name(ch_name)] = ch_id
-                print(f"Đã dựng thành công bộ khung {len(channels)} kênh từ danh mục VNEPG.")
+                print(f"Đã dựng thành công bộ khung {len(channels)} kênh từ dữ liệu tiếp nhận.")
             except Exception:
                 print("Chạy chế độ gộp thô danh sách.")
 
@@ -222,12 +248,12 @@ jobs:
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
         
-        # Thêm cả file backup vào danh sách theo dõi của git để lưu lại vĩnh viễn trên Repo
-        git add "listtivi.m3u" "vnepg_backup.json"
+        # Đưa cả file backup (nếu có phát sinh mới) vào git quản lý
+        git add "listtivi.m3u" "vnepg_backup.json" || true
         
         if git diff --staged --quiet; then
-          echo "Không phát hiện thay đổi nào."
+          echo "Không phát hiện thay đổi."
         else
-          git commit -m "Auto-update & Đồng bộ hệ thống sao lưu dự phòng API"
+          git commit -m "Auto-update & Kích hoạt lá chắn XML Fallback"
           git push
         fi
