@@ -16,11 +16,6 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v5
 
-    - name: Install ffmpeg (ffprobe)
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y ffmpeg
-
     - name: Fetch VNEPG API via Vietnam Proxy
       run: |
         cat << 'EOF' > get_vnepg.py
@@ -98,7 +93,6 @@ jobs:
         name_to_id_map = {}      
         vnepg_id_to_logo = {}    
 
-        # Tối ưu: Compile trước Regex để tăng tốc độ xử lý chuỗi
         RE_CLEAN_NAME = re.compile(r'\s*[\(\[][^\]\)]*[\)\]]')
         RE_NON_ALPHANUM = re.compile(r'[^a-z0-9]')
         RE_TVG_ID = re.compile(r'tvg-id="([^"]*)"')
@@ -115,27 +109,30 @@ jobs:
             name = RE_CLEAN_NAME.sub('', raw_name.lower())
             return RE_NON_ALPHANUM.sub('', name).strip()
 
-        # TỐI ƯU HÀM CHECK LIVE: GIẢ LẬP TIVIMATE / TELEVIZO & TĂNG TỐC FFPROBE
+        # HÀM KIỂM TRA LUỒNG BẰNG cURL - CHÍNH XÁC, NHẸ VÀ KHÔNG BỎ SÓT LINK SỐNG
         def check_stream_live(stream_url):
-            # TiviMate và Televizo chạy trên nền Android đều sử dụng nhân phát ExoPlayer Lib
             user_agent = "Televizo/1.9.7.1 (Linux;Android 11) ExoPlayerLib/2.14.2"
             
             cmd = [
-                'ffprobe', 
-                '-v', 'quiet',                     # Tối ưu: Tắt sạch log thừa của ffmpeg để giải phóng CPU
-                '-nobanner', 
-                '-user_agent', user_agent,         # Giả lập hoàn hảo app IPTV Android
-                '-show_entries', 'format=format_name', 
-                '-of', 'default=noprint_wrappers=1', 
-                '-probesize', '32',                # Tối ưu: Chỉ đọc 32 bytes đầu (đủ nhận diện header luồng phát)
-                '-analyzeduration', '0',           # Tối ưu: Bỏ qua bước phân tích sâu bitrate, codec để check cực nhanh
-                '-timeout', '8000000',             # Chờ kết nối 8 giây (phù hợp mạng quốc tế)
-                '-rw_timeout', '8000000',          # Chờ đọc gói tin 8 giây
+                'curl', 
+                '-I',                              # Chỉ tải Header (gọn nhẹ, siêu tốc)
+                '-s',                              # Tắt màn hình tiến trình của curl
+                '-L',                              # Tự động đi theo nếu link có Redirect (Chuyển hướng)
+                '--connect-timeout', '6',          # Thời gian tối đa để thiết lập kết nối (6 giây)
+                '-m', '10',                         # Thời gian tối đa cho toàn bộ quá trình (10 giây)
+                '-A', user_agent,                  # Giả lập hoàn hảo thiết bị Televizo / TiviMate
                 stream_url
             ]
             try:
-                result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=10)
-                return result.returncode == 0
+                result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=12)
+                output = result.stdout.decode('utf-8', errors='ignore')
+                
+                # Nếu phản hồi chứa mã HTTP 200 OK hoặc các mã chuyển hướng thành công thì coi như luồng sống
+                if "HTTP/" in output:
+                    first_line = output.splitlines()[0]
+                    if any(code in first_line for code in ["200", "301", "302", "307", "308"]):
+                        return True
+                return False
             except Exception:
                 return False
 
@@ -216,7 +213,7 @@ jobs:
                         collected_streams.append((last_key, line_str))
                         used_urls.add(line_str)
 
-        # CHẠY ĐA LUỒNG TỐI ƯU (Độ mượt cao, không làm nghẽn card mạng máy ảo)
+        # KIỂM TRA ĐA LUỒNG BẰNG cURL SONG SONG (Giữ worker ở mức 10 để mượt mạng)
         print(f"Bắt đầu kiểm tra {len(collected_streams)} luồng phát trực tuyến...")
         
         def process_single_stream(item):
@@ -226,7 +223,7 @@ jobs:
             return key, stream_url, False
 
         live_count = 0
-        with ThreadPoolExecutor(max_workers=8) as executor:
+        with ThreadPoolExecutor(max_workers=10) as executor:
             results = executor.map(process_single_stream, collected_streams)
             for key, stream_url, is_live in results:
                 if is_live:
@@ -274,6 +271,6 @@ jobs:
         if git diff --staged --quiet; then
           echo "Không phát hiện thay đổi."
         else
-          git commit -m "Auto-update & Giả lập player IPTV tối ưu tốc độ check"
+          git commit -m "Auto-update & Sửa triệt để bộ lọc luồng qua cURL"
           git push
         fi
