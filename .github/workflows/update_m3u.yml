@@ -16,90 +16,77 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v5
 
-    - name: Fetch VNEPG API via Multi-Gateway Smart Routing
+    - name: Install Advanced Scraping Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install curl_cffi
+
+    - name: Fetch VNEPG API via Advanced Browser Impersonation
       run: |
         cat << 'EOF' > get_vnepg.py
-        import urllib.request
-        import urllib.parse
         import json
-        import ssl
         import os
         import shutil
         import xml.etree.ElementTree as ET
+        from curl_cffi import requests
 
         api_url = "https://vnepg.site/api/channels"
         xml_url = "https://vnepg.site/epg.xml"
         raw_file = "vnepg_raw.json"
         backup_file = "vnepg_backup.json"
 
-        ctx = ssl._create_unverified_context()
         success = False
 
-        # Khởi tạo danh sách các tuyến đường phân phối IP sạch (Bypass Cloudflare)
-        gateways = [
-            {"name": "Kết nối Trực tiếp", "url": api_url},
-            {"name": "CORSProxy IO Gateway", "url": f"https://corsproxy.io/?{api_url}"},
-            {"name": "AllOrigins Open Gateway", "url": f"https://api.allorigins.win/raw?url={urllib.parse.quote(api_url)}"}
-        ]
+        print("Lớp 1: Khởi động siêu giả lập curl_cffi (Nhập vai Chrome 120)...")
+        try:
+            # Giả lập toàn vẹn dấu vân tay TLS JA3/JA4 và HTTP/2 của Chrome thật để Bypass Cloudflare
+            response = requests.get(api_url, impersonate="chrome120", timeout=30)
+            print(f" -> Server phản hồi với Mã trạng thái: {response.status_code}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                if "channels" in data and len(data["channels"]) > 0:
+                    with open(raw_file, "w", encoding="utf-8") as f:
+                        json.dump(data, f, ensure_ascii=False, indent=4)
+                    with open(backup_file, "w", encoding="utf-8") as f:
+                        json.dump(data, f, ensure_ascii=False, indent=4)
+                    print(f" -> TUYỆT VỜI! Đã bypass Cloudflare thành công, lấy được {len(data['channels'])} kênh kèm LOGO.")
+                    success = True
+            else:
+                print(" -> Thất bại: Cloudflare trả về trang thách đố hoặc chặn IP cứng.")
+        except Exception as e:
+            print(f" -> Lỗi trong quá trình giả lập trình duyệt: {e}")
 
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
-            "Accept": "application/json, text/plain, */*"
-        }
-
-        # VÒNG LẶP THỬ CÁC TUYẾN ĐƯỜNG PHÂN PHỐI
-        for gw in gateways:
-            print(f"Đang thử nghiệm tuyến: [{gw['name']}]...")
-            try:
-                req = urllib.request.Request(gw['url'], headers=headers)
-                # Tăng timeout lên 20 giây để chờ các cổng trung gian phản hồi
-                with urllib.request.urlopen(req, context=ctx, timeout=20) as response:
-                    res_content = response.read().decode("utf-8")
-                    data = json.loads(res_content)
-                    
-                    if "channels" in data and len(data["channels"]) > 0:
-                        with open(raw_file, "w", encoding="utf-8") as f:
-                            json.dump(data, f, ensure_ascii=False, indent=4)
-                        with open(backup_file, "w", encoding="utf-8") as f:
-                            json.dump(data, f, ensure_ascii=False, indent=4)
-                        print(f" -> THÀNH CÔNG RỰC RỠ! Tuyến [{gw['name']}] đã vượt rào, lấy được {len(data['channels'])} kênh kèm LOGO.")
-                        success = True
-                        break
-            except Exception as e:
-                print(f" -> Tuyến [{gw['name']}] thất bại hoặc bị chặn: {e}")
-
-        # BIỆN PHÁP DỰ PHÒNG LỚP 2: Nếu tất cả các cổng trung gian đều tạch, dùng Backup cũ
+        # LỚP ĐỀ KHÁNG 2: Nếu giả lập lỗi (Do nghẽn mạng), tìm file Backup cũ trong Repo
         if not success:
-            print("Đang tìm kiếm file sao lưu lịch sử [vnepg_backup.json] trên Repo...")
+            print("Lớp 2: Đang tìm kiếm file sao lưu lịch sử [vnepg_backup.json] trên Repo...")
             if os.path.exists(backup_file):
                 shutil.copy(backup_file, raw_file)
                 print(" -> THÀNH CÔNG: Đã khôi phục toàn bộ danh mục và logo từ file Backup!")
                 success = True
             else:
-                print(" -> Thất bại: Không tìm thấy file Backup sẵn có.")
+                print(" -> Thất bại: Không tìm thấy file Backup.")
 
-        # BIỆN PHÁP DỰ PHÒNG LỚP 3: Cứu cánh bằng cấu trúc epg.xml (Chấp nhận tạm thời không logo)
+        # LỚP ĐỀ KHÁNG 3: Cứu cánh bằng cấu trúc epg.xml công cộng
         if not success:
-            print("Kích hoạt chế độ khẩn cấp - Cào khung kênh từ cấu trúc epg.xml...")
-            req_xml = urllib.request.Request(xml_url, headers={"User-Agent": "TiviMate/4.7.0"})
+            print("Lớp 3: Kích hoạt chế độ khẩn cấp - Cào khung kênh từ cấu trúc epg.xml...")
             try:
-                with urllib.request.urlopen(req_xml, context=ctx, timeout=25) as response:
-                    xml_data = response.read()
-                
-                root = ET.fromstring(xml_data)
-                channels_list = []
-                for channel in root.findall('channel'):
-                    ch_id = channel.get('id', '').strip()
-                    display_elem = channel.find('display-name')
-                    ch_name = display_elem.text.strip() if display_elem is not None and display_elem.text else ""
-                    if ch_id and ch_name:
-                        channels_list.append({"id": ch_id, "name": ch_name, "logo": ""})
-                
-                if channels_list:
-                    with open(raw_file, "w", encoding="utf-8") as f:
-                        json.dump({"channels": channels_list}, f, ensure_ascii=False, indent=4)
-                    print(f" -> THÀNH CÔNG: Đã dựng tạm bộ khung {len(channels_list)} kênh từ XML.")
-                    success = True
+                response_xml = requests.get(xml_url, impersonate="chrome120", timeout=30)
+                if response_xml.status_code == 200:
+                    root = ET.fromstring(response_xml.content)
+                    channels_list = []
+                    for channel in root.findall('channel'):
+                        ch_id = channel.get('id', '').strip()
+                        display_elem = channel.find('display-name')
+                        ch_name = display_elem.text.strip() if display_elem is not None and display_elem.text else ""
+                        if ch_id and ch_name:
+                            channels_list.append({"id": ch_id, "name": ch_name, "logo": ""})
+                    
+                    if channels_list:
+                        with open(raw_file, "w", encoding="utf-8") as f:
+                            json.dump({"channels": channels_list}, f, ensure_ascii=False, indent=4)
+                        print(f" -> THÀNH CÔNG: Đã dựng tạm bộ khung {len(channels_list)} kênh từ XML.")
+                        success = True
             except Exception as e:
                 print(f" -> Thất bại: Không thể đọc cấu trúc XML ({e}).")
 
@@ -259,6 +246,6 @@ jobs:
         if git diff --staged --quiet; then
           echo "Không phát hiện thay đổi."
         else
-          git commit -m "Auto-update & Bypass Cloudflare qua Global CORS Gateways"
+          git commit -m "Auto-update & Đột phá tường lửa bằng Siêu giả lập TLS"
           git push
         fi
