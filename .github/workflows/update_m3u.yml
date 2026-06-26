@@ -98,31 +98,43 @@ jobs:
         name_to_id_map = {}      
         vnepg_id_to_logo = {}    
 
+        # Tối ưu: Compile trước Regex để tăng tốc độ xử lý chuỗi
+        RE_CLEAN_NAME = re.compile(r'\s*[\(\[][^\]\)]*[\)\]]')
+        RE_NON_ALPHANUM = re.compile(r'[^a-z0-9]')
+        RE_TVG_ID = re.compile(r'tvg-id="([^"]*)"')
+        RE_GROUP = re.compile(r'group-title="([^"]*)"')
+        RE_LOGO = re.compile(r'tvg-logo="([^"]*)"')
+
         def clean_tvg_id(raw_id):
             if not raw_id: return ""
-            ch_id = raw_id.lower()
-            ch_id = ch_id.replace(".vn", "").replace("@hd", "").replace("@sd", "").replace("@qhd", "")
-            return re.sub(r'[^a-z0-9]', '', ch_id).strip()
+            ch_id = raw_id.lower().replace(".vn", "").replace("@hd", "").replace("@sd", "").replace("@qhd", "")
+            return RE_NON_ALPHANUM.sub('', ch_id).strip()
 
         def clean_channel_name(raw_name):
             if not raw_name: return ""
-            name = raw_name.lower()
-            name = re.sub(r'\s*[\(\[][^\]\)]*[\)\]]', '', name) 
-            return re.sub(r'[^a-z0-9]', '', name).strip()
+            name = RE_CLEAN_NAME.sub('', raw_name.lower())
+            return RE_NON_ALPHANUM.sub('', name).strip()
 
-        # Hàm kiểm tra luồng IPTV bằng ffprobe (Giới hạn tối đa 4 giây phản hồi)
+        # TỐI ƯU HÀM CHECK LIVE: GIẢ LẬP TIVIMATE / TELEVIZO & TĂNG TỐC FFPROBE
         def check_stream_live(stream_url):
+            # TiviMate và Televizo chạy trên nền Android đều sử dụng nhân phát ExoPlayer Lib
+            user_agent = "Televizo/1.9.7.1 (Linux;Android 11) ExoPlayerLib/2.14.2"
+            
             cmd = [
                 'ffprobe', 
-                '-v', 'error', 
+                '-v', 'quiet',                     # Tối ưu: Tắt sạch log thừa của ffmpeg để giải phóng CPU
+                '-nobanner', 
+                '-user_agent', user_agent,         # Giả lập hoàn hảo app IPTV Android
                 '-show_entries', 'format=format_name', 
                 '-of', 'default=noprint_wrappers=1', 
-                '-timeout', '4000000', # 4,000,000 microseconds = 4 giây
+                '-probesize', '32',                # Tối ưu: Chỉ đọc 32 bytes đầu (đủ nhận diện header luồng phát)
+                '-analyzeduration', '0',           # Tối ưu: Bỏ qua bước phân tích sâu bitrate, codec để check cực nhanh
+                '-timeout', '8000000',             # Chờ kết nối 8 giây (phù hợp mạng quốc tế)
+                '-rw_timeout', '8000000',          # Chờ đọc gói tin 8 giây
                 stream_url
             ]
             try:
-                # Chạy ngầm ffprobe lệnh không sinh rác log
-                result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=5)
+                result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=10)
                 return result.returncode == 0
             except Exception:
                 return False
@@ -146,19 +158,21 @@ jobs:
 
         def parse_attributes(line):
             tvg_id = group_title = tvg_logo = ""
-            id_match = re.search(r'tvg-id="([^"]*)"', line)
-            group_match = re.search(r'group-title="([^"]*)"', line)
-            logo_match = re.search(r'tvg-logo="([^"]*)"', line)
+            id_match = RE_TVG_ID.search(line)
+            group_match = RE_GROUP.search(line)
+            logo_match = RE_LOGO.search(line)
+            
             if id_match: tvg_id = id_match.group(1).strip()
             if group_match: group_title = group_match.group(1).strip()
             if logo_match: tvg_logo = logo_match.group(1).strip()
+            
             raw_name = line.rsplit(",", 1)[1].strip() if "," in line else ""
-            clean_name = re.sub(r'\s*[\(\[][^\]\)]*[\)\]]', '', raw_name)
+            clean_name = RE_CLEAN_NAME.sub('', raw_name)
             return tvg_id, group_title, tvg_logo, " ".join(clean_name.split()).strip()
 
         # 2. ĐỒNG BỘ LUỒNG TỪ CÁC LINK RAW
         used_urls = set()
-        collected_streams = [] # Danh sách lưu tạm: (tên_kênh_key, url_luồng)
+        collected_streams = [] 
         import urllib.request
 
         for url in urls:
@@ -202,8 +216,8 @@ jobs:
                         collected_streams.append((last_key, line_str))
                         used_urls.add(line_str)
 
-        # BỘ LỌC ĐA LUỒNG: Kiểm tra đồng thời 15 luồng phát cùng lúc giúp tiết kiệm thời gian tối đa
-        print(f"Bắt đầu kiểm tra {len(collected_streams)} luồng phát trực tuyến phát hiện được...")
+        # CHẠY ĐA LUỒNG TỐI ƯU (Độ mượt cao, không làm nghẽn card mạng máy ảo)
+        print(f"Bắt đầu kiểm tra {len(collected_streams)} luồng phát trực tuyến...")
         
         def process_single_stream(item):
             key, stream_url = item
@@ -212,21 +226,21 @@ jobs:
             return key, stream_url, False
 
         live_count = 0
-        with ThreadPoolExecutor(max_workers=15) as executor:
+        with ThreadPoolExecutor(max_workers=8) as executor:
             results = executor.map(process_single_stream, collected_streams)
             for key, stream_url, is_live in results:
                 if is_live:
                     channels[key]["urls"].append(stream_url)
                     live_count += 1
 
-        print(f" Hoàn tất kiểm tra! Giữ lại {live_count} luồng đang phát mượt mà.")
+        print(f" Hoàn tất kiểm tra! Giữ lại {live_count} luồng đang hoạt động ổn định.")
 
-        # 3. XUẤT FILE M3U SẠCH VÀ TỐI ƯU TUYỆT ĐỐI
+        # 3. XUẤT FILE M3U
         output_lines = ["#EXTM3U url-tvg=\"https://vnepg.site/epg.xml\""]
 
         for name, info in channels.items():
             urls_list = info["urls"]
-            if not urls_list: continue # Kênh nào luồng die hết -> Bỏ hoàn toàn khỏi file!
+            if not urls_list: continue 
             
             final_logo = info["tvg-logo"]
             current_id = info["tvg-id"]
@@ -248,7 +262,7 @@ jobs:
 
         with open("listtivi.m3u", "w", encoding="utf-8") as f:
             f.write("\n".join(output_lines) + "\n")
-        print(" Đã lọc xong file M3U siêu sạch, không có kênh lỗi!")
+        print(" Xuất danh sách M3U siêu chuẩn thành công!")
         EOF
         python3 optimize_m3u.py
 
@@ -260,6 +274,6 @@ jobs:
         if git diff --staged --quiet; then
           echo "Không phát hiện thay đổi."
         else
-          git commit -m "Auto-update & Lọc bỏ 100% luồng IPTV chết"
+          git commit -m "Auto-update & Giả lập player IPTV tối ưu tốc độ check"
           git push
         fi
