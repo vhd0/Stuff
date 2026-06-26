@@ -14,38 +14,40 @@ jobs:
     - name: Process and Merge M3U
       run: |
         cat << 'EOF' > optimize_m3u.py
-        import re, urllib.request
+        import re, json, urllib.request
         from collections import OrderedDict
 
-        # HÀM PHÂN NHÓM CHUYÊN NGHIỆP
-        def get_group_and_name(raw_name):
-            n = raw_name.lower()
-            clean = re.sub(r'\(.*?\)|\[.*?\]', '', raw_name).strip()
-            
-            # Nhóm Đặc biệt
-            if any(x in n for x in ["an ninh", "antv", "quốc phòng", "qpvn"]):
-                return clean, "Kênh Đặc Biệt"
-            
-            # Nhóm VTV (Bao gồm các kênh con)
-            if "vtv" in n:
-                return clean, "VTV"
-                
-            # Nhóm HTV
-            if "htv" in n:
-                return clean, "HTV"
-                
-            # Nhóm SCTV
-            if "sctv" in n:
-                return clean, "SCTV"
-            
-            # Nhóm Radio
-            if any(x in n for x in ["fm", "vov", "radio", "xone"]):
-                return clean, "Radio & FM"
-            
-            # Mặc định là Địa Phương
-            return clean, "Địa Phương"
+        # 1. NẠP DỮ LIỆU TỪ VN EPG BACKUP
+        registry = {}
+        try:
+            with open("vnepg_backup.json", "r", encoding="utf-8") as f:
+                data = json.load(f)
+                for ch in data:
+                    key = re.sub(r'[^a-z0-9]', '', ch["name"].lower())
+                    registry[key] = ch
+        except Exception as e:
+            print(f"Lỗi nạp JSON: {e}")
 
-        # CẤU HÌNH ĐA NGUỒN
+        def get_channel_info(raw_name):
+            n = raw_name.lower()
+            key = re.sub(r'[^a-z0-9]', '', n)
+            
+            # Ưu tiên lấy chuẩn từ JSON
+            if key in registry:
+                ch = registry[key]
+                # Sử dụng trường 'id' làm 'group' nếu muốn hoặc mặc định là 'Kênh TV'
+                return ch["name"], "Kênh TV", ch.get("id", ""), ch.get("logo", "")
+            
+            # Xử lý fallback nếu không nằm trong JSON
+            clean = re.sub(r'\(.*?\)|\[.*?\]', '', raw_name).strip()
+            group = "Khác"
+            if "vtv" in n: group = "VTV"
+            elif "htv" in n: group = "HTV"
+            elif "sctv" in n: group = "SCTV"
+            elif any(x in n for x in ["antv", "an ninh", "qpvn", "quốc phòng"]): group = "Kênh Đặc Biệt"
+            return clean, group, "", ""
+
+        # 2. XỬ LÝ ĐA NGUỒN (Đã cập nhật đầy đủ link của bạn)
         urls = [
             "https://raw.githubusercontent.com/DinhLap96/ListTivi/refs/heads/main/ListTiVi/dltivi_v2.ndl",
             "https://raw.githubusercontent.com/iptv-org/iptv/refs/heads/master/streams/vn.m3u"
@@ -54,28 +56,30 @@ jobs:
         channels = OrderedDict()
         for url in urls:
             try:
+                # Thêm User-Agent để tránh bị chặn
                 req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
                 content = urllib.request.urlopen(req, timeout=15).read().decode("utf-8-sig")
-                
-                # Regex tách block EXTINF và URL chính xác
-                pattern = re.compile(r'#EXTINF:.*?,(.*?)\n(https?://.*?\.m3u8?)', re.IGNORECASE)
-                matches = pattern.findall(content)
-                
-                for raw_name, url_link in matches:
-                    name, group = get_group_and_name(raw_name)
-                    if name not in channels:
-                        channels[name] = {"group": group, "urls": []}
-                    if url_link not in channels[name]["urls"]:
-                        channels[name]["urls"].append(url_link)
-            except: continue
+                matches = re.findall(r'#EXTINF:.*?,(.*?)\n(https?://.*?\.m3u8?)', content)
+                for name, link in matches:
+                    c_name, group, tvg_id, logo = get_channel_info(name)
+                    if c_name not in channels:
+                        channels[c_name] = {"group": group, "id": tvg_id, "logo": logo, "urls": []}
+                    if link not in channels[c_name]["urls"]:
+                        channels[c_name]["urls"].append(link)
+            except Exception as e:
+                print(f"Lỗi khi đọc nguồn {url}: {e}")
 
-        # GHI FILE
+        # 3. GHI FILE M3U
         with open("listtivi.m3u", "w", encoding="utf-8") as f:
             f.write("#EXTM3U\n")
             for name, data in channels.items():
+                tvg = ""
+                if data["id"]: tvg += f' tvg-id="{data["id"]}"'
+                if data["logo"]: tvg += f' tvg-logo="{data["logo"]}"'
+                
                 for i, url in enumerate(data["urls"]):
                     suffix = f" [Dự phòng {i}]" if i > 0 else ""
-                    f.write(f'#EXTINF:-1 group-title="{data["group"]}",{name}{suffix}\n{url}\n')
+                    f.write(f'#EXTINF:-1{tvg} group-title="{data["group"]}",{name}{suffix}\n{url}\n')
         EOF
         python3 optimize_m3u.py
 
@@ -84,5 +88,5 @@ jobs:
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
         git add "listtivi.m3u"
-        git commit -m "Update: Phân nhóm đặc biệt và đồng bộ nhóm VTV" || echo "No changes"
+        git commit -m "Auto-update: Merge raw data with JSON EPG" || echo "No changes"
         git push
