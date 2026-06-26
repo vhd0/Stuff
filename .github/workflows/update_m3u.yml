@@ -16,9 +16,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v5
 
-    - name: Fetch VNEPG API with Smart Residential Proxy & Fallback
-      env:
-        SCRAPER_API_KEY: ${{ secrets.SCRAPER_API_KEY }}
+    - name: Fetch VNEPG API via Multi-Gateway Smart Routing
       run: |
         cat << 'EOF' > get_vnepg.py
         import urllib.request
@@ -36,44 +34,53 @@ jobs:
 
         ctx = ssl._create_unverified_context()
         success = False
-        scraper_key = os.environ.get("SCRAPER_API_KEY")
 
-        # LỚP ĐỀ KHÁNG 1: Fake IP dân dụng qua ScraperAPI để Bypass Cloudflare
-        if scraper_key:
-            print("Lớp 1: Đang Fake IP qua ScraperAPI dân dụng để cào API...")
-            encoded_url = urllib.parse.quote(api_url)
-            # Yêu cầu ScraperAPI giả lập trình duyệt và bật chế độ bypass anti-bot nâng cao
-            proxy_url = f"http://api.scraperapi.com?api_key={scraper_key}&url={encoded_url}&render=false"
-            
+        # Khởi tạo danh sách các tuyến đường phân phối IP sạch (Bypass Cloudflare)
+        gateways = [
+            {"name": "Kết nối Trực tiếp", "url": api_url},
+            {"name": "CORSProxy IO Gateway", "url": f"https://corsproxy.io/?{api_url}"},
+            {"name": "AllOrigins Open Gateway", "url": f"https://api.allorigins.win/raw?url={urllib.parse.quote(api_url)}"}
+        ]
+
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+            "Accept": "application/json, text/plain, */*"
+        }
+
+        # VÒNG LẶP THỬ CÁC TUYẾN ĐƯỜNG PHÂN PHỐI
+        for gw in gateways:
+            print(f"Đang thử nghiệm tuyến: [{gw['name']}]...")
             try:
-                req = urllib.request.Request(proxy_url)
-                with urllib.request.urlopen(req, context=ctx, timeout=30) as response:
-                    data = json.loads(response.read().decode("utf-8"))
+                req = urllib.request.Request(gw['url'], headers=headers)
+                # Tăng timeout lên 20 giây để chờ các cổng trung gian phản hồi
+                with urllib.request.urlopen(req, context=ctx, timeout=20) as response:
+                    res_content = response.read().decode("utf-8")
+                    data = json.loads(res_content)
+                    
                     if "channels" in data and len(data["channels"]) > 0:
                         with open(raw_file, "w", encoding="utf-8") as f:
                             json.dump(data, f, ensure_ascii=False, indent=4)
                         with open(backup_file, "w", encoding="utf-8") as f:
                             json.dump(data, f, ensure_ascii=False, indent=4)
-                        print(f" -> XUẤT SẮC! Fake IP thành công. Đã lấy {len(data['channels'])} kênh kèm LOGO gốc.")
+                        print(f" -> THÀNH CÔNG RỰC RỠ! Tuyến [{gw['name']}] đã vượt rào, lấy được {len(data['channels'])} kênh kèm LOGO.")
                         success = True
+                        break
             except Exception as e:
-                print(f" -> Thất bại: Proxy lỗi hoặc hết dung lượng miễn phí ({e}).")
-        else:
-            print("Lớp 1: Bỏ qua (Chưa cấu hình SCRAPER_API_KEY trong GitHub Secrets).")
+                print(f" -> Tuyến [{gw['name']}] thất bại hoặc bị chặn: {e}")
 
-        # LỚP ĐỀ KHÁNG 2: Nếu Fake IP lỗi, tìm file Backup cũ trong Repo
+        # BIỆN PHÁP DỰ PHÒNG LỚP 2: Nếu tất cả các cổng trung gian đều tạch, dùng Backup cũ
         if not success:
-            print("Lớp 2: Đang tìm kiếm file sao lưu [vnepg_backup.json] trên Repo...")
+            print("Đang tìm kiếm file sao lưu lịch sử [vnepg_backup.json] trên Repo...")
             if os.path.exists(backup_file):
                 shutil.copy(backup_file, raw_file)
-                print(" -> THÀNH CÔNG: Đã khôi phục danh mục và logo từ file Backup!")
+                print(" -> THÀNH CÔNG: Đã khôi phục toàn bộ danh mục và logo từ file Backup!")
                 success = True
             else:
-                print(" -> Thất bại: Không tìm thấy file Backup.")
+                print(" -> Thất bại: Không tìm thấy file Backup sẵn có.")
 
-        # LỚP ĐỀ KHÁNG 3: Tự động cứu cánh bằng cấu trúc epg.xml công cộng
+        # BIỆN PHÁP DỰ PHÒNG LỚP 3: Cứu cánh bằng cấu trúc epg.xml (Chấp nhận tạm thời không logo)
         if not success:
-            print("Lớp 3: Kích hoạt chế độ khẩn cấp - Cào khung kênh từ epg.xml...")
+            print("Kích hoạt chế độ khẩn cấp - Cào khung kênh từ cấu trúc epg.xml...")
             req_xml = urllib.request.Request(xml_url, headers={"User-Agent": "TiviMate/4.7.0"})
             try:
                 with urllib.request.urlopen(req_xml, context=ctx, timeout=25) as response:
@@ -252,6 +259,6 @@ jobs:
         if git diff --staged --quiet; then
           echo "Không phát hiện thay đổi."
         else
-          git commit -m "Auto-update & Vượt rào Cloudflare bằng Fake IP dân dụng"
+          git commit -m "Auto-update & Bypass Cloudflare qua Global CORS Gateways"
           git push
         fi
