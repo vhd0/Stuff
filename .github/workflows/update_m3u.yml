@@ -154,21 +154,26 @@ jobs:
             "Vĩnh Long Radio": ["vĩnh long radio", "vinhlongradio"]
         }
 
+        # ĐỊNH NGHĨA THỨ TỰ ƯU TIÊN CÁC NHÓM XUẤT FILE
+        GROUP_ORDER = ["VTV", "HTV", "SCTV", "Kênh Đặc Biệt", "Địa Phương", "Radio"]
+
         # 1. NẠP MAPPING TỪ FILE BACKUP JSON CỦA BẠN
         registry = {}
         try:
             with open("vnepg_backup.json", "r", encoding="utf-8") as f:
                 raw_data = json.load(f)
                 for ch in raw_data.get("channels", []):
-                    # Khóa registry bằng chính ID của kênh trong JSON để đồng bộ chuẩn xác
                     registry[ch.get("id")] = ch
         except Exception as e:
             print(f"Lỗi nạp JSON: {e}")
 
         # Hàm đưa tên thô về Tên Chuẩn dựa trên CHANNEL_MAP
         def get_canonical_name(raw_name):
-            # Cắt bỏ mọi từ khóa nhiễu như (1080p), [Geo-blocked], [Not 24/7], khoảng trắng thừa
-            clean = re.sub(r'\(.*?\)|\[.*?\]|\d{3,4}p', '', raw_name, flags=re.IGNORECASE)
+            # Cắt bỏ ngoặc vuông [], ngoặc đơn ()
+            clean = re.sub(r'\(.*?\)|\[.*?\]', '', raw_name)
+            # Cắt bỏ triệt để hậu tố HD, SD, 4K độc lập hoặc viết liền
+            clean = re.sub(r'\b(hd|sd|4k|1080p|720p)\b', '', clean, flags=re.IGNORECASE)
+            clean = re.sub(r'(hd|sd|4k)$', '', clean.strip(), flags=re.IGNORECASE)
             clean = " ".join(clean.split()).strip().lower()
             
             for canonical, variants in CHANNEL_MAP.items():
@@ -185,20 +190,15 @@ jobs:
             if "sctv" in name_lower: return "SCTV"
             if any(x in name_lower for x in ["antv", "an ninh", "qpvn", "quốc phòng"]): return "Kênh Đặc Biệt"
             if any(x in name_lower for x in ["vov", "radio", "fm", "am", "zing", "xone"]): return "Radio"
-            # Nếu ID hoặc tên chứa từ "radio" trong danh sách chuẩn thì cũng là Radio
             if id_json and "radio" in id_json.lower(): return "Radio"
             return "Địa Phương"
 
         # 3. GOM DỮ LIỆU ĐA NGUỒN TẬP TRUNG
-        final_data = OrderedDict()
+        raw_collected = {}
         urls = [
             "https://raw.githubusercontent.com/DinhLap96/ListTivi/refs/heads/main/ListTiVi/dltivi_v2.ndl",
             "https://raw.githubusercontent.com/iptv-org/iptv/refs/heads/master/streams/vn.m3u"
         ]
-
-        # Khởi tạo trước các kênh chuẩn từ CHANNEL_MAP để giữ đúng thứ tự ưu tiên khi xuất file
-        for canonical in CHANNEL_MAP.keys():
-            final_data[canonical] = {"group": "", "id": "", "logo": "", "urls": []}
 
         for url in urls:
             try:
@@ -208,7 +208,7 @@ jobs:
                 for raw_name, link in matches:
                     name = get_canonical_name(raw_name)
                     
-                    # Tìm ID dựa theo Tên Chuẩn để mapping dữ liệu chuẩn từ Registry
+                    # Tìm ID dựa theo Tên Chuẩn để mapping dữ liệu từ Registry
                     tvg_id, logo = "", ""
                     for ch_id, ch_obj in registry.items():
                         if ch_obj.get("name").lower() == name.lower():
@@ -218,25 +218,35 @@ jobs:
                     
                     group = get_group(name, tvg_id)
                     
-                    if name not in final_data:
-                        final_data[name] = {"group": group, "id": tvg_id, "logo": logo, "urls": []}
-                    else:
-                        # Điền thông tin meta nếu kênh đã được khởi tạo trước
-                        if not final_data[name]["group"]: final_data[name]["group"] = group
-                        if not final_data[name]["id"]: final_data[name]["id"] = tvg_id
-                        if not final_data[name]["logo"]: final_data[name]["logo"] = logo
+                    if name not in raw_collected:
+                        raw_collected[name] = {"group": group, "id": tvg_id, "logo": logo, "urls": []}
                     
-                    if link not in final_data[name]["urls"]:
-                        final_data[name]["urls"].append(link)
+                    if link not in raw_collected[name]["urls"]:
+                        raw_collected[name]["urls"].append(link)
             except Exception as e:
-                print(f"Lỗi khi xử lý nguồn {url}: {e}")
+                print(f"Lỗi xử lý nguồn {url}: {e}")
                 continue
 
-        # 4. XUẤT FILE M3U HOÀN CHỈNH
+        # SẮP XẾP TOÀN BỘ KÊNH TUẦN TỰ THEO NHÓM VÀ TÊN ALPHABET
+        final_data = OrderedDict()
+        for g in GROUP_ORDER:
+            # Lọc ra các kênh thuộc nhóm g và sắp xếp tên kênh theo thứ tự chữ cái (A-Z)
+            sorted_channels_in_group = sorted(
+                [k for k, v in raw_collected.items() if v["group"] == g],
+                key=lambda s: [int(t) if t.isdigit() else t.lower() for t in re.split(r'(\d+)', s)]
+            )
+            for ch_name in sorted_channels_in_group:
+                final_data[ch_name] = raw_collected[ch_name]
+
+        # Xử lý nốt các kênh không nằm trong GROUP_ORDER định nghĩa trước (nếu có)
+        remains = sorted([k for k, v in raw_collected.items() if v["group"] not in GROUP_ORDER])
+        for ch_name in remains:
+            final_data[ch_name] = raw_collected[ch_name]
+
+        # 4. XUẤT FILE M3U HOÀN CHỈNH VỚI THỨ TỰ TUẦN TỰ
         with open("listtivi.m3u", "w", encoding="utf-8") as f:
             f.write('#EXTM3U url-tvg="https://vnepg.site/epg.xml.gz"\n')
             for name, data in final_data.items():
-                # Bỏ qua các kênh rỗng không thu thập được luồng nào từ 2 raw link
                 if not data["urls"]: continue
                 
                 tvg = ""
@@ -246,11 +256,12 @@ jobs:
                 for idx, url in enumerate(data["urls"]):
                     suffix = f" [Dự phòng {idx+1}]" if idx > 0 else ""
                     f.write(f'#EXTINF:-1{tvg} group-title="{data["group"]}",{name}{suffix}\n{url}\n')
+        print("Đã đồng bộ hóa và sắp xếp tuần tự thành công!")
         EOF
         python3 optimize_m3u.py
         
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
         git add "listtivi.m3u"
-        git commit -m "Update: Optimize grouping, preserve EPG and map exact channel names" || echo "No changes"
+        git commit -m "Update: Standardize HD/SD channels, sort groups and clean duplicates sequential" || echo "No changes"
         git push
