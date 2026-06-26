@@ -16,6 +16,11 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v5
 
+    - name: Install ffmpeg (ffprobe)
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ffmpeg
+
     - name: Fetch VNEPG API via Vietnam Proxy
       run: |
         cat << 'EOF' > get_vnepg.py
@@ -24,11 +29,9 @@ jobs:
         import re
         import os
 
-        # 1. LẤY DANH SÁCH PROXY VIỆT NAM MỚI NHẤT TRÊN MẠNG
         print("Đang tìm kiếm Proxy Việt Nam hoạt động...")
         proxy_list = []
         try:
-            # Lấy danh sách proxy miễn phí từ nguồn uy tín công cộng
             req = urllib.request.Request("https://api.proxyscrape.com/v2/?request=displayproxies&protocol=http&timeout=10000&country=VN&ssl=all&anonymity=all", headers={"User-Agent": "Mozilla/5.0"})
             with urllib.request.urlopen(req, timeout=10) as response:
                 proxies = response.read().decode("utf-8").strip().splitlines()
@@ -37,14 +40,12 @@ jobs:
         except Exception as e:
             print(f"Không thể lấy danh sách proxy tự động ({e}).")
 
-        # Thêm một vài proxy dự phòng cố định nếu lấy tự động thất bại
         proxy_list.extend([
             "103.199.161.4:80",
             "14.226.54.3:8080",
             "113.160.222.115:80"
         ])
 
-        # 2. THỬ TẢI FILE QUA TỪNG PROXY CHO ĐẾN KHI THÀNH CÔNG
         success = False
         api_url = "https://vnepg.site/api/channels"
         
@@ -53,14 +54,11 @@ jobs:
             try:
                 proxy_support = urllib.request.ProxyHandler({'http': proxy, 'https': proxy})
                 opener = urllib.request.build_opener(proxy_support)
-                
-                # Cấu hình đầy đủ Header trình duyệt Việt Nam
                 opener.addheaders = [
                     ("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"),
                     ("Accept", "application/json, text/plain, */*"),
                     ("Accept-Language", "vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7")
                 ]
-                
                 with opener.open(api_url, timeout=7) as response:
                     data = json.loads(response.read().decode("utf-8"))
                     if "channels" in data:
@@ -70,23 +68,25 @@ jobs:
                         success = True
                         break
             except Exception as e:
-                print(f" -> Proxy {proxy} không phản hồi hoặc bị từ chối ({e}). Thử proxy khác...")
+                print(f" -> Proxy {proxy} lỗi. Thử proxy khác...")
                 continue
 
         if not success:
-            print(" CẢNH BÁO: Tất cả Proxy VN đều thất bại hoặc chặn kết nối. Khởi tạo file rỗng.")
+            print(" CẢNH BÁO: Thất bại. Khởi tạo file rỗng.")
             with open("vnepg_raw.json", "w", encoding="utf-8") as f:
                 json.dump({"channels": []}, f)
         EOF
         python3 get_vnepg.py
 
-    - name: Process and Fully Optimize M3U
+    - name: Process, Check Live Streams and Fully Optimize M3U
       run: |
         cat << 'EOF' > optimize_m3u.py
         import re
         import json
         import os
+        import subprocess
         from collections import OrderedDict
+        from concurrent.futures import ThreadPoolExecutor
 
         urls = [
             "https://raw.githubusercontent.com/DinhLap96/ListTivi/refs/heads/main/ListTiVi/dltivi_v2.ndl",
@@ -99,95 +99,75 @@ jobs:
         vnepg_id_to_logo = {}    
 
         def clean_tvg_id(raw_id):
-            if not raw_id:
-                return ""
+            if not raw_id: return ""
             ch_id = raw_id.lower()
             ch_id = ch_id.replace(".vn", "").replace("@hd", "").replace("@sd", "").replace("@qhd", "")
-            ch_id = re.sub(r'[^a-z0-9]', '', ch_id) 
-            return ch_id.strip()
+            return re.sub(r'[^a-z0-9]', '', ch_id).strip()
 
         def clean_channel_name(raw_name):
-            if not raw_name:
-                return ""
+            if not raw_name: return ""
             name = raw_name.lower()
             name = re.sub(r'\s*[\(\[][^\]\)]*[\)\]]', '', name) 
-            name = re.sub(r'[^a-z0-9]', '', name) 
-            return name.strip()
+            return re.sub(r'[^a-z0-9]', '', name).strip()
 
-        # 1. ĐỌC FILE TẠM ĐÃ ĐƯỢC CÚP VỀ BẰNG PROXY
-        print("Đang xử lý dữ liệu từ file tạm VNEPG...")
+        # Hàm kiểm tra luồng IPTV bằng ffprobe (Giới hạn tối đa 4 giây phản hồi)
+        def check_stream_live(stream_url):
+            cmd = [
+                'ffprobe', 
+                '-v', 'error', 
+                '-show_entries', 'format=format_name', 
+                '-of', 'default=noprint_wrappers=1', 
+                '-timeout', '4000000', # 4,000,000 microseconds = 4 giây
+                stream_url
+            ]
+            try:
+                # Chạy ngầm ffprobe lệnh không sinh rác log
+                result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=5)
+                return result.returncode == 0
+            except Exception:
+                return False
+
+        # 1. ĐỌC FILE TẠM VNEPG
         if os.path.exists("vnepg_raw.json"):
             try:
                 with open("vnepg_raw.json", "r", encoding="utf-8") as f:
                     raw_data = json.load(f)
-                    epg_channels = raw_data.get("channels", [])
-                    
-                    for ch in epg_channels:
+                    for ch in raw_data.get("channels", []):
                         ch_id = str(ch.get("id", "")).strip()
                         ch_name = str(ch.get("name", "")).strip()
                         ch_logo = str(ch.get("logo", "")).strip()
-                        
                         if ch_id and ch_name:
-                            key = ch_name 
-                            channels[key] = {
-                                "tvg-id": ch_id, 
-                                "group-title": "Truyền Hình", 
-                                "tvg-logo": ch_logo,
-                                "urls": []
-                            }
-                            
+                            channels[ch_name] = {"tvg-id": ch_id, "group-title": "Truyền Hình", "tvg-logo": ch_logo, "urls": []}
                             vnepg_id_to_logo[ch_id] = ch_logo
-                            
-                            norm_id = clean_tvg_id(ch_id)
-                            norm_name = clean_channel_name(ch_name)
-                            
-                            if norm_id:
-                                id_to_name_map[norm_id] = ch_name
-                            if norm_name:
-                                name_to_id_map[norm_name] = ch_id
-                                
-                print(f" Đã trích lọc thành công {len(channels)} kênh gốc từ file tạm VNEPG.")
-            except Exception as e:
-                print(f" File tạm rỗng ({e}). Chuyển sang gộp thô các list raw.")
-        else:
-            print(" Không tìm thấy file tạm vnepg_raw.json!")
+                            id_to_name_map[clean_tvg_id(ch_id)] = ch_name
+                            name_to_id_map[clean_channel_name(ch_name)] = ch_id
+            except Exception:
+                pass
 
-        # Hàm bóc tách thuộc tính từ dòng text M3U/NDL raw
         def parse_attributes(line):
-            tvg_id = ""
-            group_title = ""
-            tvg_logo = ""
-            
+            tvg_id = group_title = tvg_logo = ""
             id_match = re.search(r'tvg-id="([^"]*)"', line)
             group_match = re.search(r'group-title="([^"]*)"', line)
             logo_match = re.search(r'tvg-logo="([^"]*)"', line)
-            
             if id_match: tvg_id = id_match.group(1).strip()
             if group_match: group_title = group_match.group(1).strip()
             if logo_match: tvg_logo = logo_match.group(1).strip()
-            
-            raw_name = ""
-            if "," in line:
-                raw_name = line.rsplit(",", 1)[1].strip()
-            
+            raw_name = line.rsplit(",", 1)[1].strip() if "," in line else ""
             clean_name = re.sub(r'\s*[\(\[][^\]\)]*[\)\]]', '', raw_name)
-            clean_name = " ".join(clean_name.split()).strip()
-            
-            return tvg_id, group_title, tvg_logo, clean_name
+            return tvg_id, group_title, tvg_logo, " ".join(clean_name.split()).strip()
 
-        # 2. ĐỒNG BỘ LUỒNG TỪ CÁC FILE RAW (Các file này nằm trên GitHub nên không cần proxy)
+        # 2. ĐỒNG BỘ LUỒNG TỪ CÁC LINK RAW
         used_urls = set()
+        collected_streams = [] # Danh sách lưu tạm: (tên_kênh_key, url_luồng)
         import urllib.request
 
         for url in urls:
-            print(f"Đang đồng bộ luồng từ nguồn: {url}")
+            print(f"Đang phân tích danh sách từ nguồn: {url}")
             req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-            
             try:
                 with urllib.request.urlopen(req) as response:
                     content = response.read().decode("utf-8-sig")
-            except Exception as e:
-                print(f" Lỗi tải nguồn {url}: {e}")
+            except Exception:
                 continue
 
             lines = content.splitlines()
@@ -195,54 +175,58 @@ jobs:
 
             for line in lines:
                 line_str = line.strip()
-                if not line_str or line_str.startswith("#EXTM3U") or line_str.startswith("#PLAYLISTINF"):
-                    continue
+                if not line_str or line_str.startswith("#EXTM3U") or line_str.startswith("#PLAYLISTINF"): continue
                 
                 if line_str.startswith("#EXTINF"):
                     tvg_id, group_title, tvg_logo, clean_name = parse_attributes(line_str)
-                    
                     raw_norm_id = clean_tvg_id(tvg_id)
                     raw_norm_name = clean_channel_name(clean_name)
                     
                     matched_standard_name = None
-                    
                     if raw_norm_id in id_to_name_map:
                         matched_standard_name = id_to_name_map[raw_norm_id]
                     elif raw_norm_name in name_to_id_map:
-                        standard_id = name_to_id_map[raw_norm_name]
-                        matched_standard_name = id_to_name_map.get(clean_tvg_id(standard_id))
+                        matched_standard_name = id_to_name_map.get(clean_tvg_id(name_to_id_map[raw_norm_name]))
 
                     if matched_standard_name:
                         key = matched_standard_name
-                        if group_title and group_title != "Truyền Hình":
-                            channels[key]["group-title"] = group_title
+                        if group_title and group_title != "Truyền Hình": channels[key]["group-title"] = group_title
                     else:
                         key = clean_name if clean_name else (tvg_id if tvg_id else "Kênh Phụ")
                         if key not in channels:
-                            channels[key] = {
-                                "tvg-id": tvg_id,
-                                "group-title": group_title if group_title else "Kênh Phụ",
-                                "tvg-logo": tvg_logo,
-                                "urls": []
-                            }
-                    
+                            channels[key] = {"tvg-id": tvg_id, "group-title": group_title if group_title else "Kênh Phụ", "tvg-logo": tvg_logo, "urls": []}
                     last_key = key
                     
                 elif line_str.startswith("http://") or line_str.startswith("https://"):
-                    if last_key and last_key in channels:
-                        if line_str in used_urls:
-                            continue
-                        if line_str not in channels[last_key]["urls"]:
-                            channels[last_key]["urls"].append(line_str)
-                            used_urls.add(line_str)
+                    if last_key and line_str not in used_urls:
+                        collected_streams.append((last_key, line_str))
+                        used_urls.add(line_str)
 
-        # 3. XUẤT FILE M3U - Ghi đè bắt buộc Logo VNEPG
+        # BỘ LỌC ĐA LUỒNG: Kiểm tra đồng thời 15 luồng phát cùng lúc giúp tiết kiệm thời gian tối đa
+        print(f"Bắt đầu kiểm tra {len(collected_streams)} luồng phát trực tuyến phát hiện được...")
+        
+        def process_single_stream(item):
+            key, stream_url = item
+            if check_stream_live(stream_url):
+                return key, stream_url, True
+            return key, stream_url, False
+
+        live_count = 0
+        with ThreadPoolExecutor(max_workers=15) as executor:
+            results = executor.map(process_single_stream, collected_streams)
+            for key, stream_url, is_live in results:
+                if is_live:
+                    channels[key]["urls"].append(stream_url)
+                    live_count += 1
+
+        print(f" Hoàn tất kiểm tra! Giữ lại {live_count} luồng đang phát mượt mà.")
+
+        # 3. XUẤT FILE M3U SẠCH VÀ TỐI ƯU TUYỆT ĐỐI
         output_lines = ["#EXTM3U url-tvg=\"https://vnepg.site/epg.xml\""]
 
         for name, info in channels.items():
             urls_list = info["urls"]
-            if not urls_list:
-                continue 
+            if not urls_list: continue # Kênh nào luồng die hết -> Bỏ hoàn toàn khỏi file!
             
             final_logo = info["tvg-logo"]
             current_id = info["tvg-id"]
@@ -253,7 +237,6 @@ jobs:
             if current_id: attrs.append(f'tvg-id="{current_id}"')
             if info["group-title"]: attrs.append(f'group-title="{info["group-title"]}"')
             if final_logo: attrs.append(f'tvg-logo="{final_logo}"')
-            
             attr_str = " " + " ".join(attrs)
             
             output_lines.append(f"#EXTINF:-1{attr_str},{name}")
@@ -265,8 +248,7 @@ jobs:
 
         with open("listtivi.m3u", "w", encoding="utf-8") as f:
             f.write("\n".join(output_lines) + "\n")
-
-        print(" Đồng bộ hóa & Ép Logo VNEPG qua Proxy Việt Nam thành công hoàn tất!")
+        print(" Đã lọc xong file M3U siêu sạch, không có kênh lỗi!")
         EOF
         python3 optimize_m3u.py
 
@@ -275,10 +257,9 @@ jobs:
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
         git add "listtivi.m3u"
-        
         if git diff --staged --quiet; then
           echo "Không phát hiện thay đổi."
         else
-          git commit -m "Auto-update & Bypass Geo-Blocking bằng Proxy Việt Nam"
+          git commit -m "Auto-update & Lọc bỏ 100% luồng IPTV chết"
           git push
         fi
