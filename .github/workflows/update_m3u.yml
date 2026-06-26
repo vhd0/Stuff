@@ -16,51 +16,65 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v5
 
-    - name: Fetch VNEPG API via Multi-Source VN Proxy
+    - name: Fetch VNEPG API via Multi-Source VN HTTPS Proxy
       run: |
         cat << 'EOF' > get_vnepg.py
         import urllib.request
         import json
         import re
         import os
+        import ssl
 
-        print("Đang quét tìm Proxy Việt Nam từ các nguồn dữ liệu lớn...")
+        # SỬA LỖI 1: Tạo context bỏ qua xác thực SSL nghiêm ngặt của Python để tránh thắt nút cổ chai với Proxy
+        ctx = ssl._create_unverified_context()
+
+        print("Đang quét tìm Proxy Việt Nam hệ HTTPS từ 3 nguồn lớn...")
         proxy_list = []
 
-        # Nguồn 1: Khai thác từ Geonode API (Cực kỳ uy tín, cập nhật liên tục)
+        # Nguồn 1: Geonode API (Chỉ lấy giao thức HTTPS)
         try:
-            req = urllib.request.Request("https://proxylist.geonode.com/api/proxy-list?country=VN&protocols=http%2Chttps&limit=50&page=1&sort_by=lastChecked&sort_type=desc", headers={"User-Agent": "Mozilla/5.0"})
-            with urllib.request.urlopen(req, timeout=10) as response:
+            req = urllib.request.Request("https://proxylist.geonode.com/api/proxy-list?country=VN&protocols=https&limit=50&page=1&sort_by=lastChecked&sort_type=desc", headers={"User-Agent": "Mozilla/5.0"})
+            with urllib.request.urlopen(req, context=ctx, timeout=10) as response:
                 res_json = json.loads(response.read().decode("utf-8"))
                 for item in res_json.get("data", []):
                     ip = item.get("ip")
                     port = item.get("port")
-                    if ip and port:
-                        proxy_list.append(f"{ip}:{port}")
+                    if ip and port: proxy_list.append(f"{ip}:{port}")
         except Exception as e:
-            print(f" -> Lỗi lấy dữ liệu từ nguồn Geonode: {e}")
+            print(f" -> Bỏ qua nguồn Geonode do lỗi: {e}")
 
-        # Nguồn 2: Khai thác từ Proxyscrape API (Dự phòng bổ sung)
+        # Nguồn 2: Proxyscrape API (Chỉ cấu hình lấy HTTPS/SSL)
         try:
-            req = urllib.request.Request("https://api.proxyscrape.com/v2/?request=displayproxies&protocol=http&timeout=10000&country=VN&ssl=all&anonymity=all", headers={"User-Agent": "Mozilla/5.0"})
-            with urllib.request.urlopen(req, timeout=10) as response:
+            req = urllib.request.Request("https://api.proxyscrape.com/v2/?request=displayproxies&protocol=https&timeout=10000&country=VN&ssl=yes", headers={"User-Agent": "Mozilla/5.0"})
+            with urllib.request.urlopen(req, context=ctx, timeout=10) as response:
                 proxies = response.read().decode("utf-8").strip().splitlines()
                 for p in proxies:
                     if p.strip(): proxy_list.append(p.strip())
         except Exception as e:
-            print(f" -> Lỗi lấy dữ liệu từ nguồn Proxyscrape: {e}")
+            print(f" -> Bỏ qua nguồn Proxyscrape do lỗi: {e}")
 
-        # Lọc bỏ các proxy bị trùng lặp danh sách
+        # Nguồn 3: Proxy-List.download API (Nguồn dự phòng HTTPS bổ sung)
+        try:
+            req = urllib.request.Request("https://www.proxy-list.download/api/v1/get?country=VN&type=https", headers={"User-Agent": "Mozilla/5.0"})
+            with urllib.request.urlopen(req, context=ctx, timeout=10) as response:
+                proxies = response.read().decode("utf-8").strip().splitlines()
+                for p in proxies:
+                    if p.strip(): proxy_list.append(p.strip())
+        except Exception as e:
+            print(f" -> Bỏ qua nguồn Proxy-List do lỗi: {e}")
+
+        # Lọc sạch các IP trùng lặp
         proxy_list = list(dict.fromkeys(proxy_list))
-        print(f" Tổng hợp tìm thấy {len(proxy_list)} proxy Việt Nam để thử nghiệm.")
+        print(f" Tổng hợp tìm thấy {len(proxy_list)} proxy HTTPS Việt Nam sẵn sàng thử nghiệm.")
 
         success = False
         api_url = "https://vnepg.site/api/channels"
         
-        # Thử tải lần lượt qua từng Proxy
+        # Thử chạy vòng lặp xuyên tường lửa VNEPG
         for proxy in proxy_list:
-            print(f"Thử kết nối tới VNEPG qua Proxy VN: {proxy} ...")
+            print(f"Thử vượt rào VNEPG qua Proxy: {proxy} ...")
             try:
+                # Cấu hình proxy cho cả http và https
                 proxy_support = urllib.request.ProxyHandler({'http': proxy, 'https': proxy})
                 opener = urllib.request.build_opener(proxy_support)
                 opener.addheaders = [
@@ -68,19 +82,20 @@ jobs:
                     ("Accept", "application/json, text/plain, */*"),
                     ("Accept-Language", "vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7")
                 ]
-                with opener.open(api_url, timeout=5) as response:
+                # Sử dụng context=ctx để ép bỏ qua kiểm tra chứng chỉ SSL lỗi của proxy
+                with opener.open(api_url, context=ctx, timeout=6) as response:
                     data = json.loads(response.read().decode("utf-8"))
                     if "channels" in data and len(data["channels"]) > 0:
                         with open("vnepg_raw.json", "w", encoding="utf-8") as f:
                             json.dump(data, f, ensure_ascii=False, indent=4)
-                        print(" CHÚC MỪNG! Đã bypass Geo-Block và lấy thành công dữ liệu VNEPG.")
+                        print(f" CHÚC MỪNG! Bypass Geo-Block thành công bằng proxy [{proxy}].")
                         success = True
                         break
             except Exception:
                 continue
 
         if not success:
-            print(" CẢNH BÁO: Tất cả proxy đều không phản hồi. Khởi tạo file tạm rỗng để chuyển sang gộp thô.")
+            print(" CẢNH BÁO: Không có proxy HTTPS nào trả về dữ liệu. Tiến hành chế độ gộp thô không danh mục.")
             with open("vnepg_raw.json", "w", encoding="utf-8") as f:
                 json.dump({"channels": []}, f)
         EOF
@@ -136,7 +151,7 @@ jobs:
                             name_to_id_map[clean_channel_name(ch_name)] = ch_id
                 print(f"Đã dựng thành công bộ khung {len(channels)} kênh từ dữ liệu VNEPG.")
             except Exception:
-                print("Không tìm thấy dữ liệu VNEPG hợp lệ, chạy chế độ gộp thô danh sách.")
+                print("Chạy chế độ gộp thô danh sách.")
 
         def parse_attributes(line):
             tvg_id = group_title = tvg_logo = ""
@@ -152,7 +167,7 @@ jobs:
             clean_name = RE_CLEAN_NAME.sub('', raw_name)
             return tvg_id, group_title, tvg_logo, " ".join(clean_name.split()).strip()
 
-        # 2. ĐỒNG BỘ TOÀN BỘ LUỒNG TỪ CÁC LINK RAW (KHÔNG CẮT GIẢM / KHÔNG CHECK DIE)
+        # 2. ĐỒNG BỘ TOÀN BỘ LUỒNG TỪ CÁC LINK RAW (ĐÃ LOẠI BỎ CHECK DIE TRÁNH MẤT KÊNH)
         used_urls = set()
         import urllib.request
 
@@ -226,7 +241,7 @@ jobs:
 
         with open("listtivi.m3u", "w", encoding="utf-8") as f:
             f.write("\n".join(output_lines) + "\n")
-        print(" Quá trình đồng bộ & ghi đè Logo kết thúc thành công!")
+        print(" Quá trình đồng bộ kết thúc mượt mà!")
         EOF
         python3 optimize_m3u.py
 
@@ -238,6 +253,6 @@ jobs:
         if git diff --staged --quiet; then
           echo "Không phát hiện thay đổi."
         else
-          git commit -m "Auto-update & Fix cứng Proxy đa nguồn bảo đảm lấy được VNEPG"
+          git commit -m "Auto-update & Sửa lỗi Proxy HTTPS & Bypass SSL"
           git push
         fi
