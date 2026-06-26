@@ -169,9 +169,7 @@ jobs:
 
         # Hàm đưa tên thô về Tên Chuẩn dựa trên CHANNEL_MAP
         def get_canonical_name(raw_name):
-            # Cắt bỏ ngoặc vuông [], ngoặc đơn ()
             clean = re.sub(r'\(.*?\)|\[.*?\]', '', raw_name)
-            # Cắt bỏ triệt để hậu tố HD, SD, 4K độc lập hoặc viết liền
             clean = re.sub(r'\b(hd|sd|4k|1080p|720p)\b', '', clean, flags=re.IGNORECASE)
             clean = re.sub(r'(hd|sd|4k)$', '', clean.strip(), flags=re.IGNORECASE)
             clean = " ".join(clean.split()).strip().lower()
@@ -204,22 +202,32 @@ jobs:
             try:
                 req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
                 content = urllib.request.urlopen(req, timeout=15).read().decode("utf-8-sig")
-                matches = re.findall(r'#EXTINF:.*?,(.*?)\n(https?://.*?\.m3u8?)', content)
-                for raw_name, link in matches:
+                
+                # RegEx tối ưu để lấy cả thuộc tính tvg-logo nếu có trong dòng #EXTINF
+                matches = re.findall(r'#EXTINF:.*?(?:tvg-logo="(.*?)")?.*?,(.*?)\n(https?://.*?\.m3u8?)', content)
+                
+                for raw_logo, raw_name, link in matches:
                     name = get_canonical_name(raw_name)
                     
-                    # Tìm ID dựa theo Tên Chuẩn để mapping dữ liệu từ Registry
-                    tvg_id, logo = "", ""
+                    # Điền meta-data gốc từ JSON backup
+                    tvg_id, json_logo = "", ""
                     for ch_id, ch_obj in registry.items():
                         if ch_obj.get("name").lower() == name.lower():
                             tvg_id = ch_obj.get("id", "")
-                            logo = ch_obj.get("logo", "")
+                            json_logo = ch_obj.get("logo", "").strip()
                             break
+                    
+                    # LOGIC KIỂM TRA LOGO: Ưu tiên JSON, nếu rỗng thì lấy logo từ luồng thô (raw_logo)
+                    final_logo = json_logo if json_logo else raw_logo.strip()
                     
                     group = get_group(name, tvg_id)
                     
                     if name not in raw_collected:
-                        raw_collected[name] = {"group": group, "id": tvg_id, "logo": logo, "urls": []}
+                        raw_collected[name] = {"group": group, "id": tvg_id, "logo": final_logo, "urls": []}
+                    else:
+                        # Nếu kênh đã tồn tại nhưng trước đó chưa có logo, cập nhật bổ sung logo thô mới tìm thấy
+                        if not raw_collected[name]["logo"] and final_logo:
+                            raw_collected[name]["logo"] = final_logo
                     
                     if link not in raw_collected[name]["urls"]:
                         raw_collected[name]["urls"].append(link)
@@ -230,7 +238,6 @@ jobs:
         # SẮP XẾP TOÀN BỘ KÊNH TUẦN TỰ THEO NHÓM VÀ TÊN ALPHABET
         final_data = OrderedDict()
         for g in GROUP_ORDER:
-            # Lọc ra các kênh thuộc nhóm g và sắp xếp tên kênh theo thứ tự chữ cái (A-Z)
             sorted_channels_in_group = sorted(
                 [k for k, v in raw_collected.items() if v["group"] == g],
                 key=lambda s: [int(t) if t.isdigit() else t.lower() for t in re.split(r'(\d+)', s)]
@@ -238,7 +245,6 @@ jobs:
             for ch_name in sorted_channels_in_group:
                 final_data[ch_name] = raw_collected[ch_name]
 
-        # Xử lý nốt các kênh không nằm trong GROUP_ORDER định nghĩa trước (nếu có)
         remains = sorted([k for k, v in raw_collected.items() if v["group"] not in GROUP_ORDER])
         for ch_name in remains:
             final_data[ch_name] = raw_collected[ch_name]
@@ -256,12 +262,12 @@ jobs:
                 for idx, url in enumerate(data["urls"]):
                     suffix = f" [Dự phòng {idx+1}]" if idx > 0 else ""
                     f.write(f'#EXTINF:-1{tvg} group-title="{data["group"]}",{name}{suffix}\n{url}\n')
-        print("Đã đồng bộ hóa và sắp xếp tuần tự thành công!")
+        print("Đã đồng bộ hóa dữ liệu và cập nhật logo từ luồng thô thành công!")
         EOF
         python3 optimize_m3u.py
         
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
         git add "listtivi.m3u"
-        git commit -m "Update: Standardize HD/SD channels, sort groups and clean duplicates sequential" || echo "No changes"
+        git commit -m "Update: Fallback missing logos from raw playlists to M3U outputs" || echo "No changes"
         git push
