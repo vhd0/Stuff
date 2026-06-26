@@ -17,65 +17,232 @@ jobs:
         import re, json, urllib.request
         from collections import OrderedDict
 
-        # 1. NẠP MAPPING JSON
+        # ====================================================================
+        # BẢNG MAPPING THỦ CÔNG TỪNG KÊNH DỰA THEO DANH SÁCH JSON CHUẨN
+        # ====================================================================
+        CHANNEL_MAP = {
+            # --- NHÓM KÊNH VTV ---
+            "VTV1": ["vtv1", "vtv1hd"], "VTV2": ["vtv2", "vtv2hd"], "VTV3": ["vtv3", "vtv3hd"],
+            "VTV4": ["vtv4", "vtv4hd"], "VTV5": ["vtv5", "vtv5hd"], "VTV6": ["vtv6", "vtv6hd"],
+            "VTV7": ["vtv7", "vtv7hd"], "VTV8": ["vtv8", "vtv8hd"], "VTV9": ["vtv9", "vtv9hd"],
+            "VTV10": ["vtv10", "vtv10hd", "vtvcantho", "vtv cần thơ"],
+            "VTV5 Tây Nam Bộ": ["vtv5 tây nam bộ", "vtv5tnb", "vtv5hdtnb"],
+            "VTV5 Tây Nguyên": ["vtv5 tây nguyên", "vtv5tn", "vtv5hdtn"],
+            "Vietnam Today": ["vietnam today", "vietnamtoday", "vntoday"],
+
+            # --- KHỐI KÊNH AN NINH / QUỐC PHÒNG / ĐẶC BIỆT ---
+            "ANTV": ["antv", "an ninh tv", "antvhd"],
+            "QPVN": ["qpvn", "quốc phòng việt nam", "quoc phong vn", "qpvnhd"],
+
+            # --- NHÓM KÊNH VTVCAB (ON CHANNELS) ---
+            "ON Sports": ["on sports", "onsports"], "ON Sports+": ["on sports+", "onsports+"],
+            "ON Football": ["on football", "onfootball"], "ON Sports News": ["on sports news", "onsportsnews"],
+            "ON Golf": ["on golf", "ongolf"], "ON Vie Giải Trí": ["on vie giải trí", "onviegiaitri"],
+            "ON Phim Việt": ["on phim việt", "onphimviet"], "ON Movies": ["on movies", "onmovies"],
+            "ON E Channel": ["on e channel", "onechannel"], "ON Cine": ["on cine", "oncine"],
+            "ON BiBi": ["on bibi", "onbibi"], "ON Info TV": ["on info tv", "oninfotv"],
+            "ON O2TV": ["on o2tv", "ono2tv"], "ON Style TV": ["on style tv", "onstyle"],
+            "ON Music": ["on music", "onmusic"], "ON Trending": ["on trending", "ontrending"],
+            "ON Vie Dramas": ["on vie dramas", "onviedramas"], "ON VFamily": ["on vfamily", "onvfamily"],
+            "ON Kids": ["on kids", "onkids"], "ON Life": ["on life", "onlife"],
+
+            # --- NHÓM KÊNH HTV / HTVC ---
+            "HTV1": ["htv1"], "HTV3": ["htv3"], "HTV4": ["htv4"], "HTV7": ["htv7", "htv7hd"], "HTV9": ["htv9", "htv9hd"],
+            "HTV2 - Vie Channel": ["htv2", "htv2hd", "htv2 - vie channel", "vie channel"],
+            "HTV5 - Bchannel": ["htv5", "htv5 - bchannel", "bchannel"],
+            "HTV Thể Thao": ["htv thể thao", "htv the thao", "htvthethaohd"],
+            "HTVC Thuần Việt": ["htvc thuần việt", "htvc thuan viet", "htvcthuanviet"],
+            "HTVC Gia Đình": ["htvc gia đình", "htvc giadinh", "htvcgiadinhhd"],
+            "HTVC Phụ Nữ": ["htvc phụ nữ", "htvc phu nu", "htvcphunuhd"],
+            "HTVC Ca Nhạc": ["htvc ca nhạc", "htvc ca nhac", "htvccanhachd"],
+            "HTVC Phim": ["htvc phim", "htvcphimhd"],
+            "HTVC Du Lịch và Cuộc Sống": ["htvc du lịch và cuộc sống", "htvc du lich", "htvcdulichhd"],
+            "HTVC Plus": ["htvc plus", "htvcplushd"],
+
+            # --- NHÓM KÊNH SCTV ---
+            "SCTV1": ["sctv1"], "SCTV2": ["sctv2"], "SCTV3": ["sctv3"], "SCTV4": ["sctv4"], "SCTV6": ["sctv6"],
+            "SCTV7": ["sctv7"], "SCTV8": ["sctv8"], "SCTV9": ["sctv9"], "SCTV11": ["sctv11"], "SCTV12": ["sctv12"],
+            "SCTV13": ["sctv13"], "SCTV14": ["sctv14"], "SCTV15": ["sctv15"], "SCTV16": ["sctv16"], "SCTV17": ["sctv17"],
+            "SCTV18": ["sctv18"], "SCTV19": ["sctv19"], "SCTV20": ["sctv20"], "SCTV21": ["sctv21"], "SCTV22": ["sctv22"],
+            "SCTV Phim Tổng Hợp": ["sctv phim tổng hợp", "sctv phim tong hop", "sctvhdpth"], "SCTV4K": ["sctv4k"],
+
+            # --- NHÓM KÊNH ĐỊA PHƯƠNG ---
+            "An Giang 1": ["an giang 1", "angiang1", "an giang tv1"], "An Giang 2": ["an giang 2", "angiang2", "an giang tv2"],
+            "An Giang 3": ["an giang 3", "angiang3", "an giang tv3"], "Bắc Ninh": ["bắc ninh", "bacninh", "bắc ninh 1"],
+            "Cần Thơ 1": ["cần thơ 1", "cantho1", "cần thơ tv1"], "Cần Thơ 2": ["cần thơ 2", "cantho2", "cần thơ tv2"],
+            "Cần Thơ 3": ["cần thơ 3", "cantho3", "cần thơ tv3"], "Cà Mau": ["cà mau", "camau", "cà mau tv"],
+            "Cao Bằng": ["cao bằng", "caobang", "cao bằng tv"], "Đắk Lắk": ["đắk lắk", "daklak", "đắk lắk tv"],
+            "Điện Biên": ["điện biên", "dienbien", "điện biên tv"], "Đà Nẵng 1": ["đà nẵng 1", "danang1", "đà nẵng tv1"],
+            "Đà Nẵng 2": ["đà nẵng 2", "danang2", "đà nẵng tv2"], "Đồng Nai 1": ["đồng nai 1", "dongnai1", "đồng nai tv1"],
+            "Đồng Nai 2": ["đồng nai 2", "dongnai2", "đồng nai tv2"], "Đồng Tháp 1": ["đồng tháp 1", "dongthap1", "đồng tháp tv1"],
+            "Đồng Tháp 2": ["đồng tháp 2", "dongthap2", "đồng tháp tv2"], "Gia Lai": ["gia lai", "gialai"],
+            "Hà Nội 1": ["hà nội 1", "hanoi1", "hanoitv1"], "Hà Nội 2": ["hà nội 2", "hanoi2", "hanoitv2"],
+            "HiTV": ["hitv"], "YouTV": ["youtv"], "Hà Tĩnh": ["hà tĩnh", "hatinh", "hà tĩnh tv"],
+            "Hải Phòng": ["hải phòng", "haiphong"], "Hải Phòng 3": ["hải phòng 3", "haiphong3"],
+            "Huế": ["huế", "hue", "huế tv"], "Hưng Yên": ["hưng yên", "hungyen"],
+            "Khánh Hòa": ["khánh hòa", "khanhhoa", "khánh hòa tv"], "Khánh Hòa 1": ["khánh hòa 1", "khanhhoa1", "khánh hòa tv1"],
+            "Lai Châu": ["lai châu", "laichau"], "Lâm Đồng 1": ["lâm đồng 1", "lamdong1", "lâm đồng tv"],
+            "Lâm Đồng 2": ["lâm đồng 2", "lamdong2"], "Lạng Sơn": ["lạng sơn", "langson"], "Lào Cai": ["lào cai", "laocai", "lào cai tv"],
+            "Nghệ An": ["nghệ an", "nghean", "nghệ an tv"], "Ninh Bình": ["ninh bình", "ninhbinh"], "Phú Thọ": ["phú thọ", "phutho"],
+            "Quảng Ngãi 1": ["quảng ngãi 1", "quangngai", "quảng ngãi tv1"], "Quảng Ngãi 2": ["quảng ngãi 2", "quangngai2"],
+            "Quảng Ninh 1": ["quảng ninh 1", "quangninh1"], "Quảng Ninh 3": ["quảng ninh 3", "quangninh3"],
+            "Quảng Trị": ["quảng trị", "quangtri"], "Sơn La": ["sơn la", "sonla"], "Tây Ninh": ["tây ninh", "tayninh", "tây ninh tv"],
+            "Thái Nguyên": ["thái nguyên", "thainguyen", "thái nguyên tv"], "Thanh Hóa": ["thanh hóa", "thanhhoa"],
+            "Tuyên Quang": ["tuyên quang", "tuyenquang"], "Vĩnh Long 1": ["vĩnh long 1", "vinhlong1", "vĩnh long tv1"],
+            "Vĩnh Long 2": ["vĩnh long 2", "vinhlong2"], "Vĩnh Long 3": ["vĩnh long 3", "vinhlong3"],
+            "Vĩnh Long 4": ["vĩnh long 4", "vinhlong4"], "Vĩnh Long 5": ["vĩnh long 5", "vinhlong5", "vĩnh long tv5"],
+
+            # --- NHÓM PHIM & GIẢI TRÍ QUỐC TẾ ---
+            "HBO": ["hbo", "hbohd"], "Cinemax": ["cinemax", "cinemaxhd"], "Cinema World": ["cinema world", "cinemaworldhd"],
+            "Dreamworks": ["dreamworks"], "Cartoon Network": ["cartoon network", "cartoonhd"], "Cartoonito": ["cartoonito", "boomerang"],
+            "BBC Cbeebies": ["bbc cbeebies", "cbeebies"], "AXN": ["axn", "axnhd"], "Warner TV": ["warner tv", "warnertvhd"],
+            "FashionTV": ["fashiontv", "fashionhd"], "Animal Planet": ["animal planet", "animalhd"], "Travel Living": ["travel living", "tlchd"],
+            "Discovery": ["discovery", "discoveryhd"], "Discovery Asia": ["discovery asia", "discoveryasiahd"], "BBC Earth": ["bbc earth", "bbcearth"],
+            "BBC Lifestyle": ["bbc lifestyle", "bbclifestyle"], "BBC News": ["bbc news", "bbcworldnews"], "CNN": ["cnn"],
+            "ABC Australia": ["abc australia", "abcaustralia"], "Bloomberg": ["bloomberg"], "DMAX": ["dmax"], "Outdoor Channel": ["outdoor channel", "outdoorhd"],
+            "CNA": ["cna"], "Asian Food Network": ["asian food network", "afnhd"], "HGTV": ["hgtv"], "History Channel": ["history channel", "historyhd"],
+            "KIX": ["kix"], "CGTN": ["cgtn"], "CGTN Documentary": ["cgtn documentary", "cgtndocu"], "CNBC": ["cnbc"], "NHK World": ["nhk world", "nhkworld"],
+            "France 24": ["france 24", "france24eng"], "TV5MONDE": ["tv5monde"], "DW": ["dw"], "Arirang": ["arirang"], "DaVinci": ["davinci"],
+            "KBS World": ["kbs world", "kbsworld"], "Box Movies 1": ["box movies 1", "boxmovie1"], "Hollywood Classics": ["hollywood classics", "hollywoodclassics"],
+            "Box Hits": ["box hits", "boxhits"], "Woman": ["woman"], "Music Box": ["music box", "musicbox"], "In The Box Channel": ["in the box channel", "inthebox"],
+            "Dr. Fit": ["dr. fit", "drfithd"], "Man": ["man"], "Planet Earth": ["planet earth", "planetearthhd"], "Happy Kids": ["happy kids", "happykids"],
+            "SPOTV": ["spotv", "spotv1"], "SPOTV2": ["spotv2"], "W-Sport": ["w-sport", "wsport"], "one": ["one", "oneasia"], "tvN": ["tvn", "tvnasia"],
+            "K+": ["k+", "kplushd"], "HBO Family": ["hbo family", "hbofamily"], "HBO Hits": ["hbo hits", "hbohits"], "tvN Movies": ["tvn movies", "tvnmovies"],
+            "Love Nature 4K": ["love nature 4k", "lovenature4k"], "TVB VietNam": ["tvb vietnam", "tvbvn"],
+
+            # --- SỰ KIỆN MYTV & TV360 ---
+            "Sự kiện MyTV 801": ["sự kiện mytv 801", "mytv801"], "Sự kiện MyTV 802": ["sự kiện mytv 802", "mytv802"],
+            "Sự kiện MyTV 803": ["sự kiện mytv 803", "mytv803"], "Sự kiện MyTV 804": ["sự kiện mytv 804", "mytv804"],
+            "Sự kiện MyTV 806": ["sự kiện mytv 806", "mytv806"], "Sự kiện MyTV 807": ["sự kiện mytv 807", "mytv807"],
+            "Sự kiện MyTV 903": ["sự kiện mytv 903", "mytv903"], "Sự kiện MyTV 904": ["sự kiện mytv 904", "mytv904"],
+            "Sự kiện MyTV 905": ["sự kiện mytv 905", "mytv905"], "Sự kiện MyTV 906": ["sự kiện mytv 906", "mytv906"],
+            "TV360+1": ["tv360+1", "tv360plus1"], "TV360+2": ["tv360+2", "tv360plus2"], "TV360+3": ["tv360+3", "tv360plus3"],
+            "TV360+4": ["tv360+4", "tv360plus4"], "TV360+5": ["tv360+5", "tv360plus5"], "TV360+6": ["tv360+6", "tv360plus6"],
+            "TV360+7": ["tv360+7", "tv360plus7"], "TV360+8": ["tv360+8", "tv360plus8"], "TV360+9": ["tv360+9", "tv360plus9"],
+            "TV360+10": ["tv360+10", "tv360plus10"], "TV360+11": ["tv360+11", "tv360plus11"], "TV360+12": ["tv360+12", "tv360plus12"],
+            "TV360+13": ["tv360+13", "tv360plus13"], "TV360+14": ["tv360+14", "tv360plus14"], "TV360+15": ["tv360+15", "tv360plus15"],
+
+            # --- KHỐI KÊNH RADIO / PHÁT THANH ---
+            "VOV1": ["vov1"], "VOV2": ["vov2"], "VOV3": ["vov3"], "VOV5": ["vov5"],
+            "VOV4 Tây Nguyên": ["vov4 tây nguyên", "vov4tn"], "VOV4 Miền Trung": ["vov4 miền trung", "vov4mt"],
+            "VOV4 Tây Bắc - Đông Bắc": ["vov4 tây bắc - đông bắc", "vov4tb"], "VOV4 Hồ Chí Minh": ["vov4 hồ chí minh", "vov4hcm"],
+            "VOV4 Đồng bằng Sông Cửu Long": ["vov4 đồng bằng sông cửu long", "vov4scl"], "VOV5 English 24/7": ["vov5 english 24/7", "vov247"],
+            "VOV Giao thông Hà Nội": ["vov giao thông hà nội", "vovgthn"], "VOV Giao thông Hồ Chí Minh": ["vov giao thông hồ chí minh", "vovgthcm"],
+            "VOV Giao thông Mekong": ["vov giao thông mekong", "vovgtmekong"], "VOV Giao thông Duyên Hải": ["vov giao thông duyên hải", "vovgtduyenhai"],
+            "VOH FM 99.9 MHz": ["voh fm 99.9 mhz", "voh 99.9mhz", "voh999"], "VOH FM 95.6 MHz": ["voh fm 95.6 mhz", "voh 95.6mhz", "voh956"],
+            "VOH AM 610 kHz": ["voh am 610 khz", "voh 610khz", "voh610"], "VOH-M FM 92-92.5 MHz": ["voh-m fm 92-92.5 mhz", "voh925"],
+            "VOH FM 87.7 MHz": ["voh fm 87.7 mhz", "voh877"], "Xone FM": ["xone fm"], "Zing- On Air": ["zing- on air"],
+            "Zing - Chạm": ["zing - chạm"], "Zing - Vpop": ["zing - vpop"], "Zing - Pladio": ["zing - pladio"],
+            "Zing - Bolero": ["zing - bolero"], "Zing - Rap Việt": ["zing - rap việt", "zing - rap viet"], "Zing - Kpop": ["zing - kpop"],
+            "Zing - USUK": ["zing - usuk"], "Zing - Acoustic": ["zing - acoustic"], "Zing - EDM": ["zing - edm"],
+            "Zing - Cpop": ["zing - cpop"], "Nhạc Không Lời": ["nhạc không lời", "nhac khong loi"], "Zing - Indie": ["zing - indie"],
+            "Zing - Thiếu Nhi": ["zing - thiếu nhi", "zing - thieu nhi"],
+            "An Giang Radio": ["an giang radio", "angiangradio1"], "Bắc Ninh Radio": ["bắc ninh radio", "bacninhradio"],
+            "Cà Mau Radio": ["cà mau radio", "camauradio"], "Cần Thơ Radio 1": ["cần thơ radio 1", "canthoradio1"],
+            "Cần Thơ Radio 2": ["cần thơ radio 2", "canthoradio2"], "Đắk Lắk Radio": ["đắk lắk radio", "daklakradio"],
+            "Điện Biên Radio": ["điện biên radio", "dienbienradio"], "Đồng Tháp Radio": ["đồng tháp radio", "dongthapradio"],
+            "Hà Nội FM90": ["hà nội fm90", "hanoi90"], "Hà Nội FM96": ["hà nội fm96", "hanoi96", "hà nội 96.0mhz"],
+            "Hà Tĩnh Radio": ["hà tĩnh radio", "hatinhradio"], "Hải Phòng FM 93.7": ["hải phòng fm 93.7", "haiphong937"],
+            "Hải Phòng FM 102.2": ["hải phòng fm 102.2", "haiphong1022"], "Hưng Yên Radio": ["hưng yên radio", "hungyenradio"],
+            "Khánh Hoà FM 106.5": ["khánh hoà fm 106.5", "khanhhoaradio"], "Khánh Hoà FM 95": ["khánh hoà fm 95", "khanhhoaradio2"],
+            "Lạng Sơn Radio": ["lạng sơn radio", "langsonradio"], "Lâm Đồng Radio 1": ["lâm đồng radio 1", "lamdongradio1"],
+            "Lâm Đồng Radio 2": ["lâm đồng radio 2", "lamdongradio2"], "Nghệ An Radio": ["nghệ an radio", "ngheanradio"],
+            "Ninh Bình Radio": ["ninh bình radio", "ninhbinhradio"], "Quảng Ninh Radio 1": ["quảng ninh radio 1", "quangninhradio1"],
+            "Quảng Ninh Radio 2": ["quảng ninh radio 2", "quangninhradio2"], "Quảng Trị Radio": ["quảng trị radio", "quangtriradio"],
+            "Sơn La Radio": ["sơn la radio", "sonlaradio"], "Tây Ninh Radio": ["tây ninh radio", "tayninhradio"],
+            "Thái Nguyên Radio": ["thái nguyên radio", "thainguyenradio"], "Thanh Hoá Radio": ["thanh hoá radio", "thanhhoaradio"],
+            "Vĩnh Long Radio": ["vĩnh long radio", "vinhlongradio"]
+        }
+
+        # 1. NẠP MAPPING TỪ FILE BACKUP JSON CỦA BẠN
         registry = {}
         try:
             with open("vnepg_backup.json", "r", encoding="utf-8") as f:
-                data = json.load(f)
-                for ch in data.get("channels", []):
-                    key = re.sub(r'[^a-z0-9]', '', ch.get("name", "").lower())
-                    registry[key] = ch
-        except: pass
+                raw_data = json.load(f)
+                for ch in raw_data.get("channels", []):
+                    # Khóa registry bằng chính ID của kênh trong JSON để đồng bộ chuẩn xác
+                    registry[ch.get("id")] = ch
+        except Exception as e:
+            print(f"Lỗi nạp JSON: {e}")
 
-        # 2. LOGIC PHÂN NHÓM CHUẨN (Vietnam Today -> VTV)
-        def get_group(name_lower):
+        # Hàm đưa tên thô về Tên Chuẩn dựa trên CHANNEL_MAP
+        def get_canonical_name(raw_name):
+            # Cắt bỏ mọi từ khóa nhiễu như (1080p), [Geo-blocked], [Not 24/7], khoảng trắng thừa
+            clean = re.sub(r'\(.*?\)|\[.*?\]|\d{3,4}p', '', raw_name, flags=re.IGNORECASE)
+            clean = " ".join(clean.split()).strip().lower()
+            
+            for canonical, variants in CHANNEL_MAP.items():
+                if clean == canonical.lower() or clean in [v.lower() for v in variants]:
+                    return canonical
+            return re.sub(r'\(.*?\)|\[.*?\]', '', raw_name).strip()
+
+        # 2. LOGIC PHÂN NHÓM CHUẨN ĐÚNG THEO THỨ TỰ ƯU TIÊN
+        def get_group(name, id_json):
+            name_lower = name.lower()
             if "vietnam today" in name_lower: return "VTV"
-            if any(x in name_lower for x in ["vtv1", "vtv2", "vtv3", "vtv4", "vtv5", "vtv6", "vtv7", "vtv8", "vtv9", "vtv"]): return "VTV"
+            if any(x in name_lower for x in ["vtv1", "vtv2", "vtv3", "vtv4", "vtv5", "vtv6", "vtv7", "vtv8", "vtv9", "vtv10", "vtv"]): return "VTV"
             if "htv" in name_lower: return "HTV"
             if "sctv" in name_lower: return "SCTV"
             if any(x in name_lower for x in ["antv", "an ninh", "qpvn", "quốc phòng"]): return "Kênh Đặc Biệt"
-            if any(x in name_lower for x in ["vov", "radio", "fm", "am", "zing"]): return "Radio"
+            if any(x in name_lower for x in ["vov", "radio", "fm", "am", "zing", "xone"]): return "Radio"
+            # Nếu ID hoặc tên chứa từ "radio" trong danh sách chuẩn thì cũng là Radio
+            if id_json and "radio" in id_json.lower(): return "Radio"
             return "Địa Phương"
 
-        # 3. GOM DỮ LIỆU
+        # 3. GOM DỮ LIỆU ĐA NGUỒN TẬP TRUNG
         final_data = OrderedDict()
         urls = [
             "https://raw.githubusercontent.com/DinhLap96/ListTivi/refs/heads/main/ListTiVi/dltivi_v2.ndl",
             "https://raw.githubusercontent.com/iptv-org/iptv/refs/heads/master/streams/vn.m3u"
         ]
 
+        # Khởi tạo trước các kênh chuẩn từ CHANNEL_MAP để giữ đúng thứ tự ưu tiên khi xuất file
+        for canonical in CHANNEL_MAP.keys():
+            final_data[canonical] = {"group": "", "id": "", "logo": "", "urls": []}
+
         for url in urls:
             try:
-                content = urllib.request.urlopen(url, timeout=15).read().decode("utf-8-sig")
+                req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+                content = urllib.request.urlopen(req, timeout=15).read().decode("utf-8-sig")
                 matches = re.findall(r'#EXTINF:.*?,(.*?)\n(https?://.*?\.m3u8?)', content)
                 for raw_name, link in matches:
-                    norm_key = re.sub(r'[^a-z0-9]', '', raw_name.lower())
+                    name = get_canonical_name(raw_name)
                     
-                    if norm_key in registry:
-                        item = registry[norm_key]
-                        name = item.get("name")
-                        tvg_id = item.get("id", "")
-                        logo = item.get("logo", "")
-                    else:
-                        name = raw_name.strip()
-                        tvg_id = ""
-                        logo = ""
+                    # Tìm ID dựa theo Tên Chuẩn để mapping dữ liệu chuẩn từ Registry
+                    tvg_id, logo = "", ""
+                    for ch_id, ch_obj in registry.items():
+                        if ch_obj.get("name").lower() == name.lower():
+                            tvg_id = ch_obj.get("id", "")
+                            logo = ch_obj.get("logo", "")
+                            break
                     
-                    group = get_group(name.lower())
+                    group = get_group(name, tvg_id)
                     
                     if name not in final_data:
                         final_data[name] = {"group": group, "id": tvg_id, "logo": logo, "urls": []}
+                    else:
+                        # Điền thông tin meta nếu kênh đã được khởi tạo trước
+                        if not final_data[name]["group"]: final_data[name]["group"] = group
+                        if not final_data[name]["id"]: final_data[name]["id"] = tvg_id
+                        if not final_data[name]["logo"]: final_data[name]["logo"] = logo
                     
                     if link not in final_data[name]["urls"]:
                         final_data[name]["urls"].append(link)
-            except: continue
+            except Exception as e:
+                print(f"Lỗi khi xử lý nguồn {url}: {e}")
+                continue
 
-        # 4. XUẤT FILE VỚI EPG HEADER
+        # 4. XUẤT FILE M3U HOÀN CHỈNH
         with open("listtivi.m3u", "w", encoding="utf-8") as f:
-            # Header cho EPG (Bạn có thể thay đổi link xmltv nếu cần)
             f.write('#EXTM3U url-tvg="https://vnepg.site/epg.xml.gz"\n')
             for name, data in final_data.items():
-                tvg = f' tvg-id="{data["id"]}" tvg-logo="{data["logo"]}"' if data["id"] else ""
+                # Bỏ qua các kênh rỗng không thu thập được luồng nào từ 2 raw link
+                if not data["urls"]: continue
+                
+                tvg = ""
+                if data["id"]: tvg += f' tvg-id="{data["id"]}"'
+                if data["logo"]: tvg += f' tvg-logo="{data["logo"]}"'
+                
                 for idx, url in enumerate(data["urls"]):
                     suffix = f" [Dự phòng {idx+1}]" if idx > 0 else ""
                     f.write(f'#EXTINF:-1{tvg} group-title="{data["group"]}",{name}{suffix}\n{url}\n')
@@ -85,5 +252,5 @@ jobs:
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
         git add "listtivi.m3u"
-        git commit -m "Update: Vietnam Today to VTV and EPG header added" || echo "No changes"
+        git commit -m "Update: Optimize grouping, preserve EPG and map exact channel names" || echo "No changes"
         git push
