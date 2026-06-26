@@ -16,10 +16,13 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v5
 
-    - name: Fetch VNEPG API with Smart XML Fallback
+    - name: Fetch VNEPG API with Smart Residential Proxy & Fallback
+      env:
+        SCRAPER_API_KEY: ${{ secrets.SCRAPER_API_KEY }}
       run: |
         cat << 'EOF' > get_vnepg.py
         import urllib.request
+        import urllib.parse
         import json
         import ssl
         import os
@@ -33,40 +36,42 @@ jobs:
 
         ctx = ssl._create_unverified_context()
         success = False
+        scraper_key = os.environ.get("SCRAPER_API_KEY")
 
-        # LỚP ĐỀ KHÁNG 1: Thử gọi API trực tiếp (Giả lập Chrome)
-        print("Lớp 1: Đang kết nối trực tiếp VNEPG API...")
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-            "Accept": "application/json, text/plain, */*",
-            "Referer": "https://vnepg.site/"
-        }
-        req = urllib.request.Request(api_url, headers=headers)
-        
-        try:
-            with urllib.request.urlopen(req, context=ctx, timeout=15) as response:
-                data = json.loads(response.read().decode("utf-8"))
-                if "channels" in data and len(data["channels"]) > 0:
-                    with open(raw_file, "w", encoding="utf-8") as f:
-                        json.dump(data, f, ensure_ascii=False, indent=4)
-                    with open(backup_file, "w", encoding="utf-8") as f:
-                        json.dump(data, f, ensure_ascii=False, indent=4)
-                    print(f" -> THÀNH CÔNG: Tải trực tiếp API! Lấy được {len(data['channels'])} kênh kèm Logo.")
-                    success = True
-        except Exception as e:
-            print(f" -> Thất bại: API bị chặn chặn hoặc lỗi ({e}).")
+        # LỚP ĐỀ KHÁNG 1: Fake IP dân dụng qua ScraperAPI để Bypass Cloudflare
+        if scraper_key:
+            print("Lớp 1: Đang Fake IP qua ScraperAPI dân dụng để cào API...")
+            encoded_url = urllib.parse.quote(api_url)
+            # Yêu cầu ScraperAPI giả lập trình duyệt và bật chế độ bypass anti-bot nâng cao
+            proxy_url = f"http://api.scraperapi.com?api_key={scraper_key}&url={encoded_url}&render=false"
+            
+            try:
+                req = urllib.request.Request(proxy_url)
+                with urllib.request.urlopen(req, context=ctx, timeout=30) as response:
+                    data = json.loads(response.read().decode("utf-8"))
+                    if "channels" in data and len(data["channels"]) > 0:
+                        with open(raw_file, "w", encoding="utf-8") as f:
+                            json.dump(data, f, ensure_ascii=False, indent=4)
+                        with open(backup_file, "w", encoding="utf-8") as f:
+                            json.dump(data, f, ensure_ascii=False, indent=4)
+                        print(f" -> XUẤT SẮC! Fake IP thành công. Đã lấy {len(data['channels'])} kênh kèm LOGO gốc.")
+                        success = True
+            except Exception as e:
+                print(f" -> Thất bại: Proxy lỗi hoặc hết dung lượng miễn phí ({e}).")
+        else:
+            print("Lớp 1: Bỏ qua (Chưa cấu hình SCRAPER_API_KEY trong GitHub Secrets).")
 
-        # LỚP ĐỀ KHÁNG 2: Nếu API tạch, tìm file Backup cũ trong Repo
+        # LỚP ĐỀ KHÁNG 2: Nếu Fake IP lỗi, tìm file Backup cũ trong Repo
         if not success:
             print("Lớp 2: Đang tìm kiếm file sao lưu [vnepg_backup.json] trên Repo...")
             if os.path.exists(backup_file):
                 shutil.copy(backup_file, raw_file)
-                print(" -> THÀNH CÔNG: Đã khôi phục toàn bộ danh mục và logo từ file Backup!")
+                print(" -> THÀNH CÔNG: Đã khôi phục danh mục và logo từ file Backup!")
                 success = True
             else:
-                print(" -> Thất bại: Không tìm thấy file Backup (Lần đầu chạy workflow).")
+                print(" -> Thất bại: Không tìm thấy file Backup.")
 
-        # LỚP ĐỀ KHÁNG 3: Nếu chưa có backup, tự động cứu cánh bằng cấu trúc epg.xml
+        # LỚP ĐỀ KHÁNG 3: Tự động cứu cánh bằng cấu trúc epg.xml công cộng
         if not success:
             print("Lớp 3: Kích hoạt chế độ khẩn cấp - Cào khung kênh từ epg.xml...")
             req_xml = urllib.request.Request(xml_url, headers={"User-Agent": "TiviMate/4.7.0"})
@@ -86,14 +91,13 @@ jobs:
                 if channels_list:
                     with open(raw_file, "w", encoding="utf-8") as f:
                         json.dump({"channels": channels_list}, f, ensure_ascii=False, indent=4)
-                    print(f" -> THÀNH CÔNG: Đã dựng tạm bộ khung {len(channels_list)} kênh từ XML (Không logo).")
+                    print(f" -> THÀNH CÔNG: Đã dựng tạm bộ khung {len(channels_list)} kênh từ XML.")
                     success = True
             except Exception as e:
                 print(f" -> Thất bại: Không thể đọc cấu trúc XML ({e}).")
 
-        # ĐƯỜNG CÙNG
         if not success:
-            print("Hệ thống sập toàn tập. Khởi tạo dữ liệu rỗng.")
+            print("Hệ thống sập toàn tập. Khởi tạo dữ liệu trống.")
             with open(raw_file, "w", encoding="utf-8") as f:
                 json.dump({"channels": []}, f)
         EOF
@@ -133,7 +137,6 @@ jobs:
             name = RE_CLEAN_NAME.sub('', raw_name.lower())
             return RE_NON_ALPHANUM.sub('', name).strip()
 
-        # 1. ĐỌC DỮ LIỆU TỪ FILE TIẾP NHẬN BẢO VỆ
         if os.path.exists("vnepg_raw.json"):
             try:
                 with open("vnepg_raw.json", "r", encoding="utf-8") as f:
@@ -165,7 +168,6 @@ jobs:
             clean_name = RE_CLEAN_NAME.sub('', raw_name)
             return tvg_id, group_title, tvg_logo, " ".join(clean_name.split()).strip()
 
-        # 2. ĐỒNG BỘ TOÀN BỘ LUỒNG TỪ CÁC LINK RAW (KHÔNG CHECK DIE)
         used_urls = set()
         import urllib.request
 
@@ -212,7 +214,6 @@ jobs:
                             channels[last_key]["urls"].append(line_str)
                             used_urls.add(line_str)
 
-        # 3. XUẤT FILE M3U THÀNH PHẨM
         output_lines = ["#EXTM3U url-tvg=\"https://vnepg.site/epg.xml\""]
 
         for name, info in channels.items():
@@ -247,13 +248,10 @@ jobs:
       run: |
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
-        
-        # Đưa cả file backup (nếu có phát sinh mới) vào git quản lý
         git add "listtivi.m3u" "vnepg_backup.json" || true
-        
         if git diff --staged --quiet; then
           echo "Không phát hiện thay đổi."
         else
-          git commit -m "Auto-update & Kích hoạt lá chắn XML Fallback"
+          git commit -m "Auto-update & Vượt rào Cloudflare bằng Fake IP dân dụng"
           git push
         fi
