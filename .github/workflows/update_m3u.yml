@@ -17,17 +17,13 @@ jobs:
         import re, json, urllib.request
         from collections import OrderedDict
 
-        # 1. NẠP DỮ LIỆU TỪ JSON BACKUP
         registry = {}
         try:
             with open("vnepg_backup.json", "r", encoding="utf-8") as f:
-                data = json.load(f)
-                # Đảm bảo duyệt qua list các channel objects
-                if isinstance(data, list):
-                    for ch in data:
-                        # Dùng 'name' làm key để khớp với tên kênh từ link raw
-                        name_key = re.sub(r'[^a-z0-9]', '', ch.get("name", "").lower())
-                        registry[name_key] = ch
+                raw_data = json.load(f)
+                for ch in raw_data.get("channels", []):
+                    name_key = re.sub(r'[^a-z0-9]', '', ch.get("name", "").lower())
+                    registry[name_key] = ch
         except Exception as e:
             print(f"Lỗi nạp JSON: {e}")
 
@@ -35,21 +31,25 @@ jobs:
             n = raw_name.lower()
             key = re.sub(r'[^a-z0-9]', '', n)
             
-            # Ưu tiên lấy từ registry
             if key in registry:
                 ch = registry[key]
-                return ch.get("name"), "Kênh TV", ch.get("id", ""), ch.get("logo", "")
-            
-            # Fallback
-            clean = re.sub(r'\(.*?\)|\[.*?\]', '', raw_name).strip()
-            group = "Khác"
-            if "vtv" in n: group = "VTV"
-            elif "htv" in n: group = "HTV"
-            elif "sctv" in n: group = "SCTV"
-            elif any(x in n for x in ["antv", "an ninh", "qpvn", "quốc phòng"]): group = "Kênh Đặc Biệt"
-            return clean, group, "", ""
+                c_name = ch.get("name")
+                c_id = ch.get("id", "")
+                c_logo = ch.get("logo", "")
+                name_lower = c_name.lower()
+            else:
+                c_name = re.sub(r'\(.*?\)|\[.*?\]', '', raw_name).strip()
+                c_id, c_logo, name_lower = "", "", n
 
-        # 2. XỬ LÝ ĐA NGUỒN
+            if "vtv" in name_lower: group = "VTV"
+            elif "htv" in name_lower: group = "HTV"
+            elif "sctv" in name_lower: group = "SCTV"
+            elif any(x in name_lower for x in ["antv", "an ninh", "qpvn", "quốc phòng"]): group = "Kênh Đặc Biệt"
+            elif any(x in name_lower for x in ["vov", "radio", "fm", "am"]): group = "Radio"
+            else: group = "Địa Phương"
+            
+            return c_name, group, c_id, c_logo
+
         urls = [
             "https://raw.githubusercontent.com/DinhLap96/ListTivi/refs/heads/main/ListTiVi/dltivi_v2.ndl",
             "https://raw.githubusercontent.com/iptv-org/iptv/refs/heads/master/streams/vn.m3u"
@@ -70,7 +70,6 @@ jobs:
             except Exception as e:
                 print(f"Lỗi nguồn {url}: {e}")
 
-        # 3. GHI FILE M3U
         with open("listtivi.m3u", "w", encoding="utf-8") as f:
             f.write("#EXTM3U\n")
             for name, data in channels.items():
@@ -86,5 +85,5 @@ jobs:
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
         git add "listtivi.m3u"
-        git commit -m "Fix: JSON parsing and merge" || echo "No changes"
+        git commit -m "Update: Fix group classification (Everything else is Local)" || echo "No changes"
         git push
