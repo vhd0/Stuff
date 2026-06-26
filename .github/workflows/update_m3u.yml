@@ -17,6 +17,7 @@ jobs:
         import re, json, urllib.request
         from collections import OrderedDict
 
+        # 1. NẠP DỮ LIỆU TỪ JSON
         registry = {}
         try:
             with open("vnepg_backup.json", "r", encoding="utf-8") as f:
@@ -24,58 +25,64 @@ jobs:
                 for ch in raw_data.get("channels", []):
                     name_key = re.sub(r'[^a-z0-9]', '', ch.get("name", "").lower())
                     registry[name_key] = ch
-        except Exception as e:
-            print(f"Lỗi nạp JSON: {e}")
+        except: pass
 
-        def get_channel_info(raw_name):
-            n = raw_name.lower()
-            key = re.sub(r'[^a-z0-9]', '', n)
-            
-            if key in registry:
-                ch = registry[key]
-                c_name = ch.get("name")
-                c_id = ch.get("id", "")
-                c_logo = ch.get("logo", "")
-                name_lower = c_name.lower()
-            else:
-                c_name = re.sub(r'\(.*?\)|\[.*?\]', '', raw_name).strip()
-                c_id, c_logo, name_lower = "", "", n
+        def classify_group(name_lower):
+            if "vtv" in name_lower: return "VTV"
+            if "htv" in name_lower: return "HTV"
+            if "sctv" in name_lower: return "SCTV"
+            if any(x in name_lower for x in ["antv", "an ninh", "qpvn", "quốc phòng"]): return "Kênh Đặc Biệt"
+            if any(x in name_lower for x in ["vov", "radio", "fm", "am"]): return "Radio"
+            return "Địa Phương"
 
-            if "vtv" in name_lower: group = "VTV"
-            elif "htv" in name_lower: group = "HTV"
-            elif "sctv" in name_lower: group = "SCTV"
-            elif any(x in name_lower for x in ["antv", "an ninh", "qpvn", "quốc phòng"]): group = "Kênh Đặc Biệt"
-            elif any(x in name_lower for x in ["vov", "radio", "fm", "am"]): group = "Radio"
-            else: group = "Địa Phương"
-            
-            return c_name, group, c_id, c_logo
-
+        # 2. GOM TẤT CẢ DỮ LIỆU VÀO 1 DANH SÁCH TẠM
+        raw_channels = []
         urls = [
             "https://raw.githubusercontent.com/DinhLap96/ListTivi/refs/heads/main/ListTiVi/dltivi_v2.ndl",
             "https://raw.githubusercontent.com/iptv-org/iptv/refs/heads/master/streams/vn.m3u"
         ]
-        
-        channels = OrderedDict()
+
         for url in urls:
             try:
                 req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
                 content = urllib.request.urlopen(req, timeout=15).read().decode("utf-8-sig")
                 matches = re.findall(r'#EXTINF:.*?,(.*?)\n(https?://.*?\.m3u8?)', content)
                 for name, link in matches:
-                    c_name, group, tvg_id, logo = get_channel_info(name)
-                    if c_name not in channels:
-                        channels[c_name] = {"group": group, "id": tvg_id, "logo": logo, "urls": []}
-                    if link not in channels[c_name]["urls"]:
-                        channels[c_name]["urls"].append(link)
-            except Exception as e:
-                print(f"Lỗi nguồn {url}: {e}")
+                    raw_channels.append({"name": name, "link": link})
+            except: pass
 
+        # 3. CHUẨN HÓA VÀ SẮP XẾP
+        final_list = OrderedDict()
+        for item in raw_channels:
+            raw_name = item["name"]
+            n_lower = raw_name.lower()
+            key = re.sub(r'[^a-z0-9]', '', n_lower)
+            
+            # Lấy thông tin chuẩn từ JSON nếu có
+            if key in registry:
+                ch = registry[key]
+                name = ch.get("name")
+                tvg_id = ch.get("id", "")
+                logo = ch.get("logo", "")
+            else:
+                name = re.sub(r'\(.*?\)|\[.*?\]', '', raw_name).strip()
+                tvg_id, logo = "", ""
+            
+            group = classify_group(name.lower())
+            
+            if name not in final_list:
+                final_list[name] = {"group": group, "id": tvg_id, "logo": logo, "urls": []}
+            
+            if item["link"] not in final_list[name]["urls"]:
+                final_list[name]["urls"].append(item["link"])
+
+        # 4. GHI FILE
         with open("listtivi.m3u", "w", encoding="utf-8") as f:
             f.write("#EXTM3U\n")
-            for name, data in channels.items():
+            for name, data in final_list.items():
                 tvg = f' tvg-id="{data["id"]}" tvg-logo="{data["logo"]}"' if (data["id"] or data["logo"]) else ""
                 for i, url in enumerate(data["urls"]):
-                    suffix = f" [Dự phòng {i}]" if i > 0 else ""
+                    suffix = f" [Dự phòng {i+1}]" if i > 0 else ""
                     f.write(f'#EXTINF:-1{tvg} group-title="{data["group"]}",{name}{suffix}\n{url}\n')
         EOF
         python3 optimize_m3u.py
@@ -85,5 +92,5 @@ jobs:
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
         git add "listtivi.m3u"
-        git commit -m "Update: Fix group classification (Everything else is Local)" || echo "No changes"
+        git commit -m "Update: Merged all sources into master list" || echo "No changes"
         git push
