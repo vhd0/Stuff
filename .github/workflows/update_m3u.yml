@@ -21,7 +21,6 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y xvfb
         python -m pip install --upgrade pip
-        # Cài đặt seleniumbase, driver sẽ được tải tự động trong bước SB()
         pip install seleniumbase
         seleniumbase install chromedriver
 
@@ -41,30 +40,32 @@ jobs:
         print("Lớp 1: Khởi động Trình duyệt thật (Headless) để giải bài toán Cloudflare...")
         
         try:
-            # headless=True: Chạy ngầm, không cần giao diện đồ họa (tránh lỗi Tkinter)
-            # xvfb=True: Giả lập màn hình cho trình duyệt
+            # Chuyển headless=True để tránh xung đột UI trên GitHub Actions
             with SB(uc=True, xvfb=True, headless=True) as sb:
                 sb.driver.get(api_url)
-                print(" -> Chờ Cloudflare xác thực...")
                 sb.sleep(15) 
-                
                 page_text = sb.driver.find_element("css selector", "body").text
-                data = json.loads(page_text)
                 
-                if "channels" in data and len(data["channels"]) > 0:
-                    with open(raw_file, "w", encoding="utf-8") as f:
-                        json.dump(data, f, ensure_ascii=False, indent=4)
-                    with open(backup_file, "w", encoding="utf-8") as f:
-                        json.dump(data, f, ensure_ascii=False, indent=4)
-                    print(f" -> THÀNH CÔNG: Lấy được {len(data['channels'])} kênh.")
-                    success = True
+                # CHỈNH SỬA QUAN TRỌNG: Kiểm tra dữ liệu trước khi load JSON
+                if page_text.strip().startswith("{"):
+                    data = json.loads(page_text)
+                    if "channels" in data and len(data["channels"]) > 0:
+                        with open(raw_file, "w", encoding="utf-8") as f:
+                            json.dump(data, f, ensure_ascii=False, indent=4)
+                        with open(backup_file, "w", encoding="utf-8") as f:
+                            json.dump(data, f, ensure_ascii=False, indent=4)
+                        print(f" -> THÀNH CÔNG: Lấy được {len(data['channels'])} kênh.")
+                        success = True
+                else:
+                    print(" -> Thất bại: Nội dung trả về không phải JSON (Cloudflare chặn).")
         except Exception as e:
             print(f" -> Lỗi trình duyệt: {e}")
 
-        if not success and os.path.exists(backup_file):
-            print("Lớp 2: Sử dụng file backup...")
-            shutil.copy(backup_file, raw_file)
-            success = True
+        if not success:
+            print("Lớp 2: Thử khôi phục từ Backup...")
+            if os.path.exists(backup_file):
+                shutil.copy(backup_file, raw_file)
+                success = True
 
         if not success:
             print("Lớp 3: Cào khung từ XML...")
@@ -73,45 +74,152 @@ jobs:
                 ctx = ssl._create_unverified_context()
                 req = urllib.request.Request(xml_url, headers={"User-Agent": "Mozilla/5.0"})
                 root = ET.fromstring(urllib.request.urlopen(req, context=ctx, timeout=20).read())
-                channels = [{"id": ch.get('id'), "name": ch.find('display-name').text, "logo": ""} for ch in root.findall('channel')]
-                with open(raw_file, "w", encoding="utf-8") as f:
-                    json.dump({"channels": channels}, f, ensure_ascii=False, indent=4)
+                channels = [{"id": ch.get('id'), "name": ch.find('display-name').text, "logo": ""} for ch in root.findall('channel') if ch.find('display-name') is not None]
+                if channels:
+                    with open(raw_file, "w", encoding="utf-8") as f:
+                        json.dump({"channels": channels}, f, ensure_ascii=False, indent=4)
             except: pass
         EOF
         python3 get_vnepg.py
 
-    - name: Process and Fully Merge M3U List
+        - name: Process and Fully Merge M3U List
       run: |
         cat << 'EOF' > optimize_m3u.py
-        import re, json, os, urllib.request
+        import re
+        import json
+        import os
         from collections import OrderedDict
+        import urllib.request
 
         urls = [
             "https://raw.githubusercontent.com/DinhLap96/ListTivi/refs/heads/main/ListTiVi/dltivi_v2.ndl",
             "https://raw.githubusercontent.com/iptv-org/iptv/refs/heads/master/streams/vn.m3u"
         ]
 
-        channels, id_to_name, name_to_id, vnepg_id_to_logo = OrderedDict(), {}, {}, {}
-        RE_CLEAN = re.compile(r'\s*[\(\[][^\]\)]*[\)\]]')
-        RE_NON_ALPHA = re.compile(r'[^a-z0-9]')
+        channels = OrderedDict() 
+        id_to_name_map = {}      
+        name_to_id_map = {}      
+        vnepg_id_to_logo = {}    
 
-        def norm(s): return RE_NON_ALPHA.sub('', s.lower())
+        RE_CLEAN_NAME = re.compile(r'\s*[\(\[][^\]\)]*[\)\]]')
+        RE_NON_ALPHANUM = re.compile(r'[^a-z0-9]')
+        RE_TVG_ID = re.compile(r'tvg-id="([^"]*)"')
+        RE_GROUP = re.compile(r'group-title="([^"]*)"')
+        RE_LOGO = re.compile(r'tvg-logo="([^"]*)"')
+
+        def clean_tvg_id(raw_id):
+            if not raw_id: return ""
+            ch_id = raw_id.lower().replace(".vn", "").replace("@hd", "").replace("@sd", "").replace("@qhd", "")
+            return RE_NON_ALPHANUM.sub('', ch_id).strip()
+
+        def clean_channel_name(raw_name):
+            if not raw_name: return ""
+            name = RE_CLEAN_NAME.sub('', raw_name.lower())
+            return RE_NON_ALPHANUM.sub('', name).strip()
 
         if os.path.exists("vnepg_raw.json"):
-            with open("vnepg_raw.json", "r", encoding="utf-8") as f:
-                for ch in json.load(f).get("channels", []):
-                    c_id, c_name, c_logo = str(ch.get("id")), str(ch.get("name")), str(ch.get("logo", ""))
-                    channels[c_name] = {"tvg-id": c_id, "group-title": "Truyền Hình", "tvg-logo": c_logo, "urls": []}
-                    vnepg_id_to_logo[c_id] = c_logo
-                    id_to_name[norm(c_id)] = c_name
-                    name_to_id[norm(c_name)] = c_id
+            try:
+                with open("vnepg_raw.json", "r", encoding="utf-8") as f:
+                    raw_data = json.load(f)
+                    for ch in raw_data.get("channels", []):
+                        ch_id = str(ch.get("id", "")).strip()
+                        ch_name = str(ch.get("name", "")).strip()
+                        ch_logo = str(ch.get("logo", "")).strip()
+                        if ch_id and ch_name:
+                            channels[ch_name] = {"tvg-id": ch_id, "group-title": "Truyền Hình", "tvg-logo": ch_logo, "urls": []}
+                            if ch_logo: vnepg_id_to_logo[ch_id] = ch_logo
+                            id_to_name_map[clean_tvg_id(ch_id)] = ch_name
+                            name_to_id_map[clean_channel_name(ch_name)] = ch_id
+                print(f"Đã dựng thành công bộ khung {len(channels)} kênh từ dữ liệu tiếp nhận.")
+            except Exception:
+                print("Chạy chế độ gộp thô danh sách.")
+
+        def parse_attributes(line):
+            tvg_id = group_title = tvg_logo = ""
+            id_match = RE_TVG_ID.search(line)
+            group_match = RE_GROUP.search(line)
+            logo_match = RE_LOGO.search(line)
+            
+            if id_match: tvg_id = id_match.group(1).strip()
+            if group_match: group_title = group_match.group(1).strip()
+            if logo_match: tvg_logo = logo_match.group(1).strip()
+            
+            raw_name = line.rsplit(",", 1)[1].strip() if "," in line else ""
+            clean_name = RE_CLEAN_NAME.sub('', raw_name)
+            return tvg_id, group_title, tvg_logo, " ".join(clean_name.split()).strip()
+
+        used_urls = set()
+
+        for url in urls:
+            print(f"Đang đồng bộ luồng từ nguồn: {url}")
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            try:
+                with urllib.request.urlopen(req) as response:
+                    content = response.read().decode("utf-8-sig")
+            except Exception as e:
+                print(f" -> Lỗi tải nguồn {url}: {e}")
+                continue
+
+            lines = content.splitlines()
+            last_key = None
+
+            for line in lines:
+                line_str = line.strip()
+                if not line_str or line_str.startswith("#EXTM3U") or line_str.startswith("#PLAYLISTINF"): continue
+                
+                if line_str.startswith("#EXTINF"):
+                    tvg_id, group_title, tvg_logo, clean_name = parse_attributes(line_str)
+                    raw_norm_id = clean_tvg_id(tvg_id)
+                    raw_norm_name = clean_channel_name(clean_name)
+                    
+                    matched_standard_name = None
+                    if raw_norm_id in id_to_name_map:
+                        matched_standard_name = id_to_name_map[raw_norm_id]
+                    elif raw_norm_name in name_to_id_map:
+                        matched_standard_name = id_to_name_map.get(clean_tvg_id(name_to_id_map[raw_norm_name]))
+
+                    if matched_standard_name:
+                        key = matched_standard_name
+                        if group_title and group_title != "Truyền Hình": channels[key]["group-title"] = group_title
+                    else:
+                        key = clean_name if clean_name else (tvg_id if tvg_id else "Kênh Phụ")
+                        if key not in channels:
+                            channels[key] = {"tvg-id": tvg_id, "group-title": group_title if group_title else "Kênh Phụ", "tvg-logo": tvg_logo, "urls": []}
+                    last_key = key
+                    
+                elif line_str.startswith("http://") or line_str.startswith("https://"):
+                    if last_key and last_key in channels:
+                        if line_str not in used_urls:
+                            channels[last_key]["urls"].append(line_str)
+                            used_urls.add(line_str)
 
         output_lines = ["#EXTM3U url-tvg=\"https://vnepg.site/epg.xml\""]
-        # (Giữ nguyên logic gộp luồng m3u của bạn tại đây)
-        # Tôi đã rút gọn phần logic gộp để code không quá dài, bạn cứ giữ nguyên phần xử lý logic của bạn.
-        
+
+        for name, info in channels.items():
+            urls_list = info["urls"]
+            if not urls_list: continue 
+            
+            final_logo = info["tvg-logo"]
+            current_id = info["tvg-id"]
+            if current_id in vnepg_id_to_logo:
+                final_logo = vnepg_id_to_logo[current_id]
+            
+            attrs = []
+            if current_id: attrs.append(f'tvg-id="{current_id}"')
+            if info["group-title"]: attrs.append(f'group-title="{info["group-title"]}"')
+            if final_logo: attrs.append(f'tvg-logo="{final_logo}"')
+            attr_str = " " + " ".join(attrs)
+            
+            output_lines.append(f"#EXTINF:-1{attr_str},{name}")
+            output_lines.append(urls_list[0])
+            
+            for i, url_bak in enumerate(urls_list[1:], start=1):
+                output_lines.append(f"#EXTINF:-1{attr_str},{name} [Dự phòng {i}]")
+                output_lines.append(url_bak)
+
         with open("listtivi.m3u", "w", encoding="utf-8") as f:
             f.write("\n".join(output_lines) + "\n")
+        print(" Quá trình tạo danh sách kết thúc hoàn hảo!")
         EOF
         python3 optimize_m3u.py
 
@@ -120,7 +228,9 @@ jobs:
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
         git add "listtivi.m3u" "vnepg_backup.json" || true
-        if ! git diff --staged --quiet; then
-          git commit -m "Auto-update list bypass Cloudflare (Headless)"
+        if git diff --staged --quiet; then
+          echo "Không phát hiện thay đổi."
+        else
+          git commit -m "Auto-update & Đột phá tường lửa bằng Trình Duyệt Thật (SeleniumBase)"
           git push
         fi
