@@ -14,68 +14,68 @@ jobs:
     - name: Process and Merge M3U
       run: |
         cat << 'EOF' > optimize_m3u.py
-        import re, json, urllib.request
+        import re, urllib.request
         from collections import OrderedDict
 
-        def clean_name(raw_name):
-            # Loại bỏ các thông tin thừa như (1080p), (720p), [Geo-blocked]
-            name = re.sub(r'\(.*?\)', '', raw_name)
-            name = re.sub(r'\[.*?\]', '', name)
-            return name.strip()
-
+        # HÀM PHÂN NHÓM CHUYÊN NGHIỆP
         def get_group_and_name(raw_name):
             n = raw_name.lower()
-            clean = clean_name(raw_name)
+            clean = re.sub(r'\(.*?\)|\[.*?\]', '', raw_name).strip()
             
-            if "vtv" in n and "1" in n: return "VTV1", "VTV"
-            if "vtv" in n and "2" in n: return "VTV2", "VTV"
-            if "vtv" in n and "3" in n: return "VTV3", "VTV"
-            if "vtv" in n and "4" in n: return "VTV4", "VTV"
-            if "vtv" in n and "5" in n and "tay nam" in n: return "VTV5 Tây Nam Bộ", "VTV"
-            if "vtv" in n and "5" in n and "tay nguyen" in n: return "VTV5 Tây Nguyên", "VTV"
-            if "vtv" in n and "5" in n: return "VTV5", "VTV"
-            if "vtv" in n and "6" in n: return "VTV6", "VTV"
-            if "vtv" in n and "7" in n: return "VTV7", "VTV"
-            if "vtv" in n and "8" in n: return "VTV8", "VTV"
-            if "vtv" in n and "9" in n: return "VTV9", "VTV"
-            if "htv" in n and "7" in n: return "HTV7", "HTV"
-            if "htv" in n and "9" in n: return "HTV9", "HTV"
+            # Nhóm Đặc biệt
+            if any(x in n for x in ["an ninh", "antv", "quốc phòng", "qpvn"]):
+                return clean, "Kênh Đặc Biệt"
+            
+            # Nhóm VTV (Bao gồm các kênh con)
+            if "vtv" in n:
+                return clean, "VTV"
+                
+            # Nhóm HTV
+            if "htv" in n:
+                return clean, "HTV"
+                
+            # Nhóm SCTV
             if "sctv" in n:
-                match = re.search(r'sctv\s?\d+', clean, re.I)
-                return (match.group(0).upper() if match else "SCTV"), "SCTV"
-            if any(x in n for x in ["fm", "vov", "radio", "xone", "joy"]): return clean, "Radio & FM"
+                return clean, "SCTV"
             
-            # Mặc định là địa phương nếu không thuộc các nhóm trên
+            # Nhóm Radio
+            if any(x in n for x in ["fm", "vov", "radio", "xone"]):
+                return clean, "Radio & FM"
+            
+            # Mặc định là Địa Phương
             return clean, "Địa Phương"
 
-        # Tái cấu trúc M3U
+        # CẤU HÌNH ĐA NGUỒN
+        urls = [
+            "https://raw.githubusercontent.com/DinhLap96/ListTivi/refs/heads/main/ListTiVi/dltivi_v2.ndl",
+            "https://raw.githubusercontent.com/iptv-org/iptv/refs/heads/master/streams/vn.m3u"
+        ]
+        
         channels = OrderedDict()
-        # Giả sử file đầu vào đã được tải về hoặc có sẵn
-        # Bạn có thể thay thế bằng đường dẫn URL của bạn
-        urls = ["https://raw.githubusercontent.com/DinhLap96/ListTivi/refs/heads/main/ListTiVi/dltivi_v2.ndl"]
-
         for url in urls:
             try:
-                lines = urllib.request.urlopen(url).read().decode("utf-8").splitlines()
-                current_ch = None
-                for line in lines:
-                    if line.startswith("#EXTINF"):
-                        raw_name = line.rsplit(",", 1)[-1].strip()
-                        name, group = get_group_and_name(raw_name)
-                        key = name.lower()
-                        if key not in channels:
-                            channels[key] = {"name": name, "group": group, "urls": []}
-                        current_ch = key
-                    elif current_ch and line.startswith("http"):
-                        channels[current_ch]["urls"].append(line)
-            except: pass
+                req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+                content = urllib.request.urlopen(req, timeout=15).read().decode("utf-8-sig")
+                
+                # Regex tách block EXTINF và URL chính xác
+                pattern = re.compile(r'#EXTINF:.*?,(.*?)\n(https?://.*?\.m3u8?)', re.IGNORECASE)
+                matches = pattern.findall(content)
+                
+                for raw_name, url_link in matches:
+                    name, group = get_group_and_name(raw_name)
+                    if name not in channels:
+                        channels[name] = {"group": group, "urls": []}
+                    if url_link not in channels[name]["urls"]:
+                        channels[name]["urls"].append(url_link)
+            except: continue
 
+        # GHI FILE
         with open("listtivi.m3u", "w", encoding="utf-8") as f:
             f.write("#EXTM3U\n")
-            for key, data in channels.items():
+            for name, data in channels.items():
                 for i, url in enumerate(data["urls"]):
                     suffix = f" [Dự phòng {i}]" if i > 0 else ""
-                    f.write(f'#EXTINF:-1 group-title="{data["group"]}",{data["name"]}{suffix}\n{url}\n')
+                    f.write(f'#EXTINF:-1 group-title="{data["group"]}",{name}{suffix}\n{url}\n')
         EOF
         python3 optimize_m3u.py
 
@@ -84,5 +84,5 @@ jobs:
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
         git add "listtivi.m3u"
-        git commit -m "Auto-update: Nhóm hóa chuyên nghiệp (VTV, HTV, SCTV, FM)" || echo "No changes"
+        git commit -m "Update: Phân nhóm đặc biệt và đồng bộ nhóm VTV" || echo "No changes"
         git push
