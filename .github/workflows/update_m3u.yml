@@ -16,19 +16,25 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v5
 
-    - name: Install Advanced Scraping Dependencies
+    - name: Install Real Browser Dependencies (Xvfb & SeleniumBase)
       run: |
+        sudo apt-get update
+        # Cài đặt công cụ tạo màn hình ảo
+        sudo apt-get install -y xvfb
         python -m pip install --upgrade pip
-        pip install curl_cffi
+        # Cài đặt thư viện điều khiển trình duyệt né trinh sát
+        pip install seleniumbase
+        # Tải Chromedriver
+        seleniumbase install chromedriver
 
-    - name: Fetch VNEPG API via Advanced Browser Impersonation
+    - name: Fetch VNEPG API via Undetected Real Browser
       run: |
         cat << 'EOF' > get_vnepg.py
         import json
         import os
         import shutil
         import xml.etree.ElementTree as ET
-        from curl_cffi import requests
+        from seleniumbase import SB
 
         api_url = "https://vnepg.site/api/channels"
         xml_url = "https://vnepg.site/epg.xml"
@@ -37,27 +43,33 @@ jobs:
 
         success = False
 
-        print("Lớp 1: Khởi động siêu giả lập curl_cffi (Nhập vai Chrome 120)...")
+        print("Lớp 1: Khởi động Trình duyệt thật (SeleniumBase + Xvfb) để giải bài toán Cloudflare...")
         try:
-            # Giả lập toàn vẹn dấu vân tay TLS JA3/JA4 và HTTP/2 của Chrome thật để Bypass Cloudflare
-            response = requests.get(api_url, impersonate="chrome120", timeout=30)
-            print(f" -> Server phản hồi với Mã trạng thái: {response.status_code}")
-            
-            if response.status_code == 200:
-                data = response.json()
-                if "channels" in data and len(data["channels"]) > 0:
-                    with open(raw_file, "w", encoding="utf-8") as f:
-                        json.dump(data, f, ensure_ascii=False, indent=4)
-                    with open(backup_file, "w", encoding="utf-8") as f:
-                        json.dump(data, f, ensure_ascii=False, indent=4)
-                    print(f" -> TUYỆT VỜI! Đã bypass Cloudflare thành công, lấy được {len(data['channels'])} kênh kèm LOGO.")
-                    success = True
-            else:
-                print(" -> Thất bại: Cloudflare trả về trang thách đố hoặc chặn IP cứng.")
+            # uc=True: Bật chế độ qua mặt Anti-bot
+            # xvfb=True: Bật màn hình ảo, giả lập như có người đang ngồi trước máy tính
+            with SB(uc=True, xvfb=True, headless=False) as sb:
+                sb.driver.get(api_url)
+                print(" -> Đang nạp trang và chờ 10 giây để Cloudflare tự động xác thực JS Challenge...")
+                sb.sleep(10)
+                
+                # Trình duyệt sẽ bọc chuỗi JSON trả về vào trong thẻ <body>
+                page_text = sb.driver.find_element("css selector", "body").text
+                
+                try:
+                    data = json.loads(page_text)
+                    if "channels" in data and len(data["channels"]) > 0:
+                        with open(raw_file, "w", encoding="utf-8") as f:
+                            json.dump(data, f, ensure_ascii=False, indent=4)
+                        with open(backup_file, "w", encoding="utf-8") as f:
+                            json.dump(data, f, ensure_ascii=False, indent=4)
+                        print(f" -> XUẤT SẮC! Trình duyệt thật đã vượt ải Turnstile, lấy được {len(data['channels'])} kênh.")
+                        success = True
+                except json.JSONDecodeError:
+                    print(" -> Thất bại: Không thể đọc JSON. Có thể Cloudflare hiển thị Captcha yêu cầu Click thủ công.")
         except Exception as e:
-            print(f" -> Lỗi trong quá trình giả lập trình duyệt: {e}")
+            print(f" -> Lỗi trong quá trình chạy trình duyệt giả lập: {e}")
 
-        # LỚP ĐỀ KHÁNG 2: Nếu giả lập lỗi (Do nghẽn mạng), tìm file Backup cũ trong Repo
+        # LỚP ĐỀ KHÁNG 2: Nếu giả lập lỗi, tìm file Backup cũ trong Repo
         if not success:
             print("Lớp 2: Đang tìm kiếm file sao lưu lịch sử [vnepg_backup.json] trên Repo...")
             if os.path.exists(backup_file):
@@ -71,22 +83,28 @@ jobs:
         if not success:
             print("Lớp 3: Kích hoạt chế độ khẩn cấp - Cào khung kênh từ cấu trúc epg.xml...")
             try:
-                response_xml = requests.get(xml_url, impersonate="chrome120", timeout=30)
-                if response_xml.status_code == 200:
-                    root = ET.fromstring(response_xml.content)
-                    channels_list = []
-                    for channel in root.findall('channel'):
-                        ch_id = channel.get('id', '').strip()
-                        display_elem = channel.find('display-name')
-                        ch_name = display_elem.text.strip() if display_elem is not None and display_elem.text else ""
-                        if ch_id and ch_name:
-                            channels_list.append({"id": ch_id, "name": ch_name, "logo": ""})
+                # Thử lấy XML bằng urllib cơ bản (vì file XML thường ít bị chặn gắt gao như API JSON)
+                import urllib.request
+                import ssl
+                ctx = ssl._create_unverified_context()
+                req_xml = urllib.request.Request(xml_url, headers={"User-Agent": "TiviMate/4.7.0"})
+                with urllib.request.urlopen(req_xml, context=ctx, timeout=25) as response:
+                    xml_data = response.read()
                     
-                    if channels_list:
-                        with open(raw_file, "w", encoding="utf-8") as f:
-                            json.dump({"channels": channels_list}, f, ensure_ascii=False, indent=4)
-                        print(f" -> THÀNH CÔNG: Đã dựng tạm bộ khung {len(channels_list)} kênh từ XML.")
-                        success = True
+                root = ET.fromstring(xml_data)
+                channels_list = []
+                for channel in root.findall('channel'):
+                    ch_id = channel.get('id', '').strip()
+                    display_elem = channel.find('display-name')
+                    ch_name = display_elem.text.strip() if display_elem is not None and display_elem.text else ""
+                    if ch_id and ch_name:
+                        channels_list.append({"id": ch_id, "name": ch_name, "logo": ""})
+                
+                if channels_list:
+                    with open(raw_file, "w", encoding="utf-8") as f:
+                        json.dump({"channels": channels_list}, f, ensure_ascii=False, indent=4)
+                    print(f" -> THÀNH CÔNG: Đã dựng tạm bộ khung {len(channels_list)} kênh từ XML.")
+                    success = True
             except Exception as e:
                 print(f" -> Thất bại: Không thể đọc cấu trúc XML ({e}).")
 
@@ -104,6 +122,7 @@ jobs:
         import json
         import os
         from collections import OrderedDict
+        import urllib.request
 
         urls = [
             "https://raw.githubusercontent.com/DinhLap96/ListTivi/refs/heads/main/ListTiVi/dltivi_v2.ndl",
@@ -163,7 +182,6 @@ jobs:
             return tvg_id, group_title, tvg_logo, " ".join(clean_name.split()).strip()
 
         used_urls = set()
-        import urllib.request
 
         for url in urls:
             print(f"Đang đồng bộ luồng từ nguồn: {url}")
@@ -246,6 +264,6 @@ jobs:
         if git diff --staged --quiet; then
           echo "Không phát hiện thay đổi."
         else
-          git commit -m "Auto-update & Đột phá tường lửa bằng Siêu giả lập TLS"
+          git commit -m "Auto-update & Đột phá tường lửa bằng Trình Duyệt Thật (SeleniumBase)"
           git push
         fi
