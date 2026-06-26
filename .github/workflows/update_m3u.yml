@@ -82,7 +82,7 @@ jobs:
         EOF
         python3 get_vnepg.py
 
-        - name: Process and Fully Merge M3U List
+    - name: Process and Fully Merge M3U List
       run: |
         cat << 'EOF' > optimize_m3u.py
         import re
