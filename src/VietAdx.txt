@@ -23,3 +23,8 @@
 ##a[href*='utm_medium=popunder']:remove()
 ##a[style*='opacity:0'][style*='width:1px']:remove()
 ##a[style*='opacity:0'][style*='width: 1px']:remove()
+
+##+js(popunder)
+##+js(nowindowopen)
+##+js(noopfn, oc)
+#$#prevent-window-open
