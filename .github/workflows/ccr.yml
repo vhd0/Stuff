@@ -1,0 +1,39 @@
+name: Compile Custom Rules
+
+on:
+  push:
+    paths:
+      - 'src/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Dynamic Merge (Fixed Header + Any Case Files)
+        run: |
+          # 1. Khởi tạo file tổng bằng nội dung của file header cố định
+          cat src/header.txt > customrules.txt
+          
+          # 2. Duyệt qua tất cả các file trong thư mục src
+          for file in src/*; do
+            # Kiểm tra nếu là file hợp lệ và KHÔNG PHẢI là file header.txt
+            if [ -f "$file" ] && [ "$file" != "src/header.txt" ]; then
+              # Tự động chèn khoảng trống và đường kẻ phân tách giữa các phần cho dễ nhìn
+              echo -e "\n\n# ==============================================================================" >> customrules.txt
+              echo -e "# MODULE: $(basename "$file")" >> customrules.txt
+              echo -e "# ==============================================================================\n" >> customrules.txt
+              
+              # Nối nội dung file case vào file tổng
+              cat "$file" >> customrules.txt
+            fi
+          done
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add customrules.txt
+          git diff --quiet && git diff --staged --quiet || (git commit -m "🤖 [CI/CD] Dynamic compile customrules.txt" && git push)
