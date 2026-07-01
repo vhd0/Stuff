@@ -1,0 +1,53 @@
+{
+    "title": "Adblock Plus Optimal Filter Structure",
+    "description": "Cấu trúc tối ưu dành cho file filter Adblock Plus giúp quản lý và đạt hiệu năng cao nhất.",
+    "version": "1.0.0",
+    "sections": [
+        {
+            "id": "header",
+            "name": "Header & Metadata (Phần mở đầu)",
+            "purpose": "Khai báo thông tin danh sách, phiên bản và tần suất cập nhật để trình chặn quảng cáo nhận diện.",
+            "syntax_rules": [
+                "Bắt đầu bằng [Adblock Plus 2.0]",
+                "Sử dụng dấu '!' ở đầu dòng cho các comment siêu dữ liệu (Metadata)"
+            ],
+            "template_example": "[Adblock Plus 2.0]\n! Title: Danh sách bộ lọc tối ưu của tôi\n! Description: Chặn quảng cáo độc hại và tăng tốc lướt web.\n! Version: 1.0.0\n! Last modified: 2026-07-01\n! Expires: 4 days"
+        },
+        {
+            "id": "network_filters",
+            "name": "Network Filters (Chặn cấp độ mạng)",
+            "purpose": "Ngăn chặn các request gửi đến máy chủ quảng cáo/theo dõi ngay từ đầu để tiết kiệm băng thông.",
+            "syntax_rules": [
+                "Sử dụng ký tự phân tách '^' ở cuối để tránh chặn nhầm tên miền phụ trùng lặp",
+                "Sử dụng '||' trước tên miền để áp dụng cho tất cả giao thức (http, https, ws...)"
+            ],
+            "template_example": "! === CHẶN NETWORK TỔNG QUÁT ===\n||ads.example.com^\n||analytics.example.net^\n\n! === CHẶN THEO ĐƯỜNG DẪN / TỪ KHÓA ===\n/wp-content/uploads/advs/\n-ad-banner-*.png"
+        },
+        {
+            "id": "cosmetic_filters",
+            "name": "Cosmetic Filters / Element Hiding (Ẩn phần tử giao diện)",
+            "purpose": "Ẩn các khung trống, banner tĩnh hoặc phần tử HTML chứa quảng cáo mà chặn Network không xử lý được.",
+            "syntax_rules": [
+                "Sử dụng cấu trúc '##' để ẩn phần tử",
+                "Nên chỉ định rõ domain cụ thể thay vì ẩn toàn cục (global) để tối ưu CPU"
+            ],
+            "template_example": "! === ẨN PHẦN TỬ TOÀN CỤC ===\n##.ads-banner-container\n\n! === ẨN PHẦN TỬ THEO TÊN MIỀN CỤ THỂ ===\nexample.com##.sidebar-ad\nanother-site.org###popup-overlay"
+        },
+        {
+            "id": "exception_rules",
+            "name": "Exception Rules / Whitelisting (Danh sách ngoại lệ)",
+            "purpose": "Cứu cánh khi bộ lọc vô tình làm vỡ giao diện web hoặc chặn nhầm tính năng hữu ích. Luôn đặt ở dưới cùng.",
+            "syntax_rules": [
+                "Sử dụng tiền tố '@@' cho quy tắc ngoại lệ Network",
+                "Sử dụng cấu trúc '#@#' để bỏ ẩn phần tử giao diện"
+            ],
+            "template_example": "! === NGOẠI LỆ CHO NETWORK ===\n@@||images.example.com/allow-this-ad.jpg\n\n! === NGOẠI LỆ CHO PHẦN TỬ ===\nexample.com#@#.sidebar-ad"
+        }
+    ],
+    "optimization_tips": [
+        "Hạn chế sử dụng Regular Expression (Regex) vì làm chậm tốc độ xử lý của trình duyệt.",
+        "Tận dụng tối đa ký tự phân tách '^' để tăng độ chính xác.",
+        "Gộp các CSS Selector trên cùng một domain bằng dấu phẩy để tiết kiệm bộ nhớ.",
+        "Đặt tên Domain cụ thể thay vì dùng luật ẩn toàn cục (Global) trừ khi class/id đó cực kỳ phổ biến."
+    ]
+}
