@@ -95,7 +95,6 @@ jobs:
 
         GROUP_ORDER = ["VTV", "HTV", "SCTV", "Kênh Đặc Biệt", "Địa Phương", "Radio"]
 
-        # Hàm chuyển tiếng Việt thành không dấu để đồng bộ hóa tuyệt đối
         def no_marks(s):
             s = s.lower()
             s = re.sub(r'[àáạảãâầấậẩẫăằắặẳẵ]', 'a', s)
@@ -116,7 +115,6 @@ jobs:
         except Exception as e:
             print(f"Lỗi nạp JSON: {e}")
 
-        # Hàm đưa tên thô về Tên Chuẩn hóa đồng bộ dữ liệu
         def get_canonical_name(raw_name):
             clean = re.sub(r'\(.*?\)|\[.*?\]', '', raw_name)
             clean = re.sub(r'\b(hd|sd|4k|1080p|720p)\b', '', clean, flags=re.IGNORECASE)
@@ -152,9 +150,14 @@ jobs:
                 req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
                 content = urllib.request.urlopen(req, timeout=15).read().decode("utf-8-sig")
                 
-                chunks = re.findall(r'(#EXTINF:[^\n]*),(.*?)\n(https?://.*?\.m3u8?)', content)
+                # SỬA ĐỔI REGEX: Nhận diện mọi loại đuôi link gián tiếp, php, php?id=..., không ép đuôi m3u8 cố định
+                chunks = re.findall(r'(#EXTINF:[^\n]*),(.*?)\n(https?://[^\s#\n]+)', content)
                 
                 for extinf_line, raw_name, link in chunks:
+                    link = link.strip()
+                    # Loại bỏ trường hợp bắt nhầm các dòng comment bị rò link
+                    if link.startswith("#") or " " in link: continue
+                    
                     name = get_canonical_name(raw_name)
                     
                     raw_logo = ""
@@ -205,12 +208,12 @@ jobs:
                 for idx, url in enumerate(data["urls"]):
                     suffix = f" [Dự phòng {idx+1}]" if idx > 0 else ""
                     f.write(f'#EXTINF:-1{tvg} group-title="{data["group"]}",{name}{suffix}\n{url}\n')
-        print("Đã vá lỗi gom nhóm trùng và sửa hiển thị logo hoàn tất!")
+        print("Đã quét và tối ưu toàn bộ luồng link gián tiếp/PHP thành công!")
         EOF
         python3 optimize_m3u.py
         
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
         git add "listtivi.m3u"
-        git commit -m "Fix: Unified channel naming via non-marked string comparison to prevent duplicates and logo loss" || echo "No changes"
+        git commit -m "Fix: Support all non-m3u8 indirect stream and PHP links seamlessly" || echo "No changes"
         git push
