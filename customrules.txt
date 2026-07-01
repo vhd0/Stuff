@@ -1,29 +1,20 @@
-! Title: ABPVN & Community Custom Rules (100% Domain-Agnostic / Universal)
-! Description: Bộ lọc vạn năng tích lũy - Không chứa tên miền cụ thể, nhận diện quảng cáo thuần túy bằng cấu trúc mã (Fingerprint).
-! Version: 2026.07.01
+! Title: ABPVN & Community Custom Rules (Safe Universal / Anti-Breakage)
+! Description: Bộ lọc vạn năng chống vỡ giao diện - Không chứa domain, nhận diện ad thông minh, an toàn cho lõi Next.js/Tailwind.
+! Version: 2026.07.01-v2
 ! Homepage: https://github.com/vhd0/Stuff
 
 # ==============================================================================
-# KHỐI 1: CHẶN THEO ĐƯỜNG DẪN & THAM SỐ TOÀN CẦU (GLOBAL PATHS & PARAMS)
+# KHỐI 1: CHẶN THEO ĐƯỜNG DẪN ẢNH QUẢNG CÁO (SAFE NETWORK RULES)
 # ==============================================================================
-# Bất kể domain nào dùng thư mục chứa ảnh banner dạng này đều bị khóa tải ảnh
+# Chỉ khóa các tệp tin hình ảnh động quảng cáo, không chặn script hệ thống
 */banners/sv_*$image
 */banners/vs_*$image
 */banners/*x*.gif$image
 
-# Bẫy mọi đường link chứa tham số chuyển hướng cá độ hoặc affiliate tracking
-*affiliateCode=*
-*utm_medium=topbanner*
-*utm_medium=catfish*
-*utm_medium=preload*
-*utm_medium=popunder*
-*utm_campaign=cpd*
-
-
 # ==============================================================================
-# KHỐI 2: DIỆT KHUNG CHỨA BANNER TRUYỀN THỐNG (CATFISH & PRELOAD OVERLAYS)
+# KHỐI 2: DIỆT BANNER CỐ ĐỊNH THEO ID/CLASS (SAFE ELEMENT HIDING)
 # ==============================================================================
-# Ẩn toàn bộ các hộp chứa quảng cáo dạng Adx hoặc Catfish (Trần/Sàn) phổ biến
+# Ẩn các hộp chứa quảng cáo dạng Adx hoặc Catfish theo định danh bề mặt
 ##[id*='-adx']
 ##.catfish-top
 ##.catfish-bottom
@@ -32,57 +23,62 @@
 ##[class*='catfish-']
 ##.banner-preload
 ##.banner-preload-container
-
-# Ép xóa các thẻ liên kết tàng hình bẫy click (opacity bằng 0 hoặc kích thước 1px)
-##a[id^='bb'][onclick]:remove()
-##a[onclick^='oc()']:remove()
-##a[href*='utm_medium=popunder']:remove()
-##a[style*='opacity:0'][style*='width:1px']:remove()
-##a[style*='opacity:0'][style*='width: 1px']:remove()
-
-
-# ==============================================================================
-# KHỐI 3: KHẮC CHẾ GIAO DIỆN TAILWIND & THANH TRƯỢT (TAILWIND & SLIDER FINGERPRINT)
-# ==============================================================================
-# Tìm hộp chứa hoặc thẻ liên kết bọc quanh ảnh gọi từ thư mục /banners/ để ẩn
-##a:has(img[src*='/banners/'])
-##div:has(img[src*='/banners/'])
-
-# Quét sạch các slide trong thanh trượt (Carousel) nếu chứa nút đăng ký/cá độ
-##.keen-slider__slide:has(a[href*='register'])
-##.keen-slider__slide:has(a[href*='affiliate'])
-##.keen-slider__slide:has-text(/Đặt cược|Cược|Chi tiết/)
-
-# Nhận diện theo hành vi ngôn ngữ của nút bấm trên các framework CSS (như Tailwind)
-##a[class*='bg-']:has-text(/CƯỢC|Cược/)
-##button:has-text(/CƯỢC|Cược/)
-
-# Triệt hạ các lớp quảng cáo đè (Overlays) găm bên trong Player Video (như Artplayer)
 ##.art-layer-ad
 ##[id*='video-overlay']
 ##[class*='video-overlay']
 ##.ad-track
 
-# Khóa các lớp phủ cố định có z-index siêu cao hoặc ghim sàn đặc trưng của Tailwind
-##div[class*='fixed'][class*='z-[110]']
-##div[class*='fixed'][class*='bottom-[52px]']
-##div[class*='fixed'][class*='inset-0']:has(a[href*='register'])
+# Xóa các thẻ liên kết cá độ cụ thể theo cấu trúc URL (An toàn hơn chặn mạng)
+##a[href*='affiliateCode=']
+##a[href*='utm_medium=popunder']
+##a[href*='utm_medium=topbanner']
+##a[href*='utm_medium=catfish']
+##a[href*='utm_medium=preload']
+##a[href*='utm_campaign=cpd']
 
+# Ép ẩn các nút bấm/thẻ bẫy click tàng hình (Bọc lót cho AdBlock Plus)
+##a[id^='bb'][onclick]
+##a[onclick^='oc()']
+##a[style*='opacity:0'][style*='width:1px']
+##a[style*='opacity:0'][style*='width: 1px']
+
+# Ra lệnh xóa phần tử khỏi DOM đối với các trình chặn cao cấp (AdGuard Pro/uBlock)
+##a[id^='bb'][onclick]:remove()
+##a[onclick^='oc()']:remove()
+##a[href*='utm_medium=popunder']:remove()
 
 # ==============================================================================
-# KHỐI 4: CHỐNG NHẢY POPUP NỀN VÀ KHÓA TRÌNH CHẠY INLINE SCRIPT (SCRIPT INJECTIONS)
+# KHỐI 3: KHẮC CHẾ GIAO DIỆN TAILWIND & SLIDER (SIẾT CHẶT PHẠM VI :HAS)
 # ==============================================================================
-# Diệt tận gốc các thẻ script inline trước khi kịp ghim Event bẫy click
-##script:contains(vietadx)
-##script:contains(oc())
-##script:contains(popunder)
+# KHÔNG dùng ##div:has trống. Chỉ ẩn thẻ liên kết hoặc các div có class kích thước cụ thể chứa ảnh ad
+##a:has(img[src*='/banners/'])
+##div[class*='aspect-']:has(img[src*='/banners/'])
+##div[class*='keen-slider__slide']:has(img[src*='/banners/'])
 
-# Cú pháp tối cao dành cho uBlock Origin (PC / Firefox Android)
+# Quét sạch các thẻ slide quảng cáo trong thanh trượt nếu chứa từ khóa nhảy trang
+##.keen-slider__slide:has(a[href*='register'])
+##.keen-slider__slide:has(a[href*='affiliate'])
+##.keen-slider__slide:has-text(/Đặt cược|Cược|Chi tiết/)
+
+# Chỉ ẩn các nút có chữ CƯỢC nằm trong các panel phụ, tránh ẩn nhầm nội dung chính
+##div[class*='grid'] > a:has-text(/CƯỢC|Cược/)
+##div[class*='flex'] > a:has-text(/CƯỢC|Cược/)
+
+# Khóa các lớp phủ cố định có z-index siêu cao hoặc ghim sàn đặc trưng của hệ thống ad
+##div[class*='fixed'][class*='z-[110]']:has(a)
+##div[class*='fixed'][class*='bottom-[52px]']:has(img)
+
+# ==============================================================================
+# KHỐI 4: VÔ HIỆU HÓA SCRIPT (SCRIPTLET INJECTIONS - AN TOÀN TUYỆT ĐỐI)
+# ==============================================================================
+# ĐÃ LOẠI BỎ hoàn toàn `##script:contains` để chống lỗi trắng trang.
+# Thay vào đó, dùng cấu trúc chặn runtime: Chỉ triệt tiêu hàm bẫy click mà giữ nguyên file mã nguồn của web.
+
+# Dành cho uBlock Origin (PC / Firefox Android)
 ##+js(popunder)
 ##+js(nowindowopen)
 ##+js(noopfn, oc)
 
-# Cú pháp bọc lót dành riêng cho AdGuard Pro (Safari iOS / AdGuard App Android)
+# Dành cho AdGuard Pro (Safari iOS / AdGuard App Android)
 #$#prevent-window-open
 #$#abort-on-property-read oc
-#$#abort-current-inline-script vietadx
