@@ -1,6 +1,6 @@
-! Title: ABPVN & Community Custom Rules (Safe Universal / Player-Friendly)
-! Description: Bộ lọc vạn năng tích lũy - Đã vá lỗi ẩn Player video, giữ lại lõi trình phát Artplayer.
-! Version: 2026.07.01-v3
+! Title: ABPVN & Community Custom Rules (Safe Universal / Player-Fixed)
+! Description: Bộ lọc vạn năng - Đã sửa lỗi triệt để giải cứu Player bằng cách gỡ bỏ script-killer gây xung đột mã nén.
+! Version: 2026.07.01-v4
 ! Homepage: https://github.com/vhd0/Stuff
 
 # ==============================================================================
@@ -18,63 +18,58 @@
 *utm_medium=popunder*
 *utm_campaign=cpd*
 
-
 # ==============================================================================
-# KHỐI 2: DIỆT BANNER CỐ ĐỊNH THEO ID/CLASS (ẨN CHÍNH XÁC BỀ MẶT)
+# KHỐI 2: DIỆT BANNER CỐ ĐỊNH (ELEMENT HIDING - ĐÃ TINH CHỈNH AN TOÀN)
 # ==============================================================================
-##[id*='-adx']
 ##.catfish-top
 ##.catfish-bottom
 ##.banner-catfish-top
 ##.banner-catfish-bottom
-##[class*='catfish-']
+##div[class*='catfish-banner']
 ##.banner-preload
 ##.banner-preload-container
-
-# Chỉ đích danh khung chứa ad trong player, không dùng từ khóa 'video-overlay' chung chung
 ##.art-layer-ad
 ##div#video-overlay-bottom
 ##.ad-track
 
-# Ép xóa các thẻ liên kết bẫy click tàng hình
-##a[id^='bb'][onclick]:remove()
-##a[onclick^='oc()']:remove()
-##a[href*='utm_medium=popunder']:remove()
+# Xóa các thẻ liên kết cá độ cụ thể theo cấu trúc URL
+##a[href*='affiliateCode=']
+##a[href*='utm_medium=popunder']
+##a[href*='utm_medium=topbanner']
+##a[href*='utm_medium=catfish']
+##a[href*='utm_medium=preload']
 
+# Khóa các lớp phủ cố định ghim sàn đặc trưng chứa ảnh ad thuộc thư mục /banners/
+##div[class*='fixed'][class*='z-[110]']:has(img[src*='/banners/'])
+##div[class*='fixed'][class*='bottom-[52px]']:has(img[src*='/banners/'])
 
 # ==============================================================================
-# KHỐI 3: KHẮC CHẾ TAILWIND & SLIDER (BẢO VỆ TUYỆT ĐỐI CHO PLAYER)
+# KHỐI 3: KHẮC CHẾ TAILWIND & SLIDER (GỠ BỎ CÁC TỪ KHÓA GÂY ẨN NHẦM TABS)
 # ==============================================================================
-# Chỉ ẩn khung chứa ảnh nếu nó thuộc thư mục /banners/ quảng cáo
+# Chỉ ẩn khung chứa ảnh nếu nó thuộc thư mục /banners/ quảng cáo công khai
 ##a:has(img[src*='/banners/'])
 ##div[class*='aspect-']:has(img[src*='/banners/'])
 ##div[class*='keen-slider__slide']:has(img[src*='/banners/'])
 
-# Quét sạch các slide trong thanh trượt nếu chứa từ khóa nhảy trang cá độ
+# Quét các slide trong thanh trượt nếu chứa link đăng ký cá độ công khai
 ##.keen-slider__slide:has(a[href*='register'])
 ##.keen-slider__slide:has(a[href*='affiliate'])
-##.keen-slider__slide:has-text(/Đặt cược|Cược|Chi tiết/)
 
-# Chỉ ẩn các nút CƯỢC riêng lẻ, không cho phép ẩn block cha lớn hơn
+# ĐÃ GỠ BỎ từ khóa "Chi tiết" để không làm ẩn nhầm thanh điều hướng / chọn trận của Player
+##.keen-slider__slide:has-text(/CƯỢC|Cược/)
+
+# Chỉ ẩn các nút CƯỢC riêng lẻ, bảo vệ tuyệt đối các khối chứa lớn
 ##div[class*='grid'] > a:has-text(/CƯỢC|Cược/)
 ##div[class*='flex'] > a:has-text(/CƯỢC|Cược/)
 ##a[class*='bg-']:has-text(/CƯỢC|Cược/)
 ##button:has-text(/CƯỢC|Cược/)
 
-# SỬA LỖI CHÍ MẠNG: Chỉ khóa lớp phủ z-[110] và ghim sàn NẾU nó chứa link cá độ hoặc ảnh ad
-##div[class*='fixed'][class*='z-[110]']:has(a[href*='affiliateCode'])
-##div[class*='fixed'][class*='z-[110]']:has(img[src*='/banners/'])
-##div[class*='fixed'][class*='bottom-[52px]']:has(img[src*='/banners/'])
-
-
 # ==============================================================================
-# KHỐI 4: VÔ HIỆU HÓA SCRIPT (SCRIPTLET INJECTIONS - RUNTIME ONLY)
+# KHỐI 4: VÔ HIỆU HÓA SCRIPT (SCRIPTLET - AN TOÀN CHO CORE JAVASCRIPT)
 # ==============================================================================
-# Dành cho uBlock Origin (PC / Firefox Android)
+# ĐÃ GỠ BỎ hoàn toàn lệnh nguy hiểm: `#$#abort-on-property-read oc` để cứu lõi Player.
+# Chỉ giữ lại các lệnh chặn popup an toàn tiêu chuẩn không gây crash trang:
 ##+js(popunder)
 ##+js(nowindowopen)
 ##+js(noopfn, oc)
-
-# Dành cho AdGuard Pro (Safari iOS / AdGuard App Android)
 #$#prevent-window-open
-#$#abort-on-property-read oc
