@@ -1,28 +1,29 @@
-! Title: ABPVN & Community Custom Rules (Ultimate Mobile Popunder Defuser)
-! Description: Bộ lọc tối ưu đặc trị bẫy click 2 lần trên môi trường di động (AdGuard & uBlock Mobile).
+! Title: ABPVN & Community Custom Rules (Universal Multi-Engine Match)
+! Description: Bộ lọc tối ưu hóa tương thích ngược cho cả AdBlock Plus (ABP) và AdGuard/uBlock.
 ! Homepage: https://github.com/vhd0/Stuff
 
-# ==========================================
-# 1. CHẶN MẠNG TỐI CAO (ÉP ĐIỆN THOẠI PHẢI KHÓA)
-# ==========================================
-# Thêm $important để chặn đứng cdn2.vietadx.net bất chấp bộ nhớ đệm
+# ==============================================================================
+# TẦNG 1: CHẶN ĐƯỜNG TRUYỀN (NETWORK RULE) - TẤT CẢ TRÌNH CHẶN ĐỀU HIỂU
+# ==============================================================================
 ||vietadx.net^$important
-||quoracdn.net/main-qimg-*$image,domain=viet69.be|viet69.net
+||quoracdn.net/main-qimg-*$image
 
-# ==========================================
-# 2. DIỆT SCRIPT INLINE & THAM SỐ LIÊN KẾT
-# ==========================================
-##script:contains(vietadx)
-##script:contains(oc())
-##script:contains(popunder)
-##a[href*='utm_medium=topbanner']
-##a[href*='utm_medium=catfish']
-##a[href*='utm_medium=preload']
-##a[href*='utm_campaign=cpd']
+# Đón đầu và khóa cứng toàn bộ các domain nhà cái có trong mã nguồn quảng cáo
+||lu88.tw^
+||hbet.li^
+||man88.st^
+||gbong.moi^
+||pub88.day^
+||9bet.llc^
+||tx88.fan^
+||xibet.ec^
+||vu88.ac^
+||du88.cafe^
+||usbet.to^
 
-# ==========================================
-# 3. TRIỆT TIÊU TOÀN BỘ KHUNG HIỂN THỊ CỨNG
-# ==========================================
+# ==============================================================================
+# TẦNG 2: THẨM MỸ TIÊU CHUẨN (ÉP ẨN CSS - DÀNH RIÊNG CHO ADBLOCK PLUS TRÁNH LỖI)
+# ==============================================================================
 ##[id*='-adx']
 ##.catfish-top
 ##.catfish-bottom
@@ -31,21 +32,28 @@
 ##[class*='catfish-']
 ##.banner-preload
 ##.banner-preload-container
+##a[id^='bb'][onclick]
+##a[onclick^='oc()']
+##a[href*='utm_medium=popunder']
+##a[href*='utm_medium=topbanner']
+##a[href*='utm_medium=catfish']
+##a[href*='utm_medium=preload']
+##a[href*='utm_campaign=cpd']
+##a[style*='opacity:0']
+
+# ==============================================================================
+# TẦNG 3: VŨ KHÍ NÂNG CAO (UBLOCK & ADGUARD XỬ LÝ - ABP SẼ TỰ ĐỘNG BỎ QUA)
+# ==============================================================================
 ##a[id^='bb'][onclick]:remove()
 ##a[onclick^='oc()']:remove()
 ##a[href*='utm_medium=popunder']:remove()
+##script:contains(vietadx)
+##script:contains(oc())
 
-# ==========================================
-# 4. KHÓA POPUNDER TRÊN PC (UBLOCK ORIGIN SYNTAX)
-# ==========================================
 ##+js(popunder)
 ##+js(nowindowopen)
 ##+js(noopfn, oc)
 
-# ==========================================
-# 5. KHÓA POPUNDER TRÊN MOBILE (ADGUARD MOBILE SYNTAX)
-# ==========================================
-# Cú pháp đặc chủng dành riêng cho app AdGuard và các trình chặn trên điện thoại
 #$#prevent-window-open
 #$#abort-on-property-read oc
 #$#abort-current-inline-script vietadx
