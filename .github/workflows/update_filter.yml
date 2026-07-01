@@ -1,6 +1,13 @@
 name: Update Adblock Plus Custom Filter
 
 on:
+  push:
+    paths:
+      - 'customrules.txt' # Tự động chạy nếu file này có thay đổi từ bạn
+  workflow_run:
+    workflows: ["Compile Custom Rules"] # Tự động chạy ngay sau khi robot gộp mã xong (Trùng với 'name' của file yml trước)
+    types:
+      - completed
   schedule:
     - cron: '0 0 * * *'
   workflow_dispatch:
@@ -8,6 +15,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # ĐIỀU KIỆN: Chỉ chạy nếu kích hoạt bằng tay/cron/push HOẶC nếu workflow gộp mã trước đó chạy THÀNH CÔNG
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v5
