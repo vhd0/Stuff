@@ -1,7 +1,7 @@
 import requests
 from datetime import datetime
 
-# DANH SÁCH URL SẠCH - NỀN TẢNG CHO TOÀN BỘ HỆ THỐNG
+# DANH SÁCH URL SẠCH - ĐÃ LOẠI BỎ HAGEZI GAMBLING THEO YÊU CẦU
 URLS = [
     # === 1. BỘ LỌC CỦA BẠN (Đặc trị Việt Nam) ===
     "https://raw.githubusercontent.com/abpvn/abpvn/refs/heads/master/filter/abpvn.txt",
@@ -9,9 +9,8 @@ URLS = [
     # === 2. BỘ LỌC TỔNG HỢP DUY NHẤT CỦA BIGDARGON (hostsVN) ===
     "https://raw.githubusercontent.com/bigdargon/hostsVN/refs/heads/master/filters/adservers-all.txt",
     
-    # === 3. CÁC BỘ LỌC ĐỈNH CAO TỪ HAGEZI (Định dạng Adblock) ===
+    # === 3. BỘ LỌC ĐỈNH CAO TỪ HAGEZI (Định dạng Adblock) ===
     "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/pro.txt",        
-    "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/gambling.txt",   
     
     # === 4. HỆ SINH THÁI ADGUARD CHUYÊN SÂU ===
     "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_2_Base/filter.txt",        
@@ -25,59 +24,41 @@ URLS = [
 ]
 
 # ==============================================================================
-# BỘ LỌC THẨM MỸ TỔNG HỢP ĐẶC TRỊ BANNER DIỆN RỘNG (UNIVERSAL COSMETIC FILTERS)
+# BỘ LỌC ĐẶC TRỊ POPUP & STACK BANNER CỜ BẠC TRÊN WEB LẬU VIỆT NAM (COSMETIC)
 # ==============================================================================
 CUSTOM_RULES = [
-    # --- 1. Triệt hạ các vị trí đặt Banner kinh điển (Ad Slots / Placements) ---
-    "##.ad-placement",
-    "##.ad-slot",
-    "##.ad-zone",
-    "##.ad-holder",
-    "##.ad-wrapper",
-    "##.ads-box",
-    "##.advertising-container",
-    "##.main-ad-container",
+    # --- 1. Ép ẩn khung Banner đè giữa màn hình (Popup Interstitials như tấm HBET) ---
+    "##div[class*='popup-ads']",
+    "##div[class*='popup-banner']",
+    "##div[id*='popup-ad']",
+    "##div[class*='modal-ads']",
+    "##div[class*='adv-popup']",
+    "##.ads-overlay",
+    "##.popup-overlay",
+    "##[id^='popup-overlay']",
     
-    # --- 2. Định vị chính xác Banner Quảng cáo theo tiền tố/hậu tố an toàn ---
-    "##[class^='ad-banner']",
-    "##[id^='ad-banner']",
-    "##[class*='ad_banner']",
-    "##[class$='-banner-ad']",
-    "##[id$='-banner-ad']",
-    "##.banner-ads",
-    "##.banner_ad",
-    "##.top-banner-ad",
-    "##.bottom-banner-ad",
-    "##.sidebar-ad-wrapper",
+    # --- 2. Quét sạch các chuỗi Banner xếp chồng dính ở đáy/đỉnh (Catfish / Sticky Ads như cụm MAN88) ---
+    "##.catfish-ad",
+    "##.sticky-bottom-ads",
+    "##.sticky-top-ads",
+    "##div[class*='bottom-bar-ads']",
+    "##div[class*='top-bar-ads']",
+    "##div[class*='floating-banner']",
+    "##div[id*='floating-banner']",
+    "##[class*='sticky-banner']",
+    "##div[class*='ads-desktop']",
+    "##div[class*='ads-mobile']",
+    "##div[class*='floating-left']",
+    "##div[class*='floating-right']",
     
-    # --- 3. Bẻ gãy các khung Banner Nổi / Banner Dính (Sticky & Floating Banners) ---
-    "##div[class*='sticky-ad']",
-    "##div[id*='sticky-ad']",
-    "##div[class*='floating-ad']",
-    "##.ad-float",
-    "##.fixed-ad",
-    "##.bottom-sticky-ads",
+    # --- 3. Nhắm mục tiêu cấu trúc CSS ép vị trí (Fixed/Absolute) chứa liên kết ảnh bẩn ---
+    "##div[style*='position: fixed'][style*='z-index'] > a > img",
+    "##div[style*='position:fixed'][style*='z-index'] a img",
     
-    # --- 4. Ép chết các mã nhúng Banner phần cứng từ các Ad Network lớn ---
-    "##ins.adsbygoogle",                                # Thẻ hiển thị Banner Google AdSense
-    "##amp-ad",                                         # Khung Banner Google AMP trên di động
-    "##div[id^='div-gpt-ad-']",                         # Khung quảng cáo Google Publisher Tag (DFP)
-    "##div[id^='dfp-ad-']",                             # Khung DFP thế hệ cũ
-    "##iframe[id^='google_ads_iframe']",                # Ép ẩn Iframe chứa lõi banner của Google
-    "##div[class^='mgid_']",                            # Mạng lưới banner native MGID
-    "##div[id^='taboola-']",                            # Mạng lưới banner đề xuất Taboola
-    "##div[class*='ezoic']",                            # Hệ thống banner tự động Ezoic
-    
-    # --- 5. Luật xử lý các khoảng trống thừa sau khi chặn (Thu gọn khung hình) ---
-    "##.ad-space:collapse",
-    "##.ad-container:collapse",
-    "##.ads-wrapper:collapse",
-    
-    # --- BONUS: Giữ lại luật bóp chết trang test cũ để bạn check điểm nếu muốn ---
-    "adblock-tester.com##.flash-banner",
-    "adblock-tester.com##.gif-image",
-    "adblock-tester.com##.static-image",
-    "adblock-tester.com##img[src*='advmaker']"
+    # --- 4. Thu gọn triệt để vùng không gian bị chiếm dụng sau khi ẩn khung ---
+    "##div[class*='popup-']:collapse",
+    "##div[class*='sticky-']:collapse",
+    "##div[class*='ads-']:collapse"
 ]
 
 def fetch_and_merge_pure():
@@ -111,8 +92,8 @@ def fetch_and_merge_pure():
         except Exception as e:
             print(f"❌ LỖI: Khi tải {url}: {e}")
             
-    # TIÊM BỘ LỌC ĐẶC TRỊ BANNER TOÀN CẦU VÀO CUỐI FILE
-    print(f"-> Đang nạp {len(CUSTOM_RULES)} quy tắc Universal Banner Cosmetic Filters...")
+    # TIÊM BỘ LỌC ĐẶC TRỊ POPUP CỜ BẠC HTML VÀO CUỐI FILE
+    print(f"-> Đang nạp {len(CUSTOM_RULES)} quy tắc Đặc trị HTML Popups Web lậu...")
     for rule in CUSTOM_RULES:
         if rule not in seen_rules:
             seen_rules.add(rule)
@@ -123,9 +104,9 @@ def fetch_and_merge_pure():
 def write_pure_filter(rules):
     today = datetime.utcnow().strftime('%Y-%m-%d')
     header = f"""[Adblock Plus 2.0]
-! Title: ABPVN & Community Ultimate Pure Filter (Universal AdGuard Edition)
-! Description: Bộ lọc tổng hợp nguyên bản thuần khiết tích hợp cấu trúc Universal Cosmetic Filters bẻ gãy mọi Banner Ads toàn cầu.
-! Version: 9.0.{datetime.utcnow().strftime('%Y%m%d')}
+! Title: ABPVN & Community Ultimate Pure Filter (Anti-Popup Edition)
+! Description: Bộ lọc tổng hợp loại bỏ hoàn toàn Gambling, tập trung Cosmetic Filter bẻ gãy các lớp đè HTML Popup/Sticky lậu.
+! Version: 10.0.{datetime.utcnow().strftime('%Y%m%d')}
 ! Author: @vhd0_
 ! Last modified: {today} UTC
 ! Expires: 1 days
