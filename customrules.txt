@@ -5,6 +5,59 @@
 
 
 # ==============================================================================
+# MODULE: Hoiquan.txt
+# ==============================================================================
+
+# ==============================================================================
+# --- Chặn mạng Ad Server nội bộ (Thư mục chứa tài nguyên quảng cáo) ---
+*/banners/sv_*$image
+*/banners/vs_*$image
+*/banners/*x*.gif$image
+
+# --- Khóa tham số chuyển hướng và mã đại lý (Affiliate / Tracking) ---
+*affiliateCode=*
+*utm_medium=topbanner*
+*utm_medium=catfish*
+*utm_medium=preload*
+*utm_medium=popunder*
+*utm_campaign=cpd*
+
+# --- Khung chứa Ad dạng ID ngẫu nhiên diện rộng (Đã gỡ bỏ domain) ---
+###col-780436198
+###row-2005707670
+###col-295005978
+###row-450542062
+###row-427915716
+
+# --- PHẪU THUẬT NỘI SOI TRONG PLAYER (An toàn tuyệt đối cho luồng Video chính) ---
+# Xóa bỏ lớp ad chuyên dụng và hộp chứa đè lên video dựa theo cấu trúc Artplayer
+##.art-layer-ad
+##div#video-overlay-bottom
+##.ad-track
+
+# Diệt tất cả các nút bấm hoặc liên kết điều hướng cá độ nằm trong phân đoạn Ad Layer
+##.art-layer-ad a
+##.art-layer-ad img
+
+# --- Diệt banner quảng cáo và nút bấm ngoài giao diện Tailwind ---
+##a:has(img[src*='/banners/'])
+##div[class*='keen-slider__slide']:has(img[src*='/banners/'])
+##.keen-slider__slide:has(a[href*='register'])
+##.keen-slider__slide:has(a[href*='affiliate'])
+##.keen-slider__slide:has-text(/CƯỢC|Cược/)
+
+# --- Nhận diện thông minh cụm nút CƯỢC trôi nổi của nhà cái trên UI ---
+##div[class*='grid'] > a:has-text(/CƯỢC|Cược/)
+##div[class*='flex'] > a:has-text(/CƯỢC|Cược/)
+##a[class*='bg-']:has-text(/CƯỢC|Cược/)
+##button:has-text(/CƯỢC|Cược/)
+
+# --- Khóa các hộp thoại/Lớp phủ ghim màn hình (Chỉ ẩn khi chứa cấu trúc ảnh ad công khai) ---
+##div[class*='fixed'][class*='z-[110]']:has(img[src*='/banners/'])
+##div[class*='fixed'][class*='bottom-[52px]']:has(img[src*='/banners/'])
+
+
+# ==============================================================================
 # MODULE: VietAdx.txt
 # ==============================================================================
 
