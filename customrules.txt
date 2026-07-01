@@ -1,1 +1,35 @@
+! Title: ABPVN & Community Custom Rules (VietAdx & Anti-Popunder Spec)
+! Description: Các quy tắc đặc trị hệ thống quảng cáo VietAdx, Catfish Banner và bẫy click tàng hình.
+! Homepage: https://github.com/vhd0/Stuff
 
+# --- CHẶN MẠNG (NETWORK RULE) ---
+||vietadx.net^
+
+# --- ĐẶC TRỊ THEO THAM SỐ LIÊN KẾT (DÙ ĐỔI ID/CLASS VẪN CHẶN ĐƯỢC) ---
+##a[href*='utm_medium=topbanner']
+##a[href*='utm_medium=catfish']
+##a[href*='utm_medium=preload']
+##a[href*='utm_medium=popunder']
+##a[href*='utm_campaign=cpd']
+
+# --- ĐẶC TRỊ PHẦN TỬ HIỂN THỊ ĐÃ PHÁT HIỆN ---
+##[id*='-adx']
+##.catfish-top
+##.catfish-bottom
+##.banner-catfish-top
+##.banner-catfish-bottom
+##[class*='catfish-']
+##.banner-preload
+##.banner-preload-container
+
+# --- BẺ GÃY BẪY CLICK TÀNG HÌNH POPUNDER ---
+##a[id^='bb'][onclick]
+##a[onclick^='oc()']
+##a[style*='opacity:0']
+##a[style*='opacity: 0']
+
+# --- HỘP CHỨA VÔ DANH CẤP GỐC (ROOT DIVS CHỨA OVERLAY) ---
+##div[style*='position: fixed'][style*='z-index']
+##div[style*='position:fixed'][style*='z-index']
+##div[style*='z-index'][style*='position: fixed']
+##div[style*='z-index'][style*='position:fixed']
