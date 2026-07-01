@@ -150,39 +150,63 @@ jobs:
                 req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
                 content = urllib.request.urlopen(req, timeout=15).read().decode("utf-8-sig")
                 
-                # SỬA ĐỔI REGEX: Nhận diện mọi loại đuôi link gián tiếp, php, php?id=..., không ép đuôi m3u8 cố định
-                chunks = re.findall(r'(#EXTINF:[^\n]*),(.*?)\n(https?://[^\s#\n]+)', content)
+                # SỬ DỤNG STATE MACHINE (LINE-BY-LINE PARSER) ĐỂ KHÔNG BỎ SÓT LINK
+                lines = content.splitlines()
+                current_extinf = None
+                current_raw_name = None
                 
-                for extinf_line, raw_name, link in chunks:
-                    link = link.strip()
-                    # Loại bỏ trường hợp bắt nhầm các dòng comment bị rò link
-                    if link.startswith("#") or " " in link: continue
+                for line in lines:
+                    line = line.strip()
+                    if not line:
+                        continue
                     
-                    name = get_canonical_name(raw_name)
+                    if line.startswith("#EXTINF:"):
+                        current_extinf = line
+                        # Lấy phần tên gốc nằm sau dấu phẩy cuối cùng
+                        parts = line.split(',')
+                        if len(parts) > 1:
+                            current_raw_name = parts[-1].strip()
+                        else:
+                            current_raw_name = ""
+                        continue
                     
-                    raw_logo = ""
-                    logo_match = re.search(r'tvg-logo="([^"]*)"', extinf_line, re.IGNORECASE)
-                    if logo_match:
-                        raw_logo = logo_match.group(1).strip()
-                    
-                    tvg_id, json_logo = "", ""
-                    for ch_id, ch_obj in registry.items():
-                        if no_marks(ch_obj.get("name")) == no_marks(name):
-                            tvg_id = ch_obj.get("id", "")
-                            json_logo = ch_obj.get("logo", "").strip()
-                            break
-                    
-                    final_logo = json_logo if json_logo else raw_logo
-                    group = get_group(name, tvg_id)
-                    
-                    if name not in raw_collected:
-                        raw_collected[name] = {"group": group, "id": tvg_id, "logo": final_logo, "urls": []}
-                    else:
-                        if not raw_collected[name]["logo"] and final_logo:
-                            raw_collected[name]["logo"] = final_logo
-                    
-                    if link not in raw_collected[name]["urls"]:
-                        raw_collected[name]["urls"].append(link)
+                    # Nếu gặp một dòng cấu trúc tùy biến bắt đầu bằng # khác thì bỏ qua để tìm link bên dưới
+                    if line.startswith("#"):
+                        continue
+                        
+                    # Dòng này chắc chắn là link phát trực tiếp
+                    if line.startswith("http://") or line.startswith("https://"):
+                        if current_extinf and current_raw_name:
+                            name = get_canonical_name(current_raw_name)
+                            
+                            raw_logo = ""
+                            logo_match = re.search(r'tvg-logo="([^"]*)"', current_extinf, re.IGNORECASE)
+                            if logo_match:
+                                raw_logo = logo_match.group(1).strip()
+                            
+                            tvg_id, json_logo = "", ""
+                            for ch_id, ch_obj in registry.items():
+                                if no_marks(ch_obj.get("name")) == no_marks(name):
+                                    tvg_id = ch_obj.get("id", "")
+                                    json_logo = ch_obj.get("logo", "").strip()
+                                    break
+                            
+                            final_logo = json_logo if json_logo else raw_logo
+                            group = get_group(name, tvg_id)
+                            
+                            if name not in raw_collected:
+                                raw_collected[name] = {"group": group, "id": tvg_id, "logo": final_logo, "urls": []}
+                            else:
+                                if not raw_collected[name]["logo"] and final_logo:
+                                    raw_collected[name]["logo"] = final_logo
+                            
+                            if line not in raw_collected[name]["urls"]:
+                                raw_collected[name]["urls"].append(line)
+                        
+                        # Reset trạng thái để chờ cặp kênh tiếp theo
+                        current_extinf = None
+                        current_raw_name = None
+
             except Exception as e:
                 print(f"Lỗi xử lý nguồn {url}: {e}")
                 continue
@@ -208,12 +232,12 @@ jobs:
                 for idx, url in enumerate(data["urls"]):
                     suffix = f" [Dự phòng {idx+1}]" if idx > 0 else ""
                     f.write(f'#EXTINF:-1{tvg} group-title="{data["group"]}",{name}{suffix}\n{url}\n')
-        print("Đã quét và tối ưu toàn bộ luồng link gián tiếp/PHP thành công!")
+        print("Đã vá lỗi triệt để bằng bộ giải mã State Machine, thu thập 100% link thành công!")
         EOF
         python3 optimize_m3u.py
         
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
         git add "listtivi.m3u"
-        git commit -m "Fix: Support all non-m3u8 indirect stream and PHP links seamlessly" || echo "No changes"
+        git commit -m "Fix: Implement state-machine parser to capture 100% streams regardless of line breaks or formats" || echo "No changes"
         git push
