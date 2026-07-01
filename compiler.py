@@ -1,73 +1,64 @@
 import requests
 from datetime import datetime
 
-# Danh sách phân vùng bộ lọc - kết hợp đặc trị cá độ, porn và quảng cáo hình ảnh (.gif)
+# Danh sách URL tối ưu: ABPVN + Link tổng hợp của Bigdargon + Bộ lọc HaGeZi PRO + Lõi Quốc tế
 URLS = [
     # === 1. BỘ LỌC CỦA BẠN (Đặc trị Việt Nam) ===
     "https://raw.githubusercontent.com/abpvn/abpvn/refs/heads/master/filter/abpvn.txt",
     
-    # === 2. ĐẶC TRỊ CÁ ĐỘ, CỜ BẠC & BẢO MẬT (Dành cho VN và Quốc tế) ===
-    "https://raw.githubusercontent.com/bigdargon/hostsVN/master/option/gambling.txt", # Chuyên cờ bạc, cá độ bóng đá
-    "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/badware.txt",
+    # === 2. BỘ LỌC TỔNG HỢP DUY NHẤT CỦA BIGDARGON (hostsVN) ===
+    "https://raw.githubusercontent.com/bigdargon/hostsVN/refs/heads/master/filters/adservers-all.txt",
     
-    # === 3. ĐẶC TRỊ NỘI DUNG NGƯỜI LỚN & QUẢNG CÁO ĐỘC HẠI ===
-    "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_14_Annoyances/filter.txt", # Pop-up lừa đảo, ẩn
-    "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/privacy.txt",
+    # === 3. BỘ LỌC HAGEZI PRO (Định dạng Adblock - Ổn định và an toàn nhất) ===
+    "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/pro.txt",
     
-    # === 4. BỘ LỌC QUẢNG CÁO CORE (EasyList & AdGuard Base) ===
-    "https://raw.githubusercontent.com/easylist/easylist/master/easylist/easylist_general_block.txt",
-    "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_2_Base/filter.txt",
-    "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/unbreak.txt"
+    # === 4. CÁC BỘ LỌC CỐT LÕI TỪ UBLOCK ORIGIN & EASYLIST TOÀN CẦU ===
+    "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/badware.txt",     # Chặn malware, phần mềm độc hại
+    "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/privacy.txt",     # Chặn theo dõi ngầm quốc tế
+    "https://raw.githubusercontent.com/easylist/easylist/master/easylist/easylist_general_block.txt", # EasyList Core quảng cáo toàn cầu
+    "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_2_Base/filter.txt", # AdGuard Base nâng cao
+    "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/unbreak.txt"      # Sửa lỗi vỡ trang quốc tế
 ]
 
-def fetch_and_merge():
-    # Sử dụng list để giữ nguyên cấu trúc gốc của từng bộ lọc, tránh làm lỗi modifier
-    network_rules = []
-    cosmetic_rules = []
-    exception_rules = []
-    
-    # Tập hợp để theo dõi nhanh, chỉ xóa các dòng trùng lặp thô giống nhau 100% nhằm giảm tải dung lượng
+def fetch_and_merge_pure():
+    merged_rules = []
     seen_rules = set()
 
-    print("Đang tải và xử lý đồng bộ dữ liệu...")
+    print("Đang tải và gộp dữ liệu nguyên bản từ tất cả các nguồn...")
     for url in URLS:
         try:
             response = requests.get(url, timeout=30)
             if response.status_code == 200:
                 lines = response.text.splitlines()
+                print(f"-> Tải thành công: {url.split('/')[-1]} ({len(lines)} dòng)")
                 for line in lines:
                     line = line.strip()
                     
-                    # Bỏ qua dòng trống, comment hoặc tiêu đề trùng lặp
+                    # CHỈ bỏ qua dòng trống, dòng chú thích gốc (!) hoặc tiêu đề định dạng [Adblock]
                     if not line or line.startswith('!') or line.startswith('[Adblock'):
                         continue
                     
-                    # Nếu dòng này đã tồn tại ở bộ lọc trước, bỏ qua để giảm dung lượng file
+                    # Chỉ lọc trùng nếu dòng đó đã xuất hiện trước đó để tối ưu dung lượng
                     if line in seen_rules:
                         continue
                     seen_rules.add(line)
                     
-                    # Phân loại nhanh để xếp vào các Section, giữ nguyên cú pháp gốc (Không can thiệp sâu)
-                    if line.startswith('@@') or '#@#' in line:
-                        exception_rules.append(line)
-                    elif '##' in line or '#?#' in line or '#$#' in line:
-                        cosmetic_rules.append(line)
-                    else:
-                        network_rules.append(line)
+                    # Giữ nguyên bản hoàn toàn và nạp tuyến tính nối đuôi nhau
+                    merged_rules.append(line)
             else:
-                print(f"Không thể tải: {url} (Status: {response.status_code})")
+                print(f"❌ LỖI: Không thể tải {url} (Status: {response.status_code})")
         except Exception as e:
-            print(f"Lỗi khi tải {url}: {e}")
+            print(f"❌ LỖI: Khi tải {url}: {e}")
             
-    return network_rules, cosmetic_rules, exception_rules
+    return merged_rules
 
-def write_filter_file(network, cosmetic, exception):
+def write_pure_filter(rules):
     today = datetime.utcnow().strftime('%Y-%m-%d')
     
     header = f"""[Adblock Plus 2.0]
-! Title: ABPVN & Community Ultimate Anti-Gambling Filter
-! Description: Bộ lọc tổng hợp cấu trúc mở rộng, đặc trị các banner .gif cá độ, cờ bạc và trang web người lớn.
-! Version: 3.0.{datetime.utcnow().strftime('%Y%m%d')}
+! Title: ABPVN & Community Ultimate Pure Filter
+! Description: Bộ lọc tổng hợp nguyên bản hiệu năng cao, kết hợp ABPVN, Bigdargon All-in-One, HaGeZi Pro và lõi quốc tế.
+! Version: 6.0.{datetime.utcnow().strftime('%Y%m%d')}
 ! Author: @vhd0_
 ! Last modified: {today} UTC
 ! Expires: 1 days
@@ -75,34 +66,14 @@ def write_filter_file(network, cosmetic, exception):
 """
 
     with open("abp.txt", "w", encoding="utf-8") as f:
-        # 1. Header & Metadata
         f.write(header + "\n")
         
-        # Thêm thủ công một số luật chặn đuôi ảnh động phổ biến từ mạng lưới cá độ tại VN
-        f.write("! === CUSTOM BANNER RULES ===\n")
-        f.write("||*.gif$image,domain=~google.com,~youtube.com,~facebook.com\n") # Hạn chế load các file gif lạ ở các trang không phổ biến
-        f.write("! -----------------------------------\n\n")
-        
-        # 2. Network Filters
-        f.write("! === SECTION 1: NETWORK FILTERS ===\n")
-        for rule in network:
+        # Ghi trực tiếp toàn bộ các quy tắc theo đúng cấu trúc nguyên bản
+        for rule in rules:
             f.write(rule + "\n")
-        f.write("\n")
         
-        # 3. Cosmetic Filters
-        f.write("! === SECTION 2: COSMETIC FILTERS / ELEMENT HIDING ===\n")
-        for rule in cosmetic:
-            f.write(rule + "\n")
-        f.write("\n")
-        
-        # 4. Exception Rules
-        f.write("! === SECTION 3: EXCEPTION RULES / WHITELISTING ===\n")
-        for rule in exception:
-            f.write(rule + "\n")
-        f.write("\n")
-        
-    print(f"Hoàn thành! File abp.txt đã được tối ưu cấu trúc gốc độc lập.")
+    print(f"🎉 Thành công! Đã xuất file nguyên bản abp.txt với tổng cộng {len(rules)} quy tắc.")
 
 if __name__ == "__main__":
-    net, cos, exc = fetch_and_merge()
-    write_filter_file(net, cos, exc)
+    rules = fetch_and_merge_pure()
+    write_pure_filter(rules)
