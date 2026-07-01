@@ -150,7 +150,6 @@ jobs:
                 req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
                 content = urllib.request.urlopen(req, timeout=15).read().decode("utf-8-sig")
                 
-                # SỬ DỤNG STATE MACHINE (LINE-BY-LINE PARSER) ĐỂ KHÔNG BỎ SÓT LINK
                 lines = content.splitlines()
                 current_extinf = None
                 current_raw_name = None
@@ -160,21 +159,19 @@ jobs:
                     if not line:
                         continue
                     
-                    if line.startswith("#EXTINF:"):
+                    if line.lower().startswith("#extinf:"):
                         current_extinf = line
-                        # Lấy phần tên gốc nằm sau dấu phẩy cuối cùng
-                        parts = line.split(',')
-                        if len(parts) > 1:
-                            current_raw_name = parts[-1].strip()
+                        name_match = re.search(r',([^,]*)$', line)
+                        if name_match:
+                            current_raw_name = name_match.group(1).strip()
                         else:
-                            current_raw_name = ""
+                            current_raw_name = line.split(',')[-1].strip()
                         continue
                     
-                    # Nếu gặp một dòng cấu trúc tùy biến bắt đầu bằng # khác thì bỏ qua để tìm link bên dưới
                     if line.startswith("#"):
                         continue
                         
-                    # Dòng này chắc chắn là link phát trực tiếp
+                    # TỐI ƯU CỐT LÕI: Thu thập MỌI dòng link liên tiếp thuộc về #EXTINF hiện tại (không clear về None)
                     if line.startswith("http://") or line.startswith("https://"):
                         if current_extinf and current_raw_name:
                             name = get_canonical_name(current_raw_name)
@@ -202,10 +199,6 @@ jobs:
                             
                             if line not in raw_collected[name]["urls"]:
                                 raw_collected[name]["urls"].append(line)
-                        
-                        # Reset trạng thái để chờ cặp kênh tiếp theo
-                        current_extinf = None
-                        current_raw_name = None
 
             except Exception as e:
                 print(f"Lỗi xử lý nguồn {url}: {e}")
@@ -232,12 +225,12 @@ jobs:
                 for idx, url in enumerate(data["urls"]):
                     suffix = f" [Dự phòng {idx+1}]" if idx > 0 else ""
                     f.write(f'#EXTINF:-1{tvg} group-title="{data["group"]}",{name}{suffix}\n{url}\n')
-        print("Đã vá lỗi triệt để bằng bộ giải mã State Machine, thu thập 100% link thành công!")
+        print("Đã gom toàn bộ các danh sách đa link (Multi-link) thành công!")
         EOF
         python3 optimize_m3u.py
         
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
         git add "listtivi.m3u"
-        git commit -m "Fix: Implement state-machine parser to capture 100% streams regardless of line breaks or formats" || echo "No changes"
+        git commit -m "Fix: Support multi-line links layout beneath a single extinf tag" || echo "No changes"
         git push
