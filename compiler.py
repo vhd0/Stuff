@@ -11,7 +11,7 @@ URLS = [
     "https://raw.githubusercontent.com/easylist/easylist/master/easylist/easylist_general_block.txt",
     "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_2_Base/filter.txt",
     
-    # 3. Bộ lọc bảo mật, chống bám đuôi và mã độc
+    # 3. Bộ lọc bảo mật, chống bám đuôi và mã độc chuyên sâu
     "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/privacy.txt",
     "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/badware.txt",
     
@@ -36,22 +36,19 @@ def fetch_and_parse():
                 for line in lines:
                     line = line.strip()
                     
-                    # CHỈ bỏ qua dòng trống và dòng comment thực sự (bắt đầu bằng !) hoặc Header của ABP
+                    # CHỈ bỏ qua dòng trống và dòng comment thực sự
                     if not line or line.startswith('!') or line.startswith('[Adblock'):
                         continue
                     
                     # 1. XỬ LÝ LUẬT NGOẠI LỆ (Whitelisting)
-                    # Bao gồm bắt đầu bằng @@ hoặc chứa cú pháp loại trừ cosmetic #@#
                     if line.startswith('@@') or '#@#' in line:
                         exception_rules.add(line)
                         
                     # 2. XỬ LÝ LUẬT ẨN PHẦN TỬ (Cosmetic Filters)
-                    # Nhận diện chính xác các ký hiệu ẩn: ##, #?#, #$# bất kể có tên miền phía trước hay không
                     elif re.search(r'(?<!#)##', line) or '#?#' in line or '#$#' in line:
                         cosmetic_rules.add(line)
                         
                     # 3. XỬ LÝ LUẬT MẠNG (Network Filters)
-                    # Tất cả các luật còn lại bao gồm chặn đường dẫn lửng, modifier $domain, regex mạng...
                     else:
                         network_rules.add(line)
             else:
@@ -59,15 +56,30 @@ def fetch_and_parse():
         except Exception as e:
             print(f"Lỗi khi tải {url}: {e}")
             
-    return sorted(list(network_rules)), sorted(list(cosmetic_rules)), sorted(list(exception_rules))
+    # Sắp xếp thông minh: Đẩy các quy tắc tối ưu, quảng cáo cốt lõi, ads.js, pagead.js lên đầu bảng
+    def network_priority_key(rule):
+        # Mức 0 (Ưu tiên cao nhất): Các từ khóa ngắn và file script nguy hiểm hay bị lọt
+        if rule in ['ads.js', 'pagead.js', 'ads', 'tracker'] or rule.endswith('.js') or rule.endswith('.js^'):
+            return (0, len(rule), rule)
+        # Mức 1: Các quy tắc tối ưu hóa hiệu năng cao bắt đầu bằng ||
+        elif rule.startswith('||'):
+            return (1, len(rule), rule)
+        # Mức 2: Các quy tắc thông thường khác
+        return (2, len(rule), rule)
+
+    sorted_network = sorted(list(network_rules), key=network_priority_key)
+    sorted_cosmetic = sorted(list(cosmetic_rules))
+    sorted_exception = sorted(list(exception_rules))
+            
+    return sorted_network, sorted_cosmetic, sorted_exception
 
 def write_filter_file(network, cosmetic, exception):
     today = datetime.utcnow().strftime('%Y-%m-%d')
     
     header = f"""[Adblock Plus 2.0]
 ! Title: ABPVN & Community Ultimate Combined Filter
-! Description: Bộ lọc tối ưu hóa tối đa kết hợp từ ABPVN, EasyList, AdGuard và uBlock Origin. Bảo toàn 100% cấu pháp phức tạp.
-! Version: 2.1.{datetime.utcnow().strftime('%Y%m%d')}
+! Description: Bộ lọc tối ưu hóa cấu trúc dòng và thứ tự ưu tiên. Chặn triệt để ads.js, pagead.js và tracker.
+! Version: 2.2.{datetime.utcnow().strftime('%Y%m%d')}
 ! Author: @vhd0_
 ! Last modified: {today} UTC
 ! Expires: 1 days
@@ -77,7 +89,7 @@ def write_filter_file(network, cosmetic, exception):
     with open("abp.txt", "w", encoding="utf-8") as f:
         f.write(header + "\n")
         
-        f.write("! === SECTION 1: NETWORK FILTERS ===\n")
+        f.write("! === SECTION 1: NETWORK FILTERS (PRIORITIZED) ===\n")
         for rule in network:
             f.write(rule + "\n")
         f.write("\n")
@@ -92,7 +104,7 @@ def write_filter_file(network, cosmetic, exception):
             f.write(rule + "\n")
         f.write("\n")
         
-    print(f"Thành công! Đã bảo toàn và xuất ra abp.txt: {len(network)} luật mạng, {len(cosmetic)} luật giao diện, {len(exception)} luật ngoại lệ.")
+    print(f"Thành công! Đã tối ưu thứ tự và xuất ra abp.txt: {len(network)} luật mạng, {len(cosmetic)} luật giao diện.")
 
 if __name__ == "__main__":
     net, cos, exc = fetch_and_parse()
