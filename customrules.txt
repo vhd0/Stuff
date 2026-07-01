@@ -1,17 +1,31 @@
-! Title: ABPVN & Community Custom Rules (VietAdx & Anti-Popunder Spec)
-! Description: Các quy tắc đặc trị hệ thống quảng cáo VietAdx, Catfish Banner và bẫy click tàng hình.
+! Title: ABPVN & Community Custom Rules (Ultimate Popunder Defuser)
+! Description: Bộ lọc tối ưu bẻ gãy hoàn toàn hành vi click nhảy trang ngầm (Global Click Listener).
 ! Homepage: https://github.com/vhd0/Stuff
 
-# --- CHẶN MẠNG (NETWORK RULE) ---
+# ==========================================
+# 1. CHẶN MẠNG (NETWORK RULE)
+# ==========================================
 ||vietadx.net^
 
-# --- ĐẶC TRỊ THEO THAM SỐ LIÊN KẾT (DÙ ĐỔI ID/CLASS VẪN CHẶN ĐƯỢC) ---
+# ==========================================
+# 2. DIỆT SCRIPT INLINE (DIỆT TỪ TRONG TRỨNG NƯỚC)
+# ==========================================
+# Tìm và xóa sạch các thẻ <script> có chứa các từ khóa độc hại trước khi chúng kịp thực thi
+##script:contains(vietadx)
+##script:contains(oc())
+##script:contains(popunder)
+
+# ==========================================
+# 3. ĐẶC TRỊ THEO THAM SỐ LIÊN KẾT
+# ==========================================
 ##a[href*='utm_medium=topbanner']
 ##a[href*='utm_medium=catfish']
 ##a[href*='utm_medium=preload']
 ##a[href*='utm_campaign=cpd']
 
-# --- ĐẶC TRỊ PHẦN TỬ HIỂN THỊ ĐÃ PHÁT HIỆN ---
+# ==========================================
+# 4. TRIỆT TIÊU TOÀN BỘ KHUNG HIỂN THỊ
+# ==========================================
 ##[id*='-adx']
 ##.catfish-top
 ##.catfish-bottom
@@ -20,15 +34,18 @@
 ##[class*='catfish-']
 ##.banner-preload
 ##.banner-preload-container
-
-# --- DIỆT TẬN GỐC BẪY CLICK TÀNG HÌNH (XÓA SỔ KHỎI DOM TREE) ---
-# Ép trình duyệt xóa hẳn các thẻ này, khiến lệnh gọi .click() bằng JS của website bị vô hiệu hóa
 ##a[id^='bb'][onclick]:remove()
 ##a[onclick^='oc()']:remove()
 ##a[href*='utm_medium=popunder']:remove()
-##a[style*='opacity:0'][style*='width:1px']:remove()
-##a[style*='opacity:0'][style*='width: 1px']:remove()
 
-# --- VÔ HIỆU HÓA HÀM SỐ ĐỘC HẠI (SCRIPTLET INJECTION) ---
-# Biến hàm oc() thành hàm rỗng (noopfn), bấm vào sẽ không phản ứng gì nữa
+# ==========================================
+# 5. KHÓA CHẶT HÀNH VI MỞ TAB NGẦM (VŨ KHÍ HẠNG NẶNG)
+# ==========================================
+# Kích hoạt bộ giải mã Popunder nâng cao của uBlock/AdGuard
+##+js(popunder)
+
+# Tước quyền gọi lệnh window.open() của mọi script lậu trên trang (Không ảnh hưởng đến trình phát video)
+##+js(nowindowopen)
+
+# Biến hàm oc() thành vô hại nếu chúng cố tình gọi lại
 ##+js(noopfn, oc)
