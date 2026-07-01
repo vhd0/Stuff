@@ -55,7 +55,7 @@ def write_filter_file(network, cosmetic, exception):
 ! Author: @vhd0_
 ! Last modified: {today} UTC
 ! Expires: 1 days
-! Homepage: https://github.com/vhd0_/my-adblock-filter
+! Homepage: https://github.com/vhd0_/Stuff
 """
 
     # ĐÃ ĐỔI TÊN FILE THÀNH abp.txt Ở ĐÂY
