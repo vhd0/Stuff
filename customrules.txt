@@ -21,13 +21,16 @@
 *utm_medium=popunder*
 *utm_campaign=cpd*
 
-# --- DIỆT TẬN GỐC KHUNG CHỨA ID NGẪU NHIÊN (RANDOMIZED ID CONTAINERS) ---
-# Lớp phòng thủ 1: Dùng Regex (uBlock/AdGuard) tóm sống ID bắt đầu bằng col-/row- nối tiếp bởi ít nhất 5 chữ số liên tục
-##div[id/="^(col|row)-\d{5,}$/"]
+# --- ĐẶC TRỊ KHUNG TRỐNG TRÊN GIAO DIỆN FLATSOME / WORDPRESS ---
+# 1. Triệt hạ tận gốc toàn bộ khu vực chứa nút cược bằng class tĩnh mà admin đặt tên
+##.cuoc-nha-cai
 
-# Lớp phòng thủ 2: Bọc lót bằng CSS Standard (Chỉ ẩn div col-/row- nếu bên trong thực sự chứa ảnh hoặc link quảng cáo)
-##div[id^='col-']:has(img, a[href*='utm_'])
-##div[id^='row-']:has(img, a[href*='utm_'])
+# 2. Ép sập hoàn toàn các ô (col) và hàng (row) chứa liên kết quảng cáo cá độ (utm_campaign=cpd)
+##.col:has(a[href*='utm_campaign=cpd'])
+##.row:has(a[href*='utm_campaign=cpd'])
+
+# 3. Bọc lót thêm cho các ô chứa banner có tham số topbanner
+##.col:has(a[href*='utm_medium=topbanner'])
 
 # --- PHẪU THUẬT NỘI SOI TRONG PLAYER (An toàn tuyệt đối cho luồng Video chính) ---
 # Xóa bỏ lớp ad chuyên dụng và hộp chứa đè lên video dựa theo cấu trúc Artplayer
@@ -39,7 +42,7 @@
 ##.art-layer-ad a
 ##.art-layer-ad img
 
-# --- Diệt banner quảng cáo và nút bấm ngoài giao diện Tailwind ---
+# --- Diệt banner quảng cáo và nút bấm ngoài giao diện Tailwind (Nếu có) ---
 ##a:has(img[src*='/banners/'])
 ##div[class*='keen-slider__slide']:has(img[src*='/banners/'])
 ##.keen-slider__slide:has(a[href*='register'])
