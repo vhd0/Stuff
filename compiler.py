@@ -15,18 +15,33 @@ URLS = [
 ]
 
 # ==============================================================================
-# BỘ LỌC THẨM MỸ CAO CẤP - TÍCH HỢP & TỐI ƯU HÓA PHẦN TỬ BẠN CUNG CẤP
+# BỘ LỌC THẨM MỸ CAO CẤP - ĐẶC TRỊ LỚP PHỦ TÀNG HÌNH & CLICK-CATCHER
 # ==============================================================================
 CUSTOM_RULES = [
-    # --- 1. Lõi tối ưu hóa từ phát hiện của bạn (Triệt tiêu Catfish & Preload Ads) ---
+    # --- 1. Vũ khí mới: Tối ưu hóa từ phần tử bạn vừa bắt được xung quanh Video Player ---
+    "##[id*='underplayer-adx']",
+    "##[id*='top-adx']",
     "##.catfish-top",
     "##.catfish-bottom",
-    "##[id*='top-adx']",
     "##.banner-preload",
     "##.banner-preload-container",
     "##a.bna",
 
-    # --- 2. Hệ thống phòng thủ diện rộng (Universal Banners) ---
+    # --- 2. Triệt hạ các Lớp phủ tàng hình bắt Click (Invisible Overlays / Popunders) ---
+    "##div[class*='player-overlay']",
+    "##div[id*='player-overlay']",
+    "##div[class*='click-overlay']",
+    "##div[class*='popunder']",
+    "##div[id*='popunder']",
+    "##div[class*='wrapper-click']",
+    "##div[class*='video-ads']",
+    "##div[class*='player-ads']",
+    "##div[id*='player-ad']",
+    "##.ads-overlay",
+    "##.popup-overlay",
+    "##[id^='popup-overlay']",
+    
+    # --- 3. Hệ thống phòng thủ diện rộng chống Banner cứng đầu ---
     "##.ad-placement",
     "##.ad-slot",
     "##.ad-holder",
@@ -39,11 +54,12 @@ CUSTOM_RULES = [
     "##div[id*='sticky-ad']",
     "##div[class*='floating-ad']",
     
-    # --- 3. Đập tan cấu trúc fixed chứa ảnh liên kết lậu ---
+    # --- 4. Khóa cấu trúc CSS cố định chứa liên kết bẩn ---
     "##div[style*='position: fixed'][style*='z-index'] > a > img",
     "##div[style*='position:fixed'][style*='z-index'] a img",
     
-    # --- 4. Thu gọn không gian hiển thị (:collapse) ---
+    # --- 5. Ép thu gọn diện tích bị chiếm dụng ẩn danh (:collapse) ---
+    "##[id*='underplayer-adx']:collapse",
     "##.catfish-top:collapse",
     "##.catfish-bottom:collapse",
     "##.banner-preload:collapse"
@@ -76,12 +92,12 @@ def fetch_and_merge_pure():
                     seen_rules.add(line)
                     merged_rules.append(line)
             else:
-                print(f"❌ LỒI: Không thể tải {url} (Status: {response.status_code})")
+                print(f"❌ LỖI: Không thể tải {url} (Status: {response.status_code})")
         except Exception as e:
-            print(f"❌ LỒI: Khi tải {url}: {e}")
+            print(f"❌ LỖI: Khi tải {url}: {e}")
             
-    # TIÊM BỘ LỌC ĐẶC TRỊ ĐÃ TỐI ƯU VÀO CUỐI FILE
-    print(f"-> Đang nạp {len(CUSTOM_RULES)} quy tắc Thẩm mỹ tối ưu (đã fix n-child)...")
+    # TIÊM BỘ LỌC ĐẶC TRỊ LỚP PHỦ VÀO CUỐI FILE
+    print(f"-> Đang nạp {len(CUSTOM_RULES)} quy tắc Thẩm mỹ bẻ gãy Overlay & Click-Catcher...")
     for rule in CUSTOM_RULES:
         if rule not in seen_rules:
             seen_rules.add(rule)
@@ -92,9 +108,9 @@ def fetch_and_merge_pure():
 def write_pure_filter(rules):
     today = datetime.utcnow().strftime('%Y-%m-%d')
     header = f"""[Adblock Plus 2.0]
-! Title: ABPVN & Community Ultimate Pure Filter (Optimized Catfish Edition)
-! Description: Bộ lọc tổng hợp thuần khiết. Đã tối ưu cấu trúc phần tử Catfish, Preload Banner từ thực tế.
-! Version: 11.0.{datetime.utcnow().strftime('%Y%m%d')}
+! Title: ABPVN & Community Ultimate Pure Filter (Anti-Overlay Edition)
+! Description: Bộ lọc tổng hợp thuần khiết. Đã tích hợp lõi diệt lớp phủ tàng hình bọc Video Player và Anti-Popunder.
+! Version: 12.0.{datetime.utcnow().strftime('%Y%m%d')}
 ! Author: @vhd0_
 ! Last modified: {today} UTC
 ! Expires: 1 days
@@ -106,7 +122,7 @@ def write_pure_filter(rules):
         for rule in rules:
             f.write(rule + "\n")
         
-    print(f"🎉 Thành công! Đã cập nhật file abp.txt mới với tổng cộng {len(rules)} quy tắc.")
+    print(f"🎉 Thành công! Đã xuất file abp.txt chống overlay với tổng cộng {len(rules)} quy tắc.")
 
 if __name__ == "__main__":
     rules = fetch_and_merge_pure()
