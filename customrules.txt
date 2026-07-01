@@ -9,7 +9,6 @@
 ##a[href*='utm_medium=topbanner']
 ##a[href*='utm_medium=catfish']
 ##a[href*='utm_medium=preload']
-##a[href*='utm_medium=popunder']
 ##a[href*='utm_campaign=cpd']
 
 # --- ĐẶC TRỊ PHẦN TỬ HIỂN THỊ ĐÃ PHÁT HIỆN ---
@@ -22,14 +21,14 @@
 ##.banner-preload
 ##.banner-preload-container
 
-# --- BẺ GÃY BẪY CLICK TÀNG HÌNH POPUNDER ---
-##a[id^='bb'][onclick]
-##a[onclick^='oc()']
-##a[style*='opacity:0']
-##a[style*='opacity: 0']
+# --- DIỆT TẬN GỐC BẪY CLICK TÀNG HÌNH (XÓA SỔ KHỎI DOM TREE) ---
+# Ép trình duyệt xóa hẳn các thẻ này, khiến lệnh gọi .click() bằng JS của website bị vô hiệu hóa
+##a[id^='bb'][onclick]:remove()
+##a[onclick^='oc()']:remove()
+##a[href*='utm_medium=popunder']:remove()
+##a[style*='opacity:0'][style*='width:1px']:remove()
+##a[style*='opacity:0'][style*='width: 1px']:remove()
 
-# --- HỘP CHỨA VÔ DANH CẤP GỐC (ROOT DIVS CHỨA OVERLAY) ---
-##div[style*='position: fixed'][style*='z-index']
-##div[style*='position:fixed'][style*='z-index']
-##div[style*='z-index'][style*='position: fixed']
-##div[style*='z-index'][style*='position:fixed']
+# --- VÔ HIỆU HÓA HÀM SỐ ĐỘC HẠI (SCRIPTLET INJECTION) ---
+# Biến hàm oc() thành hàm rỗng (noopfn), bấm vào sẽ không phản ứng gì nữa
+##+js(noopfn, oc)
