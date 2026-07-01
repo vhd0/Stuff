@@ -1,16 +1,13 @@
-! Title: ABPVN & Community Custom Rules (Pure Ad-Server & Section-Changelog Centric)
-! Description: Bộ lọc vạn năng tối ưu - Không chứa domain động, quản lý nhật ký thay đổi riêng biệt theo từng Section.
-! Version: 2026.07.02-v9
+! Title: ABPVN & Community Custom Rules (Modular Production Build)
+! Description: Bộ lọc vạn năng tối ưu - Biên dịch tự động từ các module độc lập thông qua GitHub Actions.
+! Version: 2026.07.02
 ! Homepage: https://github.com/vhd0/Stuff
 
 
 # ==============================================================================
-# SECTION 1: [CASE 1] TRANG PHIM LẬU TRUYỀN THỐNG & HỆ THỐNG VIETADX
-# Giai đoạn: ĐÃ HOÀN THÀNH TỐI ƯU (GIỮ NGUYÊN HOẠT ĐỘNG)
-# ------------------------------------------------------------------------------
-# CHANGELOG SECTION 1:
-#   - Lọc bỏ 100% các tên miền động của web phim (viet69...) và nhà cái (lu88, hbet...).
-#   - Tập trung chặn theo Ad Server (vietadx.net, main-qimg) và cấu trúc bẫy click ẩn.
+# MODULE: VietAdx.txt
+# ==============================================================================
+
 # ==============================================================================
 # --- Chặn mạng theo Ad Server & Cấu trúc file ảnh quảng cáo ---
 ||vietadx.net^$important
@@ -36,76 +33,3 @@
 ##a[href*='utm_medium=popunder']:remove()
 ##a[style*='opacity:0'][style*='width:1px']:remove()
 ##a[style*='opacity:0'][style*='width: 1px']:remove()
-
-
-# ==============================================================================
-# SECTION 2: [CASE 2] TRANG BÓNG ĐÁ LẬU MỚI (HỆ THỐNG TAILWIND & ARTPLAYER)
-# Giai đoạn: TIẾP TỤC TÍCH LŨY CẬP NHẬT (BẢO VỆ PLAYER - KHÔNG CHỨA DOMAIN)
-# ------------------------------------------------------------------------------
-# CHANGELOG SECTION 2:
-#   - [Cập nhật mới nhất]: Bổ sung 5 khung chứa ad dạng ID ngẫu nhiên (row/col) diện rộng, loại bỏ tiền tố domain hoiquan6.tv.
-#   - Loại bỏ toàn bộ domain động (hoiquan7, sv368, 6789x...) để chống nát bộ lọc.
-#   - Khắc phục triệt để lỗi mất Player bằng cách cô lập vùng chặn trong lớp (.art-layer-ad).
-#   - Gỡ bỏ hoàn toàn quy tắc gạt tổng "div[class*='aspect-']" gây ẩn nhầm khung video.
-#   - Chuyển dịch trọng tâm sang chặn thư mục tài nguyên `/banners/` và tham số affiliate.
-# ==============================================================================
-# --- Chặn mạng Ad Server nội bộ (Thư mục chứa tài nguyên quảng cáo) ---
-*/banners/sv_*$image
-*/banners/vs_*$image
-*/banners/*x*.gif$image
-
-# --- Khóa tham số chuyển hướng và mã đại lý (Affiliate / Tracking) ---
-*affiliateCode=*
-*utm_medium=topbanner*
-*utm_medium=catfish*
-*utm_medium=preload*
-*utm_medium=popunder*
-*utm_campaign=cpd*
-
-# --- Khung chứa Ad dạng ID ngẫu nhiên diện rộng (Đã gỡ bỏ domain) ---
-###col-780436198
-###row-2005707670
-###col-295005978
-###row-450542062
-###row-427915716
-
-# --- PHẪU THUẬT NỘI SOI TRONG PLAYER (An toàn tuyệt đối cho luồng Video chính) ---
-# Xóa bỏ lớp ad chuyên dụng và hộp chứa đè lên video dựa theo cấu trúc Artplayer
-##.art-layer-ad
-##div#video-overlay-bottom
-##.ad-track
-
-# Diệt tất cả các nút bấm hoặc liên kết điều hướng cá độ nằm trong phân đoạn Ad Layer
-##.art-layer-ad a
-##.art-layer-ad img
-
-# --- Diệt banner quảng cáo và nút bấm ngoài giao diện Tailwind ---
-##a:has(img[src*='/banners/'])
-##div[class*='keen-slider__slide']:has(img[src*='/banners/'])
-##.keen-slider__slide:has(a[href*='register'])
-##.keen-slider__slide:has(a[href*='affiliate'])
-##.keen-slider__slide:has-text(/CƯỢC|Cược/)
-
-# --- Nhận diện thông minh cụm nút CƯỢC trôi nổi của nhà cái trên UI ---
-##div[class*='grid'] > a:has-text(/CƯỢC|Cược/)
-##div[class*='flex'] > a:has-text(/CƯỢC|Cược/)
-##a[class*='bg-']:has-text(/CƯỢC|Cược/)
-##button:has-text(/CƯỢC|Cược/)
-
-# --- Khóa các hộp thoại/Lớp phủ ghim màn hình (Chỉ ẩn khi chứa cấu trúc ảnh ad công khai) ---
-##div[class*='fixed'][class*='z-[110]']:has(img[src*='/banners/'])
-##div[class*='fixed'][class*='bottom-[52px]']:has(img[src*='/banners/'])
-
-
-# ==============================================================================
-# SECTION 3: SCRIPTLET INJECTIONS (TOÀN CỤC AN TOÀN - KHÔNG DOMAIN)
-# Giai đoạn: ĐÃ HOÀN THÀNH TỐI ƯU (GIỮ NGUYÊN)
-# ------------------------------------------------------------------------------
-# CHANGELOG SECTION 3:
-#   - Gỡ bỏ lệnh nguy hiểm "abort-on-property-read oc" vì làm crash mã nguồn nén của Player.
-#   - Giữ lại các lệnh runtime chặn window open và popunder tiêu chuẩn an toàn cho hệ thống.
-# ==============================================================================
-##+js(popunder)
-##+js(nowindowopen)
-##+js(noopfn, oc)
-#$#prevent-window-open
