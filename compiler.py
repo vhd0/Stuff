@@ -1,64 +1,52 @@
 import requests
 from datetime import datetime
 
-# DANH SÁCH URL SẠCH - ĐÃ LOẠI BỎ HAGEZI GAMBLING THEO YÊU CẦU
+# DANH SÁCH URL NỀN TẢNG CHUẨN
 URLS = [
-    # === 1. BỘ LỌC CỦA BẠN (Đặc trị Việt Nam) ===
     "https://raw.githubusercontent.com/abpvn/abpvn/refs/heads/master/filter/abpvn.txt",
-    
-    # === 2. BỘ LỌC TỔNG HỢP DUY NHẤT CỦA BIGDARGON (hostsVN) ===
     "https://raw.githubusercontent.com/bigdargon/hostsVN/refs/heads/master/filters/adservers-all.txt",
-    
-    # === 3. BỘ LỌC ĐỈNH CAO TỪ HAGEZI (Định dạng Adblock) ===
     "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/pro.txt",        
-    
-    # === 4. HỆ SINH THÁI ADGUARD CHUYÊN SÂU ===
     "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_2_Base/filter.txt",        
     "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_3_Spyware/filter.txt",     
     "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_14_Annoyances/filter.txt", 
-    "https://filters.adtidy.org/extension/chromium/filters/11.txt",                                                 # AdGuard Mobile Filter
-    "https://filters.adtidy.org/extension/chromium/filters/23.txt",                                                 # AdGuard Quick Fixes
-    
-    # === 5. BỘ LỌC ÉP CHẶN KHUNG HÌNH BANNER ADVERTISING ===
+    "https://filters.adtidy.org/extension/chromium/filters/11.txt",                                                 
+    "https://filters.adtidy.org/extension/chromium/filters/23.txt",                                                 
     "https://easylist.to/easylist/easylist.txt" 
 ]
 
 # ==============================================================================
-# BỘ LỌC ĐẶC TRỊ POPUP & STACK BANNER CỜ BẠC TRÊN WEB LẬU VIỆT NAM (COSMETIC)
+# BỘ LỌC THẨM MỸ CAO CẤP - TÍCH HỢP & TỐI ƯU HÓA PHẦN TỬ BẠN CUNG CẤP
 # ==============================================================================
 CUSTOM_RULES = [
-    # --- 1. Ép ẩn khung Banner đè giữa màn hình (Popup Interstitials như tấm HBET) ---
-    "##div[class*='popup-ads']",
-    "##div[class*='popup-banner']",
-    "##div[id*='popup-ad']",
-    "##div[class*='modal-ads']",
-    "##div[class*='adv-popup']",
-    "##.ads-overlay",
-    "##.popup-overlay",
-    "##[id^='popup-overlay']",
+    # --- 1. Lõi tối ưu hóa từ phát hiện của bạn (Triệt tiêu Catfish & Preload Ads) ---
+    "##.catfish-top",
+    "##.catfish-bottom",
+    "##[id*='top-adx']",
+    "##.banner-preload",
+    "##.banner-preload-container",
+    "##a.bna",
+
+    # --- 2. Hệ thống phòng thủ diện rộng (Universal Banners) ---
+    "##.ad-placement",
+    "##.ad-slot",
+    "##.ad-holder",
+    "##[class^='ad-banner']",
+    "##[id^='ad-banner']",
+    "##[class*='ad_banner']",
+    "##.banner-ads",
+    "##.banner_ad",
+    "##div[class*='sticky-ad']",
+    "##div[id*='sticky-ad']",
+    "##div[class*='floating-ad']",
     
-    # --- 2. Quét sạch các chuỗi Banner xếp chồng dính ở đáy/đỉnh (Catfish / Sticky Ads như cụm MAN88) ---
-    "##.catfish-ad",
-    "##.sticky-bottom-ads",
-    "##.sticky-top-ads",
-    "##div[class*='bottom-bar-ads']",
-    "##div[class*='top-bar-ads']",
-    "##div[class*='floating-banner']",
-    "##div[id*='floating-banner']",
-    "##[class*='sticky-banner']",
-    "##div[class*='ads-desktop']",
-    "##div[class*='ads-mobile']",
-    "##div[class*='floating-left']",
-    "##div[class*='floating-right']",
-    
-    # --- 3. Nhắm mục tiêu cấu trúc CSS ép vị trí (Fixed/Absolute) chứa liên kết ảnh bẩn ---
+    # --- 3. Đập tan cấu trúc fixed chứa ảnh liên kết lậu ---
     "##div[style*='position: fixed'][style*='z-index'] > a > img",
     "##div[style*='position:fixed'][style*='z-index'] a img",
     
-    # --- 4. Thu gọn triệt để vùng không gian bị chiếm dụng sau khi ẩn khung ---
-    "##div[class*='popup-']:collapse",
-    "##div[class*='sticky-']:collapse",
-    "##div[class*='ads-']:collapse"
+    # --- 4. Thu gọn không gian hiển thị (:collapse) ---
+    "##.catfish-top:collapse",
+    "##.catfish-bottom:collapse",
+    "##.banner-preload:collapse"
 ]
 
 def fetch_and_merge_pure():
@@ -88,12 +76,12 @@ def fetch_and_merge_pure():
                     seen_rules.add(line)
                     merged_rules.append(line)
             else:
-                print(f"❌ LỖI: Không thể tải {url} (Status: {response.status_code})")
+                print(f"❌ LỒI: Không thể tải {url} (Status: {response.status_code})")
         except Exception as e:
-            print(f"❌ LỖI: Khi tải {url}: {e}")
+            print(f"❌ LỒI: Khi tải {url}: {e}")
             
-    # TIÊM BỘ LỌC ĐẶC TRỊ POPUP CỜ BẠC HTML VÀO CUỐI FILE
-    print(f"-> Đang nạp {len(CUSTOM_RULES)} quy tắc Đặc trị HTML Popups Web lậu...")
+    # TIÊM BỘ LỌC ĐẶC TRỊ ĐÃ TỐI ƯU VÀO CUỐI FILE
+    print(f"-> Đang nạp {len(CUSTOM_RULES)} quy tắc Thẩm mỹ tối ưu (đã fix n-child)...")
     for rule in CUSTOM_RULES:
         if rule not in seen_rules:
             seen_rules.add(rule)
@@ -104,9 +92,9 @@ def fetch_and_merge_pure():
 def write_pure_filter(rules):
     today = datetime.utcnow().strftime('%Y-%m-%d')
     header = f"""[Adblock Plus 2.0]
-! Title: ABPVN & Community Ultimate Pure Filter (Anti-Popup Edition)
-! Description: Bộ lọc tổng hợp loại bỏ hoàn toàn Gambling, tập trung Cosmetic Filter bẻ gãy các lớp đè HTML Popup/Sticky lậu.
-! Version: 10.0.{datetime.utcnow().strftime('%Y%m%d')}
+! Title: ABPVN & Community Ultimate Pure Filter (Optimized Catfish Edition)
+! Description: Bộ lọc tổng hợp thuần khiết. Đã tối ưu cấu trúc phần tử Catfish, Preload Banner từ thực tế.
+! Version: 11.0.{datetime.utcnow().strftime('%Y%m%d')}
 ! Author: @vhd0_
 ! Last modified: {today} UTC
 ! Expires: 1 days
@@ -118,7 +106,7 @@ def write_pure_filter(rules):
         for rule in rules:
             f.write(rule + "\n")
         
-    print(f"🎉 Thành công! Đã xuất file nguyên bản abp.txt với tổng cộng {len(rules)} quy tắc.")
+    print(f"🎉 Thành công! Đã cập nhật file abp.txt mới với tổng cộng {len(rules)} quy tắc.")
 
 if __name__ == "__main__":
     rules = fetch_and_merge_pure()
