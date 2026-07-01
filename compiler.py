@@ -1,19 +1,25 @@
 import requests
+import re
 from datetime import datetime
 
-# Danh sách tối ưu: Giữ lại duy nhất ABPVN của bạn + Các bộ lọc lõi chuẩn cộng đồng toàn cầu
+# Danh sách đầy đủ và mạnh mẽ nhất từ cộng đồng + ABPVN
 URLS = [
-    # 1. Bộ lọc của riêng bạn (Đặc trị cho các trang web Việt Nam)
+    # 1. Bộ lọc của bạn (Đặc trị Việt Nam)
     "https://raw.githubusercontent.com/abpvn/abpvn/refs/heads/master/filter/abpvn.txt",
     
-    # 2. Bộ lọc quảng cáo cốt lõi (EasyList phiên bản tối ưu hóa cho Adblock Plus)
-    "https://v.firebog.net/hosts/AdguardDNS.txt",
+    # 2. Bộ lọc quảng cáo CORE toàn diện toàn cầu (Đầy đủ CSS và Script Injection)
+    "https://raw.githubusercontent.com/easylist/easylist/master/easylist/easylist_general_block.txt",
+    "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_2_Base/filter.txt",
     
-    # 3. Các bộ lọc bảo mật, chống bám đuôi và sửa lỗi từ uBlock Origin (Cộng đồng khuyên dùng)
-    "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/privacy.txt",      # Chặn theo dõi ngầm (Trackers)
-    "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/annoyances.txt",   # Chặn thông báo cookie, pop-up phiền nhiễu
-    "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/badware.txt",      # Chặn phần mềm độc hại, quảng cáo lừa đảo
-    "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/unbreak.txt"       # Sửa lỗi hiển thị và chống Anti-Adblock
+    # 3. Bộ lọc bảo mật, chống bám đuôi và mã độc
+    "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/privacy.txt",
+    "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/badware.txt",
+    
+    # 4. Chặn yếu tố phiền nhiễu (Pop-up, Cookie, Quảng cáo ẩn)
+    "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/annoyances.txt",
+    
+    # 5. Sửa lỗi vỡ trang và chống chặn Adblock (Anti-Adblock)
+    "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/unbreak.txt"
 ]
 
 def fetch_and_parse():
@@ -30,18 +36,22 @@ def fetch_and_parse():
                 for line in lines:
                     line = line.strip()
                     
-                    # Bỏ các dòng trống, dòng chú thích cũ của các tác giả khác
+                    # CHỈ bỏ qua dòng trống và dòng comment thực sự (bắt đầu bằng !) hoặc Header của ABP
                     if not line or line.startswith('!') or line.startswith('[Adblock'):
                         continue
-                        
-                    # Phân loại dựa trên cú pháp tối ưu
-                    if line.startswith('@@'):
+                    
+                    # 1. XỬ LÝ LUẬT NGOẠI LỆ (Whitelisting)
+                    # Bao gồm bắt đầu bằng @@ hoặc chứa cú pháp loại trừ cosmetic #@#
+                    if line.startswith('@@') or '#@#' in line:
                         exception_rules.add(line)
-                    elif '##' in line or '#@#' in line:
-                        if '#@#' in line:
-                            exception_rules.add(line)
-                        else:
-                            cosmetic_rules.add(line)
+                        
+                    # 2. XỬ LÝ LUẬT ẨN PHẦN TỬ (Cosmetic Filters)
+                    # Nhận diện chính xác các ký hiệu ẩn: ##, #?#, #$# bất kể có tên miền phía trước hay không
+                    elif re.search(r'(?<!#)##', line) or '#?#' in line or '#$#' in line:
+                        cosmetic_rules.add(line)
+                        
+                    # 3. XỬ LÝ LUẬT MẠNG (Network Filters)
+                    # Tất cả các luật còn lại bao gồm chặn đường dẫn lửng, modifier $domain, regex mạng...
                     else:
                         network_rules.add(line)
             else:
@@ -54,11 +64,10 @@ def fetch_and_parse():
 def write_filter_file(network, cosmetic, exception):
     today = datetime.utcnow().strftime('%Y-%m-%d')
     
-    # Đã cập nhật Homepage chính xác theo yêu cầu của bạn
     header = f"""[Adblock Plus 2.0]
-! Title: ABPVN & Community Combined Filter
-! Description: Bộ lọc tối ưu kết hợp giữa ABPVN và tinh hoa từ uBlock Origin, EasyList. Tự động cập nhật hàng ngày.
-! Version: 1.0.{datetime.utcnow().strftime('%Y%m%d')}
+! Title: ABPVN & Community Ultimate Combined Filter
+! Description: Bộ lọc tối ưu hóa tối đa kết hợp từ ABPVN, EasyList, AdGuard và uBlock Origin. Bảo toàn 100% cấu pháp phức tạp.
+! Version: 2.1.{datetime.utcnow().strftime('%Y%m%d')}
 ! Author: @vhd0_
 ! Last modified: {today} UTC
 ! Expires: 1 days
@@ -66,28 +75,24 @@ def write_filter_file(network, cosmetic, exception):
 """
 
     with open("abp.txt", "w", encoding="utf-8") as f:
-        # 1. Header & Metadata
         f.write(header + "\n")
         
-        # 2. Network Filters
         f.write("! === SECTION 1: NETWORK FILTERS ===\n")
         for rule in network:
             f.write(rule + "\n")
         f.write("\n")
         
-        # 3. Cosmetic Filters
         f.write("! === SECTION 2: COSMETIC FILTERS / ELEMENT HIDING ===\n")
         for rule in cosmetic:
             f.write(rule + "\n")
         f.write("\n")
         
-        # 4. Exception Rules
         f.write("! === SECTION 3: EXCEPTION RULES / WHITELISTING ===\n")
         for rule in exception:
             f.write(rule + "\n")
         f.write("\n")
         
-    print(f"Đã tạo thành công file abp.txt với {len(network)} luật mạng, {len(cosmetic)} luật giao diện và {len(exception)} luật ngoại lệ.")
+    print(f"Thành công! Đã bảo toàn và xuất ra abp.txt: {len(network)} luật mạng, {len(cosmetic)} luật giao diện, {len(exception)} luật ngoại lệ.")
 
 if __name__ == "__main__":
     net, cos, exc = fetch_and_parse()
