@@ -1,30 +1,27 @@
-! Title: ABPVN & Community Custom Rules (Ultimate Popunder Defuser)
-! Description: Bộ lọc tối ưu bẻ gãy hoàn toàn hành vi click nhảy trang ngầm (Global Click Listener).
+! Title: ABPVN & Community Custom Rules (Ultimate Mobile Popunder Defuser)
+! Description: Bộ lọc tối ưu đặc trị bẫy click 2 lần trên môi trường di động (AdGuard & uBlock Mobile).
 ! Homepage: https://github.com/vhd0/Stuff
 
 # ==========================================
-# 1. CHẶN MẠNG (NETWORK RULE)
+# 1. CHẶN MẠNG TỐI CAO (ÉP ĐIỆN THOẠI PHẢI KHÓA)
 # ==========================================
-||vietadx.net^
+# Thêm $important để chặn đứng cdn2.vietadx.net bất chấp bộ nhớ đệm
+||vietadx.net^$important
+||quoracdn.net/main-qimg-*$image,domain=viet69.be|viet69.net
 
 # ==========================================
-# 2. DIỆT SCRIPT INLINE (DIỆT TỪ TRONG TRỨNG NƯỚC)
+# 2. DIỆT SCRIPT INLINE & THAM SỐ LIÊN KẾT
 # ==========================================
-# Tìm và xóa sạch các thẻ <script> có chứa các từ khóa độc hại trước khi chúng kịp thực thi
 ##script:contains(vietadx)
 ##script:contains(oc())
 ##script:contains(popunder)
-
-# ==========================================
-# 3. ĐẶC TRỊ THEO THAM SỐ LIÊN KẾT
-# ==========================================
 ##a[href*='utm_medium=topbanner']
 ##a[href*='utm_medium=catfish']
 ##a[href*='utm_medium=preload']
 ##a[href*='utm_campaign=cpd']
 
 # ==========================================
-# 4. TRIỆT TIÊU TOÀN BỘ KHUNG HIỂN THỊ
+# 3. TRIỆT TIÊU TOÀN BỘ KHUNG HIỂN THỊ CỨNG
 # ==========================================
 ##[id*='-adx']
 ##.catfish-top
@@ -39,13 +36,16 @@
 ##a[href*='utm_medium=popunder']:remove()
 
 # ==========================================
-# 5. KHÓA CHẶT HÀNH VI MỞ TAB NGẦM (VŨ KHÍ HẠNG NẶNG)
+# 4. KHÓA POPUNDER TRÊN PC (UBLOCK ORIGIN SYNTAX)
 # ==========================================
-# Kích hoạt bộ giải mã Popunder nâng cao của uBlock/AdGuard
 ##+js(popunder)
-
-# Tước quyền gọi lệnh window.open() của mọi script lậu trên trang (Không ảnh hưởng đến trình phát video)
 ##+js(nowindowopen)
-
-# Biến hàm oc() thành vô hại nếu chúng cố tình gọi lại
 ##+js(noopfn, oc)
+
+# ==========================================
+# 5. KHÓA POPUNDER TRÊN MOBILE (ADGUARD MOBILE SYNTAX)
+# ==========================================
+# Cú pháp đặc chủng dành riêng cho app AdGuard và các trình chặn trên điện thoại
+#$#prevent-window-open
+#$#abort-on-property-read oc
+#$#abort-current-inline-script vietadx
