@@ -2,8 +2,8 @@ name: Update Adblock Plus Custom Filter
 
 on:
   schedule:
-    - cron: '0 0 * * *' # Chạy tự động vào 00:00 UTC mỗi ngày (07:00 sáng VN)
-  workflow_dispatch: # Cho phép bấm nút chạy thủ công bất kỳ lúc nào
+    - cron: '0 0 * * *'
+  workflow_dispatch:
 
 jobs:
   build:
@@ -23,7 +23,7 @@ jobs:
           python-version: '3.x'
 
       - name: Install Python Dependencies
-        run: pip install requests # Thêm dòng này để cài đặt thư viện bị thiếu
+        run: pip install requests
 
       - name: Run Filter Compiler
         run: python compiler.py
