@@ -1,5 +1,4 @@
 import requests
-import re
 from datetime import datetime
 
 # Danh sách các nguồn dữ liệu raw
@@ -27,15 +26,12 @@ def fetch_and_parse():
                 for line in lines:
                     line = line.strip()
                     
-                    # Bỏ các dòng trống, comment hoặc header cũ
                     if not line or line.startswith('!') or line.startswith('[Adblock'):
                         continue
                         
-                    # Phân loại dựa trên cú pháp tối ưu trong file abp.json
                     if line.startswith('@@'):
                         exception_rules.add(line)
                     elif '##' in line or '#@#' in line:
-                        # Nếu chứa #@# thì nó là ngoại lệ của cosmetic, cho vào exception_rules
                         if '#@#' in line:
                             exception_rules.add(line)
                         else:
@@ -62,29 +58,26 @@ def write_filter_file(network, cosmetic, exception):
 ! Homepage: https://github.com/vhd0_/my-adblock-filter
 """
 
-    with open("my_custom_filter.txt", "w", encoding="utf-8") as f:
-        # 1. Header & Metadata
+    # ĐÃ ĐỔI TÊN FILE THÀNH abp.txt Ở ĐÂY
+    with open("abp.txt", "w", encoding="utf-8") as f:
         f.write(header + "\n")
         
-        # 2. Network Filters
         f.write("! === SECTION 1: NETWORK FILTERS ===\n")
         for rule in network:
             f.write(rule + "\n")
         f.write("\n")
         
-        # 3. Cosmetic Filters
         f.write("! === SECTION 2: COSMETIC FILTERS / ELEMENT HIDING ===\n")
         for rule in cosmetic:
             f.write(rule + "\n")
         f.write("\n")
         
-        # 4. Exception Rules
         f.write("! === SECTION 3: EXCEPTION RULES / WHITELISTING ===\n")
         for rule in exception:
             f.write(rule + "\n")
         f.write("\n")
         
-    print(f"Đã tạo thành công file my_custom_filter.txt với {len(network)} luật mạng, {len(cosmetic)} luật giao diện và {len(exception)} luật ngoại lệ.")
+    print(f"Đã tạo thành công file abp.txt với {len(network)} luật mạng, {len(cosmetic)} luật giao diện và {len(exception)} luật ngoại lệ.")
 
 if __name__ == "__main__":
     net, cos, exc = fetch_and_parse()
