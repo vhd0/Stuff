@@ -1,0 +1,25 @@
+# ==============================================================================
+# --- Chặn mạng theo Ad Server & Cấu trúc file ảnh quảng cáo ---
+||vietadx.net^$important
+*/main-qimg-*$image
+
+# --- Thẩm mỹ diện rộng (Element Hiding cho các khung chứa Ad truyền thống) ---
+##[id*='-adx']
+##.catfish-top
+##.catfish-bottom
+##.banner-catfish-top
+##.banner-catfish-bottom
+##[class*='catfish-']
+##.banner-preload
+##.banner-preload-container
+
+# --- Bóc tách bẫy click ẩn tàng hình toàn cục ---
+##a[id^='bb'][onclick]
+##a[onclick^='oc()']
+##a[href*='utm_medium=popunder']
+##a[style*='opacity:0']
+##a[id^='bb'][onclick]:remove()
+##a[onclick^='oc()']:remove()
+##a[href*='utm_medium=popunder']:remove()
+##a[style*='opacity:0'][style*='width:1px']:remove()
+##a[style*='opacity:0'][style*='width: 1px']:remove()
