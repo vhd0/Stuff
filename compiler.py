@@ -15,54 +15,36 @@ URLS = [
 ]
 
 # ==============================================================================
-# BỘ LỌC THẨM MỸ ĐÃ SỬA LỖI CÚ PHÁP & TỐI ƯU HÓA DIỆN RỘNG (PURE COSMETIC RULES)
+# BỘ LỌC ĐẶC TRỊ KHÔNG GIAN QUẢNG CÁO VIETADX & POPUNDER TÀNG HÌNH (GENERIC)
 # ==============================================================================
 CUSTOM_RULES = [
-    # --- 1. Khôi phục & Tối ưu hóa các phần tử thực tế bạn bắt được (Tuyệt đối không dùng :collapse) ---
+    # --- 1. CHẶN MẠNG (NETWORK RULE): Khóa nguồn cấp Script tạo quảng cáo ---
+    "||vietadx.net^",                       # Bẻ gãy v-main-adx.js và v-top-adx.js ngay từ vòng gửi xe
+
+    # --- 2. THẨM MỸ (COSMETIC): Triệt hạ các khung chứa Banner (Catfish & Preload) ---
     "##.catfish-top",
     "##.catfish-bottom",
-    "##[id*='-adx']",                        # Quét sạch cả vl-top-adx, vl-underplayer-adx, v.v.
+    "##.banner-catfish-top",
+    "##.banner-catfish-bottom",
+    "##[class*='catfish-']",                 # Gom sạch mọi biến thể class có chứa từ khóa catfish
     "##.banner-preload",
     "##.banner-preload-container",
-    "##a.bna",
+    "##.banner-preload-close",
+    "##.catfish-top-close",
+    "##.catfish-bottom-close",
 
-    # --- 2. Đặc trị lớp phủ tàng hình bắt Click & Popup đè màn hình (HBET, MAN88, Lu88) ---
-    "##div[class*='popup-ads']",
-    "##div[class*='popup-banner']",
-    "##div[id*='popup-ad']",
-    "##div[class*='modal-ads']",
-    "##div[class*='adv-popup']",
-    "##.ads-overlay",
-    "##.popup-overlay",
-    "##[id^='popup-overlay']",
-    "##div[class*='player-overlay']",
-    "##div[id*='player-overlay']",
-    "##div[class*='click-overlay']",
-    "##div[class*='popunder']",
-    "##div[id*='popunder']",
-    "##div[class*='wrapper-click']",
-    "##div[class*='video-ads']",
-    "##div[class*='player-ads']",
-    
-    # --- 3. Đánh chặn hoán vị thuộc tính CSS của các Hộp chứa ẩn danh cấp gốc (Root DIVs) ---
+    # --- 3. ĐẶC TRỊ POPUNDER: Vô hiệu hóa bẫy click tàng hình (1x1px / opacity:0) ---
+    "##a[id^='bb'][onclick]",                # Diệt các thẻ <a> có id bắt đầu bằng 'bb' và chứa lệnh click (bb0, bb1)
+    "##a[onclick^='oc()']",                  # Chặn đứng hàm kích hoạt mở tab ngầm oc() của hệ thống này
+    "##a[style*='opacity:0'][style*='width:1px']",   # Lọc tất cả các thẻ liên kết cố tình ẩn tàng hình 1px
+    "##a[style*='opacity:0'][style*='width: 1px']",  # Dự phòng trường hợp có khoảng trắng trong CSS inline
+
+    # --- 4. Hệ thống phòng thủ chiều sâu phòng khi Script đổi tên Class ---
+    "##[id*='-adx']",
     "##div[style*='position: fixed'][style*='z-index']",
     "##div[style*='position:fixed'][style*='z-index']",
     "##div[style*='z-index'][style*='position: fixed']",
-    "##div[style*='z-index'][style*='position:fixed']",
-    "##div[style*='position: fixed'][style*='top'][style*='left']",
-    "##div[style*='position: fixed'][style*='bottom'][style*='left']",
-    "##div[style*='width: 100%'][style*='height: 100%'][style*='position: fixed']",
-    "##div[style*='width:100%'][style*='height:100%'][style*='position:fixed']",
-    
-    # --- 4. Hệ thống quét cấu trúc Banner chuẩn hóa toàn cầu ---
-    "##.ad-placement",
-    "##.ad-slot",
-    "##.ad-holder",
-    "##[class^='ad-banner']",
-    "##[id^='ad-banner']",
-    "##[class*='ad_banner']",
-    "##.banner-ads",
-    "##.banner_ad"
+    "##div[style*='z-index'][style*='position:fixed']"
 ]
 
 def fetch_and_merge_pure():
@@ -96,8 +78,8 @@ def fetch_and_merge_pure():
         except Exception as e:
             print(f"❌ LỖI: Khi tải {url}: {e}")
             
-    # TIÊM BỘ LỌC ĐÃ ĐƯỢC VÁ LỖI CÚ PHÁP
-    print(f"-> Đang nạp {len(CUSTOM_RULES)} quy tắc Thẩm mỹ chuẩn hóa (Fixed Syntax)...")
+    # TIÊM BỘ LỌC ĐẶC TRỊ TOÀN DIỆN VÀO CUỐI FILE
+    print(f"-> Đang nạp {len(CUSTOM_RULES)} quy tắc Đặc trị cấu trúc mã VietAdx...")
     for rule in CUSTOM_RULES:
         if rule not in seen_rules:
             seen_rules.add(rule)
@@ -108,9 +90,9 @@ def fetch_and_merge_pure():
 def write_pure_filter(rules):
     today = datetime.utcnow().strftime('%Y-%m-%d')
     header = f"""[Adblock Plus 2.0]
-! Title: ABPVN & Community Ultimate Pure Filter (Fixed Cosmetic Edition)
-! Description: Bộ lọc tổng hợp đã sửa đổi toàn bộ lỗi cú pháp bổ trợ, tối ưu hóa triệt để cấu trúc banner lậu.
-! Version: 14.0.{datetime.utcnow().strftime('%Y%m%d')}
+! Title: ABPVN & Community Ultimate Pure Filter (Anti-VietAdx Edition)
+! Description: Bộ lọc tối ưu hóa triệt tiêu hoàn toàn mã nhúng mạng lưới VietAdx và các bẫy click ngầm Popunder.
+! Version: 15.0.{datetime.utcnow().strftime('%Y%m%d')}
 ! Author: @vhd0_
 ! Last modified: {today} UTC
 ! Expires: 1 days
@@ -122,7 +104,7 @@ def write_pure_filter(rules):
         for rule in rules:
             f.write(rule + "\n")
         
-    print(f"🎉 Thành công! Đã sửa lỗi và xuất lại file abp.txt chuẩn với {len(rules)} quy tắc.")
+    print(f"🎉 Thành công! Đã xuất file abp.txt tối ưu hóa diện rộng với tổng cộng {len(rules)} quy tắc.")
 
 if __name__ == "__main__":
     rules = fetch_and_merge_pure()
