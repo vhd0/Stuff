@@ -1,4 +1,3 @@
-# ==============================================================================
 # --- Chặn mạng Ad Server nội bộ (Thư mục chứa tài nguyên quảng cáo) ---
 */banners/sv_*$image
 */banners/vs_*$image
@@ -12,12 +11,13 @@
 *utm_medium=popunder*
 *utm_campaign=cpd*
 
-# --- Khung chứa Ad dạng ID ngẫu nhiên diện rộng (Đã gỡ bỏ domain) ---
-###col-780436198
-###row-2005707670
-###col-295005978
-###row-450542062
-###row-427915716
+# --- DIỆT TẬN GỐC KHUNG CHỨA ID NGẪU NHIÊN (RANDOMIZED ID CONTAINERS) ---
+# Lớp phòng thủ 1: Dùng Regex (uBlock/AdGuard) tóm sống ID bắt đầu bằng col-/row- nối tiếp bởi ít nhất 5 chữ số liên tục
+##div[id/="^(col|row)-\d{5,}$/"]
+
+# Lớp phòng thủ 2: Bọc lót bằng CSS Standard (Chỉ ẩn div col-/row- nếu bên trong thực sự chứa ảnh hoặc link quảng cáo)
+##div[id^='col-']:has(img, a[href*='utm_'])
+##div[id^='row-']:has(img, a[href*='utm_'])
 
 # --- PHẪU THUẬT NỘI SOI TRONG PLAYER (An toàn tuyệt đối cho luồng Video chính) ---
 # Xóa bỏ lớp ad chuyên dụng và hộp chứa đè lên video dựa theo cấu trúc Artplayer
