@@ -1,25 +1,36 @@
-! Title: ABPVN & Community Custom Rules (Safe Universal / Player-Fixed)
-! Description: Bộ lọc vạn năng - Đã sửa lỗi triệt để giải cứu Player bằng cách gỡ bỏ script-killer gây xung đột mã nén.
-! Version: 2026.07.01-v4
+! Title: ABPVN & Community Custom Rules (Universal & Player-Isolated)
+! Description: Bộ lọc vạn năng - Khắc chế quảng cáo nhúng sâu trong Artplayer mà không làm ẩn khung hình aspect-video.
+! Version: 2026.07.01-v5
 ! Homepage: https://github.com/vhd0/Stuff
 
 # ==============================================================================
-# KHỐI 1: CHẶN THEO ĐƯỜNG DẪN ẢNH QUẢNG CÁO (SAFE NETWORK RULES)
+# KHỐI 1: CHẶN TẢI ẢNH VÀ LINK CÁ ĐỘ (NETWORK RULES)
 # ==============================================================================
 */banners/sv_*$image
 */banners/vs_*$image
 */banners/*x*.gif$image
 
-# Bẫy tham số affiliate chuyển hướng nhảy trang cá độ
+# Khóa cứng các tham số affiliate và tracking nhảy trang
 *affiliateCode=*
 *utm_medium=topbanner*
 *utm_medium=catfish*
 *utm_medium=preload*
 *utm_medium=popunder*
-*utm_campaign=cpd*
 
 # ==============================================================================
-# KHỐI 2: DIỆT BANNER CỐ ĐỊNH (ELEMENT HIDING - ĐÃ TINH CHỈNH AN TOÀN)
+# KHỐI 2: PHẪU THUẬT NỘI SOI TRONG PLAYER VIDEO (ARTPLAYER ADS REMOVAL)
+# ==============================================================================
+# Diệt chính xác lớp Ad Layer của Artplayer và các hộp chứa ad bên trong nó
+##.art-layer-ad
+##div#video-overlay-bottom
+##.ad-track
+
+# Diệt các nút bấm cá độ có chữ "CƯỢC" nằm trong lớp quảng cáo
+##.art-layer-ad a[class*='bg-']:has-text(/CƯỢC|Cược/)
+##.art-layer-ad img
+
+# ==============================================================================
+# KHỐI 3: DIỆT BANNER NGOÀI GIAO DIỆN (EXTERNAL ELEMENTS)
 # ==============================================================================
 ##.catfish-top
 ##.catfish-bottom
@@ -28,47 +39,23 @@
 ##div[class*='catfish-banner']
 ##.banner-preload
 ##.banner-preload-container
-##.art-layer-ad
-##div#video-overlay-bottom
-##.ad-track
 
-# Xóa các thẻ liên kết cá độ cụ thể theo cấu trúc URL
+# Xóa các thẻ liên kết cá độ cụ thể ngoài Player
 ##a[href*='affiliateCode=']
 ##a[href*='utm_medium=popunder']
-##a[href*='utm_medium=topbanner']
-##a[href*='utm_medium=catfish']
-##a[href*='utm_medium=preload']
 
-# Khóa các lớp phủ cố định ghim sàn đặc trưng chứa ảnh ad thuộc thư mục /banners/
+# Quét sạch thanh trượt (Carousel) bên ngoài nếu chứa liên kết cá độ
+##.keen-slider__slide:has(a[href*='register'])
+##.keen-slider__slide:has(a[href*='affiliate'])
+##.keen-slider__slide:has-text(/CƯỢC|Cược/)
+
+# Khóa các lớp phủ cố định z-index siêu cao ngoài giao diện (đã loại bỏ nguy cơ trùng Player)
 ##div[class*='fixed'][class*='z-[110]']:has(img[src*='/banners/'])
 ##div[class*='fixed'][class*='bottom-[52px]']:has(img[src*='/banners/'])
 
 # ==============================================================================
-# KHỐI 3: KHẮC CHẾ TAILWIND & SLIDER (GỠ BỎ CÁC TỪ KHÓA GÂY ẨN NHẦM TABS)
+# KHỐI 4: CHỐNG BẪY CLICK (SCRIPTLET INJECTIONS)
 # ==============================================================================
-# Chỉ ẩn khung chứa ảnh nếu nó thuộc thư mục /banners/ quảng cáo công khai
-##a:has(img[src*='/banners/'])
-##div[class*='aspect-']:has(img[src*='/banners/'])
-##div[class*='keen-slider__slide']:has(img[src*='/banners/'])
-
-# Quét các slide trong thanh trượt nếu chứa link đăng ký cá độ công khai
-##.keen-slider__slide:has(a[href*='register'])
-##.keen-slider__slide:has(a[href*='affiliate'])
-
-# ĐÃ GỠ BỎ từ khóa "Chi tiết" để không làm ẩn nhầm thanh điều hướng / chọn trận của Player
-##.keen-slider__slide:has-text(/CƯỢC|Cược/)
-
-# Chỉ ẩn các nút CƯỢC riêng lẻ, bảo vệ tuyệt đối các khối chứa lớn
-##div[class*='grid'] > a:has-text(/CƯỢC|Cược/)
-##div[class*='flex'] > a:has-text(/CƯỢC|Cược/)
-##a[class*='bg-']:has-text(/CƯỢC|Cược/)
-##button:has-text(/CƯỢC|Cược/)
-
-# ==============================================================================
-# KHỐI 4: VÔ HIỆU HÓA SCRIPT (SCRIPTLET - AN TOÀN CHO CORE JAVASCRIPT)
-# ==============================================================================
-# ĐÃ GỠ BỎ hoàn toàn lệnh nguy hiểm: `#$#abort-on-property-read oc` để cứu lõi Player.
-# Chỉ giữ lại các lệnh chặn popup an toàn tiêu chuẩn không gây crash trang:
 ##+js(popunder)
 ##+js(nowindowopen)
 ##+js(noopfn, oc)
