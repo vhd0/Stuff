@@ -1,7 +1,7 @@
 import requests
 from datetime import datetime
 
-# Danh sách URL tối ưu: ABPVN + Link tổng hợp của Bigdargon + Bộ lọc HaGeZi PRO + Lõi Quốc tế
+# DANH SÁCH RAW URL ĐÃ ĐƯỢC TỐI ƯU HÓA TOÀN DIỆN VỀ BANNER VÀ CỜ BẠC
 URLS = [
     # === 1. BỘ LỌC CỦA BẠN (Đặc trị Việt Nam) ===
     "https://raw.githubusercontent.com/abpvn/abpvn/refs/heads/master/filter/abpvn.txt",
@@ -9,15 +9,17 @@ URLS = [
     # === 2. BỘ LỌC TỔNG HỢP DUY NHẤT CỦA BIGDARGON (hostsVN) ===
     "https://raw.githubusercontent.com/bigdargon/hostsVN/refs/heads/master/filters/adservers-all.txt",
     
-    # === 3. BỘ LỌC HAGEZI PRO (Định dạng Adblock - Ổn định và an toàn nhất) ===
-    "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/pro.txt",
+    # === 3. CÁC BỘ LỌC ĐỈNH CAO TỪ HAGEZI (Định dạng Adblock) ===
+    "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/multi-proplus.txt", # Nâng cấp lên Multi PRO++ (Chặn Ad/Tracker cực mạnh)
+    "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/gambling.txt",      # Bổ sung bộ lọc Gambling (Đặc trị cá độ, cờ bạc)
     
-    # === 4. CÁC BỘ LỌC CỐT LÕI TỪ UBLOCK ORIGIN & EASYLIST TOÀN CẦU ===
-    "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/badware.txt",     # Chặn malware, phần mềm độc hại
-    "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/privacy.txt",     # Chặn theo dõi ngầm quốc tế
-    "https://raw.githubusercontent.com/easylist/easylist/master/easylist/easylist_general_block.txt", # EasyList Core quảng cáo toàn cầu
+    # === 4. CÁC BỘ LỌC CORE QUỐC TẾ (Sửa đổi để chặn đứng Banner Advertising) ===
+    "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters.txt",      # Bộ lọc LÕI của uBlock (Bắt buộc phải có để diệt Banner)
+    "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/badware.txt",      # Chặn malware, phần mềm độc hại
+    "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/privacy.txt",      # Chặn theo dõi ngầm quốc tế
+    "https://raw.githubusercontent.com/easylist/easylist/master/easylist/easylist_combined.txt", # CHUYỂN SANG BẢN COMBINED (Gộp cả chặn mạng + ẩn khung hình banner)
     "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_2_Base/filter.txt", # AdGuard Base nâng cao
-    "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/unbreak.txt"      # Sửa lỗi vỡ trang quốc tế
+    "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/unbreak.txt"       # Sửa lỗi vỡ trang quốc tế
 ]
 
 def fetch_and_merge_pure():
@@ -38,7 +40,7 @@ def fetch_and_merge_pure():
                     if not line or line.startswith('!') or line.startswith('[Adblock'):
                         continue
                     
-                    # Chỉ lọc trùng nếu dòng đó đã xuất hiện trước đó để tối ưu dung lượng
+                    # Chỉ lọc trùng nếu dòng đó đã xuất hiện trước đó để tối ưu dung lượng file
                     if line in seen_rules:
                         continue
                     seen_rules.add(line)
@@ -56,9 +58,9 @@ def write_pure_filter(rules):
     today = datetime.utcnow().strftime('%Y-%m-%d')
     
     header = f"""[Adblock Plus 2.0]
-! Title: ABPVN & Community Ultimate Pure Filter
-! Description: Bộ lọc tổng hợp nguyên bản hiệu năng cao, kết hợp ABPVN, Bigdargon All-in-One, HaGeZi Pro và lõi quốc tế.
-! Version: 6.0.{datetime.utcnow().strftime('%Y%m%d')}
+! Title: ABPVN & Community Pure Filter Pro++
+! Description: Bộ lọc tổng hợp nguyên bản hiệu năng cao, tích hợp HaGeZi Multi PRO++, Gambling, Bigdargon All-in-One và EasyList Combined.
+! Version: 7.0.{datetime.utcnow().strftime('%Y%m%d')}
 ! Author: @vhd0_
 ! Last modified: {today} UTC
 ! Expires: 1 days
