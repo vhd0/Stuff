@@ -10,17 +10,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v5 # Đã nâng cấp lên v5
+        uses: actions/checkout@v5
 
       - name: Set up Node.js (v24)
         uses: actions/setup-node@v4
         with:
-          node-version: '24' # Ép môi trường sử dụng Node.js 24
+          node-version: '24'
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.x'
+
+      - name: Install Python Dependencies
+        run: pip install requests # Thêm dòng này để cài đặt thư viện bị thiếu
 
       - name: Run Filter Compiler
         run: python compiler.py
