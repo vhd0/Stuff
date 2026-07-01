@@ -1,7 +1,7 @@
 import requests
 from datetime import datetime
 
-# DANH SÁCH RAW URL ĐÃ ĐƯỢC SỬA LỖI ĐƯỜNG DẪN CHUẨN XÁC 100%
+# DANH SÁCH RAW URL ĐÃ ĐƯỢC FIX TRIỆT ĐỂ (SỬ DỤNG CDN CHÍNH THỨC CHO QUICK FIXES)
 URLS = [
     # === 1. BỘ LỌC CỦA BẠN (Đặc trị Việt Nam) ===
     "https://raw.githubusercontent.com/abpvn/abpvn/refs/heads/master/filter/abpvn.txt",
@@ -10,17 +10,17 @@ URLS = [
     "https://raw.githubusercontent.com/bigdargon/hostsVN/refs/heads/master/filters/adservers-all.txt",
     
     # === 3. CÁC BỘ LỌC ĐỈNH CAO TỪ HAGEZI (Định dạng Adblock) ===
-    "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/pro.txt",        # Đã sửa thành pro.txt (Bản Pro cao cấp chuẩn Adblock)
-    "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/gambling.txt",   # Đặc trị cá độ, cờ bạc (Tải thành công)
+    "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/pro.txt",        # Bản Pro cao cấp chuẩn Adblock (Đã chạy ngon)
+    "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/gambling.txt",   # Đặc trị cá độ, cờ bạc
     
     # === 4. HỆ SINH THÁI ADGUARD CHUYÊN SÂU ===
-    "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_2_Base/filter.txt",        # AdGuard Base (Tải thành công)
-    "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_3_Spyware/filter.txt",     # AdGuard Tracking (Tải thành công)
-    "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_14_Annoyances/filter.txt", # AdGuard Annoyances (Tải thành công)
-    "https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/QuickFixesFilter/filter.txt",              # Đã sửa sang link gốc trực tiếp của AdGuard
+    "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_2_Base/filter.txt",        # AdGuard Base
+    "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_3_Spyware/filter.txt",     # AdGuard Tracking
+    "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_14_Annoyances/filter.txt", # AdGuard Annoyances
+    "https://filters.adtidy.org/extension/chromium/filters/23.txt",                                                 # Chuyển hẳn sang CDN chính thức của AdGuard Quick Fixes (Bao mượt, chống 404)
     
     # === 5. BỘ LỌC ÉP CHẶN KHUNG HÌNH BANNER ADVERTISING ===
-    "https://easylist.to/easylist/easylist.txt" # Đã sửa sang URL phân phối chính thức của EasyList Toàn Diện
+    "https://easylist.to/easylist/easylist.txt" # EasyList Toàn Diện (Đã chạy ngon)
 ]
 
 def fetch_and_merge_pure():
@@ -33,8 +33,13 @@ def fetch_and_merge_pure():
             response = requests.get(url, timeout=30)
             if response.status_code == 200:
                 lines = response.text.splitlines()
-                # Hiển thị tên file trực quan trong log
-                display_name = url.split('/')[-1] if not url.endswith('filter.txt') else url.split('/')[-2]
+                
+                # Định dạng tên hiển thị trực quan trong Log GitHub Actions
+                if "filters.adtidy.org" in url:
+                    display_name = "adguard_quickfixes.txt"
+                else:
+                    display_name = url.split('/')[-1] if not url.endswith('filter.txt') else url.split('/')[-2]
+                    
                 print(f"-> Tải thành công: {display_name} ({len(lines)} dòng)")
                 
                 for line in lines:
@@ -64,7 +69,7 @@ def write_pure_filter(rules):
     header = f"""[Adblock Plus 2.0]
 ! Title: ABPVN & Community Ultimate Pure Filter (AdGuard Edition)
 ! Description: Bộ lọc tổng hợp nguyên bản thuần khiết. Tích hợp AdGuard Toàn Diện, HaGeZi Pro, Gambling và EasyList Full.
-! Version: 8.2.{datetime.utcnow().strftime('%Y%m%d')}
+! Version: 8.3.{datetime.utcnow().strftime('%Y%m%d')}
 ! Author: @vhd0_
 ! Last modified: {today} UTC
 ! Expires: 1 days
