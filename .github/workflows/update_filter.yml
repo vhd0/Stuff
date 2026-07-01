@@ -1,0 +1,33 @@
+name: Update Adblock Plus Custom Filter
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Chạy tự động vào 00:00 UTC mỗi ngày (07:00 sáng VN)
+  workflow_dispatch: # Cho phép bấm nút chạy thủ công bất kỳ lúc nào
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5 # Đã nâng cấp lên v5
+
+      - name: Set up Node.js (v24)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24' # Ép môi trường sử dụng Node.js 24
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Run Filter Compiler
+        run: python compiler.py
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add abp.txt
+          git diff-index --quiet HEAD || (git commit -m "Auto-update filters: $(date -u +'%Y-%m-%d %H:%M:%S') UTC" && git push)
