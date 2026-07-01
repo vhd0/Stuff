@@ -1,20 +1,27 @@
-! Title: ABPVN & Community Custom Rules (Safe Universal / Anti-Breakage)
-! Description: Bộ lọc vạn năng chống vỡ giao diện - Không chứa domain, nhận diện ad thông minh, an toàn cho lõi Next.js/Tailwind.
-! Version: 2026.07.01-v2
+! Title: ABPVN & Community Custom Rules (Safe Universal / Player-Friendly)
+! Description: Bộ lọc vạn năng tích lũy - Đã vá lỗi ẩn Player video, giữ lại lõi trình phát Artplayer.
+! Version: 2026.07.01-v3
 ! Homepage: https://github.com/vhd0/Stuff
 
 # ==============================================================================
 # KHỐI 1: CHẶN THEO ĐƯỜNG DẪN ẢNH QUẢNG CÁO (SAFE NETWORK RULES)
 # ==============================================================================
-# Chỉ khóa các tệp tin hình ảnh động quảng cáo, không chặn script hệ thống
 */banners/sv_*$image
 */banners/vs_*$image
 */banners/*x*.gif$image
 
+# Bẫy tham số affiliate chuyển hướng nhảy trang cá độ
+*affiliateCode=*
+*utm_medium=topbanner*
+*utm_medium=catfish*
+*utm_medium=preload*
+*utm_medium=popunder*
+*utm_campaign=cpd*
+
+
 # ==============================================================================
-# KHỐI 2: DIỆT BANNER CỐ ĐỊNH THEO ID/CLASS (SAFE ELEMENT HIDING)
+# KHỐI 2: DIỆT BANNER CỐ ĐỊNH THEO ID/CLASS (ẨN CHÍNH XÁC BỀ MẶT)
 # ==============================================================================
-# Ẩn các hộp chứa quảng cáo dạng Adx hoặc Catfish theo định danh bề mặt
 ##[id*='-adx']
 ##.catfish-top
 ##.catfish-bottom
@@ -23,57 +30,46 @@
 ##[class*='catfish-']
 ##.banner-preload
 ##.banner-preload-container
+
+# Chỉ đích danh khung chứa ad trong player, không dùng từ khóa 'video-overlay' chung chung
 ##.art-layer-ad
-##[id*='video-overlay']
-##[class*='video-overlay']
+##div#video-overlay-bottom
 ##.ad-track
 
-# Xóa các thẻ liên kết cá độ cụ thể theo cấu trúc URL (An toàn hơn chặn mạng)
-##a[href*='affiliateCode=']
-##a[href*='utm_medium=popunder']
-##a[href*='utm_medium=topbanner']
-##a[href*='utm_medium=catfish']
-##a[href*='utm_medium=preload']
-##a[href*='utm_campaign=cpd']
-
-# Ép ẩn các nút bấm/thẻ bẫy click tàng hình (Bọc lót cho AdBlock Plus)
-##a[id^='bb'][onclick]
-##a[onclick^='oc()']
-##a[style*='opacity:0'][style*='width:1px']
-##a[style*='opacity:0'][style*='width: 1px']
-
-# Ra lệnh xóa phần tử khỏi DOM đối với các trình chặn cao cấp (AdGuard Pro/uBlock)
+# Ép xóa các thẻ liên kết bẫy click tàng hình
 ##a[id^='bb'][onclick]:remove()
 ##a[onclick^='oc()']:remove()
 ##a[href*='utm_medium=popunder']:remove()
 
+
 # ==============================================================================
-# KHỐI 3: KHẮC CHẾ GIAO DIỆN TAILWIND & SLIDER (SIẾT CHẶT PHẠM VI :HAS)
+# KHỐI 3: KHẮC CHẾ TAILWIND & SLIDER (BẢO VỆ TUYỆT ĐỐI CHO PLAYER)
 # ==============================================================================
-# KHÔNG dùng ##div:has trống. Chỉ ẩn thẻ liên kết hoặc các div có class kích thước cụ thể chứa ảnh ad
+# Chỉ ẩn khung chứa ảnh nếu nó thuộc thư mục /banners/ quảng cáo
 ##a:has(img[src*='/banners/'])
 ##div[class*='aspect-']:has(img[src*='/banners/'])
 ##div[class*='keen-slider__slide']:has(img[src*='/banners/'])
 
-# Quét sạch các thẻ slide quảng cáo trong thanh trượt nếu chứa từ khóa nhảy trang
+# Quét sạch các slide trong thanh trượt nếu chứa từ khóa nhảy trang cá độ
 ##.keen-slider__slide:has(a[href*='register'])
 ##.keen-slider__slide:has(a[href*='affiliate'])
 ##.keen-slider__slide:has-text(/Đặt cược|Cược|Chi tiết/)
 
-# Chỉ ẩn các nút có chữ CƯỢC nằm trong các panel phụ, tránh ẩn nhầm nội dung chính
+# Chỉ ẩn các nút CƯỢC riêng lẻ, không cho phép ẩn block cha lớn hơn
 ##div[class*='grid'] > a:has-text(/CƯỢC|Cược/)
 ##div[class*='flex'] > a:has-text(/CƯỢC|Cược/)
+##a[class*='bg-']:has-text(/CƯỢC|Cược/)
+##button:has-text(/CƯỢC|Cược/)
 
-# Khóa các lớp phủ cố định có z-index siêu cao hoặc ghim sàn đặc trưng của hệ thống ad
-##div[class*='fixed'][class*='z-[110]']:has(a)
-##div[class*='fixed'][class*='bottom-[52px]']:has(img)
+# SỬA LỖI CHÍ MẠNG: Chỉ khóa lớp phủ z-[110] và ghim sàn NẾU nó chứa link cá độ hoặc ảnh ad
+##div[class*='fixed'][class*='z-[110]']:has(a[href*='affiliateCode'])
+##div[class*='fixed'][class*='z-[110]']:has(img[src*='/banners/'])
+##div[class*='fixed'][class*='bottom-[52px]']:has(img[src*='/banners/'])
+
 
 # ==============================================================================
-# KHỐI 4: VÔ HIỆU HÓA SCRIPT (SCRIPTLET INJECTIONS - AN TOÀN TUYỆT ĐỐI)
+# KHỐI 4: VÔ HIỆU HÓA SCRIPT (SCRIPTLET INJECTIONS - RUNTIME ONLY)
 # ==============================================================================
-# ĐÃ LOẠI BỎ hoàn toàn `##script:contains` để chống lỗi trắng trang.
-# Thay vào đó, dùng cấu trúc chặn runtime: Chỉ triệt tiêu hàm bẫy click mà giữ nguyên file mã nguồn của web.
-
 # Dành cho uBlock Origin (PC / Firefox Android)
 ##+js(popunder)
 ##+js(nowindowopen)
