@@ -1,7 +1,7 @@
 import requests
 from datetime import datetime
 
-# DANH SÁCH RAW URL TỐI ƯU: THAY THẾ UBLOCK BẰNG ADGUARD + ĐẶC TRỊ BANNER ADS
+# DANH SÁCH RAW URL ĐÃ ĐƯỢC SỬA LỖI 404 VÀ TỐI ƯU CHẶN BANNER
 URLS = [
     # === 1. BỘ LỌC CỦA BẠN (Đặc trị Việt Nam) ===
     "https://raw.githubusercontent.com/abpvn/abpvn/refs/heads/master/filter/abpvn.txt",
@@ -10,17 +10,17 @@ URLS = [
     "https://raw.githubusercontent.com/bigdargon/hostsVN/refs/heads/master/filters/adservers-all.txt",
     
     # === 3. CÁC BỘ LỌC ĐỈNH CAO TỪ HAGEZI (Định dạng Adblock) ===
-    "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/multi-proplus.txt", # Bản Multi PRO++ siêu cấp
-    "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/gambling.txt",      # Đặc trị cá độ, cờ bạc
+    "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/proplus.txt",   # Đã sửa thành proplus.txt (Gói Multi PRO++)
+    "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/gambling.txt",  # Đặc trị cá độ, cờ bạc
     
-    # === 4. HỆ SINH THÁI ADGUARD CHUYÊN SÂU (Thay thế hoàn toàn uBlock Origin) ===
-    "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_2_Base/filter.txt",        # AdGuard Base (Lõi chặn Ad/Banner toàn cầu)
-    "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_3_Spyware/filter.txt",     # AdGuard Tracking (Thay cho uBlock Privacy)
-    "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_14_Annoyances/filter.txt", # AdGuard Annoyances (Diệt sạch Banner nổi, Cookie, Pop-up)
-    "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_23_QuickFixes/filter.txt", # AdGuard Quick Fixes (Thay cho uBlock Badware/Unbreak)
+    # === 4. HỆ SINH THÁI ADGUARD CHUYÊN SÂU ===
+    "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_2_Base/filter.txt",        # AdGuard Base (Lõi chặn Ad/Banner)
+    "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_3_Spyware/filter.txt",     # AdGuard Tracking
+    "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_14_Annoyances/filter.txt", # AdGuard Annoyances (Diệt Banner nổi, Popup)
+    "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_23_Quickfixes/filter.txt", # Đã sửa thành Quickfixes (f viết thường)
     
-    # === 5. BỘ LỌC BỔ TRỢ ÉP CHẶN KHUNG HÌNH BANNER ADVERTISING ===
-    "https://raw.githubusercontent.com/easylist/easylist/master/easylist/easylist_combined.txt" # Gộp cả Chặn mạng + Ẩn khung hình Banner gốc
+    # === 5. BỘ LỌC ÉP CHẶN KHUNG HÌNH BANNER ADVERTISING ===
+    "https://raw.githubusercontent.com/easylist/easylist/master/easylist/easylist.txt" # Đã sửa thành easylist.txt (Bản đầy đủ gồm cả Network + Cosmetic)
 ]
 
 def fetch_and_merge_pure():
@@ -33,7 +33,7 @@ def fetch_and_merge_pure():
             response = requests.get(url, timeout=30)
             if response.status_code == 200:
                 lines = response.text.splitlines()
-                print(f"-> Tải thành công: {url.split('/')[-1 or -2]} ({len(lines)} dòng)")
+                print(f"-> Tải thành công: {url.split('/')[-2 if url.endswith('filter.txt') else -1]} ({len(lines)} dòng)")
                 for line in lines:
                     line = line.strip()
                     
@@ -60,8 +60,8 @@ def write_pure_filter(rules):
     
     header = f"""[Adblock Plus 2.0]
 ! Title: ABPVN & Community Ultimate Pure Filter (AdGuard Edition)
-! Description: Bộ lọc tổng hợp nguyên bản thuần khiết. Tích hợp AdGuard Toàn Diện, HaGeZi Pro++, Gambling và EasyList Combined.
-! Version: 8.0.{datetime.utcnow().strftime('%Y%m%d')}
+! Description: Bộ lọc tổng hợp nguyên bản thuần khiết. Tích hợp AdGuard Toàn Diện, HaGeZi Pro++, Gambling và EasyList Full.
+! Version: 8.1.{datetime.utcnow().strftime('%Y%m%d')}
 ! Author: @vhd0_
 ! Last modified: {today} UTC
 ! Expires: 1 days
