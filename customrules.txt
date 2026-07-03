@@ -94,3 +94,29 @@
 ##+js(nowindowopen)
 ##+js(noopfn, oc)
 #$#prevent-window-open
+
+
+# ==============================================================================
+# MODULE: adcenter.cx.txt
+# ==============================================================================
+
+# --- Chặn mạng Ad Server (Nơi lưu trữ cấu trúc ảnh quảng cáo đời mới) ---
+||adcenter.cx^$important
+
+# --- TRIỆT TIÊU BẪY CLICK POPUNDER & BANNER PHIM MỚI ---
+# Sử dụng :remove() để xóa hẳn khỏi DOM, không cho phép script bắt sự kiện click nhảy trang
+##.ads-banner:remove()
+###top-banner:remove()
+###cat-fish:remove()
+##button[aria-label*="ads"]:remove()
+##button[aria-label*="Tắt quảng cáo"]:remove()
+
+# --- KHÓA LỚP PHỦ INTERSTITIAL POPUP (Tailwind Z-Index 9999) ---
+##div.fixed.inset-0.z-\[9999\].flex.items-center.justify-center.bg-black\/70 > div.relative.w-fit.max-w-\[90vw\]
+##div.fixed.inset-0.z-\[9999\].flex.items-center.justify-center
+
+# --- KHÓA BANNER CATFISH GHIM ĐÁY MÀN HÌNH (Tailwind Z-Index 9998) ---
+##div.fixed.left-0.right-0.z-\[9998\].bottom-0
+
+# --- DIỆT HỘP CHỨA QUẢNG CÁO KHUÔN MẪU ĐỘC QUYỀN (TEMPLATE BOXES) ---
+###fbox-display
