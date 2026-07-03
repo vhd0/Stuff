@@ -1,13 +1,14 @@
 # --- Chặn mạng Ad Server (Nơi lưu trữ cấu trúc ảnh quảng cáo đời mới) ---
 ||adcenter.cx^$important
 
-# --- TRIỆT TIÊU BẪY CLICK POPUNDER & BANNER PHIM MỚI ---
-# Sử dụng :remove() để xóa hẳn khỏi DOM, không cho phép script bắt sự kiện click nhảy trang
-##.ads-banner:remove()
-###top-banner:remove()
-###cat-fish:remove()
-##button[aria-label*="ads"]:remove()
-##button[aria-label*="Tắt quảng cáo"]:remove()
+# --- SỬA LỖI TRẮNG/ĐEN TRANG: CHUYỂN SANG ẨN CSS (GIỮ DOM TRÁNH CRASH NEXT.JS) ---
+# Loại bỏ hoàn toàn :remove() để tránh kích hoạt lỗi Hydration Mismatch của React
+##.ads-banner
+###top-banner
+###cat-fish
+##button[aria-label*="ads"]
+##button[aria-label*="Tắt quảng cáo"]
+##button:has(img[alt="Tắt quảng cáo"])
 
 # --- KHÓA LỚP PHỦ INTERSTITIAL POPUP (Tailwind Z-Index 9999) ---
 ##div.fixed.inset-0.z-\[9999\].flex.items-center.justify-center.bg-black\/70 > div.relative.w-fit.max-w-\[90vw\]
