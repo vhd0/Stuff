@@ -94,3 +94,21 @@
 ##+js(nowindowopen)
 ##+js(noopfn, oc)
 #$#prevent-window-open
+
+
+# ==============================================================================
+# MODULE: i9top.txt
+# ==============================================================================
+
+# --- KHÓA LỚP PHỦ INTERSTITIAL POPUP (Tailwind Z-Index 9999) ---
+# Tối ưu từ phimmoie.app và motchille.app trong image.png: Xóa bỏ :nth-child(31) để chống kháng bộ lọc khi cấu trúc DOM thay đổi
+##div.fixed.inset-0.z-\[9999\].flex.items-center.justify-center.bg-black\/70 > div.relative.w-fit.max-w-\[90vw\]
+##div.fixed.inset-0.z-\[9999\].flex.items-center.justify-center
+
+# --- KHÓA BANNER CATFISH GHIM ĐÁY MÀN HÌNH (Tailwind Z-Index 9998) ---
+# Tối ưu từ phimmoichill.im trong image.png: Chặn diện rộng các khung quảng cáo lơ lửng sàn
+##div.fixed.left-0.right-0.z-\[9998\].bottom-0
+
+# --- DIỆT HỘP CHỨA QUẢNG CÁO KHUÔN MẪU ĐỘC QUYỀN (TEMPLATE BOXES) ---
+# Tối ưu từ xemphim.site trong image.png: Khóa cứng khung overlay hiển thị ad
+###fbox-display
