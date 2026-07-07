@@ -48,7 +48,7 @@ def fetch_country_sub(session, country):
 
 def main():
     # Danh sách mã quốc gia cần lấy (bạn có thể thêm us, kr... vào đây nếu muốn)
-    countries = ['hk', 'jp', 'sg']
+    countries = ['hk', 'jp', 'sg', 'vn']
     
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
