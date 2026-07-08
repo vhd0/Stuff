@@ -75,8 +75,8 @@ def fetch_and_merge_pure():
 def write_pure_filter(rules):
     today = datetime.utcnow().strftime('%Y-%m-%d')
     header = f"""[Adblock Plus 2.0]
-! Title: ABPVN & Community Ultimate Pure Filter (Decoupled Cloud Edition)
-! Description: Bộ lọc tổng hợp tối ưu diện rộng. Logic xử lý Python tách biệt hoàn toàn với Custom Rules.
+! Title: ABP Filter by @vhd0
+! Description: Bộ lọc tổng hợp tối ưu diện rộng.
 ! Version: 17.0.{datetime.utcnow().strftime('%Y%m%d')}
 ! Author: @vhd0_
 ! Last modified: {today} UTC
