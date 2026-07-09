@@ -1,0 +1,77 @@
+name: Update Adblock Plus Custom Filter
+
+on:
+  push:
+    paths:
+      - 'customrules.txt' # Tự động chạy nếu file này có thay đổi từ bạn
+  workflow_run:
+    workflows: ["Compile Custom Rules"] # Tự động chạy ngay sau khi robot gộp mã xong (Trùng với 'name' của file yml trước)
+    types:
+      - completed
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+# CẤU HÌNH QUYỀN: Bắt buộc phải có để GitHub Actions có quyền tạo và triển khai Pages
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+# Tránh việc nhiều job deploy chạy đè lên nhau cùng lúc
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # ĐIỀU KIỆN: Chỉ chạy nếu kích hoạt bằng tay/cron/push HOẶC nếu workflow gộp mã trước đó chạy THÀNH CÔNG
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js (v24)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install Python Dependencies
+        run: pip install requests
+
+      - name: Run Filter Compiler
+        run: python compiler.py
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add abp.txt
+          git diff-index --quiet HEAD || (git commit -m "Auto-update filters: $(date -u +'%Y-%m-%d %H:%M:%S') UTC" && git push)
+
+      # BƯỚC 1 CỦA PAGES: Đóng gói cấu trúc trang tĩnh (ở đây chỉ chứa file abp.txt) thành một Artifact
+      # Lưu ý: Điểm cốt lõi là dấu chấm "." ở tham số path, nghĩa là lấy toàn bộ thư mục gốc của repo để deploy lên web
+      - name: Upload GitHub Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.' 
+
+  deploy:
+    # CHỈ CHẠY DEPLOY sau khi job build ở trên đã hoàn thành xong và đẩy file abp.txt mới lên repo thành công
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      # BƯỚC 2 CỦA PAGES: Lấy Artifact đã đóng gói ở trên và đưa lên server GitHub Pages chính thức
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
