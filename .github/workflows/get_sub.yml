@@ -1,0 +1,54 @@
+name: Auto Fetch & Filter Live VPN Nodes
+
+on:
+  schedule:
+    # 00:00 UTC = 07:00 sáng giờ VN
+    - cron: '0 0 * * *'
+  workflow_dispatch:   # cho phép chạy thủ công
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+  PYTHONUNBUFFERED: '1'   # log Python in real-time, không buffer
+
+jobs:
+  fetch-filter-update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30   # kill job nếu treo quá 30 phút
+
+    permissions:
+      contents: write     # cần để push commit
+
+    steps:
+      # ── 1. Checkout code ──────────────────────────────
+      - name: Checkout mã nguồn
+        uses: actions/checkout@v4
+
+      # ── 2. Setup Python ───────────────────────────────
+      - name: Thiết lập Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      # ── 3. Cài thư viện ───────────────────────────────
+      - name: Cài đặt thư viện
+        run: pip install -r requirements.txt
+
+      # ── 4. Chạy script chính ──────────────────────────
+      - name: Fetch & kiểm tra node (HK, JP, SG, VN)
+        run: python get_sub.py
+
+      # ── 5. Commit & push kết quả ──────────────────────
+      - name: Đẩy file node đã lọc lên GitHub
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name  "github-actions[bot]"
+
+          git add *_sub.txt
+
+          # Commit chỉ khi có thay đổi thực sự
+          git diff --cached --quiet \
+            && echo "⏭ Không có thay đổi dữ liệu, bỏ qua commit." \
+            || git commit -m "chore: auto-update live nodes (HK/JP/SG/VN) — $(date -u +'%Y-%m-%d %H:%M UTC')"
+
+          git push
