@@ -2,53 +2,66 @@ name: Auto Fetch & Filter Live VPN Nodes
 
 on:
   schedule:
-    # 00:00 UTC = 07:00 sáng giờ VN
-    - cron: '0 0 * * *'
-  workflow_dispatch:   # cho phép chạy thủ công
+    - cron: '0 0 * * *'   # 00:00 UTC = 07:00 VN
+  workflow_dispatch:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
-  PYTHONUNBUFFERED: '1'   # log Python in real-time, không buffer
+  PYTHONUNBUFFERED: '1'
 
 jobs:
   fetch-filter-update:
     runs-on: ubuntu-latest
-    timeout-minutes: 30   # kill job nếu treo quá 30 phút
+    timeout-minutes: 40
 
     permissions:
-      contents: write     # cần để push commit
+      contents: write
 
     steps:
-      # ── 1. Checkout code ──────────────────────────────
-      - name: Checkout mã nguồn
+      - name: Checkout
         uses: actions/checkout@v4
 
-      # ── 2. Setup Python ───────────────────────────────
-      - name: Thiết lập Python 3.12
+      - name: Setup Python 3.12
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           cache: 'pip'
 
-      # ── 3. Cài thư viện ───────────────────────────────
-      - name: Cài đặt thư viện
+      - name: Cài thư viện Python
         run: pip install -r requirements.txt
 
-      # ── 4. Chạy script chính ──────────────────────────
-      - name: Fetch & kiểm tra node (HK, JP, SG, VN)
+      # ── sing-box (test VPN protocol thực tế) ──────────────────────────
+      - name: Install sing-box
+        run: |
+          LATEST=$(curl -sL https://api.github.com/repos/SagerNet/sing-box/releases/latest \
+                   | grep '"tag_name"' | cut -d'"' -f4)
+          VER="${LATEST#v}"
+          FILE="sing-box-${VER}-linux-amd64"
+          wget -q "https://github.com/SagerNet/sing-box/releases/download/${LATEST}/${FILE}.tar.gz"
+          tar xf "${FILE}.tar.gz"
+          sudo mv "${FILE}/sing-box" /usr/local/bin/sing-box
+          rm -rf "${FILE}" "${FILE}.tar.gz"
+          sing-box version
+
+      # ── GeoLite2 (offline IP → country lookup) ────────────────────────
+      - name: Download GeoLite2-Country DB
+        run: |
+          wget -q \
+            "https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-Country.mmdb" \
+            -O GeoLite2-Country.mmdb
+          ls -lh GeoLite2-Country.mmdb
+
+      # ── Main script ───────────────────────────────────────────────────
+      - name: Scrape → Dedup → GeoIP → sing-box → Rename
         run: python get_sub.py
 
-      # ── 5. Commit & push kết quả ──────────────────────
-      - name: Đẩy file node đã lọc lên GitHub
+      # ── Commit kết quả ────────────────────────────────────────────────
+      - name: Commit & push nodes
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name  "github-actions[bot]"
-
           git add *_sub.txt
-
-          # Commit chỉ khi có thay đổi thực sự
           git diff --cached --quiet \
-            && echo "⏭ Không có thay đổi dữ liệu, bỏ qua commit." \
-            || git commit -m "chore: auto-update live nodes (HK/JP/SG/VN) — $(date -u +'%Y-%m-%d %H:%M UTC')"
-
+            && echo "Không có thay đổi." \
+            || git commit -m "chore: update live nodes (HK/JP/SG/VN) — $(date -u +'%Y-%m-%d %H:%M UTC')"
           git push
