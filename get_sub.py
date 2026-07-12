@@ -1,19 +1,22 @@
 """
-get_sub.py — Fetch & filter live VPN nodes from v2nodes.com
+get_sub.py — Fetch live VPN nodes from v2nodes.com
 
-Phân tích HTML thực tế (server page):
-  - Node URL nằm trong: <textarea id="config" data-config="ss://...">
-  - Check button: <button id="checkButton" data-id="{id}"> — KHÔNG có CSRF form
-  - Check endpoint: GET /servers/{id}/check/  (JS gọi AJAX GET, không POST)
-  - Result injected vào: <div id="testResult">
-  - Response chứa "Server Status: Online!" hoặc "Server Status: Offline"
+Phân tích:
+  - /servers/{id}/check/ bị Cloudflare chặn với automated request
+  - v2nodes đã tự test server mỗi vài phút — kết quả hiển thị trên
+    country page qua badge ping:
+      <span class="text-success fw-bold">📡 60ms</span>  → Online
+      <span class="text-danger  fw-bold">📡 ...</span>   → Offline
+      (không có badge)                                   → Unknown/skip
 
-Flow:
-  1. GET /country/{cc}/          → detect "X of N" pages
-  2. GET /country/{cc}/?page=K   → collect server IDs  (song song)
-  3. GET /servers/{id}/          → parse node URL từ data-config attribute
-  4. GET /servers/{id}/check/    → parse Online / Offline
-  5. Ghi node Online → {cc}_sub.txt
+Flow tối ưu (không cần gọi /check/):
+  1. GET /country/{cc}/?page=N  → parse từng server card:
+       - href  → server_id
+       - badge text-success → is_online = True
+     (song song toàn bộ trang)
+  2. GET /servers/{id}/         → parse node URL từ <textarea data-config>
+     CHỈ cho server is_online = True
+  3. Ghi {cc}_sub.txt
 
 Dependencies: aiohttp>=3.9, beautifulsoup4>=4.12, lxml>=5.0
 """
@@ -22,6 +25,7 @@ import asyncio
 import re
 import sys
 import logging
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
@@ -31,22 +35,20 @@ from bs4 import BeautifulSoup
 # ═══════════════════════════ Config ═══════════════════════════
 BASE_URL        = "https://www.v2nodes.com"
 COUNTRIES       = ["hk", "jp", "sg", "vn"]
-CONCURRENCY     = 15
+CONCURRENCY     = 20       # request song song tối đa
 RETRY_TIMES     = 2
-CONNECT_TIMEOUT = 10    # giây
-READ_TIMEOUT    = 25    # giây (check đôi khi chậm)
+CONNECT_TIMEOUT = 10
+READ_TIMEOUT    = 20
 
-# Bắt "1 of 6", "2 of 10", ... (phòng trường hợp trang hiện tại khác 1)
 _RE_TOTAL_PAGES = re.compile(r'\b\d+\s+of\s+(\d+)\b', re.IGNORECASE)
-_RE_SERVER_ID   = re.compile(r'/servers/(\d+)/')
+_RE_SERVER_HREF = re.compile(r'^/servers/(\d+)/$')
 
-# Fallback regex nếu BeautifulSoup không parse được textarea
-_RE_NODE_URL    = re.compile(
+# Node URL fallback regex (nếu textarea không parse được)
+_RE_NODE_URL = re.compile(
     r'(?:vmess|vless|trojan|ss|ssr)://[^\s<>"\']+',
     re.IGNORECASE,
 )
 
-# Headers giả lập browser Chrome — dùng chung cho mọi request
 _HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -54,14 +56,7 @@ _HEADERS = {
         "Chrome/125.0.0.0 Safari/537.36"
     ),
     "Accept-Language": "en-US,en;q=0.9",
-    "Accept":          "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    "Connection":      "keep-alive",
-}
-
-# Headers bổ sung khi gọi check endpoint (giống AJAX từ browser)
-_AJAX_EXTRA = {
-    "X-Requested-With": "XMLHttpRequest",
-    "Accept":           "text/html, */*; q=0.01",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
 }
 
 # ═══════════════════════════ Logging ══════════════════════════
@@ -74,6 +69,13 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 
+# ═══════════════════════════ Models ═══════════════════════════
+@dataclass
+class ServerEntry:
+    server_id: str
+    is_online: bool   # True nếu badge text-success xuất hiện trong card
+
+
 # ═══════════════════════ Network helpers ══════════════════════
 def _timeout() -> aiohttp.ClientTimeout:
     return aiohttp.ClientTimeout(connect=CONNECT_TIMEOUT, total=READ_TIMEOUT)
@@ -83,14 +85,12 @@ async def _get(
     session: aiohttp.ClientSession,
     url: str,
     *,
-    extra: dict | None = None,
     retries: int = RETRY_TIMES,
 ) -> Optional[str]:
-    """GET với exponential-backoff retry. Trả về text hoặc None."""
-    hdrs = {**_HEADERS, **(extra or {})}
+    """GET với exponential-backoff retry."""
     for attempt in range(retries + 1):
         try:
-            async with session.get(url, headers=hdrs, timeout=_timeout()) as r:
+            async with session.get(url, headers=_HEADERS, timeout=_timeout()) as r:
                 r.raise_for_status()
                 return await r.text()
         except Exception as exc:
@@ -101,47 +101,56 @@ async def _get(
     return None
 
 
-# ═══════════════════════ HTML parsers ═════════════════════════
-def _parse_total_pages(html: str) -> int:
-    """Parse 'X of N' → N. Trả về 1 nếu không tìm thấy."""
-    m = _RE_TOTAL_PAGES.search(html)
-    return int(m.group(1)) if m else 1
-
-
-def _parse_server_ids(html: str) -> list[str]:
-    """Server IDs không trùng, giữ thứ tự."""
-    return list(dict.fromkeys(_RE_SERVER_ID.findall(html)))
-
-
-def _extract_node_url(html: str) -> Optional[str]:
+# ═══════════════════════ Country page parser ══════════════════
+def _parse_page(html: str) -> tuple[int, list[ServerEntry]]:
     """
-    Lấy node URL từ trang server.
+    Parse một trang country. Trả về (total_pages, [ServerEntry]).
 
-    Ưu tiên: <textarea id="config" data-config="ss://...">
-    Vì đây là field chứa chính xác URL mà user copy để dùng.
-    Fallback: regex trên toàn HTML.
+    Mỗi server card có dạng:
+      <div class="card ...">
+        <div class="card-header ...">
+          <a href="/servers/{id}/">...</a>
+        </div>
+        <div class="card-body ...">
+          <!-- Online:  --><span class="text-success fw-bold">📡 60ms</span>
+          <!-- Offline: --><span class="text-danger  fw-bold">...</span>
+        </div>
+      </div>
     """
     soup = BeautifulSoup(html, "lxml")
+    total_pages = 1
+    m = _RE_TOTAL_PAGES.search(html)
+    if m:
+        total_pages = int(m.group(1))
 
-    # Cách chính xác nhất: đọc attribute data-config
-    textarea = soup.find("textarea", {"id": "config"})
-    if textarea:
-        node = textarea.get("data-config") or textarea.get_text(strip=True)
-        if node and "://" in node:
-            return node.strip()
+    entries: list[ServerEntry] = []
 
-    # Fallback regex
-    m = _RE_NODE_URL.search(html)
-    return m.group(0).strip() if m else None
+    for card in soup.find_all("div", class_="card"):
+        # Tìm link /servers/{id}/
+        link = card.find("a", href=_RE_SERVER_HREF)
+        if not link:
+            continue
+        m_id = _RE_SERVER_HREF.match(link["href"])
+        if not m_id:
+            continue
+        server_id = m_id.group(1)
+
+        # Online nếu có badge text-success (ping xanh lá)
+        # Offline nếu chỉ có text-danger hoặc không có badge nào
+        online_badge  = card.find("span", class_="text-success")
+        is_online = online_badge is not None
+
+        entries.append(ServerEntry(server_id=server_id, is_online=is_online))
+
+    return total_pages, entries
 
 
-# ═══════════════════════ Page collection ══════════════════════
-async def _fetch_page_ids(
+async def _fetch_page(
     session: aiohttp.ClientSession,
     country: str,
     page: int,
     sem: asyncio.Semaphore,
-) -> list[str]:
+) -> list[ServerEntry]:
     async with sem:
         url = (
             f"{BASE_URL}/country/{country}/"
@@ -152,102 +161,85 @@ async def _fetch_page_ids(
         if not html:
             log.warning("[%s] Không tải được trang %d", country.upper(), page)
             return []
-        return _parse_server_ids(html)
+        _, entries = _parse_page(html)
+        return entries
 
 
-async def collect_server_ids(
+async def collect_entries(
     session: aiohttp.ClientSession,
     country: str,
     sem: asyncio.Semaphore,
-) -> list[str]:
-    """Fetch tất cả trang của country, gom server ID."""
+) -> list[ServerEntry]:
+    """Fetch tất cả trang, gom ServerEntry."""
+    # Trang 1 trước để biết total_pages
     html_p1 = await _get(session, f"{BASE_URL}/country/{country}/")
     if not html_p1:
         log.warning("[%s] Không tải được trang country", country.upper())
         return []
 
-    total  = _parse_total_pages(html_p1)
-    ids_p1 = _parse_server_ids(html_p1)
-    log.info("[%s] %d trang | trang 1: %d servers", country.upper(), total, len(ids_p1))
+    total_pages, entries_p1 = _parse_page(html_p1)
+    log.info(
+        "[%s] %d trang | trang 1: %d servers (%d online)",
+        country.upper(), total_pages, len(entries_p1),
+        sum(1 for e in entries_p1 if e.is_online),
+    )
 
-    extra: list[str] = []
-    if total > 1:
+    all_entries = list(entries_p1)
+
+    if total_pages > 1:
         pages = await asyncio.gather(*[
-            _fetch_page_ids(session, country, p, sem)
-            for p in range(2, total + 1)
+            _fetch_page(session, country, p, sem)
+            for p in range(2, total_pages + 1)
         ])
         for pg in pages:
-            extra.extend(pg)
+            all_entries.extend(pg)
 
-    all_ids = list(dict.fromkeys(ids_p1 + extra))
-    log.info("[%s] Tổng server IDs: %d", country.upper(), len(all_ids))
-    return all_ids
+    # Dedup by server_id (giữ entry đầu tiên)
+    seen: set[str] = set()
+    deduped: list[ServerEntry] = []
+    for e in all_entries:
+        if e.server_id not in seen:
+            seen.add(e.server_id)
+            deduped.append(e)
+
+    total   = len(deduped)
+    online  = sum(1 for e in deduped if e.is_online)
+    offline = total - online
+    log.info(
+        "[%s] Tổng: %d servers | ✔ %d online | ✘ %d offline (theo badge v2nodes)",
+        country.upper(), total, online, offline,
+    )
+    return deduped
 
 
-# ═══════════════════════ Server check ═════════════════════════
-async def check_server(
+# ═══════════════════════ Node URL fetcher ═════════════════════
+def _extract_node_url(html: str) -> Optional[str]:
+    """
+    Lấy node URL từ <textarea id="config" data-config="ss://...">.
+    Fallback: regex trên toàn HTML.
+    """
+    soup = BeautifulSoup(html, "lxml")
+    textarea = soup.find("textarea", {"id": "config"})
+    if textarea:
+        node = textarea.get("data-config") or textarea.get_text(strip=True)
+        if node and "://" in node:
+            return node.strip()
+
+    m = _RE_NODE_URL.search(html)
+    return m.group(0).strip() if m else None
+
+
+async def fetch_node_url(
     session: aiohttp.ClientSession,
     server_id: str,
     sem: asyncio.Semaphore,
 ) -> Optional[str]:
-    """
-    Bước 3+4:
-
-    a) GET /servers/{id}/
-       → Parse node URL từ <textarea id="config" data-config="...">
-         (đây là field v2nodes dùng để user copy — chính xác nhất)
-
-    b) GET /servers/{id}/check/
-       → Gửi kèm headers AJAX (X-Requested-With: XMLHttpRequest)
-         và Referer như browser thật
-       → KHÔNG cần CSRF (trang không có csrfmiddlewaretoken)
-       → Parse response: "Server Status: Online!" / "Server Status: Offline"
-
-    Trả về node URL nếu Online, None nếu Offline/lỗi.
-    """
+    """GET trang server → trả về node URL, hoặc None nếu lỗi."""
     async with sem:
-        server_url = f"{BASE_URL}/servers/{server_id}/"
-
-        # ── a) GET trang server ──────────────────────────────
-        html = await _get(session, server_url)
+        html = await _get(session, f"{BASE_URL}/servers/{server_id}/")
         if not html:
             return None
-
-        node_url = _extract_node_url(html)
-        if not node_url:
-            log.debug("Server %s: không tìm thấy node URL", server_id)
-            return None
-
-        # ── b) GET check endpoint (= JS gọi khi bấm Check Server) ──
-        check_url  = f"{BASE_URL}/servers/{server_id}/check/"
-        check_hdrs = {**_AJAX_EXTRA, "Referer": server_url}
-
-        resp = await _get(session, check_url, extra=check_hdrs)
-
-        if not resp:
-            log.debug("Server %s: check endpoint không phản hồi", server_id)
-            return None
-
-        resp_lower = resp.lower()
-        log.debug("Server %s check response: %r", server_id, resp[:120])
-
-        # Parse kết quả — ưu tiên tìm cụm "server status" trước
-        if "server status" in resp_lower:
-            if "online" in resp_lower:
-                log.debug("Server %s → ✔ ONLINE", server_id)
-                return node_url
-            if "offline" in resp_lower:
-                log.debug("Server %s → ✘ OFFLINE", server_id)
-                return None
-
-        # Fallback heuristic
-        if "offline" in resp_lower:
-            return None
-        if "online" in resp_lower:
-            return node_url
-
-        log.debug("Server %s: response không rõ trạng thái → %r", server_id, resp[:120])
-        return None
+        return _extract_node_url(html)
 
 
 # ═══════════════════════ Per-country pipeline ═════════════════
@@ -258,31 +250,38 @@ async def process_country(
 ) -> None:
     log.info("━━━ [%s] Bắt đầu ━━━", country.upper())
 
-    server_ids = await collect_server_ids(session, country, sem)
-    if not server_ids:
+    # Bước 1+2: Gom entries từ tất cả trang
+    entries = await collect_entries(session, country, sem)
+    if not entries:
         log.warning("[%s] Không có server nào.", country.upper())
         return
 
+    # Chỉ fetch node URL cho server is_online = True
+    online_entries = [e for e in entries if e.is_online]
+    log.info("[%s] Fetching node URL cho %d server online...", country.upper(), len(online_entries))
+
+    if not online_entries:
+        log.warning("[%s] Không có server online.", country.upper())
+        log.info("━━━ [%s] Xong ━━━\n", country.upper())
+        return
+
     results = await asyncio.gather(
-        *[check_server(session, sid, sem) for sid in server_ids],
+        *[fetch_node_url(session, e.server_id, sem) for e in online_entries],
         return_exceptions=True,
     )
 
-    online_nodes = [r for r in results if isinstance(r, str) and r]
-    total  = len(server_ids)
-    online = len(online_nodes)
-
+    nodes = [r for r in results if isinstance(r, str) and r]
     log.info(
-        "[%s] ✔ %d/%d online  |  ✘ %d offline/lỗi",
-        country.upper(), online, total, total - online,
+        "[%s] ✔ Thu được %d/%d node URL",
+        country.upper(), len(nodes), len(online_entries),
     )
 
-    if online_nodes:
+    if nodes:
         out = Path(f"{country}_sub.txt")
-        out.write_text("\n".join(online_nodes), encoding="utf-8")
-        log.info("[%s] Đã lưu %d node → %s", country.upper(), online, out)
+        out.write_text("\n".join(nodes), encoding="utf-8")
+        log.info("[%s] Đã lưu → %s", country.upper(), out)
     else:
-        log.warning("[%s] Không có node online — bỏ qua ghi file.", country.upper())
+        log.warning("[%s] Không lấy được node URL nào.", country.upper())
 
     log.info("━━━ [%s] Xong ━━━\n", country.upper())
 
@@ -290,7 +289,7 @@ async def process_country(
 # ═════════════════════════ Main ═══════════════════════════════
 async def main() -> None:
     log.info("┌──────────────────────────────────────────┐")
-    log.info("│   FETCH & CHECK VPN NODES — v2nodes.com  │")
+    log.info("│   FETCH LIVE VPN NODES — v2nodes.com     │")
     log.info("└──────────────────────────────────────────┘")
 
     sem = asyncio.Semaphore(CONCURRENCY)
