@@ -1,0 +1,4 @@
+# Runtime dependencies for get_sub.py
+aiohttp>=3.9.0
+beautifulsoup4>=4.12.0
+lxml>=5.0.0      # HTML parser nhanh hơn html.parser mặc định
