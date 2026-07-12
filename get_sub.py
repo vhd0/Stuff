@@ -7,7 +7,7 @@ Pipeline mỗi country:
   3. GeoIP   : DNS resolve host → maxminddb lookup → giữ đúng quốc gia
                CDN IPs (Cloudflare/Fastly) luôn giữ dù GeoIP ≠ country
   4. sing-box: batch test HTTP qua VPN protocol thực tế
-  5. Rename  : strip label cũ → "🇯🇵 | vmess | 1"
+  5. Rename  : strip label cũ → "JP | vmess | 01"
 
 Dependencies: aiohttp, beautifulsoup4, lxml, maxminddb
 External:     sing-box binary, GeoLite2-Country.mmdb
@@ -564,17 +564,56 @@ async def health_check(nodes: list[str]) -> list[str]:
 
 
 # ═══════════════════════ 5. Rename nodes ══════════════════════════════
-def rename_nodes(nodes: list[str], flag: str) -> list[str]:
+
+# Schemes hợp lệ của VPN protocols
+_VALID_SCHEMES = {"vmess", "vless", "trojan", "ss", "ssr"}
+
+# Regex bắt fragment cũ: từ ký tự # đầu tiên đến hết
+# Cũng bắt %23 (# bị URL-encode trong một số node)
+_RE_FRAGMENT = re.compile(r'(?:#|%23).*$')
+
+
+def _strip_fragment(url: str) -> str:
     """
-    Strip label cũ (phần sau #), chuẩn hoá thành:
-      {flag} | {scheme} | {index}
-    Ví dụ: 🇯🇵 | vmess | 69
+    Loại bỏ fragment cũ khỏi node URL một cách an toàn.
+
+    Xử lý các trường hợp:
+      • URL bình thường   : ss://...@host:443#OldLabel  → ss://...@host:443
+      • Không có fragment : vmess://BASE64               → vmess://BASE64
+      • # encoded         : ...%23OldLabel               → ...
+      • Nhiều # liên tiếp : vless://...#part1#part2      → vless://...
     """
-    renamed = []
+    return _RE_FRAGMENT.sub("", url).strip()
+
+
+def _scheme_of(base_url: str) -> str:
+    """Trích scheme từ URL đã strip fragment. Trả về 'vpn' nếu không nhận ra."""
+    if "://" not in base_url:
+        return "vpn"
+    scheme = base_url.split("://", 1)[0].strip().lower()
+    return scheme if scheme in _VALID_SCHEMES else "vpn"
+
+
+def rename_nodes(nodes: list[str], country_code: str) -> list[str]:
+    """
+    Strip toàn bộ label cũ và chuẩn hoá thành:
+      {CC} | {scheme} | {index zero-padded}
+
+    Ví dụ với country_code="JP":
+      vmess://BASE64#Old Name  →  vmess://BASE64#JP | vmess | 01
+      ss://...#🇸🇬 label       →  ss://...#SG | ss | 02
+
+    Zero-padding: 2 chữ số (≤99 nodes), 3 chữ số (100-999 nodes).
+    """
+    pad_width = max(2, len(str(len(nodes))))   # 01, 02 … hoặc 001, 002 …
+
+    renamed: list[str] = []
     for i, url in enumerate(nodes, 1):
-        base   = url.split("#")[0].rstrip()
-        scheme = base.split("://")[0].lower()
-        renamed.append(f"{base}#{flag} | {scheme} | {i}")
+        base   = _strip_fragment(url)
+        scheme = _scheme_of(base)
+        index  = str(i).zfill(pad_width)
+        renamed.append(f"{base}#{country_code} | {scheme} | {index}")
+
     return renamed
 
 
@@ -624,11 +663,16 @@ async def process_country(
         return
 
     # ── 5. Rename ────────────────────────────────────────────────
-    renamed = rename_nodes(live, flag)
+    renamed = rename_nodes(live, cc)   # cc = "JP", "HK", "SG", "VN"
+
+    # Preview 3 node đầu để verify format
+    for preview in renamed[:3]:
+        label = preview.split("#", 1)[-1] if "#" in preview else "(no label)"
+        log.info("  [preview] %s", label)
 
     out = Path(f"{country}_sub.txt")
     out.write_text("\n".join(renamed), encoding="utf-8")
-    log.info("[%s] %s Lưu %d nodes → %s", country.upper(), flag, len(renamed), out)
+    log.info("[%s] Lưu %d nodes → %s", country.upper(), len(renamed), out)
     log.info("━━━ [%s] Xong ━━━\n", country.upper())
 
 
