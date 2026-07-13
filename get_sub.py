@@ -1,12 +1,19 @@
 """
-get_sub.py — Scrape → Dedup → GeoIP → sing-box test → Rename
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Label format: "JP | 06"  (CC + index, no protocol — Shadowrocket shows it already)
+get_sub.py — Multi-source VPN node collector
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Sources:
+  1. v2nodes.com    — scrape per-country (primary, always country-accurate)
+  2. EbraSha        — raw GitHub list (920 nodes, no CC → full GeoIP classify)
+  3. OpenProxyList  — raw list (149 nodes, CC in URL-encoded label → fast path)
 
-Root-cause fixes included:
-  • SNI sanitize: t.me%2Fripaojiedian → t.me  (invalid SNI crashed whole batch)
-  • sing-box batch validation: detect bad config before wasting TEST_TIMEOUT
-  • vmess rename: update "ps" field inside base64 JSON (clients read ps, not #)
+GeoIP upgrade:
+  OLD: hardcoded IP prefix tuple for CDN detection (error-prone)
+  NEW: GeoLite2-Country.mmdb + GeoLite2-ASN.mmdb
+       → CDN detected via ASN number / org name (Cloudflare AS13335, etc.)
+       → DNS result cached per hostname → no duplicate lookups
+
+Pipeline per country:
+  Collect (3 sources) → Dedup → GeoIP filter → sing-box test → Rename
 """
 
 import asyncio
@@ -22,35 +29,65 @@ import tempfile
 import time
 from pathlib import Path
 from typing import Optional
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import parse_qs, unquote, urlparse
 
 import aiohttp
 import maxminddb
 from bs4 import BeautifulSoup
 
-# ═══════════════════════════════ Config ════════════════════════════════
-BASE_URL         = "https://www.v2nodes.com"
-COUNTRIES        = ["hk", "jp", "sg", "vn"]
+# ═══════════════════════════════════ Config ═══════════════════════════════════
+BASE_URL  = "https://www.v2nodes.com"
+COUNTRIES = ["hk", "jp", "sg", "vn"]
 
-COUNTRY_CC   = {"hk": "HK",  "jp": "JP",  "sg": "SG",  "vn": "VN"}
-
-# GeoIP: một số datacenter bị GeoLite2 classify sai quốc gia
+COUNTRY_CC    = {"hk": "HK", "jp": "JP", "sg": "SG", "vn": "VN"}
+# Allowed CCs per country (some datacenters misclassified by GeoLite2)
 COUNTRY_CC_ALLOW: dict[str, set[str]] = {
-    "hk": {"HK", "CN"},   # HK SAR — nhiều node HK có IP classify là CN
+    "hk": {"HK", "CN"},
     "jp": {"JP"},
     "sg": {"SG"},
     "vn": {"VN"},
 }
 
-GEOIP_DB         = os.environ.get("GEOIP_DB", "GeoLite2-Country.mmdb")
-DNS_CONCURRENCY  = 60
-DNS_TIMEOUT      = 5.0
+# External raw sources (fetched once, classified by GeoIP/label)
+EXTRA_SOURCES = {
+    "ebrasha": {
+        "url":         "https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list"
+                       "/refs/heads/main/V2Ray-Config-By-EbraSha.txt",
+        "cc_in_label": False,    # no CC in label → full GeoIP per node
+    },
+    "openproxylist": {
+        "url":         "https://openproxylist.com/v2ray/rawlist/text",
+        "cc_in_label": True,     # CC encoded in label: %5Bopenproxylist.com%5D%20JP%20...
+    },
+}
 
+# GeoIP databases
+GEOIP_COUNTRY_DB = os.environ.get("GEOIP_DB",     "GeoLite2-Country.mmdb")
+GEOIP_ASN_DB     = os.environ.get("GEOIP_ASN_DB", "GeoLite2-ASN.mmdb")
+
+# CDN detection by ASN (far more accurate than IP prefix matching)
+_CDN_ASNS: frozenset[int] = frozenset({
+    13335, 209242,          # Cloudflare
+    54113,                  # Fastly
+    16625, 20940, 26101,    # Akamai
+    16509,                  # Amazon CloudFront / AWS
+    15169, 396982,          # Google GFE / Cloud
+    8075,                   # Microsoft Azure CDN / Front Door
+    30633,                  # BunnyCDN
+    22822,                  # Limelight / Edgio
+})
+_CDN_ORG_KW = ("cloudflare", "fastly", "akamai", "cloudfront",
+               "amazon", "google", "microsoft", "bunnycdn", "limelight")
+
+# HTTP
+DNS_CONCURRENCY  = 80
+DNS_TIMEOUT      = 5.0
 HTTP_CONCURRENCY = 10
 HTTP_RETRY       = 3
 CONNECT_TIMEOUT  = 12
 READ_TIMEOUT     = 25
 
+# sing-box
 SINGBOX_BIN      = os.environ.get("SINGBOX_BIN", "/usr/local/bin/sing-box")
 BATCH_SIZE       = 30
 BASE_PORT        = 20000
@@ -62,22 +99,13 @@ TEST_URLS        = [
 TEST_TIMEOUT     = 10
 TEST_CONCURRENCY = 30
 
-# CDN IPs — giữ bất kể GeoIP (Cloudflare / Fastly / Akamai)
-_CDN_PREFIXES = (
-    "104.16.", "104.17.", "104.18.", "104.19.", "104.20.", "104.21.",
-    "104.22.", "104.23.", "104.24.", "104.25.", "104.26.", "104.27.",
-    "108.162.", "141.101.", "162.158.",
-    "172.64.",  "172.65.",  "172.66.",  "172.67.",
-    "173.245.", "188.114.", "190.93.",  "197.234.", "198.41.",
-    "151.101.", "199.232.",
-    "23.32.",   "23.64.",   "23.192.",  "23.200.",
-)
-
+# Regex
 _RE_TOTAL_PAGES = re.compile(r'\b\d+\s+of\s+(\d+)\b', re.IGNORECASE)
 _RE_SERVER_HREF = re.compile(r'^/servers/(\d+)/$')
 _RE_DATA_CONFIG = re.compile(r'data-config="([^"]+)"')
 _RE_NODE        = re.compile(r'^(?:vmess|vless|trojan|ss|ssr)://.+', re.IGNORECASE)
 _RE_FRAGMENT    = re.compile(r'(?:#|%23).*$')
+_RE_OPL_CC      = re.compile(r'\]\s+([A-Z]{2})\s+')   # [source] JP 12345
 _VALID_SCHEMES  = {"vmess", "vless", "trojan", "ss", "ssr"}
 
 _HEADERS = {
@@ -98,7 +126,7 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 
-# ═══════════════════════ Helpers ═══════════════════════════════════════
+# ═══════════════════════════════════ Helpers ══════════════════════════════════
 def _b64d(s: str) -> Optional[str]:
     try:
         return base64.b64decode(s + "=" * ((-len(s)) % 4)).decode("utf-8", errors="ignore")
@@ -125,35 +153,177 @@ async def _get(session: aiohttp.ClientSession, url: str) -> Optional[str]:
 
 
 def _clean_sni(sni: str, fallback: str = "") -> str:
-    """
-    Sanitize TLS SNI — phải là hostname thuần, không chứa '/', '?', ' '.
-    Ví dụ: 't.me%2Fripaojiedian' → URL decode → 't.me/ripaojiedian'
-            → chỉ lấy phần trước '/' → 't.me'
-    """
+    """Strip invalid chars — SNI phải là hostname thuần, không có '/' '?' ' '."""
     sni = sni.strip()
-    # Lấy phần trước dấu / ? (URL path / query lọt vào SNI)
     for ch in ("/", "?", " "):
         sni = sni.split(ch)[0]
     return sni or fallback
 
 
-# ═══════════════════════ Node endpoint parsing ═════════════════════════
+# ══════════════════════════════════ GeoIP (ASN) ═══════════════════════════════
+class GeoIPContext:
+    """
+    Wrapper giữ cả Country reader và ASN reader.
+    DNS cache: mỗi hostname chỉ resolve 1 lần dù xuất hiện ở nhiều nodes.
+    """
+    def __init__(
+        self,
+        country_reader: Optional[maxminddb.Reader],
+        asn_reader:     Optional[maxminddb.Reader],
+    ):
+        self._country = country_reader
+        self._asn     = asn_reader
+        self._dns_cache: dict[str, Optional[str]] = {}
+        self._sem = asyncio.Semaphore(DNS_CONCURRENCY)
+
+    @classmethod
+    def load(cls) -> "GeoIPContext":
+        country = asn = None
+        if Path(GEOIP_COUNTRY_DB).exists():
+            country = maxminddb.open_database(GEOIP_COUNTRY_DB)
+            log.info("GeoLite2-Country loaded: %s", GEOIP_COUNTRY_DB)
+        else:
+            log.warning("GeoLite2-Country không tìm thấy (%s)", GEOIP_COUNTRY_DB)
+        if Path(GEOIP_ASN_DB).exists():
+            asn = maxminddb.open_database(GEOIP_ASN_DB)
+            log.info("GeoLite2-ASN loaded: %s", GEOIP_ASN_DB)
+        else:
+            log.warning("GeoLite2-ASN không tìm thấy (%s) — CDN fallback to prefix", GEOIP_ASN_DB)
+        return cls(country, asn)
+
+    def close(self) -> None:
+        if self._country: self._country.close()
+        if self._asn:     self._asn.close()
+
+    async def resolve(self, hostname: str) -> Optional[str]:
+        """DNS resolve với cache — chỉ lookup mỗi hostname một lần."""
+        if hostname in self._dns_cache:
+            return self._dns_cache[hostname]
+        # Already an IP?
+        for family in (socket.AF_INET, socket.AF_INET6):
+            try:
+                socket.inet_pton(family, hostname)
+                self._dns_cache[hostname] = hostname
+                return hostname
+            except OSError:
+                pass
+        async with self._sem:
+            try:
+                loop  = asyncio.get_event_loop()
+                infos = await asyncio.wait_for(
+                    loop.getaddrinfo(hostname, None, type=socket.SOCK_STREAM),
+                    timeout=DNS_TIMEOUT,
+                )
+                # Ưu tiên IPv4
+                ip = next((i[4][0] for i in infos if i[0] == socket.AF_INET), None)
+                ip = ip or (infos[0][4][0] if infos else None)
+            except Exception:
+                ip = None
+        self._dns_cache[hostname] = ip
+        return ip
+
+    def is_cdn(self, ip: str) -> bool:
+        """
+        Detect CDN via ASN (chính xác hơn IP prefix).
+        Fallback về IP prefix nếu ASN DB chưa load.
+        """
+        if self._asn:
+            try:
+                rec = self._asn.get(ip) or {}
+                asn = rec.get("autonomous_system_number", 0)
+                org = rec.get("autonomous_system_organization", "").lower()
+                if asn in _CDN_ASNS:
+                    return True
+                if any(kw in org for kw in _CDN_ORG_KW):
+                    return True
+                return False
+            except Exception:
+                pass
+        # Fallback: IP prefix (legacy)
+        _PREFIXES = (
+            "104.16.", "104.17.", "104.18.", "104.19.", "104.20.", "104.21.",
+            "104.22.", "104.23.", "104.24.", "104.25.", "104.26.", "104.27.",
+            "108.162.", "141.101.", "162.158.",
+            "172.64.", "172.65.", "172.66.", "172.67.",
+            "173.245.", "188.114.", "190.93.", "197.234.", "198.41.",
+        )
+        return ip.startswith(_PREFIXES)
+
+    def country_code(self, ip: str) -> Optional[str]:
+        if not self._country:
+            return None
+        try:
+            rec = self._country.get(ip) or {}
+            return rec.get("country", {}).get("iso_code")
+        except Exception:
+            return None
+
+    async def classify(self, url: str) -> Optional[str]:
+        """
+        Trả về country code của node, hoặc:
+          None  — DNS fail → discard
+          "CDN" — CDN IP → không xác định country từ GeoIP
+        """
+        ep = parse_endpoint(url)
+        if not ep:
+            return "UNKNOWN"
+        _, host, _ = ep
+        ip = await self.resolve(host)
+        if not ip:
+            return None
+        if self.is_cdn(ip):
+            return "CDN"
+        return self.country_code(ip)
+
+    async def filter_nodes(
+        self,
+        nodes:       list[str],
+        allowed_ccs: set[str],
+    ) -> list[str]:
+        """
+        Giữ node nếu:
+          • GeoIP ∈ allowed_ccs
+          • HOẶC IP là CDN (country không xác định, nhưng node có thể hợp lệ)
+        Loại bỏ:
+          • DNS fail
+          • GeoIP khác allowed_ccs VÀ không phải CDN
+        """
+        async def _keep(url: str) -> bool:
+            ep = parse_endpoint(url)
+            if not ep:
+                return True     # không parse được → giữ (safe default)
+            _, host, _ = ep
+            ip = await self.resolve(host)
+            if ip is None:
+                log.debug("DNS fail: %s → loại", host)
+                return False
+            if self.is_cdn(ip):
+                return True
+            cc = self.country_code(ip)
+            if cc in allowed_ccs:
+                return True
+            log.debug("GeoIP %s → %s ∉ {%s} → loại", ip, cc,
+                      "/".join(sorted(allowed_ccs)))
+            return False
+
+        results = await asyncio.gather(*[_keep(n) for n in nodes])
+        return [n for n, keep in zip(nodes, results) if keep]
+
+
+# ══════════════════════════ Node endpoint parsing ══════════════════════════════
 def parse_endpoint(url: str) -> Optional[tuple[str, str, int]]:
     """Trả về (scheme, host, port) — dùng cho dedup key và GeoIP lookup."""
     try:
         clean  = url.split("#")[0].strip()
         scheme = clean.split("://")[0].lower()
-
         if scheme == "vmess":
             cfg  = json.loads(_b64d(clean[8:]) or "{}")
             host = str(cfg.get("add", "")).strip()
             port = int(cfg.get("port", 0))
             return (scheme, host, port) if host and port else None
-
         if scheme in ("vless", "trojan"):
             p = urlparse(clean)
             return (scheme, p.hostname or "", p.port or 0) if p.hostname and p.port else None
-
         if scheme == "ss":
             rest = clean[5:]
             if "@" in rest:
@@ -163,6 +333,7 @@ def parse_endpoint(url: str) -> Optional[tuple[str, str, int]]:
                 if not dec or "@" not in dec:
                     return None
                 hostinfo = dec.rsplit("@", 1)[1]
+            hostinfo = hostinfo.split("?")[0].split("#")[0]
             if hostinfo.startswith("["):
                 host = hostinfo[1:hostinfo.index("]")]
                 port = int(hostinfo[hostinfo.index("]") + 2:])
@@ -170,19 +341,17 @@ def parse_endpoint(url: str) -> Optional[tuple[str, str, int]]:
                 host, ps = hostinfo.rsplit(":", 1)
                 port = int(ps)
             return (scheme, host, port)
-
         if scheme == "ssr":
             dec = _b64d(clean[6:])
             if dec:
                 parts = dec.split(":")
                 return (scheme, parts[0], int(parts[1]))
-
     except Exception:
         pass
     return None
 
 
-# ═══════════════════════ 1. Scraping ═══════════════════════════════════
+# ════════════════════════════ 1. v2nodes scraping ═════════════════════════════
 def _parse_server_ids(html: str) -> list[str]:
     soup = BeautifulSoup(html, "lxml")
     ids: list[str] = []
@@ -216,22 +385,21 @@ async def _node_from_page(
     return None
 
 
-async def scrape_country(
+async def scrape_v2nodes(
     session: aiohttp.ClientSession,
     country: str,
     sem: asyncio.Semaphore,
 ) -> list[str]:
+    """Scrape v2nodes tất cả trang của country → node URLs."""
     async with sem:
         html1 = await _get(session, f"{BASE_URL}/country/{country}/")
     if not html1:
         return []
-
     total = 1
     m = _RE_TOTAL_PAGES.search(html1)
     if m:
         total = int(m.group(1))
-    log.info("[%s] %d trang country", country.upper(), total)
-
+    log.info("[v2nodes/%s] %d trang", country.upper(), total)
     all_ids = _parse_server_ids(html1)
     if total > 1:
         extra = await asyncio.gather(*[
@@ -242,16 +410,106 @@ async def scrape_country(
             if h:
                 all_ids.extend(_parse_server_ids(h))
     all_ids = list(dict.fromkeys(all_ids))
-    log.info("[%s] %d server IDs", country.upper(), len(all_ids))
-
     raw   = await asyncio.gather(*[_node_from_page(session, sid, sem) for sid in all_ids])
     nodes = [r for r in raw if isinstance(r, str) and r]
-    log.info("[%s] %d nodes scraped", country.upper(), len(nodes))
+    log.info("[v2nodes/%s] %d nodes scraped", country.upper(), len(nodes))
     return nodes
 
 
-# ═══════════════════════ 2. Deduplication ══════════════════════════════
+# ══════════════════════════ 2. External sources ════════════════════════════════
+def _parse_rawlist(text: str) -> list[str]:
+    """Parse plain-text rawlist — mỗi dòng 1 node URL."""
+    nodes = []
+    for line in text.splitlines():
+        line = line.strip()
+        if _RE_NODE.match(line):
+            nodes.append(line)
+    return nodes
+
+
+def _opl_extract_cc(fragment: str) -> Optional[str]:
+    """
+    OpenProxyList label dạng URL-encoded:
+      %5Bopenproxylist.com%5D%20JP%2014164878
+      → decode → [openproxylist.com] JP 14164878 → CC: JP
+    Trả về None nếu không có CC.
+    """
+    decoded = unquote(fragment)
+    m       = _RE_OPL_CC.search(decoded)
+    return m.group(1) if m else None
+
+
+async def fetch_external_sources(
+    session: aiohttp.ClientSession,
+    geoip:   GeoIPContext,
+) -> dict[str, list[str]]:
+    """
+    Fetch EbraSha + OpenProxyList một lần duy nhất.
+    Phân loại mỗi node theo CC → trả về map {cc: [nodes]}.
+
+    • OpenProxyList: CC trong label → fast path (không cần DNS cho phần lớn)
+    • EbraSha:       Không có CC → GeoIP toàn bộ (async song song)
+    """
+    result: dict[str, list[str]] = {}
+
+    # ── Fetch cả 2 source song song ──────────────────────────────────────────
+    ebrasha_cfg = EXTRA_SOURCES["ebrasha"]
+    opl_cfg     = EXTRA_SOURCES["openproxylist"]
+
+    texts = await asyncio.gather(
+        _get(session, ebrasha_cfg["url"]),
+        _get(session, opl_cfg["url"]),
+    )
+    ebrasha_text, opl_text = texts
+
+    # ── OpenProxyList: CC từ label ─────────────────────────────────────────────
+    if opl_text:
+        opl_nodes = _parse_rawlist(opl_text)
+        log.info("[OpenProxyList] %d nodes raw", len(opl_nodes))
+        for node in opl_nodes:
+            frag = node.split("#", 1)[1] if "#" in node else ""
+            cc   = _opl_extract_cc(frag)
+            if cc:
+                result.setdefault(cc, []).append(node)
+        log.info("[OpenProxyList] phân loại xong: %s",
+                 {k: len(v) for k, v in result.items()})
+    else:
+        log.warning("[OpenProxyList] Fetch thất bại")
+
+    # ── EbraSha: GeoIP classify (async DNS + lookup) ──────────────────────────
+    if ebrasha_text:
+        ebrasha_nodes = _parse_rawlist(ebrasha_text)
+        log.info("[EbraSha] %d nodes raw — bắt đầu GeoIP classify...", len(ebrasha_nodes))
+
+        async def _classify(node: str) -> tuple[Optional[str], str]:
+            cc = await geoip.classify(node)
+            return cc, node
+
+        classified = await asyncio.gather(*[_classify(n) for n in ebrasha_nodes])
+        cdn_count  = 0
+        skip_count = 0
+        for cc, node in classified:
+            if cc is None:                  # DNS fail
+                skip_count += 1
+            elif cc in ("CDN", "UNKNOWN"):  # không xác định được
+                cdn_count += 1
+            else:
+                result.setdefault(cc, []).append(node)
+
+        ebrasha_cc_counts = {cc: len(v) for cc, v in result.items()
+                             if cc not in (k for k in (
+                                 opl_text and _parse_rawlist(opl_text) and [] or []))}
+        log.info("[EbraSha] Xong: %d phân loại, %d CDN (bỏ qua), %d DNS fail",
+                 len(classified) - cdn_count - skip_count, cdn_count, skip_count)
+    else:
+        log.warning("[EbraSha] Fetch thất bại")
+
+    return result
+
+
+# ══════════════════════════ 3. Deduplication ═══════════════════════════════════
 def deduplicate(nodes: list[str]) -> list[str]:
+    """Loại node trùng cùng (scheme, host, port). Giữ lần xuất hiện đầu."""
     seen:   set[tuple] = set()
     unique: list[str]  = []
     dups = 0
@@ -270,69 +528,7 @@ def deduplicate(nodes: list[str]) -> list[str]:
     return unique
 
 
-# ═══════════════════════ 3. GeoIP filtering ════════════════════════════
-def _is_cdn(ip: str) -> bool:
-    return ip.startswith(_CDN_PREFIXES)
-
-
-async def _resolve(hostname: str) -> Optional[str]:
-    for family in (socket.AF_INET, socket.AF_INET6):
-        try:
-            socket.inet_pton(family, hostname)
-            return hostname
-        except OSError:
-            pass
-    try:
-        loop  = asyncio.get_event_loop()
-        infos = await asyncio.wait_for(
-            loop.getaddrinfo(hostname, None, type=socket.SOCK_STREAM),
-            timeout=DNS_TIMEOUT,
-        )
-        for info in infos:
-            if info[0] == socket.AF_INET:
-                return info[4][0]
-        return infos[0][4][0] if infos else None
-    except Exception:
-        return None
-
-
-async def geoip_filter(
-    nodes: list[str],
-    allowed_ccs: set[str],
-    reader: maxminddb.Reader,
-) -> list[str]:
-    sem      = asyncio.Semaphore(DNS_CONCURRENCY)
-    cc_label = "/".join(sorted(allowed_ccs))
-
-    async def _check(url: str) -> Optional[str]:
-        ep = parse_endpoint(url)
-        if not ep:
-            return url
-        _, host, _ = ep
-        async with sem:
-            ip = await _resolve(host)
-        if ip is None:
-            log.debug("DNS fail: %s → loại", host)
-            return None
-        if _is_cdn(ip):
-            log.debug("CDN %s → giữ", ip)
-            return url
-        try:
-            record = reader.get(ip) or {}
-            cc     = record.get("country", {}).get("iso_code", "") or "??"
-        except Exception:
-            return url
-        if cc in allowed_ccs:
-            return url
-        log.debug("GeoIP %s → %s ∉ {%s} → loại", ip, cc, cc_label)
-        return None
-
-    results  = await asyncio.gather(*[_check(n) for n in nodes])
-    filtered = [r for r in results if r is not None]
-    return filtered
-
-
-# ═══════════════════════ 4. sing-box parsers ═══════════════════════════
+# ════════════════════════════ 4. sing-box parsers ═════════════════════════════
 def _parse_ss(url: str, tag: str) -> Optional[dict]:
     try:
         rest = url.split("#")[0][5:]
@@ -351,6 +547,7 @@ def _parse_ss(url: str, tag: str) -> Optional[dict]:
                 return None
             mp, hostinfo = dec.rsplit("@", 1)
             method, password = mp.split(":", 1)
+        hostinfo = hostinfo.split("?")[0].split("#")[0]
         if hostinfo.startswith("["):
             host = hostinfo[1:hostinfo.index("]")]
             port = int(hostinfo[hostinfo.index("]") + 2:])
@@ -428,11 +625,9 @@ def _parse_vless(url: str, tag: str) -> Optional[dict]:
         if security in ("tls", "reality", "xtls"):
             tls: dict = {"enabled": True, "server_name": sni, "insecure": True}
             if security == "reality":
-                tls["reality"] = {
-                    "enabled":    True,
-                    "public_key": q("pbk"),
-                    "short_id":   q("sid"),
-                }
+                tls["reality"] = {"enabled":    True,
+                                  "public_key": q("pbk"),
+                                  "short_id":   q("sid")}
             if fp:
                 tls["utls"] = {"enabled": True, "fingerprint": fp}
             ob["tls"] = tls
@@ -479,10 +674,10 @@ def _to_singbox(url: str, tag: str) -> Optional[dict]:
     if scheme == "vless":  return _parse_vless(url, tag)
     if scheme == "trojan": return _parse_trojan(url, tag)
     if scheme == "ss":     return _parse_ss(url, tag)
-    return None   # ssr: not supported by sing-box natively
+    return None
 
 
-# ═══════════════════════ 4. sing-box test ══════════════════════════════
+# ═══════════════════════════ 5. sing-box test ══════════════════════════════════
 def _build_cfg(batch: list[tuple[str, dict, int]]) -> dict:
     inbounds, outbounds, rules = [], [], []
     for _, ob, port in batch:
@@ -500,17 +695,14 @@ def _build_cfg(batch: list[tuple[str, dict, int]]) -> dict:
 
 
 async def _http_test(port: int, sem: asyncio.Semaphore) -> bool:
-    """Test proxy qua nhiều URL, trả về True nếu bất kỳ URL nào thành công."""
     async with sem:
         for url in TEST_URLS:
             try:
                 conn    = aiohttp.TCPConnector(ssl=False)
                 timeout = aiohttp.ClientTimeout(total=TEST_TIMEOUT)
                 async with aiohttp.ClientSession(connector=conn) as s:
-                    async with s.get(url,
-                                     proxy=f"http://127.0.0.1:{port}",
-                                     timeout=timeout,
-                                     allow_redirects=True) as r:
+                    async with s.get(url, proxy=f"http://127.0.0.1:{port}",
+                                     timeout=timeout, allow_redirects=True) as r:
                         if r.status in (200, 204):
                             return True
             except Exception:
@@ -520,7 +712,7 @@ async def _http_test(port: int, sem: asyncio.Semaphore) -> bool:
 
 async def _test_batch(
     batch: list[tuple[str, dict, int]],
-    sem: asyncio.Semaphore,
+    sem:   asyncio.Semaphore,
 ) -> list[bool]:
     cfg = _build_cfg(batch)
     tmp = tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False)
@@ -528,27 +720,24 @@ async def _test_batch(
         json.dump(cfg, tmp)
         tmp.close()
 
-        # Validate config trước khi chạy — phát hiện invalid SNI, bad params, v.v.
-        check = subprocess.run(
+        # Validate config trước khi start (bắt invalid SNI, missing fields, v.v.)
+        chk = subprocess.run(
             [SINGBOX_BIN, "check", "-c", tmp.name],
             capture_output=True, text=True, timeout=10,
         )
-        if check.returncode != 0:
-            log.warning("sing-box config invalid → skip batch:\n  %s",
-                        check.stderr.strip()[:300])
+        if chk.returncode != 0:
+            log.warning("sing-box config invalid:\n  %s", chk.stderr.strip()[:300])
             return [False] * len(batch)
 
         proc = subprocess.Popen(
             [SINGBOX_BIN, "run", "-c", tmp.name],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.PIPE,
+            stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
         )
         await asyncio.sleep(SINGBOX_STARTUP)
 
         if proc.poll() is not None:
             err = proc.stderr.read().decode(errors="ignore").strip()
-            log.warning("sing-box crashed (rc=%d): %s",
-                        proc.returncode, err[:300] if err else "(no stderr)")
+            log.warning("sing-box crashed (rc=%d): %s", proc.returncode, err[:300])
             return [False] * len(batch)
 
         results = await asyncio.gather(*[_http_test(port, sem) for _, _, port in batch])
@@ -558,7 +747,6 @@ async def _test_batch(
             proc.wait(timeout=3)
         except subprocess.TimeoutExpired:
             proc.kill()
-
         return list(results)
     finally:
         try:
@@ -569,7 +757,7 @@ async def _test_batch(
 
 async def health_check(nodes: list[str]) -> list[str]:
     if not Path(SINGBOX_BIN).exists():
-        log.warning("sing-box không tìm thấy → giữ %d nodes không check", len(nodes))
+        log.warning("sing-box không tìm thấy → giữ %d nodes", len(nodes))
         return nodes
 
     parsed: list[tuple[str, dict, int]] = []
@@ -596,53 +784,41 @@ async def health_check(nodes: list[str]) -> list[str]:
         log.info("  Batch %d/%d: %d/%d online (%.1fs)",
                  idx, len(batches), ok, len(batch), time.monotonic() - t0)
         online.extend(url for (url, _, _), alive in zip(batch, results) if alive)
-
     return online
 
 
-# ═══════════════════════ 5. Rename ═════════════════════════════════════
+# ════════════════════════════ 6. Rename ════════════════════════════════════════
 def _strip_fragment(url: str) -> str:
     return _RE_FRAGMENT.sub("", url).strip()
 
 
-def _scheme_of(base_url: str) -> str:
-    if "://" not in base_url:
+def _scheme_of(base: str) -> str:
+    if "://" not in base:
         return "vpn"
-    s = base_url.split("://", 1)[0].strip().lower()
+    s = base.split("://", 1)[0].strip().lower()
     return s if s in _VALID_SCHEMES else "vpn"
 
 
-def _rename_vmess(base_url: str, label: str) -> str:
-    """
-    vmess: VPN client đọc field "ps" trong JSON, không đọc #fragment.
-    Phải decode → update ps → re-encode.
-    """
+def _rename_vmess(base: str, label: str) -> str:
+    """vmess: cập nhật field 'ps' trong JSON (clients đọc ps, không đọc #fragment)."""
     try:
-        raw = base_url[8:]
-        cfg = json.loads(_b64d(raw) or "{}")
+        cfg     = json.loads(_b64d(base[8:]) or "{}")
         cfg["ps"] = label
-        new_b64   = base64.b64encode(
+        new_b64 = base64.b64encode(
             json.dumps(cfg, separators=(",", ":"), ensure_ascii=False).encode()
         ).decode().rstrip("=")
         return f"vmess://{new_b64}#{label}"
     except Exception:
-        return f"{base_url}#{label}"
+        return f"{base}#{label}"
 
 
-def rename_nodes(nodes: list[str], country_code: str) -> list[str]:
-    """
-    Format: "{CC} | {index:02d}"  →  "JP | 06"
-
-    Bỏ protocol khỏi label vì Shadowrocket / VPN clients
-    đã hiển thị protocol ở dòng phụ (VLESS / WEBSOCKET / UDP).
-    Giữ label ngắn, đều nhau, không thừa thông tin.
-    """
-    pad = max(2, len(str(len(nodes))))
-
-    renamed: list[str] = []
+def rename_nodes(nodes: list[str], cc: str) -> list[str]:
+    """Format: 'JP | 06'  — CC + index, không có protocol (Shadowrocket tự hiện)."""
+    pad     = max(2, len(str(len(nodes))))
+    renamed = []
     for i, url in enumerate(nodes, 1):
         base  = _strip_fragment(url)
-        label = f"{country_code} | {str(i).zfill(pad)}"
+        label = f"{cc} | {str(i).zfill(pad)}"
         if _scheme_of(base) == "vmess":
             renamed.append(_rename_vmess(base, label))
         else:
@@ -650,40 +826,47 @@ def rename_nodes(nodes: list[str], country_code: str) -> list[str]:
     return renamed
 
 
-# ═══════════════════════ Per-country pipeline ══════════════════════════
+# ═════════════════════════ Per-country pipeline ════════════════════════════════
 async def process_country(
-    session: aiohttp.ClientSession,
-    country: str,
-    http_sem: asyncio.Semaphore,
-    geoip_reader: Optional[maxminddb.Reader],
+    session:      aiohttp.ClientSession,
+    country:      str,
+    http_sem:     asyncio.Semaphore,
+    geoip:        GeoIPContext,
+    external_map: dict[str, list[str]],    # {CC: [nodes]} từ EbraSha + OPL
 ) -> None:
     cc      = COUNTRY_CC[country]
     allowed = COUNTRY_CC_ALLOW[country]
     log.info("━━━ [%s] Bắt đầu ━━━", cc)
 
-    # 1. Scrape
-    nodes = await scrape_country(session, country, http_sem)
-    if not nodes:
-        log.warning("[%s] Không scrape được node nào.", cc)
-        return
+    # ── 1. Collect từ 3 nguồn ─────────────────────────────────────────────────
+    v2nodes_nodes  = await scrape_v2nodes(session, country, http_sem)
 
-    # 2. Dedup
-    nodes = deduplicate(nodes)
+    # External: lấy từ tất cả allowed_ccs (vd HK lấy cả HK + CN từ external)
+    external_nodes: list[str] = []
+    for acc in allowed:
+        external_nodes.extend(external_map.get(acc, []))
+
+    all_nodes = v2nodes_nodes + external_nodes
+    log.info("[%s] Tổng trước dedup: %d (v2nodes=%d, external=%d)",
+             cc, len(all_nodes), len(v2nodes_nodes), len(external_nodes))
+
+    # ── 2. Dedup ──────────────────────────────────────────────────────────────
+    nodes = deduplicate(all_nodes)
     log.info("[%s] Sau dedup: %d nodes", cc, len(nodes))
 
-    # 3. GeoIP
-    if geoip_reader:
+    # ── 3. GeoIP filter ───────────────────────────────────────────────────────
+    if geoip._country:
         before = len(nodes)
-        nodes  = await geoip_filter(nodes, allowed, geoip_reader)
+        nodes  = await geoip.filter_nodes(nodes, allowed)
         log.info("[%s] Sau GeoIP {%s}: %d/%d nodes",
                  cc, "/".join(sorted(allowed)), len(nodes), before)
     else:
-        log.warning("[%s] GeoLite2 không có → bỏ qua GeoIP filter.", cc)
+        log.warning("[%s] Không có GeoIP DB → bỏ qua filter.", cc)
     if not nodes:
         log.warning("[%s] Không còn node sau GeoIP.", cc)
         return
 
-    # 4. sing-box health check
+    # ── 4. sing-box health check ──────────────────────────────────────────────
     log.info("[%s] sing-box test %d nodes...", cc, len(nodes))
     live = await health_check(nodes)
     log.info("[%s] ✔ %d/%d online | ✘ %d offline",
@@ -692,7 +875,7 @@ async def process_country(
         log.warning("[%s] Không có node online.", cc)
         return
 
-    # 5. Rename
+    # ── 5. Rename ─────────────────────────────────────────────────────────────
     renamed = rename_nodes(live, cc)
     for r in renamed[:3]:
         log.info("  [preview] %s", r.split("#")[-1] if "#" in r else r)
@@ -703,20 +886,15 @@ async def process_country(
     log.info("━━━ [%s] Xong ━━━\n", cc)
 
 
-# ═══════════════════════ Main ══════════════════════════════════════════
+# ════════════════════════════════ Main ═════════════════════════════════════════
 async def main() -> None:
-    log.info("┌─────────────────────────────────────────────────────┐")
-    log.info("│  Scrape → Dedup → GeoIP → sing-box → Rename        │")
-    log.info("│  Label: 'JP | 06'  (CC + index, no protocol)       │")
-    log.info("└─────────────────────────────────────────────────────┘")
+    log.info("┌───────────────────────────────────────────────────────┐")
+    log.info("│  Multi-source: v2nodes + EbraSha + OpenProxyList     │")
+    log.info("│  GeoIP: Country.mmdb + ASN.mmdb (CDN via ASN)        │")
+    log.info("│  Label: 'JP | 06'  (CC + index, no protocol)         │")
+    log.info("└───────────────────────────────────────────────────────┘")
 
-    geoip_reader: Optional[maxminddb.Reader] = None
-    if Path(GEOIP_DB).exists():
-        geoip_reader = maxminddb.open_database(GEOIP_DB)
-        log.info("GeoLite2 loaded: %s", GEOIP_DB)
-    else:
-        log.warning("GeoLite2 không tìm thấy (%s).", GEOIP_DB)
-
+    geoip     = GeoIPContext.load()
     http_sem  = asyncio.Semaphore(HTTP_CONCURRENCY)
     connector = aiohttp.TCPConnector(limit=30, ssl=False, ttl_dns_cache=300)
 
@@ -725,15 +903,22 @@ async def main() -> None:
             connector=connector,
             cookie_jar=aiohttp.CookieJar(unsafe=True),
         ) as session:
-            for country in COUNTRIES:
-                await process_country(session, country, http_sem, geoip_reader)
-    finally:
-        if geoip_reader:
-            geoip_reader.close()
 
-    log.info("┌─────────────────────────────────────────────────────┐")
-    log.info("│                    HOÀN TẤT                        │")
-    log.info("└─────────────────────────────────────────────────────┘")
+            # Fetch external sources một lần (trước khi loop các country)
+            log.info("Fetching external sources...")
+            external_map = await fetch_external_sources(session, geoip)
+            log.info("External map: %s", {k: len(v) for k, v in external_map.items()})
+
+            # Xử lý từng country
+            for country in COUNTRIES:
+                await process_country(session, country, http_sem, geoip, external_map)
+
+    finally:
+        geoip.close()
+
+    log.info("┌───────────────────────────────────────────────────────┐")
+    log.info("│                      HOÀN TẤT                       │")
+    log.info("└───────────────────────────────────────────────────────┘")
 
 
 if __name__ == "__main__":
