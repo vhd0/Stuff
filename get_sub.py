@@ -1,16 +1,12 @@
 """
-get_sub.py — Scrape → Dedup → GeoIP filter → sing-box test → Rename
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Pipeline mỗi country:
-  1. Scrape  : paginate /country/{cc}/ → server IDs → node URLs (data-config)
-  2. Dedup   : loại node trùng (scheme, host, port)
-  3. GeoIP   : DNS resolve host → maxminddb lookup → giữ đúng quốc gia
-               CDN IPs (Cloudflare/Fastly) luôn giữ dù GeoIP ≠ country
-  4. sing-box: batch test HTTP qua VPN protocol thực tế
-  5. Rename  : strip label cũ → "JP | vmess | 01"
+get_sub.py — Scrape → Dedup → GeoIP → sing-box test → Rename
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Label format: "JP | 06"  (CC + index, no protocol — Shadowrocket shows it already)
 
-Dependencies: aiohttp, beautifulsoup4, lxml, maxminddb
-External:     sing-box binary, GeoLite2-Country.mmdb
+Root-cause fixes included:
+  • SNI sanitize: t.me%2Fripaojiedian → t.me  (invalid SNI crashed whole batch)
+  • sing-box batch validation: detect bad config before wasting TEST_TIMEOUT
+  • vmess rename: update "ps" field inside base64 JSON (clients read ps, not #)
 """
 
 import asyncio
@@ -32,12 +28,19 @@ import aiohttp
 import maxminddb
 from bs4 import BeautifulSoup
 
-# ═══════════════════════════════ Config ═══════════════════════════════
+# ═══════════════════════════════ Config ════════════════════════════════
 BASE_URL         = "https://www.v2nodes.com"
 COUNTRIES        = ["hk", "jp", "sg", "vn"]
 
 COUNTRY_CC   = {"hk": "HK",  "jp": "JP",  "sg": "SG",  "vn": "VN"}
-COUNTRY_FLAG = {"hk": "🇭🇰", "jp": "🇯🇵", "sg": "🇸🇬", "vn": "🇻🇳"}
+
+# GeoIP: một số datacenter bị GeoLite2 classify sai quốc gia
+COUNTRY_CC_ALLOW: dict[str, set[str]] = {
+    "hk": {"HK", "CN"},   # HK SAR — nhiều node HK có IP classify là CN
+    "jp": {"JP"},
+    "sg": {"SG"},
+    "vn": {"VN"},
+}
 
 GEOIP_DB         = os.environ.get("GEOIP_DB", "GeoLite2-Country.mmdb")
 DNS_CONCURRENCY  = 60
@@ -52,26 +55,30 @@ SINGBOX_BIN      = os.environ.get("SINGBOX_BIN", "/usr/local/bin/sing-box")
 BATCH_SIZE       = 30
 BASE_PORT        = 20000
 SINGBOX_STARTUP  = 3.0
-TEST_URL         = "http://connectivitycheck.gstatic.com/generate_204"
+TEST_URLS        = [
+    "http://connectivitycheck.gstatic.com/generate_204",
+    "http://www.msftconnecttest.com/connecttest.txt",
+]
 TEST_TIMEOUT     = 10
 TEST_CONCURRENCY = 30
 
-# CDN prefixes → giữ node bất kể GeoIP (Cloudflare/Fastly/Akamai có thể
-# front cho bất kỳ country nào nhưng VPN vẫn kết nối được)
+# CDN IPs — giữ bất kể GeoIP (Cloudflare / Fastly / Akamai)
 _CDN_PREFIXES = (
     "104.16.", "104.17.", "104.18.", "104.19.", "104.20.", "104.21.",
     "104.22.", "104.23.", "104.24.", "104.25.", "104.26.", "104.27.",
     "108.162.", "141.101.", "162.158.",
     "172.64.",  "172.65.",  "172.66.",  "172.67.",
     "173.245.", "188.114.", "190.93.",  "197.234.", "198.41.",
-    "151.101.", "199.232.",             # Fastly
-    "23.32.",   "23.64.",   "23.192.",  "23.200.",  # Akamai
+    "151.101.", "199.232.",
+    "23.32.",   "23.64.",   "23.192.",  "23.200.",
 )
 
 _RE_TOTAL_PAGES = re.compile(r'\b\d+\s+of\s+(\d+)\b', re.IGNORECASE)
 _RE_SERVER_HREF = re.compile(r'^/servers/(\d+)/$')
 _RE_DATA_CONFIG = re.compile(r'data-config="([^"]+)"')
 _RE_NODE        = re.compile(r'^(?:vmess|vless|trojan|ss|ssr)://.+', re.IGNORECASE)
+_RE_FRAGMENT    = re.compile(r'(?:#|%23).*$')
+_VALID_SCHEMES  = {"vmess", "vless", "trojan", "ss", "ssr"}
 
 _HEADERS = {
     "User-Agent": (
@@ -91,7 +98,7 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 
-# ═══════════════════════ Helpers ══════════════════════════════════════
+# ═══════════════════════ Helpers ═══════════════════════════════════════
 def _b64d(s: str) -> Optional[str]:
     try:
         return base64.b64decode(s + "=" * ((-len(s)) % 4)).decode("utf-8", errors="ignore")
@@ -117,12 +124,22 @@ async def _get(session: aiohttp.ClientSession, url: str) -> Optional[str]:
     return None
 
 
-# ═══════════════════════ Node endpoint parsing ════════════════════════
+def _clean_sni(sni: str, fallback: str = "") -> str:
+    """
+    Sanitize TLS SNI — phải là hostname thuần, không chứa '/', '?', ' '.
+    Ví dụ: 't.me%2Fripaojiedian' → URL decode → 't.me/ripaojiedian'
+            → chỉ lấy phần trước '/' → 't.me'
+    """
+    sni = sni.strip()
+    # Lấy phần trước dấu / ? (URL path / query lọt vào SNI)
+    for ch in ("/", "?", " "):
+        sni = sni.split(ch)[0]
+    return sni or fallback
+
+
+# ═══════════════════════ Node endpoint parsing ═════════════════════════
 def parse_endpoint(url: str) -> Optional[tuple[str, str, int]]:
-    """
-    Trả về (scheme, host, port) từ bất kỳ node URL nào.
-    Dùng cho cả dedup key lẫn GeoIP host extraction.
-    """
+    """Trả về (scheme, host, port) — dùng cho dedup key và GeoIP lookup."""
     try:
         clean  = url.split("#")[0].strip()
         scheme = clean.split("://")[0].lower()
@@ -165,7 +182,7 @@ def parse_endpoint(url: str) -> Optional[tuple[str, str, int]]:
     return None
 
 
-# ═══════════════════════ 1. Scraping ══════════════════════════════════
+# ═══════════════════════ 1. Scraping ═══════════════════════════════════
 def _parse_server_ids(html: str) -> list[str]:
     soup = BeautifulSoup(html, "lxml")
     ids: list[str] = []
@@ -204,7 +221,6 @@ async def scrape_country(
     country: str,
     sem: asyncio.Semaphore,
 ) -> list[str]:
-    """Scrape tất cả trang → server IDs → node URLs."""
     async with sem:
         html1 = await _get(session, f"{BASE_URL}/country/{country}/")
     if not html1:
@@ -218,32 +234,31 @@ async def scrape_country(
 
     all_ids = _parse_server_ids(html1)
     if total > 1:
-        extra_htmls = await asyncio.gather(*[
-            (lambda p: (asyncio.create_task(_get(session, f"{BASE_URL}/country/{country}/?page={p}"))))(p)
+        extra = await asyncio.gather(*[
+            (lambda p=p: _get(session, f"{BASE_URL}/country/{country}/?page={p}"))(p)
             for p in range(2, total + 1)
         ])
-        for h in extra_htmls:
+        for h in extra:
             if h:
                 all_ids.extend(_parse_server_ids(h))
     all_ids = list(dict.fromkeys(all_ids))
     log.info("[%s] %d server IDs", country.upper(), len(all_ids))
 
-    raw = await asyncio.gather(*[_node_from_page(session, sid, sem) for sid in all_ids])
+    raw   = await asyncio.gather(*[_node_from_page(session, sid, sem) for sid in all_ids])
     nodes = [r for r in raw if isinstance(r, str) and r]
     log.info("[%s] %d nodes scraped", country.upper(), len(nodes))
     return nodes
 
 
-# ═══════════════════════ 2. Deduplication ════════════════════════════
+# ═══════════════════════ 2. Deduplication ══════════════════════════════
 def deduplicate(nodes: list[str]) -> list[str]:
-    """Loại node trùng cùng (scheme, host, port). Giữ lần xuất hiện đầu."""
-    seen:   set[tuple]  = set()
-    unique: list[str]   = []
+    seen:   set[tuple] = set()
+    unique: list[str]  = []
     dups = 0
     for url in nodes:
         ep = parse_endpoint(url)
         if ep is None:
-            unique.append(url)   # không parse được → giữ để không mất node
+            unique.append(url)
             continue
         if ep in seen:
             dups += 1
@@ -255,14 +270,12 @@ def deduplicate(nodes: list[str]) -> list[str]:
     return unique
 
 
-# ═══════════════════════ 3. GeoIP filtering ═══════════════════════════
+# ═══════════════════════ 3. GeoIP filtering ════════════════════════════
 def _is_cdn(ip: str) -> bool:
     return ip.startswith(_CDN_PREFIXES)
 
 
 async def _resolve(hostname: str) -> Optional[str]:
-    """Resolve hostname → IP (IPv4 ưu tiên). Trả về None nếu DNS fail."""
-    # Đã là IP?
     for family in (socket.AF_INET, socket.AF_INET6):
         try:
             socket.inet_pton(family, hostname)
@@ -270,12 +283,11 @@ async def _resolve(hostname: str) -> Optional[str]:
         except OSError:
             pass
     try:
-        loop    = asyncio.get_event_loop()
-        infos   = await asyncio.wait_for(
+        loop  = asyncio.get_event_loop()
+        infos = await asyncio.wait_for(
             loop.getaddrinfo(hostname, None, type=socket.SOCK_STREAM),
             timeout=DNS_TIMEOUT,
         )
-        # Ưu tiên IPv4
         for info in infos:
             if info[0] == socket.AF_INET:
                 return info[4][0]
@@ -286,45 +298,33 @@ async def _resolve(hostname: str) -> Optional[str]:
 
 async def geoip_filter(
     nodes: list[str],
-    expected_cc: str,
+    allowed_ccs: set[str],
     reader: maxminddb.Reader,
 ) -> list[str]:
-    """
-    Giữ node nếu:
-      - IP resolve được VÀ GeoIP == expected_cc
-      - HOẶC IP là CDN (Cloudflare/Fastly/Akamai) → front cho mọi country
-    Loại bỏ:
-      - DNS fail (node không resolv được)
-      - GeoIP sai country VÀ không phải CDN
-    """
-    sem = asyncio.Semaphore(DNS_CONCURRENCY)
+    sem      = asyncio.Semaphore(DNS_CONCURRENCY)
+    cc_label = "/".join(sorted(allowed_ccs))
 
     async def _check(url: str) -> Optional[str]:
         ep = parse_endpoint(url)
         if not ep:
-            return url          # không parse → giữ (safe default)
+            return url
         _, host, _ = ep
-
         async with sem:
             ip = await _resolve(host)
-
         if ip is None:
             log.debug("DNS fail: %s → loại", host)
             return None
-
         if _is_cdn(ip):
-            log.debug("CDN %s (%s) → giữ", ip, host)
+            log.debug("CDN %s → giữ", ip)
             return url
-
         try:
             record = reader.get(ip) or {}
-            cc     = record.get("country", {}).get("iso_code", "")
+            cc     = record.get("country", {}).get("iso_code", "") or "??"
         except Exception:
-            return url          # GeoIP lỗi → giữ (safe default)
-
-        if cc == expected_cc:
             return url
-        log.debug("GeoIP %s → %s ≠ %s → loại", ip, cc, expected_cc)
+        if cc in allowed_ccs:
+            return url
+        log.debug("GeoIP %s → %s ∉ {%s} → loại", ip, cc, cc_label)
         return None
 
     results  = await asyncio.gather(*[_check(n) for n in nodes])
@@ -332,7 +332,7 @@ async def geoip_filter(
     return filtered
 
 
-# ═══════════════════════ 4. sing-box health check ═════════════════════
+# ═══════════════════════ 4. sing-box parsers ═══════════════════════════
 def _parse_ss(url: str, tag: str) -> Optional[dict]:
     try:
         rest = url.split("#")[0][5:]
@@ -351,13 +351,12 @@ def _parse_ss(url: str, tag: str) -> Optional[dict]:
                 return None
             mp, hostinfo = dec.rsplit("@", 1)
             method, password = mp.split(":", 1)
-
         if hostinfo.startswith("["):
             host = hostinfo[1:hostinfo.index("]")]
             port = int(hostinfo[hostinfo.index("]") + 2:])
         else:
             host, ps = hostinfo.rsplit(":", 1)
-            port = int(ps)
+            port     = int(ps)
         return {"type": "shadowsocks", "tag": tag,
                 "server": host, "server_port": port,
                 "method": method, "password": password}
@@ -372,15 +371,17 @@ def _parse_vmess(url: str, tag: str) -> Optional[dict]:
         port = int(cfg.get("port", 0))
         if not host or not port:
             return None
-        ob: dict = {"type": "vmess", "tag": tag,
-                    "server": host, "server_port": port,
-                    "uuid": cfg.get("id", ""),
-                    "security": cfg.get("scy", cfg.get("security", "auto")),
-                    "alter_id": int(cfg.get("aid", 0))}
+        ob: dict = {
+            "type": "vmess", "tag": tag,
+            "server": host, "server_port": port,
+            "uuid":     cfg.get("id", ""),
+            "security": cfg.get("scy", cfg.get("security", "auto")),
+            "alter_id": int(cfg.get("aid", 0)),
+        }
         net  = cfg.get("net", "tcp")
         h    = cfg.get("host", "")
         path = cfg.get("path", "/") or "/"
-        sni  = cfg.get("sni", h) or host
+        sni  = _clean_sni(cfg.get("sni", h) or "", fallback=host)
         if net == "ws":
             ob["transport"] = {"type": "ws", "path": path,
                                "headers": {"Host": h} if h else {}}
@@ -404,9 +405,13 @@ def _parse_vless(url: str, tag: str) -> Optional[dict]:
             return None
         p = parse_qs(parsed.query)
         def q(k): return p.get(k, [""])[0]
-        net, sni  = q("type") or "tcp", q("sni") or q("peer") or server
-        host, path = q("host"), q("path") or "/"
-        security, fp, flow = q("security"), q("fp"), q("flow")
+        net      = q("type") or "tcp"
+        sni      = _clean_sni(q("sni") or q("peer") or "", fallback=server)
+        host     = q("host")
+        path     = q("path") or "/"
+        security = q("security")
+        fp       = q("fp")
+        flow     = q("flow")
         ob: dict = {"type": "vless", "tag": tag,
                     "server": server, "server_port": port, "uuid": uuid}
         if flow:
@@ -423,8 +428,11 @@ def _parse_vless(url: str, tag: str) -> Optional[dict]:
         if security in ("tls", "reality", "xtls"):
             tls: dict = {"enabled": True, "server_name": sni, "insecure": True}
             if security == "reality":
-                tls["reality"] = {"enabled": True,
-                                  "public_key": q("pbk"), "short_id": q("sid")}
+                tls["reality"] = {
+                    "enabled":    True,
+                    "public_key": q("pbk"),
+                    "short_id":   q("sid"),
+                }
             if fp:
                 tls["utls"] = {"enabled": True, "fingerprint": fp}
             ob["tls"] = tls
@@ -441,13 +449,17 @@ def _parse_trojan(url: str, tag: str) -> Optional[dict]:
             return None
         p = parse_qs(parsed.query)
         def q(k): return p.get(k, [""])[0]
-        net, sni  = q("type") or "tcp", q("sni") or q("peer") or server
-        host, path = q("host"), q("path") or "/"
-        fp = q("fp")
-        ob: dict = {"type": "trojan", "tag": tag,
-                    "server": server, "server_port": port,
-                    "password": password or "",
-                    "tls": {"enabled": True, "server_name": sni, "insecure": True}}
+        net  = q("type") or "tcp"
+        sni  = _clean_sni(q("sni") or q("peer") or "", fallback=server)
+        host = q("host")
+        path = q("path") or "/"
+        fp   = q("fp")
+        ob: dict = {
+            "type": "trojan", "tag": tag,
+            "server": server, "server_port": port,
+            "password": password or "",
+            "tls": {"enabled": True, "server_name": sni, "insecure": True},
+        }
         if fp:
             ob["tls"]["utls"] = {"enabled": True, "fingerprint": fp}
         if net == "ws":
@@ -463,14 +475,15 @@ def _parse_trojan(url: str, tag: str) -> Optional[dict]:
 
 def _to_singbox(url: str, tag: str) -> Optional[dict]:
     scheme = url.split("://")[0].lower()
-    if scheme == "vmess":   return _parse_vmess(url, tag)
-    if scheme == "vless":   return _parse_vless(url, tag)
-    if scheme == "trojan":  return _parse_trojan(url, tag)
-    if scheme == "ss":      return _parse_ss(url, tag)
-    return None   # ssr: not natively supported by sing-box
+    if scheme == "vmess":  return _parse_vmess(url, tag)
+    if scheme == "vless":  return _parse_vless(url, tag)
+    if scheme == "trojan": return _parse_trojan(url, tag)
+    if scheme == "ss":     return _parse_ss(url, tag)
+    return None   # ssr: not supported by sing-box natively
 
 
-def _build_singbox_cfg(batch: list[tuple[str, dict, int]]) -> dict:
+# ═══════════════════════ 4. sing-box test ══════════════════════════════
+def _build_cfg(batch: list[tuple[str, dict, int]]) -> dict:
     inbounds, outbounds, rules = [], [], []
     for _, ob, port in batch:
         in_tag = f"in_{ob['tag']}"
@@ -480,47 +493,72 @@ def _build_singbox_cfg(batch: list[tuple[str, dict, int]]) -> dict:
         rules.append({"inbound": [in_tag], "outbound": ob["tag"]})
     return {
         "log": {"disabled": True},
-        "inbounds": inbounds,
+        "inbounds":  inbounds,
         "outbounds": outbounds + [{"type": "block", "tag": "block"}],
-        "route": {"rules": rules, "final": "block"},
+        "route":     {"rules": rules, "final": "block"},
     }
 
 
 async def _http_test(port: int, sem: asyncio.Semaphore) -> bool:
+    """Test proxy qua nhiều URL, trả về True nếu bất kỳ URL nào thành công."""
     async with sem:
-        try:
-            conn    = aiohttp.TCPConnector(ssl=False)
-            timeout = aiohttp.ClientTimeout(total=TEST_TIMEOUT)
-            async with aiohttp.ClientSession(connector=conn) as s:
-                async with s.get(TEST_URL,
-                                 proxy=f"http://127.0.0.1:{port}",
-                                 timeout=timeout,
-                                 allow_redirects=True) as r:
-                    return r.status in (200, 204)
-        except Exception:
-            return False
+        for url in TEST_URLS:
+            try:
+                conn    = aiohttp.TCPConnector(ssl=False)
+                timeout = aiohttp.ClientTimeout(total=TEST_TIMEOUT)
+                async with aiohttp.ClientSession(connector=conn) as s:
+                    async with s.get(url,
+                                     proxy=f"http://127.0.0.1:{port}",
+                                     timeout=timeout,
+                                     allow_redirects=True) as r:
+                        if r.status in (200, 204):
+                            return True
+            except Exception:
+                continue
+        return False
 
 
 async def _test_batch(
     batch: list[tuple[str, dict, int]],
     sem: asyncio.Semaphore,
 ) -> list[bool]:
-    cfg = _build_singbox_cfg(batch)
+    cfg = _build_cfg(batch)
     tmp = tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False)
     try:
         json.dump(cfg, tmp)
         tmp.close()
+
+        # Validate config trước khi chạy — phát hiện invalid SNI, bad params, v.v.
+        check = subprocess.run(
+            [SINGBOX_BIN, "check", "-c", tmp.name],
+            capture_output=True, text=True, timeout=10,
+        )
+        if check.returncode != 0:
+            log.warning("sing-box config invalid → skip batch:\n  %s",
+                        check.stderr.strip()[:300])
+            return [False] * len(batch)
+
         proc = subprocess.Popen(
             [SINGBOX_BIN, "run", "-c", tmp.name],
-            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.PIPE,
         )
         await asyncio.sleep(SINGBOX_STARTUP)
+
+        if proc.poll() is not None:
+            err = proc.stderr.read().decode(errors="ignore").strip()
+            log.warning("sing-box crashed (rc=%d): %s",
+                        proc.returncode, err[:300] if err else "(no stderr)")
+            return [False] * len(batch)
+
         results = await asyncio.gather(*[_http_test(port, sem) for _, _, port in batch])
+
         proc.terminate()
         try:
             proc.wait(timeout=3)
         except subprocess.TimeoutExpired:
             proc.kill()
+
         return list(results)
     finally:
         try:
@@ -530,9 +568,8 @@ async def _test_batch(
 
 
 async def health_check(nodes: list[str]) -> list[str]:
-    """sing-box batch test. Nếu binary không có → giữ hết nodes."""
     if not Path(SINGBOX_BIN).exists():
-        log.warning("sing-box không tìm thấy → bỏ qua health check, giữ %d nodes", len(nodes))
+        log.warning("sing-box không tìm thấy → giữ %d nodes không check", len(nodes))
         return nodes
 
     parsed: list[tuple[str, dict, int]] = []
@@ -544,7 +581,7 @@ async def health_check(nodes: list[str]) -> list[str]:
         else:
             skipped += 1
     if skipped:
-        log.info("  sing-box: bỏ qua %d nodes không parse được (ssr/unknown)", skipped)
+        log.info("  sing-box: bỏ qua %d nodes (ssr/unknown)", skipped)
     if not parsed:
         return []
 
@@ -563,132 +600,122 @@ async def health_check(nodes: list[str]) -> list[str]:
     return online
 
 
-# ═══════════════════════ 5. Rename nodes ══════════════════════════════
-
-# Schemes hợp lệ của VPN protocols
-_VALID_SCHEMES = {"vmess", "vless", "trojan", "ss", "ssr"}
-
-# Regex bắt fragment cũ: từ ký tự # đầu tiên đến hết
-# Cũng bắt %23 (# bị URL-encode trong một số node)
-_RE_FRAGMENT = re.compile(r'(?:#|%23).*$')
-
-
+# ═══════════════════════ 5. Rename ═════════════════════════════════════
 def _strip_fragment(url: str) -> str:
-    """
-    Loại bỏ fragment cũ khỏi node URL một cách an toàn.
-
-    Xử lý các trường hợp:
-      • URL bình thường   : ss://...@host:443#OldLabel  → ss://...@host:443
-      • Không có fragment : vmess://BASE64               → vmess://BASE64
-      • # encoded         : ...%23OldLabel               → ...
-      • Nhiều # liên tiếp : vless://...#part1#part2      → vless://...
-    """
     return _RE_FRAGMENT.sub("", url).strip()
 
 
 def _scheme_of(base_url: str) -> str:
-    """Trích scheme từ URL đã strip fragment. Trả về 'vpn' nếu không nhận ra."""
     if "://" not in base_url:
         return "vpn"
-    scheme = base_url.split("://", 1)[0].strip().lower()
-    return scheme if scheme in _VALID_SCHEMES else "vpn"
+    s = base_url.split("://", 1)[0].strip().lower()
+    return s if s in _VALID_SCHEMES else "vpn"
+
+
+def _rename_vmess(base_url: str, label: str) -> str:
+    """
+    vmess: VPN client đọc field "ps" trong JSON, không đọc #fragment.
+    Phải decode → update ps → re-encode.
+    """
+    try:
+        raw = base_url[8:]
+        cfg = json.loads(_b64d(raw) or "{}")
+        cfg["ps"] = label
+        new_b64   = base64.b64encode(
+            json.dumps(cfg, separators=(",", ":"), ensure_ascii=False).encode()
+        ).decode().rstrip("=")
+        return f"vmess://{new_b64}#{label}"
+    except Exception:
+        return f"{base_url}#{label}"
 
 
 def rename_nodes(nodes: list[str], country_code: str) -> list[str]:
     """
-    Strip toàn bộ label cũ và chuẩn hoá thành:
-      {CC} | {scheme} | {index zero-padded}
+    Format: "{CC} | {index:02d}"  →  "JP | 06"
 
-    Ví dụ với country_code="JP":
-      vmess://BASE64#Old Name  →  vmess://BASE64#JP | vmess | 01
-      ss://...#🇸🇬 label       →  ss://...#SG | ss | 02
-
-    Zero-padding: 2 chữ số (≤99 nodes), 3 chữ số (100-999 nodes).
+    Bỏ protocol khỏi label vì Shadowrocket / VPN clients
+    đã hiển thị protocol ở dòng phụ (VLESS / WEBSOCKET / UDP).
+    Giữ label ngắn, đều nhau, không thừa thông tin.
     """
-    pad_width = max(2, len(str(len(nodes))))   # 01, 02 … hoặc 001, 002 …
+    pad = max(2, len(str(len(nodes))))
 
     renamed: list[str] = []
     for i, url in enumerate(nodes, 1):
-        base   = _strip_fragment(url)
-        scheme = _scheme_of(base)
-        index  = str(i).zfill(pad_width)
-        renamed.append(f"{base}#{country_code} | {scheme} | {index}")
-
+        base  = _strip_fragment(url)
+        label = f"{country_code} | {str(i).zfill(pad)}"
+        if _scheme_of(base) == "vmess":
+            renamed.append(_rename_vmess(base, label))
+        else:
+            renamed.append(f"{base}#{label}")
     return renamed
 
 
-# ═══════════════════════ Per-country pipeline ═════════════════════════
+# ═══════════════════════ Per-country pipeline ══════════════════════════
 async def process_country(
     session: aiohttp.ClientSession,
     country: str,
     http_sem: asyncio.Semaphore,
     geoip_reader: Optional[maxminddb.Reader],
 ) -> None:
-    flag = COUNTRY_FLAG[country]
-    cc   = COUNTRY_CC[country]
-    log.info("━━━ [%s] %s Bắt đầu ━━━", country.upper(), flag)
+    cc      = COUNTRY_CC[country]
+    allowed = COUNTRY_CC_ALLOW[country]
+    log.info("━━━ [%s] Bắt đầu ━━━", cc)
 
-    # ── 1. Scrape ───────────────────────────────────────────────
+    # 1. Scrape
     nodes = await scrape_country(session, country, http_sem)
     if not nodes:
-        log.warning("[%s] Không scrape được node nào.", country.upper())
+        log.warning("[%s] Không scrape được node nào.", cc)
         return
-    log.info("[%s] Scrape: %d nodes", country.upper(), len(nodes))
 
-    # ── 2. Dedup ─────────────────────────────────────────────────
+    # 2. Dedup
     nodes = deduplicate(nodes)
-    log.info("[%s] Sau dedup: %d nodes", country.upper(), len(nodes))
+    log.info("[%s] Sau dedup: %d nodes", cc, len(nodes))
 
-    # ── 3. GeoIP filter ──────────────────────────────────────────
+    # 3. GeoIP
     if geoip_reader:
         before = len(nodes)
-        nodes  = await geoip_filter(nodes, cc, geoip_reader)
-        log.info("[%s] Sau GeoIP (%s): %d/%d nodes giữ lại",
-                 country.upper(), cc, len(nodes), before)
+        nodes  = await geoip_filter(nodes, allowed, geoip_reader)
+        log.info("[%s] Sau GeoIP {%s}: %d/%d nodes",
+                 cc, "/".join(sorted(allowed)), len(nodes), before)
     else:
-        log.warning("[%s] GeoLite2 DB không có → bỏ qua GeoIP filter.", country.upper())
-
+        log.warning("[%s] GeoLite2 không có → bỏ qua GeoIP filter.", cc)
     if not nodes:
-        log.warning("[%s] Không còn node sau GeoIP filter.", country.upper())
+        log.warning("[%s] Không còn node sau GeoIP.", cc)
         return
 
-    # ── 4. sing-box health check ─────────────────────────────────
-    log.info("[%s] sing-box test %d nodes...", country.upper(), len(nodes))
+    # 4. sing-box health check
+    log.info("[%s] sing-box test %d nodes...", cc, len(nodes))
     live = await health_check(nodes)
     log.info("[%s] ✔ %d/%d online | ✘ %d offline",
-             country.upper(), len(live), len(nodes), len(nodes) - len(live))
-
+             cc, len(live), len(nodes), len(nodes) - len(live))
     if not live:
-        log.warning("[%s] Không có node online.", country.upper())
+        log.warning("[%s] Không có node online.", cc)
         return
 
-    # ── 5. Rename ────────────────────────────────────────────────
-    renamed = rename_nodes(live, cc)   # cc = "JP", "HK", "SG", "VN"
-
-    # Preview 3 node đầu để verify format
-    for preview in renamed[:3]:
-        label = preview.split("#", 1)[-1] if "#" in preview else "(no label)"
-        log.info("  [preview] %s", label)
+    # 5. Rename
+    renamed = rename_nodes(live, cc)
+    for r in renamed[:3]:
+        log.info("  [preview] %s", r.split("#")[-1] if "#" in r else r)
 
     out = Path(f"{country}_sub.txt")
     out.write_text("\n".join(renamed), encoding="utf-8")
-    log.info("[%s] Lưu %d nodes → %s", country.upper(), len(renamed), out)
-    log.info("━━━ [%s] Xong ━━━\n", country.upper())
+    log.info("[%s] Lưu %d nodes → %s", cc, len(renamed), out)
+    log.info("━━━ [%s] Xong ━━━\n", cc)
 
 
-# ═══════════════════════ Main ═════════════════════════════════════════
+# ═══════════════════════ Main ══════════════════════════════════════════
 async def main() -> None:
-    log.info("┌────────────────────────────────────────────────────┐")
-    log.info("│  Scrape → Dedup → GeoIP → sing-box → Rename       │")
-    log.info("└────────────────────────────────────────────────────┘")
+    log.info("┌─────────────────────────────────────────────────────┐")
+    log.info("│  Scrape → Dedup → GeoIP → sing-box → Rename        │")
+    log.info("│  Label: 'JP | 06'  (CC + index, no protocol)       │")
+    log.info("└─────────────────────────────────────────────────────┘")
 
-    # Load GeoLite2 reader (optional)
     geoip_reader: Optional[maxminddb.Reader] = None
     if Path(GEOIP_DB).exists():
         geoip_reader = maxminddb.open_database(GEOIP_DB)
-        log.info("GeoLite2 DB loaded: %s", GEOIP_DB)
+        log.info("GeoLite2 loaded: %s", GEOIP_DB)
     else:
-        log.warning("GeoLite2 DB không tìm thấy (%s) — GeoIP filter bị bỏ qua.", GEOIP_DB)
+        log.warning("GeoLite2 không tìm thấy (%s).", GEOIP_DB)
 
     http_sem  = asyncio.Semaphore(HTTP_CONCURRENCY)
     connector = aiohttp.TCPConnector(limit=30, ssl=False, ttl_dns_cache=300)
@@ -704,9 +731,9 @@ async def main() -> None:
         if geoip_reader:
             geoip_reader.close()
 
-    log.info("┌────────────────────────────────────────────────────┐")
-    log.info("│                    HOÀN TẤT                       │")
-    log.info("└────────────────────────────────────────────────────┘")
+    log.info("┌─────────────────────────────────────────────────────┐")
+    log.info("│                    HOÀN TẤT                        │")
+    log.info("└─────────────────────────────────────────────────────┘")
 
 
 if __name__ == "__main__":
