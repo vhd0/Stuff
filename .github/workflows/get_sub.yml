@@ -2,7 +2,7 @@ name: Auto Fetch & Filter Live VPN Nodes
 
 on:
   schedule:
-    - cron: '0 0 * * *'   # 07:00 VN
+    - cron: '0 */1 * * *'
   workflow_dispatch:
 
 env:
