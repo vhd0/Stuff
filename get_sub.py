@@ -28,7 +28,7 @@ EBRASHA_URL = (
 )
 
 # OpenProxyList mirror: github.com/roosterkid/openproxylist (official GitHub repo)
-# jsDelivr = CDN cache layer (faster, same content); raw.githubusercontent = fallback
+# jsDelivr = CDN cache layer (faster, fallback); raw.githubusercontent = update frequently
 OPL_CDN = "https://cdn.jsdelivr.net/gh/roosterkid/openproxylist@main/V2RAY_RAW.txt"
 OPL_RAW = "https://raw.githubusercontent.com/roosterkid/openproxylist/main/V2RAY_RAW.txt"
 
@@ -354,10 +354,10 @@ async def fetch_opl(session: aiohttp.ClientSession) -> dict[str, list[str]]:
       roosterkid/openproxylist → GitHub repo chính thức → luôn accessible
       jsDelivr → CDN cache của GitHub, không qua Cloudflare protection
     """
-    text = await http_get(session, OPL_CDN)
+    text = await http_get(session, OPL_RAW)
     if not text or not _RE_NODE.search(text):
-        log.info("[OPL] jsDelivr miss → fallback raw.githubusercontent...")
-        text = await http_get(session, OPL_RAW)
+        log.info("[OPL] RAW Github miss → fallback jsDelivr")
+        text = await http_get(session, OPL_CDN)
     if not text or not _RE_NODE.search(text):
         log.warning("[OPL] Fetch thất bại từ cả hai nguồn")
         return {}
