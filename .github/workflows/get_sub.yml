@@ -2,66 +2,55 @@ name: Auto Fetch & Filter Live VPN Nodes
 
 on:
   schedule:
-    - cron: '0 0 * * *'   # 00:00 UTC = 07:00 VN
+    - cron: '0 0 * * *'   # 07:00 VN
   workflow_dispatch:
 
 env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
   PYTHONUNBUFFERED: '1'
 
 jobs:
-  fetch-filter-update:
+  run:
     runs-on: ubuntu-latest
     timeout-minutes: 40
-
     permissions:
       contents: write
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Python 3.12
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           cache: 'pip'
 
-      - name: Cài thư viện Python
+      - name: Install dependencies
         run: pip install -r requirements.txt
 
-      # ── sing-box (test VPN protocol thực tế) ──────────────────────────
       - name: Install sing-box
         run: |
-          LATEST=$(curl -sL https://api.github.com/repos/SagerNet/sing-box/releases/latest \
-                   | grep '"tag_name"' | cut -d'"' -f4)
-          VER="${LATEST#v}"
-          FILE="sing-box-${VER}-linux-amd64"
-          wget -q "https://github.com/SagerNet/sing-box/releases/download/${LATEST}/${FILE}.tar.gz"
-          tar xf "${FILE}.tar.gz"
-          sudo mv "${FILE}/sing-box" /usr/local/bin/sing-box
-          rm -rf "${FILE}" "${FILE}.tar.gz"
+          TAG=$(curl -sL https://api.github.com/repos/SagerNet/sing-box/releases/latest \
+               | grep '"tag_name"' | cut -d'"' -f4)
+          VER=${TAG#v}
+          wget -q "https://github.com/SagerNet/sing-box/releases/download/${TAG}/sing-box-${VER}-linux-amd64.tar.gz"
+          tar xf sing-box-${VER}-linux-amd64.tar.gz
+          sudo mv sing-box-${VER}-linux-amd64/sing-box /usr/local/bin/sing-box
+          rm -rf sing-box-${VER}-linux-amd64*
           sing-box version
 
-      # ── GeoLite2 (offline IP → country lookup) ────────────────────────
-      - name: Download GeoLite2-Country DB
+      - name: Download GeoLite2-Country
         run: |
-          wget -q \
-            "https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-Country.mmdb" \
-            -O GeoLite2-Country.mmdb
+          wget -q "https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-Country.mmdb"
           ls -lh GeoLite2-Country.mmdb
 
-      # ── Main script ───────────────────────────────────────────────────
-      - name: Scrape → Dedup → GeoIP → sing-box → Rename
+      - name: Run
         run: python get_sub.py
 
-      # ── Commit kết quả ────────────────────────────────────────────────
-      - name: Commit & push nodes
+      - name: Commit & push
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name  "github-actions[bot]"
           git add *_sub.txt
           git diff --cached --quiet \
-            && echo "Không có thay đổi." \
-            || git commit -m "chore: update live nodes (HK/JP/SG/VN) — $(date -u +'%Y-%m-%d %H:%M UTC')"
+            && echo "No changes." \
+            || git commit -m "chore: update nodes $(date -u +'%Y-%m-%d %H:%M UTC')"
           git push
