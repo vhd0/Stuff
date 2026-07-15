@@ -1,6 +1,6 @@
 """
 get_sub.py — Multi-source VPN node collector
-Sources  : v2nodes.com (scrape) · EbraSha (GitHub) · OpenProxyList (GitHub mirror)
+Sources  : v2nodes.com (scrape) · EbraSha · Epodonios · OpenProxyList (GitHub)
 Pipeline : Collect → Dedup → GeoIP → Validate → sing-box test → Rename
 Label    : "JP | 06"  (CC + index, no protocol — clients display it already)
 """
@@ -38,6 +38,13 @@ EBRASHA_CDN = (
 # (openproxylist.com itself is Cloudflare-protected → blocks Azure IPs)
 OPL_RAW = "https://raw.githubusercontent.com/roosterkid/openproxylist/main/V2RAY_RAW.txt"
 OPL_CDN = "https://cdn.jsdelivr.net/gh/roosterkid/openproxylist@main/V2RAY_RAW.txt"
+
+# Epodonios: large aggregator (~6000+ nodes), no CC in label → full GeoIP classify
+EPO_RAW = (
+    "https://raw.githubusercontent.com/Epodonios/v2ray-configs"
+    "/refs/heads/main/All_Configs_Sub.txt"
+)
+EPO_CDN = "https://cdn.jsdelivr.net/gh/Epodonios/v2ray-configs@main/All_Configs_Sub.txt"
 
 # ── GeoIP ────────────────────────────────────────────────────────────────────
 GEOIP_DB        = os.environ.get("GEOIP_DB", "GeoLite2-Country.mmdb")
@@ -351,7 +358,47 @@ async def fetch_ebrasha(
     return result
 
 
-# ─────────────────────────── Source 3: OpenProxyList ─────────────────────────
+async def fetch_epodonios(
+    session: aiohttp.ClientSession, geoip: GeoIP
+) -> dict[str, list[str]]:
+    """
+    Fetch Epodonios aggregator (~6000+ nodes) → GeoIP classify → {CC: [nodes]}.
+    Order: raw.githubusercontent (primary) → jsDelivr CDN (fallback).
+
+    Optimization for large scale:
+      1. _RE_NODE already filters to supported schemes only
+         (vmess/vless/trojan/ss/ssr — hy2/hysteria2/socks auto-excluded,
+         since Epodonios includes those but sing-box test doesn't support them)
+      2. Pre-dedup by (scheme, host, port) BEFORE classify — Epodonios has many
+         literal duplicates (same infra reused across entries with different
+         UUID/labels). Classifying once per unique endpoint instead of once
+         per line cuts DNS/GeoIP work substantially on a 6000-line source.
+      3. DNS resolution is still cached in GeoIP (shared across all sources),
+         so repeated hostnames (e.g. common CDN edges) cost one lookup total.
+    """
+    text = await fetch_with_fallback(session, EPO_RAW, EPO_CDN, "Epodonios")
+    if not text:
+        return {}
+
+    raw_nodes = [l.strip() for l in text.splitlines() if _RE_NODE.match(l.strip())]
+    nodes     = deduplicate(raw_nodes)
+    log.info("[Epodonios] %d raw → %d unique endpoints — GeoIP classify...",
+             len(raw_nodes), len(nodes))
+
+    ccs    = await asyncio.gather(*[geoip.cc_of_node(n) for n in nodes])
+    result: dict[str, list[str]] = {}
+    cdn_n = dns_n = 0
+    for cc, node in zip(ccs, nodes):
+        if cc is None:    dns_n += 1
+        elif cc == "CDN": cdn_n += 1
+        else:             result.setdefault(cc, []).append(node)
+
+    log.info("[Epodonios] %d classified · %d CDN skipped · %d DNS fail",
+             sum(len(v) for v in result.values()), cdn_n, dns_n)
+    return result
+
+
+# ─────────────────────────── Source 4: OpenProxyList ─────────────────────────
 def _opl_cc(fragment: str) -> Optional[str]:
     """Extract CC from OPL label: '🇸🇬[openproxylist.com] trojan-SG' → 'SG'."""
     m = _RE_OPL_CC.search(fragment)
@@ -710,19 +757,21 @@ async def process_country(
     http_sem: asyncio.Semaphore,
     geoip:    GeoIP,
     ebrasha:  dict[str, list[str]],
+    epo:      dict[str, list[str]],
     opl:      dict[str, list[str]],
 ) -> None:
     cc      = CC[country]
     allowed = CC_ALLOW[country]
     log.info("━━━ [%s] ━━━", cc)
 
-    # 1. Collect from 3 sources (v2nodes first → dedup keeps its nodes on conflict)
+    # 1. Collect from 4 sources (v2nodes first → dedup keeps its nodes on conflict)
     v2n     = await scrape_v2nodes(session, country, http_sem)
     ext_eba = [n for acc in allowed for n in ebrasha.get(acc, [])]
+    ext_epo = [n for acc in allowed for n in epo.get(acc, [])]
     ext_opl = [n for acc in allowed for n in opl.get(acc, [])]
-    nodes   = v2n + ext_eba + ext_opl
-    log.info("[%s] Collected: %d total (v2nodes=%d ebrasha=%d opl=%d)",
-             cc, len(nodes), len(v2n), len(ext_eba), len(ext_opl))
+    nodes   = v2n + ext_eba + ext_epo + ext_opl
+    log.info("[%s] Collected: %d total (v2nodes=%d ebrasha=%d epodonios=%d opl=%d)",
+             cc, len(nodes), len(v2n), len(ext_eba), len(ext_epo), len(ext_opl))
 
     # 2. Dedup
     nodes = deduplicate(nodes)
@@ -758,7 +807,7 @@ async def process_country(
 
 # ─────────────────────────── Main ────────────────────────────────────────────
 async def main() -> None:
-    log.info("Sources : v2nodes · EbraSha · OpenProxyList (GitHub mirrors)")
+    log.info("Sources : v2nodes · EbraSha · Epodonios · OpenProxyList (GitHub mirrors)")
     log.info("URL order: raw.githubusercontent (primary) → jsDelivr CDN (fallback)")
     log.info("Label   : 'JP | 06'")
 
@@ -771,15 +820,17 @@ async def main() -> None:
             connector=conn, cookie_jar=aiohttp.CookieJar(unsafe=True)
         ) as session:
             # Fetch all external sources in parallel before country loop
-            ebrasha, opl = await asyncio.gather(
+            ebrasha, epo, opl = await asyncio.gather(
                 fetch_ebrasha(session, geoip),
+                fetch_epodonios(session, geoip),
                 fetch_opl(session),
             )
-            log.info("EbraSha: %s", {k: len(v) for k,v in sorted(ebrasha.items())})
-            log.info("OPL    : %s", {k: len(v) for k,v in sorted(opl.items())})
+            log.info("EbraSha   : %s", {k: len(v) for k,v in sorted(ebrasha.items())})
+            log.info("Epodonios : %s", {k: len(v) for k,v in sorted(epo.items())})
+            log.info("OPL       : %s", {k: len(v) for k,v in sorted(opl.items())})
 
             for country in COUNTRIES:
-                await process_country(session, country, http_sem, geoip, ebrasha, opl)
+                await process_country(session, country, http_sem, geoip, ebrasha, epo, opl)
     finally:
         geoip.close()
 
