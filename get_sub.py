@@ -83,7 +83,7 @@ TEST_SEM     = 30
 _RE_TOTAL  = re.compile(r'\b\d+\s+of\s+(\d+)\b', re.I)
 _RE_SRV    = re.compile(r'^/servers/(\d+)/$')
 _RE_DCFG   = re.compile(r'data-config="([^"]+)"')
-_RE_NODE   = re.compile(r'^(?:vmess|vless|trojan|ss|ssr)://.+', re.I)
+_RE_NODE   = re.compile(r'^(?:vmess|vless|trojan|ss|ssr)://.+', re.I | re.M)
 _RE_FRAG   = re.compile(r'(?:#|%23).*$')
 _RE_UUID   = re.compile(
     r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', re.I
