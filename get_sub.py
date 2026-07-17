@@ -1,22 +1,32 @@
 """
 get_sub.py — Multi-source VPN node collector
 Sources  : v2nodes.com (scrape) · EbraSha · Epodonios · OpenProxyList (GitHub)
-Pipeline : Collect → Dedup → GeoIP (country + ASN quality) → Validate → sing-box → Rename
+Pipeline : Collect → Dedup → GeoIP (country + quality) → Validate → sing-box → Rename
 Label    : "JP | 06"  (CC + index, no protocol — clients display it already)
 
-Quality filter (GeoIP.is_low_quality):
-  Nodes whose resolved IP belongs to a CDN (Cloudflare/Fastly/Akamai) or
-  hyperscale cloud (AWS/GCP/Azure/Alibaba/...) are DROPPED even when GeoIP
-  reports the correct target country. Reason: many geo-restricted sites use
-  IP-intelligence databases (not GeoIP) that flag these ASNs as datacenter/
-  proxy regardless of accurate geolocation — so a node can show "JP" and
-  still fail to reach JP-only content. This is a stricter policy than simply
-  matching country: it trades node quantity for nodes that behave like a
-  genuine residential/local connection.
+Quality filter (GeoIP.is_low_quality) — ONE optimized check, two signals:
+  Nodes whose resolved IP is a hyperscale-cloud/CDN front OR a known
+  commercial-VPN network are DROPPED even when GeoIP reports the correct
+  target country. Reason: many geo-restricted sites use IP-intelligence
+  databases (not GeoIP) that flag these networks regardless of accurate
+  geolocation — so a node can show "JP" and still fail to reach JP-only
+  content.
+
+  Deliberately narrow — NOT "any datacenter/hosting IP":
+    • Curated hyperscale-CDN ASN set (~30 entries: AWS/GCP/Azure/Cloudflare/
+      ...) — fronting causes geolocation/attribution mismatches specifically.
+    • X4BNet output/vpn/ipv4.txt — "strictly just known VPN networks"
+      (community-maintained, auto-updated), NOT output/datacenter/ipv4.txt
+      which covers "anything that is not an eyeball network" i.e. ALL VPS/
+      hosting. Since every self-hosted V2Ray/VLESS/Trojan node runs on a
+      VPS by definition, the broad list would reject almost everything,
+      including legitimate local hosting (Sakura Internet, ConoHa, etc.).
+  This trades node quantity for nodes that behave like a genuine
+  residential/local connection, without over-blocking ordinary VPS hosting.
 """
 
-import asyncio, base64, json, logging, os, re, socket, subprocess
-import sys, tempfile, time
+import asyncio, base64, bisect, ipaddress, json, logging, os, re, socket
+import subprocess, sys, tempfile, time
 from pathlib import Path
 from typing import Optional
 from urllib.parse import parse_qs, urlparse
@@ -55,6 +65,17 @@ EPO_RAW = (
     "/refs/heads/main/All_Configs_Sub.txt"
 )
 EPO_CDN = "https://cdn.jsdelivr.net/gh/Epodonios/v2ray-configs@main/All_Configs_Sub.txt"
+
+# X4BNet/lists_vpn — community-maintained, auto-updated datacenter/VPN blocklist.
+# Used for IP-quality filtering (see module docstring). Far more comprehensive
+# than any hand-curated ASN list; catches small/boutique VPN-hosting providers.
+# X4BNet vpn/ipv4.txt = "strictly just known VPN networks" (narrow, precise).
+# Deliberately NOT using output/datacenter/ipv4.txt or input/datacenter/ASN.txt:
+# those cover "anything that is not an eyeball network" — i.e. ALL VPS/hosting,
+# which would drop virtually every self-hosted node (they all run on some VPS
+# by definition) including legitimate local providers (Sakura Internet, ConoHa).
+X4B_VPN_RAW = "https://raw.githubusercontent.com/X4BNet/lists_vpn/main/output/vpn/ipv4.txt"
+X4B_VPN_CDN = "https://cdn.jsdelivr.net/gh/X4BNet/lists_vpn@main/output/vpn/ipv4.txt"
 
 # ── GeoIP ────────────────────────────────────────────────────────────────────
 GEOIP_DB        = os.environ.get("GEOIP_DB",     "GeoLite2-Country.mmdb")
@@ -184,37 +205,102 @@ async def http_get(session: aiohttp.ClientSession, url: str) -> Optional[str]:
 
 
 async def fetch_with_fallback(
-    session: aiohttp.ClientSession,
-    primary: str,
-    fallback: str,
-    name: str,
+    session:   aiohttp.ClientSession,
+    primary:   str,
+    fallback:  str,
+    name:      str,
+    validator = None,
 ) -> Optional[str]:
-    """Fetch primary URL; if no valid node data, try fallback."""
+    """
+    Fetch primary URL; if content fails validator, try fallback.
+    validator defaults to "_RE_NODE found somewhere" (node-list sources);
+    pass a custom callable for other formats (e.g. ASN/CIDR blocklists).
+    """
+    check = validator or (lambda t: bool(_RE_NODE.search(t)))
     text = await http_get(session, primary)
-    if text and _RE_NODE.search(text):
+    if text and check(text):
         log.info("[%s] OK ← %s", name, primary.split("/")[2])
         return text
     log.info("[%s] primary miss → fallback...", name)
     text = await http_get(session, fallback)
-    if text and _RE_NODE.search(text):
+    if text and check(text):
         log.info("[%s] OK ← %s", name, fallback.split("/")[2])
         return text
     log.warning("[%s] Fetch thất bại từ cả hai nguồn", name)
     return None
 
 
+# ─────────────────────────── CIDR range lookup ───────────────────────────────
+class CIDRSet:
+    """
+    Efficient "IP ∈ any of N CIDR ranges" lookup — O(log n) per query.
+    Ranges are merged (overlaps collapsed) after sorting, so a single
+    bisect + boundary check is always correct (no need to scan candidates).
+    """
+    __slots__ = ("_starts", "_ranges")
+
+    def __init__(self, cidrs: list[str]) -> None:
+        raw: list[tuple[int, int]] = []
+        for c in cidrs:
+            c = c.strip()
+            if not c or c.startswith("#"):
+                continue
+            try:
+                net = ipaddress.ip_network(c, strict=False)
+                if net.version == 4:
+                    raw.append((int(net.network_address), int(net.broadcast_address)))
+            except ValueError:
+                continue
+
+        raw.sort()
+        merged: list[tuple[int, int]] = []
+        for start, end in raw:
+            if merged and start <= merged[-1][1] + 1:
+                merged[-1] = (merged[-1][0], max(merged[-1][1], end))
+            else:
+                merged.append((start, end))
+
+        self._ranges = merged
+        self._starts = [r[0] for r in merged]
+
+    def __len__(self) -> int:
+        return len(self._ranges)
+
+    def __contains__(self, ip: str) -> bool:
+        try:
+            ip_int = int(ipaddress.ip_address(ip))
+        except ValueError:
+            return False
+        idx = bisect.bisect_right(self._starts, ip_int) - 1
+        if idx < 0:
+            return False
+        start, end = self._ranges[idx]
+        return start <= ip_int <= end
+
+
 # ─────────────────────────── GeoIP ───────────────────────────────────────────
 class GeoIP:
     """
-    Country lookup + ASN-based quality filter + cached DNS resolution.
+    Country lookup + single-signal quality filter + cached DNS resolution.
 
-    Two-stage check per node:
-      1. Country match  — GeoLite2-Country: is the IP geolocated in the target CC?
-      2. Quality check   — GeoLite2-ASN: is the IP a CDN/hyperscale-cloud address?
-                            These get DROPPED even if country matches, because
-                            IP-intelligence services (used by geo-restricted JP
-                            sites, etc.) flag them as datacenter/proxy regardless
-                            of correct geolocation.
+    Per-node check pipeline:
+      1. Country match — GeoLite2-Country: is the IP geolocated in target CC?
+      2. Quality check — is_low_quality(): is the IP a hyperscale-cloud/CDN
+         front OR a known commercial VPN network? Dropped even if country
+         matches (see module docstring).
+
+    Quality check design note — why NOT "any datacenter":
+      X4BNet publishes two lists: output/datacenter/ipv4.txt ("anything that
+      is not an eyeball network" — i.e. ALL hosting/VPS) and output/vpn/ipv4.txt
+      ("strictly just known VPN networks"). Every self-hosted V2Ray/VLESS/
+      Trojan node runs on a VPS by definition, so the broad "datacenter" list
+      would reject almost everything — including legitimate local providers
+      (e.g. Sakura Internet, ConoHa for JP). We use ONLY the narrow VPN-network
+      list, which targets the actual "flagged as VPN/high-risk" problem
+      without punishing ordinary hosting.
+      The small curated hyperscale-CDN ASN set is kept separately: that's a
+      distinct, well-understood issue (Cloudflare/AWS/GCP fronting causes
+      geolocation/attribution mismatches), not a blanket "hosting is bad" rule.
     """
 
     def __init__(self) -> None:
@@ -222,6 +308,7 @@ class GeoIP:
         self._asn:     Optional[maxminddb.Reader] = None
         self._cache:   dict[str, Optional[str]]   = {}
         self._sem                                  = asyncio.Semaphore(DNS_CONCURRENCY)
+        self._vpn_ranges: Optional[CIDRSet]        = None  # X4BNet known-VPN networks
 
         if Path(GEOIP_DB).exists():
             self._country = maxminddb.open_database(GEOIP_DB)
@@ -231,9 +318,9 @@ class GeoIP:
 
         if Path(GEOIP_ASN_DB).exists():
             self._asn = maxminddb.open_database(GEOIP_ASN_DB)
-            log.info("GeoLite2-ASN: %s (quality filter bật)", GEOIP_ASN_DB)
+            log.info("GeoLite2-ASN: %s", GEOIP_ASN_DB)
         else:
-            log.warning("GeoLite2-ASN không tìm thấy — dùng IP-prefix fallback cho CDN")
+            log.warning("GeoLite2-ASN không tìm thấy — quality check dựa vào CIDR/prefix")
 
     @property
     def ok(self) -> bool:
@@ -242,6 +329,21 @@ class GeoIP:
     def close(self) -> None:
         if self._country: self._country.close()
         if self._asn:     self._asn.close()
+
+    async def load_quality_lists(self, session: aiohttp.ClientSession) -> None:
+        """
+        Fetch X4BNet known-VPN-network CIDR list once at startup.
+        Network failure just means the VPN-range signal is unavailable —
+        the curated hyperscale ASN check still runs, never crashes.
+        """
+        text = await fetch_with_fallback(
+            session, X4B_VPN_RAW, X4B_VPN_CDN, "X4B-VPN",
+            validator=lambda t: bool(re.search(r'\d+\.\d+\.\d+\.\d+/\d+', t)),
+        )
+        if text:
+            lines = [l for l in text.splitlines() if l.strip()]
+            self._vpn_ranges = CIDRSet(lines)
+            log.info("X4B-VPN: %d known-VPN ranges đã nạp", len(self._vpn_ranges))
 
     async def resolve(self, host: str) -> Optional[str]:
         """Resolve hostname → IPv4, result cached per session."""
@@ -271,8 +373,16 @@ class GeoIP:
 
     def is_low_quality(self, ip: str) -> bool:
         """
-        True nếu IP thuộc CDN/hyperscale-cloud thường bị IP-intelligence
-        services flag là proxy/datacenter, bất kể GeoIP country đúng hay sai.
+        True nếu IP nên bị loại — dù GeoIP country đúng hay sai. Một bước,
+        hai tín hiệu độc lập (không phải "mọi datacenter"):
+
+          • Hyperscale-cloud/CDN fronting (Cloudflare/AWS/GCP/Azure/...)
+            — ASN number/org name khớp curated set (~30 mục, không đổi)
+          • Known commercial-VPN network (X4BNet output/vpn/ipv4.txt)
+            — chính xác loại vấn đề "flagged high-risk VPN" từ báo cáo
+
+        KHÔNG check "mọi ASN hosting/datacenter" — sẽ loại luôn cả các
+        provider hosting hợp pháp mà node tự host (Sakura, ConoHa, v.v.)
         """
         if self._asn:
             try:
@@ -283,11 +393,15 @@ class GeoIP:
                     return True
                 if any(kw in org for kw in _ASN_ORG_KEYWORDS_LOWQ):
                     return True
-                return False
             except Exception:
                 pass
-        # Fallback nếu không có ASN DB: dùng IP-prefix cũ (chỉ bắt Cloudflare)
-        return ip.startswith(_CDN_PREFIXES)
+        elif ip.startswith(_CDN_PREFIXES):
+            return True   # fallback nếu không có ASN DB
+
+        if self._vpn_ranges and ip in self._vpn_ranges:
+            return True
+
+        return False
 
     def country_of(self, ip: str) -> Optional[str]:
         if not self._country:
@@ -300,8 +414,8 @@ class GeoIP:
     async def cc_of_node(self, url: str) -> Optional[str]:
         """
         Return CC nếu hợp lệ để phân loại (dùng cho EbraSha/Epodonios).
-        Trả về None nếu: DNS fail, HOẶC IP là CDN/hyperscale-cloud
-        (loại sớm — không đáng tin để gán country).
+        Trả về None nếu: DNS fail, HOẶC IP là datacenter/CDN/VPN-hosting
+        (loại sớm — không đáng tin để gán country cho mục đích node chất lượng).
         """
         ep = parse_endpoint(url)
         if not ep:
@@ -921,7 +1035,7 @@ async def process_country(
 async def main() -> None:
     log.info("Sources : v2nodes · EbraSha · Epodonios · OpenProxyList (GitHub mirrors)")
     log.info("URL order: raw.githubusercontent (primary) → jsDelivr CDN (fallback)")
-    log.info("Quality : GeoIP country match + ASN filter (drop CDN/hyperscale-cloud)")
+    log.info("Quality : GeoIP country match + hyperscale-CDN ASN + known-VPN CIDR (X4BNet)")
     log.info("Label   : 'JP | 06'")
 
     geoip    = GeoIP()
@@ -932,6 +1046,9 @@ async def main() -> None:
         async with aiohttp.ClientSession(
             connector=conn, cookie_jar=aiohttp.CookieJar(unsafe=True)
         ) as session:
+            # Load quality blocklists FIRST — needed by cc_of_node() below
+            await geoip.load_quality_lists(session)
+
             # Fetch all external sources in parallel before country loop
             ebrasha, epo, opl = await asyncio.gather(
                 fetch_ebrasha(session, geoip),
