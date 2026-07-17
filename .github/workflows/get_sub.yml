@@ -2,7 +2,7 @@ name: Auto Fetch & Filter Live VPN Nodes
 
 on:
   schedule:
-    - cron: '0 */1 * * *'
+    - cron: '0 0 * * *'   # 07:00 VN
   workflow_dispatch:
 
 env:
@@ -37,10 +37,12 @@ jobs:
           rm -rf sing-box-${VER}-linux-amd64*
           sing-box version
 
-      - name: Download GeoLite2-Country
+      - name: Download GeoLite2 databases (Country + ASN)
         run: |
           wget -q "https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-Country.mmdb"
-          ls -lh GeoLite2-Country.mmdb
+          wget -q "https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-ASN.mmdb" \
+            || echo "⚠ GeoLite2-ASN download thất bại — sẽ dùng IP-prefix fallback cho CDN detection"
+          ls -lh GeoLite2-Country.mmdb GeoLite2-ASN.mmdb 2>/dev/null || true
 
       - name: Run
         run: python get_sub.py
