@@ -1,8 +1,18 @@
 """
 get_sub.py — Multi-source VPN node collector
 Sources  : v2nodes.com (scrape) · EbraSha · Epodonios · OpenProxyList (GitHub)
-Pipeline : Collect → Dedup → GeoIP → Validate → sing-box test → Rename
+Pipeline : Collect → Dedup → GeoIP (country + ASN quality) → Validate → sing-box → Rename
 Label    : "JP | 06"  (CC + index, no protocol — clients display it already)
+
+Quality filter (GeoIP.is_low_quality):
+  Nodes whose resolved IP belongs to a CDN (Cloudflare/Fastly/Akamai) or
+  hyperscale cloud (AWS/GCP/Azure/Alibaba/...) are DROPPED even when GeoIP
+  reports the correct target country. Reason: many geo-restricted sites use
+  IP-intelligence databases (not GeoIP) that flag these ASNs as datacenter/
+  proxy regardless of accurate geolocation — so a node can show "JP" and
+  still fail to reach JP-only content. This is a stricter policy than simply
+  matching country: it trades node quantity for nodes that behave like a
+  genuine residential/local connection.
 """
 
 import asyncio, base64, json, logging, os, re, socket, subprocess
@@ -47,10 +57,12 @@ EPO_RAW = (
 EPO_CDN = "https://cdn.jsdelivr.net/gh/Epodonios/v2ray-configs@main/All_Configs_Sub.txt"
 
 # ── GeoIP ────────────────────────────────────────────────────────────────────
-GEOIP_DB        = os.environ.get("GEOIP_DB", "GeoLite2-Country.mmdb")
+GEOIP_DB        = os.environ.get("GEOIP_DB",     "GeoLite2-Country.mmdb")
+GEOIP_ASN_DB    = os.environ.get("GEOIP_ASN_DB", "GeoLite2-ASN.mmdb")
 DNS_CONCURRENCY = 80
 DNS_TIMEOUT     = 5.0
 
+# Fallback IP-prefix detection when ASN DB unavailable (legacy, less accurate)
 _CDN_PREFIXES = (
     "104.16.","104.17.","104.18.","104.19.","104.20.","104.21.",
     "104.22.","104.23.","104.24.","104.25.","104.26.","104.27.",
@@ -58,6 +70,53 @@ _CDN_PREFIXES = (
     "172.64.","172.65.","172.66.","172.67.",
     "173.245.","188.114.","190.93.","197.234.","198.41.",
     "151.101.","199.232.",
+)
+
+# ── ASN quality filter ─────────────────────────────────────────────────────
+# Root cause of "JP IP nhưng bị chặn": nhiều node dùng CDN (Cloudflare/Fastly)
+# hoặc hyperscale cloud (AWS/GCP/Azure...) làm địa chỉ kết nối. GeoIP đôi khi
+# vẫn báo đúng "JP" cho các IP này (đặc biệt AWS ap-northeast-1, GCP
+# asia-northeast1), nhưng các website Nhật Bản dùng IP-intelligence riêng
+# (không phải GeoIP) để nhận diện đây là datacenter/proxy — không phải kết
+# nối dân dụng thật — nên vẫn chặn dù geolocation đúng quốc gia.
+#
+# Giải pháp: loại các node có ASN thuộc nhóm "hosting/CDN phổ biến bị
+# flag" NGAY CẢ KHI GeoIP báo đúng country. Trước đây code cũ tự động GIỮ
+# mọi IP CDN bất kể target country — đây chính là bug gây lẫn node kém
+# chất lượng vào kết quả.
+_ASN_NUMBERS_LOWQ: frozenset[int] = frozenset({
+    13335, 209242,                    # Cloudflare
+    54113,                            # Fastly
+    16509, 14618,                     # Amazon AWS / EC2
+    15169, 396982,                    # Google / Google Cloud
+    8075,   8068,                     # Microsoft Azure
+    37963, 45102,                     # Alibaba Cloud
+    132203, 59019,                    # Tencent Cloud
+    31898, 20473,                     # Vultr / Choopa
+    14061,                            # DigitalOcean
+    16276,                            # OVH
+    24940,                            # Hetzner
+    63949,                            # Linode / Akamai Connected Cloud
+    12876,                            # Scaleway
+    51167,                            # Contabo
+    9009,                             # M247
+    36351, 62240, 33182,              # SoftLayer/IBM Cloud, Clouvider, Psychz
+    62563,                            # Global Layer / QuadraNet-linked
+    203020,                           # QuadraNet
+    35916,                            # MULTACOM/others frequently proxy-flagged
+    46844,                            # Sharktech
+    174,                              # Cogent (bulk hosting transit, often flagged)
+})
+_ASN_ORG_KEYWORDS_LOWQ = (
+    "cloudflare", "fastly", "akamai",
+    "amazon", "aws", "google", "microsoft", "azure",
+    "alibaba", "tencent", "oracle cloud",
+    "digitalocean", "vultr", "choopa", "ovh", "hetzner", "linode",
+    "scaleway", "contabo", "leaseweb", "m247", "quadranet",
+    "zenlayer", "psychz", "g-core", "gcore", "colocrossing",
+    "hostroyale", "vdsina", "hivelocity", "cloudsigma", "upcloud",
+    "kamatera", "bunnycdn", "stackpath", "cachefly", "limelight",
+    "edgecast", "incapsula", "imperva", "sharktech", "servers.com",
 )
 
 # ── HTTP ─────────────────────────────────────────────────────────────────────
@@ -146,25 +205,43 @@ async def fetch_with_fallback(
 
 # ─────────────────────────── GeoIP ───────────────────────────────────────────
 class GeoIP:
-    """Country lookup + CDN detection + cached DNS resolution."""
+    """
+    Country lookup + ASN-based quality filter + cached DNS resolution.
+
+    Two-stage check per node:
+      1. Country match  — GeoLite2-Country: is the IP geolocated in the target CC?
+      2. Quality check   — GeoLite2-ASN: is the IP a CDN/hyperscale-cloud address?
+                            These get DROPPED even if country matches, because
+                            IP-intelligence services (used by geo-restricted JP
+                            sites, etc.) flag them as datacenter/proxy regardless
+                            of correct geolocation.
+    """
 
     def __init__(self) -> None:
-        self._reader: Optional[maxminddb.Reader] = None
-        self._cache:  dict[str, Optional[str]]   = {}
-        self._sem                                 = asyncio.Semaphore(DNS_CONCURRENCY)
+        self._country: Optional[maxminddb.Reader] = None
+        self._asn:     Optional[maxminddb.Reader] = None
+        self._cache:   dict[str, Optional[str]]   = {}
+        self._sem                                  = asyncio.Semaphore(DNS_CONCURRENCY)
+
         if Path(GEOIP_DB).exists():
-            self._reader = maxminddb.open_database(GEOIP_DB)
+            self._country = maxminddb.open_database(GEOIP_DB)
             log.info("GeoLite2-Country: %s", GEOIP_DB)
         else:
             log.warning("GeoLite2-Country không tìm thấy — GeoIP filter bị bỏ qua")
 
+        if Path(GEOIP_ASN_DB).exists():
+            self._asn = maxminddb.open_database(GEOIP_ASN_DB)
+            log.info("GeoLite2-ASN: %s (quality filter bật)", GEOIP_ASN_DB)
+        else:
+            log.warning("GeoLite2-ASN không tìm thấy — dùng IP-prefix fallback cho CDN")
+
     @property
     def ok(self) -> bool:
-        return self._reader is not None
+        return self._country is not None
 
     def close(self) -> None:
-        if self._reader:
-            self._reader.close()
+        if self._country: self._country.close()
+        if self._asn:     self._asn.close()
 
     async def resolve(self, host: str) -> Optional[str]:
         """Resolve hostname → IPv4, result cached per session."""
@@ -192,30 +269,60 @@ class GeoIP:
         self._cache[host] = ip
         return ip
 
-    @staticmethod
-    def is_cdn(ip: str) -> bool:
+    def is_low_quality(self, ip: str) -> bool:
+        """
+        True nếu IP thuộc CDN/hyperscale-cloud thường bị IP-intelligence
+        services flag là proxy/datacenter, bất kể GeoIP country đúng hay sai.
+        """
+        if self._asn:
+            try:
+                rec = self._asn.get(ip) or {}
+                num = rec.get("autonomous_system_number", 0)
+                org = (rec.get("autonomous_system_organization") or "").lower()
+                if num in _ASN_NUMBERS_LOWQ:
+                    return True
+                if any(kw in org for kw in _ASN_ORG_KEYWORDS_LOWQ):
+                    return True
+                return False
+            except Exception:
+                pass
+        # Fallback nếu không có ASN DB: dùng IP-prefix cũ (chỉ bắt Cloudflare)
         return ip.startswith(_CDN_PREFIXES)
 
     def country_of(self, ip: str) -> Optional[str]:
-        if not self._reader:
+        if not self._country:
             return None
         try:
-            return (self._reader.get(ip) or {}).get("country", {}).get("iso_code")
+            return (self._country.get(ip) or {}).get("country", {}).get("iso_code")
         except Exception:
             return None
 
     async def cc_of_node(self, url: str) -> Optional[str]:
-        """Return CC, 'CDN', or None (DNS fail). Used to classify EbraSha nodes."""
+        """
+        Return CC nếu hợp lệ để phân loại (dùng cho EbraSha/Epodonios).
+        Trả về None nếu: DNS fail, HOẶC IP là CDN/hyperscale-cloud
+        (loại sớm — không đáng tin để gán country).
+        """
         ep = parse_endpoint(url)
         if not ep:
             return None
         ip = await self.resolve(ep[1])
         if not ip:
             return None
-        return "CDN" if self.is_cdn(ip) else self.country_of(ip)
+        if self.is_low_quality(ip):
+            return None
+        return self.country_of(ip)
 
     async def filter(self, nodes: list[str], allowed: set[str]) -> list[str]:
-        """Keep node if GeoIP ∈ allowed OR IP is CDN. Drop DNS-fail nodes."""
+        """
+        Keep node CHỈ KHI:
+          • DNS resolve thành công
+          • IP KHÔNG thuộc CDN/hyperscale-cloud (is_low_quality == False)
+          • GeoIP country ∈ allowed
+
+        Khác biệt quan trọng so với bản cũ: không còn tự động giữ mọi
+        CDN IP — đây là nguồn gốc của node "báo JP nhưng bị chặn".
+        """
         async def _keep(url: str) -> bool:
             ep = parse_endpoint(url)
             if not ep:
@@ -223,8 +330,8 @@ class GeoIP:
             ip = await self.resolve(ep[1])
             if ip is None:
                 return False
-            if self.is_cdn(ip):
-                return True
+            if self.is_low_quality(ip):
+                return False
             return self.country_of(ip) in allowed
 
         mask = await asyncio.gather(*[_keep(n) for n in nodes])
@@ -336,7 +443,8 @@ async def fetch_ebrasha(
     """
     Fetch EbraSha raw list → GeoIP classify each node → return {CC: [nodes]}.
     Order: raw.githubusercontent (primary) → jsDelivr CDN (fallback).
-    CDN nodes skipped: can't determine country without GeoIP result.
+    Nodes on CDN/hyperscale-cloud ASN are dropped here (low-quality — see
+    GeoIP.is_low_quality), not just uncertain-country.
     """
     text = await fetch_with_fallback(session, EBRASHA_RAW, EBRASHA_CDN, "EbraSha")
     if not text:
@@ -347,14 +455,15 @@ async def fetch_ebrasha(
 
     ccs    = await asyncio.gather(*[geoip.cc_of_node(n) for n in nodes])
     result: dict[str, list[str]] = {}
-    cdn_n = dns_n = 0
+    dropped = dns_n = 0
     for cc, node in zip(ccs, nodes):
-        if cc is None:    dns_n += 1
-        elif cc == "CDN": cdn_n += 1
-        else:             result.setdefault(cc, []).append(node)
+        if cc is None:
+            dropped += 1   # DNS fail hoặc low-quality ASN (CDN/cloud)
+        else:
+            result.setdefault(cc, []).append(node)
 
-    log.info("[EbraSha] %d classified · %d CDN skipped · %d DNS fail",
-             sum(len(v) for v in result.values()), cdn_n, dns_n)
+    log.info("[EbraSha] %d classified · %d dropped (DNS fail / CDN-cloud ASN)",
+             sum(len(v) for v in result.values()), dropped)
     return result
 
 
@@ -375,6 +484,8 @@ async def fetch_epodonios(
          per line cuts DNS/GeoIP work substantially on a 6000-line source.
       3. DNS resolution is still cached in GeoIP (shared across all sources),
          so repeated hostnames (e.g. common CDN edges) cost one lookup total.
+      4. Nodes on CDN/hyperscale-cloud ASN dropped (low-quality — see
+         GeoIP.is_low_quality), same rule as EbraSha.
     """
     text = await fetch_with_fallback(session, EPO_RAW, EPO_CDN, "Epodonios")
     if not text:
@@ -387,14 +498,15 @@ async def fetch_epodonios(
 
     ccs    = await asyncio.gather(*[geoip.cc_of_node(n) for n in nodes])
     result: dict[str, list[str]] = {}
-    cdn_n = dns_n = 0
+    dropped = 0
     for cc, node in zip(ccs, nodes):
-        if cc is None:    dns_n += 1
-        elif cc == "CDN": cdn_n += 1
-        else:             result.setdefault(cc, []).append(node)
+        if cc is None:
+            dropped += 1   # DNS fail hoặc low-quality ASN (CDN/cloud)
+        else:
+            result.setdefault(cc, []).append(node)
 
-    log.info("[Epodonios] %d classified · %d CDN skipped · %d DNS fail",
-             sum(len(v) for v in result.values()), cdn_n, dns_n)
+    log.info("[Epodonios] %d classified · %d dropped (DNS fail / CDN-cloud ASN)",
+             sum(len(v) for v in result.values()), dropped)
     return result
 
 
@@ -809,6 +921,7 @@ async def process_country(
 async def main() -> None:
     log.info("Sources : v2nodes · EbraSha · Epodonios · OpenProxyList (GitHub mirrors)")
     log.info("URL order: raw.githubusercontent (primary) → jsDelivr CDN (fallback)")
+    log.info("Quality : GeoIP country match + ASN filter (drop CDN/hyperscale-cloud)")
     log.info("Label   : 'JP | 06'")
 
     geoip    = GeoIP()
