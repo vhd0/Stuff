@@ -1,28 +1,50 @@
 """
 get_sub.py — Multi-source VPN node collector
+══════════════════════════════════════════════════════════════════════════════
 Sources  : v2nodes.com (scrape) · EbraSha · Epodonios · OpenProxyList (GitHub)
-Pipeline : Collect → Dedup → GeoIP (country + quality) → Validate → sing-box → Rename
+Pipeline : Collect → Dedup → GeoIP filter → sing-box validate → sing-box test
+           → (empirical geo-probe, if available) → Rename → Save
 Label    : "JP | 06"  (CC + index, no protocol — clients display it already)
 
-Quality filter (GeoIP.is_low_quality) — ONE optimized check, two signals:
-  Nodes whose resolved IP is a hyperscale-cloud/CDN front OR a known
-  commercial-VPN network are DROPPED even when GeoIP reports the correct
-  target country. Reason: many geo-restricted sites use IP-intelligence
-  databases (not GeoIP) that flag these networks regardless of accurate
-  geolocation — so a node can show "JP" and still fail to reach JP-only
-  content.
+──────────────────────────────────────────────────────────────────────────────
+QUALITY FILTERING — two complementary layers
+──────────────────────────────────────────────────────────────────────────────
+Problem: a node's IP can be geolocated correctly (e.g. "JP") by GeoIP yet
+still get blocked by real JP-only websites, because those sites use their
+own IP-intelligence (not GeoIP) to flag datacenter/CDN/VPN addresses.
 
-  Deliberately narrow — NOT "any datacenter/hosting IP":
-    • Curated hyperscale-CDN ASN set (~30 entries: AWS/GCP/Azure/Cloudflare/
-      ...) — fronting causes geolocation/attribution mismatches specifically.
-    • X4BNet output/vpn/ipv4.txt — "strictly just known VPN networks"
-      (community-maintained, auto-updated), NOT output/datacenter/ipv4.txt
-      which covers "anything that is not an eyeball network" i.e. ALL VPS/
-      hosting. Since every self-hosted V2Ray/VLESS/Trojan node runs on a
-      VPS by definition, the broad list would reject almost everything,
-      including legitimate local hosting (Sakura Internet, ConoHa, etc.).
-  This trades node quantity for nodes that behave like a genuine
-  residential/local connection, without over-blocking ordinary VPS hosting.
+Layer 1 — Static heuristic (GeoIP.is_low_quality), applied to ALL countries:
+  • Hyperscale-CDN ASN check (curated, ~30 entries: Cloudflare/AWS/GCP/
+    Azure/...) — ALWAYS applied. Fronting through these causes genuine
+    geolocation/attribution mismatches, a distinct & well-understood issue.
+  • X4BNet output/vpn/ipv4.txt ("strictly just known VPN networks") — a
+    community-maintained, auto-updated CIDR list. Applied ONLY to countries
+    that lack an empirical probe (Layer 2), because it's a heuristic that
+    can false-positive on legitimate datacenters the target sites don't
+    actually block. We deliberately do NOT use X4BNet's broader
+    "datacenter" list (input/datacenter/ASN.txt, output/datacenter/ipv4.txt)
+    — that one covers "anything that is not an eyeball network", i.e. ALL
+    VPS/hosting, which would reject virtually every self-hosted node.
+
+Layer 2 — Empirical geo-probe (GEO_PROBES), applied per country if defined:
+  Instead of guessing via static lists, verify DIRECTLY through the node's
+  own proxy connection against a real geo-fenced local service. A node that
+  passes is PROVEN to behave like a genuine local connection for at least
+  one major real-world service — much stronger evidence than any blocklist,
+  and immune to false positives on datacenters that aren't actually flagged.
+
+  Currently configured:
+    JP → radiko.jp/area (Japan's IP-simulcast radio; actively detects and
+         blocks VPN/proxy/foreign IPs). Returns an area code like "JP13"
+         for genuine Japan IPs, "OUT" for blocked ones. Free, no auth,
+         single lightweight GET request.
+
+  HK / SG / VN: no free, no-auth, simple-GET geo-fenced probe has been
+  verified yet (candidates like myTV SUPER/ViuTV require complex login
+  flows) — these countries currently rely on Layer 1 only. Add an entry
+  to GEO_PROBES to extend once a suitable service is found; no other code
+  changes needed — process_country() and health_check() already handle
+  "probe not configured" gracefully.
 """
 
 import asyncio, base64, bisect, ipaddress, json, logging, os, re, socket
@@ -34,46 +56,33 @@ from urllib.parse import parse_qs, urlparse
 import aiohttp, maxminddb
 from bs4 import BeautifulSoup
 
-# ─────────────────────────── Config ──────────────────────────────────────────
+
+# ═══════════════════════════════ 1. CONFIG ════════════════════════════════
+
 BASE_URL  = "https://www.v2nodes.com"
 COUNTRIES = ["hk", "jp", "sg", "vn"]
 
 CC       = {"hk": "HK",        "jp": "JP",   "sg": "SG",   "vn": "VN"}
 CC_ALLOW = {"hk": {"HK","CN"}, "jp": {"JP"}, "sg": {"SG"}, "vn": {"VN"}}
 
-# ── External raw sources ─────────────────────────────────────────────────────
-# Priority: raw.githubusercontent (authoritative) → jsDelivr CDN (cache fallback)
-# Both are accessible from GitHub Actions Azure IPs (no Cloudflare block)
+# ── External node sources (GitHub-hosted; accessible from Azure/GH Actions
+#    IPs, unlike the origin sites which are often Cloudflare-protected).
+#    Order: raw.githubusercontent (authoritative) → jsDelivr CDN (fallback) ──
+EBRASHA_RAW = ("https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list"
+               "/refs/heads/main/V2Ray-Config-By-EbraSha.txt")
+EBRASHA_CDN = ("https://cdn.jsdelivr.net/gh/ebrasha/free-v2ray-public-list"
+               "@main/V2Ray-Config-By-EbraSha.txt")
 
-EBRASHA_RAW = (
-    "https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list"
-    "/refs/heads/main/V2Ray-Config-By-EbraSha.txt"
-)
-EBRASHA_CDN = (
-    "https://cdn.jsdelivr.net/gh/ebrasha/free-v2ray-public-list"
-    "@main/V2Ray-Config-By-EbraSha.txt"
-)
+EPO_RAW = ("https://raw.githubusercontent.com/Epodonios/v2ray-configs"
+           "/refs/heads/main/All_Configs_Sub.txt")
+EPO_CDN = "https://cdn.jsdelivr.net/gh/Epodonios/v2ray-configs@main/All_Configs_Sub.txt"
 
 # roosterkid/openproxylist = official GitHub mirror of openproxylist.com
-# (openproxylist.com itself is Cloudflare-protected → blocks Azure IPs)
+# (the .com domain itself is Cloudflare-protected and blocks Azure IPs)
 OPL_RAW = "https://raw.githubusercontent.com/roosterkid/openproxylist/main/V2RAY_RAW.txt"
 OPL_CDN = "https://cdn.jsdelivr.net/gh/roosterkid/openproxylist@main/V2RAY_RAW.txt"
 
-# Epodonios: large aggregator (~6000+ nodes), no CC in label → full GeoIP classify
-EPO_RAW = (
-    "https://raw.githubusercontent.com/Epodonios/v2ray-configs"
-    "/refs/heads/main/All_Configs_Sub.txt"
-)
-EPO_CDN = "https://cdn.jsdelivr.net/gh/Epodonios/v2ray-configs@main/All_Configs_Sub.txt"
-
-# X4BNet/lists_vpn — community-maintained, auto-updated datacenter/VPN blocklist.
-# Used for IP-quality filtering (see module docstring). Far more comprehensive
-# than any hand-curated ASN list; catches small/boutique VPN-hosting providers.
-# X4BNet vpn/ipv4.txt = "strictly just known VPN networks" (narrow, precise).
-# Deliberately NOT using output/datacenter/ipv4.txt or input/datacenter/ASN.txt:
-# those cover "anything that is not an eyeball network" — i.e. ALL VPS/hosting,
-# which would drop virtually every self-hosted node (they all run on some VPS
-# by definition) including legitimate local providers (Sakura Internet, ConoHa).
+# X4BNet known-VPN-network CIDR list (see module docstring, Layer 1)
 X4B_VPN_RAW = "https://raw.githubusercontent.com/X4BNet/lists_vpn/main/output/vpn/ipv4.txt"
 X4B_VPN_CDN = "https://cdn.jsdelivr.net/gh/X4BNet/lists_vpn@main/output/vpn/ipv4.txt"
 
@@ -83,7 +92,7 @@ GEOIP_ASN_DB    = os.environ.get("GEOIP_ASN_DB", "GeoLite2-ASN.mmdb")
 DNS_CONCURRENCY = 80
 DNS_TIMEOUT     = 5.0
 
-# Fallback IP-prefix detection when ASN DB unavailable (legacy, less accurate)
+# Fallback IP-prefix detection when GeoLite2-ASN unavailable (legacy, coarse)
 _CDN_PREFIXES = (
     "104.16.","104.17.","104.18.","104.19.","104.20.","104.21.",
     "104.22.","104.23.","104.24.","104.25.","104.26.","104.27.",
@@ -93,40 +102,27 @@ _CDN_PREFIXES = (
     "151.101.","199.232.",
 )
 
-# ── ASN quality filter ─────────────────────────────────────────────────────
-# Root cause of "JP IP nhưng bị chặn": nhiều node dùng CDN (Cloudflare/Fastly)
-# hoặc hyperscale cloud (AWS/GCP/Azure...) làm địa chỉ kết nối. GeoIP đôi khi
-# vẫn báo đúng "JP" cho các IP này (đặc biệt AWS ap-northeast-1, GCP
-# asia-northeast1), nhưng các website Nhật Bản dùng IP-intelligence riêng
-# (không phải GeoIP) để nhận diện đây là datacenter/proxy — không phải kết
-# nối dân dụng thật — nên vẫn chặn dù geolocation đúng quốc gia.
-#
-# Giải pháp: loại các node có ASN thuộc nhóm "hosting/CDN phổ biến bị
-# flag" NGAY CẢ KHI GeoIP báo đúng country. Trước đây code cũ tự động GIỮ
-# mọi IP CDN bất kể target country — đây chính là bug gây lẫn node kém
-# chất lượng vào kết quả.
+# Curated hyperscale-cloud / CDN ASN blocklist — always applied (Layer 1).
+# Fronting through these causes genuine geolocation/attribution mismatches.
 _ASN_NUMBERS_LOWQ: frozenset[int] = frozenset({
-    13335, 209242,                    # Cloudflare
-    54113,                            # Fastly
-    16509, 14618,                     # Amazon AWS / EC2
-    15169, 396982,                    # Google / Google Cloud
-    8075,   8068,                     # Microsoft Azure
-    37963, 45102,                     # Alibaba Cloud
-    132203, 59019,                    # Tencent Cloud
-    31898, 20473,                     # Vultr / Choopa
-    14061,                            # DigitalOcean
-    16276,                            # OVH
-    24940,                            # Hetzner
-    63949,                            # Linode / Akamai Connected Cloud
-    12876,                            # Scaleway
-    51167,                            # Contabo
-    9009,                             # M247
-    36351, 62240, 33182,              # SoftLayer/IBM Cloud, Clouvider, Psychz
-    62563,                            # Global Layer / QuadraNet-linked
-    203020,                           # QuadraNet
-    35916,                            # MULTACOM/others frequently proxy-flagged
-    46844,                            # Sharktech
-    174,                              # Cogent (bulk hosting transit, often flagged)
+    13335, 209242,          # Cloudflare
+    54113,                  # Fastly
+    16509, 14618,           # Amazon AWS / EC2
+    15169, 396982,          # Google / Google Cloud
+    8075,   8068,           # Microsoft Azure
+    37963, 45102,           # Alibaba Cloud
+    132203, 59019,          # Tencent Cloud
+    31898, 20473,           # Vultr / Choopa
+    14061,                  # DigitalOcean
+    16276,                  # OVH
+    24940,                  # Hetzner
+    63949,                  # Linode / Akamai Connected Cloud
+    12876,                  # Scaleway
+    51167,                  # Contabo
+    9009,                   # M247
+    36351, 62240, 33182,    # SoftLayer/IBM Cloud, Clouvider, Psychz
+    203020,                 # QuadraNet
+    46844,                  # Sharktech
 })
 _ASN_ORG_KEYWORDS_LOWQ = (
     "cloudflare", "fastly", "akamai",
@@ -140,6 +136,19 @@ _ASN_ORG_KEYWORDS_LOWQ = (
     "edgecast", "incapsula", "imperva", "sharktech", "servers.com",
 )
 
+# ── Empirical geo-fence probes (Layer 2) — see module docstring ─────────────
+# Each probe: GET `url` through the node's own proxy, decide pass/fail from
+# the response body. `ok(body) -> bool`.
+GEO_PROBES: dict[str, dict] = {
+    "JP": {
+        "url": "http://radiko.jp/area",
+        "ok":  lambda body: bool(re.search(r'class="JP\d+"', body))
+                             and '"OUT"' not in body,
+    },
+    # HK / SG / VN: not yet configured — see module docstring for why.
+    # To add one: {"url": "...", "ok": lambda body: <pass/fail logic>}
+}
+
 # ── HTTP ─────────────────────────────────────────────────────────────────────
 HTTP_SEM     = 10
 HTTP_RETRY   = 3
@@ -151,8 +160,8 @@ SINGBOX      = os.environ.get("SINGBOX_BIN", "/usr/local/bin/sing-box")
 BATCH_SIZE   = 30
 BASE_PORT    = 20000
 SB_STARTUP   = 3.0
-SB_VAL_SEM   = 8      # concurrent per-node validation processes
-TEST_URLS    = [
+SB_VAL_SEM   = 8      # concurrent per-node config-validation processes
+CONNECT_URLS = [
     "http://connectivitycheck.gstatic.com/generate_204",
     "http://www.msftconnecttest.com/connecttest.txt",
 ]
@@ -188,7 +197,8 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 
-# ─────────────────────────── HTTP ────────────────────────────────────────────
+# ═══════════════════════════════ 2. HTTP HELPERS ═══════════════════════════
+
 async def http_get(session: aiohttp.ClientSession, url: str) -> Optional[str]:
     to = aiohttp.ClientTimeout(connect=CONN_TIMEOUT, total=READ_TIMEOUT)
     for n in range(HTTP_RETRY + 1):
@@ -214,7 +224,7 @@ async def fetch_with_fallback(
     """
     Fetch primary URL; if content fails validator, try fallback.
     validator defaults to "_RE_NODE found somewhere" (node-list sources);
-    pass a custom callable for other formats (e.g. ASN/CIDR blocklists).
+    pass a custom callable for other formats (e.g. CIDR blocklists).
     """
     check = validator or (lambda t: bool(_RE_NODE.search(t)))
     text = await http_get(session, primary)
@@ -230,12 +240,13 @@ async def fetch_with_fallback(
     return None
 
 
-# ─────────────────────────── CIDR range lookup ───────────────────────────────
+# ═══════════════════════════════ 3. CIDR LOOKUP ════════════════════════════
+
 class CIDRSet:
     """
     Efficient "IP ∈ any of N CIDR ranges" lookup — O(log n) per query.
     Ranges are merged (overlaps collapsed) after sorting, so a single
-    bisect + boundary check is always correct (no need to scan candidates).
+    bisect + boundary check is always correct.
     """
     __slots__ = ("_starts", "_ranges")
 
@@ -278,29 +289,12 @@ class CIDRSet:
         return start <= ip_int <= end
 
 
-# ─────────────────────────── GeoIP ───────────────────────────────────────────
+# ═══════════════════════════════ 4. GEOIP ══════════════════════════════════
+
 class GeoIP:
     """
-    Country lookup + single-signal quality filter + cached DNS resolution.
-
-    Per-node check pipeline:
-      1. Country match — GeoLite2-Country: is the IP geolocated in target CC?
-      2. Quality check — is_low_quality(): is the IP a hyperscale-cloud/CDN
-         front OR a known commercial VPN network? Dropped even if country
-         matches (see module docstring).
-
-    Quality check design note — why NOT "any datacenter":
-      X4BNet publishes two lists: output/datacenter/ipv4.txt ("anything that
-      is not an eyeball network" — i.e. ALL hosting/VPS) and output/vpn/ipv4.txt
-      ("strictly just known VPN networks"). Every self-hosted V2Ray/VLESS/
-      Trojan node runs on a VPS by definition, so the broad "datacenter" list
-      would reject almost everything — including legitimate local providers
-      (e.g. Sakura Internet, ConoHa for JP). We use ONLY the narrow VPN-network
-      list, which targets the actual "flagged as VPN/high-risk" problem
-      without punishing ordinary hosting.
-      The small curated hyperscale-CDN ASN set is kept separately: that's a
-      distinct, well-understood issue (Cloudflare/AWS/GCP fronting causes
-      geolocation/attribution mismatches), not a blanket "hosting is bad" rule.
+    Country lookup + quality filter (Layer 1) + cached DNS resolution.
+    See module docstring for the full quality-filtering design rationale.
     """
 
     def __init__(self) -> None:
@@ -320,7 +314,7 @@ class GeoIP:
             self._asn = maxminddb.open_database(GEOIP_ASN_DB)
             log.info("GeoLite2-ASN: %s", GEOIP_ASN_DB)
         else:
-            log.warning("GeoLite2-ASN không tìm thấy — quality check dựa vào CIDR/prefix")
+            log.warning("GeoLite2-ASN không tìm thấy — quality check dùng IP-prefix fallback")
 
     @property
     def ok(self) -> bool:
@@ -331,22 +325,17 @@ class GeoIP:
         if self._asn:     self._asn.close()
 
     async def load_quality_lists(self, session: aiohttp.ClientSession) -> None:
-        """
-        Fetch X4BNet known-VPN-network CIDR list once at startup.
-        Network failure just means the VPN-range signal is unavailable —
-        the curated hyperscale ASN check still runs, never crashes.
-        """
+        """Fetch X4BNet known-VPN CIDR list once. Network failure = graceful skip."""
         text = await fetch_with_fallback(
             session, X4B_VPN_RAW, X4B_VPN_CDN, "X4B-VPN",
             validator=lambda t: bool(re.search(r'\d+\.\d+\.\d+\.\d+/\d+', t)),
         )
         if text:
-            lines = [l for l in text.splitlines() if l.strip()]
-            self._vpn_ranges = CIDRSet(lines)
+            self._vpn_ranges = CIDRSet([l for l in text.splitlines() if l.strip()])
             log.info("X4B-VPN: %d known-VPN ranges đã nạp", len(self._vpn_ranges))
 
     async def resolve(self, host: str) -> Optional[str]:
-        """Resolve hostname → IPv4, result cached per session."""
+        """Resolve hostname → IPv4, result cached per session (shared across sources)."""
         if host in self._cache:
             return self._cache[host]
         for fam in (socket.AF_INET, socket.AF_INET6):
@@ -371,19 +360,8 @@ class GeoIP:
         self._cache[host] = ip
         return ip
 
-    def is_low_quality(self, ip: str) -> bool:
-        """
-        True nếu IP nên bị loại — dù GeoIP country đúng hay sai. Một bước,
-        hai tín hiệu độc lập (không phải "mọi datacenter"):
-
-          • Hyperscale-cloud/CDN fronting (Cloudflare/AWS/GCP/Azure/...)
-            — ASN number/org name khớp curated set (~30 mục, không đổi)
-          • Known commercial-VPN network (X4BNet output/vpn/ipv4.txt)
-            — chính xác loại vấn đề "flagged high-risk VPN" từ báo cáo
-
-        KHÔNG check "mọi ASN hosting/datacenter" — sẽ loại luôn cả các
-        provider hosting hợp pháp mà node tự host (Sakura, ConoHa, v.v.)
-        """
+    def _is_hyperscale_cdn(self, ip: str) -> bool:
+        """Curated ASN check — always applied, regardless of empirical probes."""
         if self._asn:
             try:
                 rec = self._asn.get(ip) or {}
@@ -393,14 +371,23 @@ class GeoIP:
                     return True
                 if any(kw in org for kw in _ASN_ORG_KEYWORDS_LOWQ):
                     return True
+                return False
             except Exception:
                 pass
-        elif ip.startswith(_CDN_PREFIXES):
-            return True   # fallback nếu không có ASN DB
+        return ip.startswith(_CDN_PREFIXES)
 
-        if self._vpn_ranges and ip in self._vpn_ranges:
+    def is_low_quality(self, ip: str, *, use_vpn_heuristic: bool = True) -> bool:
+        """
+        True nếu IP nên bị loại.
+          • Hyperscale-CDN ASN: LUÔN kiểm tra (Layer 1, phần cố định).
+          • X4BNet known-VPN CIDR: chỉ áp dụng khi use_vpn_heuristic=True
+            — set False cho các country ĐÃ có empirical probe (GEO_PROBES),
+            vì probe thực nghiệm là bằng chứng đáng tin hơn heuristic tĩnh.
+        """
+        if self._is_hyperscale_cdn(ip):
             return True
-
+        if use_vpn_heuristic and self._vpn_ranges and ip in self._vpn_ranges:
+            return True
         return False
 
     def country_of(self, ip: str) -> Optional[str]:
@@ -413,9 +400,11 @@ class GeoIP:
 
     async def cc_of_node(self, url: str) -> Optional[str]:
         """
-        Return CC nếu hợp lệ để phân loại (dùng cho EbraSha/Epodonios).
-        Trả về None nếu: DNS fail, HOẶC IP là datacenter/CDN/VPN-hosting
-        (loại sớm — không đáng tin để gán country cho mục đích node chất lượng).
+        Return CC để phân loại (dùng cho EbraSha/Epodonios — chưa biết
+        country đích lúc này). Chỉ loại sớm qua hyperscale-CDN check
+        (luôn đúng bất kể country); KHÔNG áp dụng X4B VPN heuristic ở đây
+        — quyết định "quality" cuối cùng thuộc về filter() sau khi đã biết
+        country đích và có thể chọn use_vpn_heuristic phù hợp.
         """
         ep = parse_endpoint(url)
         if not ep:
@@ -423,20 +412,14 @@ class GeoIP:
         ip = await self.resolve(ep[1])
         if not ip:
             return None
-        if self.is_low_quality(ip):
+        if self._is_hyperscale_cdn(ip):
             return None
         return self.country_of(ip)
 
-    async def filter(self, nodes: list[str], allowed: set[str]) -> list[str]:
-        """
-        Keep node CHỈ KHI:
-          • DNS resolve thành công
-          • IP KHÔNG thuộc CDN/hyperscale-cloud (is_low_quality == False)
-          • GeoIP country ∈ allowed
-
-        Khác biệt quan trọng so với bản cũ: không còn tự động giữ mọi
-        CDN IP — đây là nguồn gốc của node "báo JP nhưng bị chặn".
-        """
+    async def filter(
+        self, nodes: list[str], allowed: set[str], *, use_vpn_heuristic: bool = True
+    ) -> list[str]:
+        """Keep node if not low-quality AND GeoIP country ∈ allowed. Drop DNS-fail."""
         async def _keep(url: str) -> bool:
             ep = parse_endpoint(url)
             if not ep:
@@ -444,15 +427,16 @@ class GeoIP:
             ip = await self.resolve(ep[1])
             if ip is None:
                 return False
-            if self.is_low_quality(ip):
+            if self.is_low_quality(ip, use_vpn_heuristic=use_vpn_heuristic):
                 return False
             return self.country_of(ip) in allowed
 
         mask = await asyncio.gather(*[_keep(n) for n in nodes])
-        return [n for n, ok in zip(nodes, mask) if ok]
+        return [n for n, keep in zip(nodes, mask) if keep]
 
 
-# ─────────────────────────── Endpoint parsing ────────────────────────────────
+# ═══════════════════════════════ 5. ENDPOINT PARSING ═══════════════════════
+
 def _b64d(s: str) -> Optional[str]:
     try:
         return base64.b64decode(s + "=" * (-len(s) % 4)).decode("utf-8", errors="ignore")
@@ -474,11 +458,12 @@ def parse_endpoint(url: str) -> Optional[tuple[str, str, int]]:
             return (scheme, pr.hostname or "", pr.port or 0) if pr.hostname and pr.port else None
         if scheme == "ss":
             rest = clean[5:]
-            hi   = rest.rsplit("@",1)[1] if "@" in rest else (
-                (_b64d(rest) or "").rsplit("@",1)[1] if "@" in (_b64d(rest) or "") else None
-            )
-            if not hi:
-                return None
+            if "@" in rest:
+                hi = rest.rsplit("@",1)[1]
+            else:
+                d = _b64d(rest)
+                if not d or "@" not in d: return None
+                hi = d.rsplit("@",1)[1]
             hi = hi.split("?")[0].split("#")[0]
             if hi.startswith("["):
                 h = hi[1:hi.index("]")]; p = int(hi[hi.index("]")+2:])
@@ -495,7 +480,12 @@ def parse_endpoint(url: str) -> Optional[tuple[str, str, int]]:
     return None
 
 
-# ─────────────────────────── Source 1: v2nodes ───────────────────────────────
+# ═══════════════════════════════ 6. SOURCES ═════════════════════════════════
+# Each fetch_* function returns node URLs, either as a flat list (v2nodes)
+# or pre-bucketed by country {CC: [nodes]} (EbraSha/Epodonios/OPL).
+
+# ── 6a. v2nodes.com (scrape, always country-accurate — no classification) ──
+
 async def _node_from_server(
     session: aiohttp.ClientSession, sid: str, sem: asyncio.Semaphore
 ) -> Optional[str]:
@@ -527,10 +517,7 @@ async def scrape_v2nodes(
     log.info("[v2nodes/%s] %d page(s)", country.upper(), total)
 
     soup = BeautifulSoup(h1, "lxml")
-    ids  = list(dict.fromkeys(
-        a["href"][9:-1]
-        for a in soup.find_all("a", href=_RE_SRV)
-    ))
+    ids  = list(dict.fromkeys(a["href"][9:-1] for a in soup.find_all("a", href=_RE_SRV)))
     if total > 1:
         extras = await asyncio.gather(*[
             http_get(session, f"{BASE_URL}/country/{country}/?page={p}")
@@ -538,10 +525,8 @@ async def scrape_v2nodes(
         ])
         for h in extras:
             if h:
-                ids.extend(
-                    a["href"][9:-1]
-                    for a in BeautifulSoup(h,"lxml").find_all("a", href=_RE_SRV)
-                )
+                ids.extend(a["href"][9:-1]
+                           for a in BeautifulSoup(h,"lxml").find_all("a", href=_RE_SRV))
         ids = list(dict.fromkeys(ids))
 
     raw   = await asyncio.gather(*[_node_from_server(session, sid, sem) for sid in ids])
@@ -550,16 +535,11 @@ async def scrape_v2nodes(
     return nodes
 
 
-# ─────────────────────────── Source 2: EbraSha ───────────────────────────────
+# ── 6b. EbraSha (no CC in label → full GeoIP classify) ──────────────────────
+
 async def fetch_ebrasha(
     session: aiohttp.ClientSession, geoip: GeoIP
 ) -> dict[str, list[str]]:
-    """
-    Fetch EbraSha raw list → GeoIP classify each node → return {CC: [nodes]}.
-    Order: raw.githubusercontent (primary) → jsDelivr CDN (fallback).
-    Nodes on CDN/hyperscale-cloud ASN are dropped here (low-quality — see
-    GeoIP.is_low_quality), not just uncertain-country.
-    """
     text = await fetch_with_fallback(session, EBRASHA_RAW, EBRASHA_CDN, "EbraSha")
     if not text:
         return {}
@@ -569,37 +549,30 @@ async def fetch_ebrasha(
 
     ccs    = await asyncio.gather(*[geoip.cc_of_node(n) for n in nodes])
     result: dict[str, list[str]] = {}
-    dropped = dns_n = 0
+    dropped = 0
     for cc, node in zip(ccs, nodes):
-        if cc is None:
-            dropped += 1   # DNS fail hoặc low-quality ASN (CDN/cloud)
-        else:
-            result.setdefault(cc, []).append(node)
+        if cc is None: dropped += 1
+        else:          result.setdefault(cc, []).append(node)
 
-    log.info("[EbraSha] %d classified · %d dropped (DNS fail / CDN-cloud ASN)",
+    log.info("[EbraSha] %d classified · %d dropped (DNS fail / hyperscale-CDN)",
              sum(len(v) for v in result.values()), dropped)
     return result
 
+
+# ── 6c. Epodonios (~6000+ nodes, no CC in label → full GeoIP classify) ──────
 
 async def fetch_epodonios(
     session: aiohttp.ClientSession, geoip: GeoIP
 ) -> dict[str, list[str]]:
     """
-    Fetch Epodonios aggregator (~6000+ nodes) → GeoIP classify → {CC: [nodes]}.
-    Order: raw.githubusercontent (primary) → jsDelivr CDN (fallback).
-
     Optimization for large scale:
-      1. _RE_NODE already filters to supported schemes only
-         (vmess/vless/trojan/ss/ssr — hy2/hysteria2/socks auto-excluded,
-         since Epodonios includes those but sing-box test doesn't support them)
-      2. Pre-dedup by (scheme, host, port) BEFORE classify — Epodonios has many
-         literal duplicates (same infra reused across entries with different
-         UUID/labels). Classifying once per unique endpoint instead of once
-         per line cuts DNS/GeoIP work substantially on a 6000-line source.
-      3. DNS resolution is still cached in GeoIP (shared across all sources),
-         so repeated hostnames (e.g. common CDN edges) cost one lookup total.
-      4. Nodes on CDN/hyperscale-cloud ASN dropped (low-quality — see
-         GeoIP.is_low_quality), same rule as EbraSha.
+      • _RE_NODE already filters to supported schemes (hy2/hysteria2/socks
+        auto-excluded — Epodonios includes those but sing-box test doesn't).
+      • Pre-dedup by (scheme, host, port) BEFORE classify — Epodonios has
+        many literal duplicates (same infra, different UUID/label). Cuts
+        DNS/GeoIP work substantially on a 6000-line source.
+      • DNS cache in GeoIP is shared across ALL sources — repeated hostnames
+        cost one lookup total, not one per occurrence.
     """
     text = await fetch_with_fallback(session, EPO_RAW, EPO_CDN, "Epodonios")
     if not text:
@@ -614,29 +587,22 @@ async def fetch_epodonios(
     result: dict[str, list[str]] = {}
     dropped = 0
     for cc, node in zip(ccs, nodes):
-        if cc is None:
-            dropped += 1   # DNS fail hoặc low-quality ASN (CDN/cloud)
-        else:
-            result.setdefault(cc, []).append(node)
+        if cc is None: dropped += 1
+        else:          result.setdefault(cc, []).append(node)
 
-    log.info("[Epodonios] %d classified · %d dropped (DNS fail / CDN-cloud ASN)",
+    log.info("[Epodonios] %d classified · %d dropped (DNS fail / hyperscale-CDN)",
              sum(len(v) for v in result.values()), dropped)
     return result
 
 
-# ─────────────────────────── Source 4: OpenProxyList ─────────────────────────
+# ── 6d. OpenProxyList (CC embedded in label → no GeoIP needed here) ─────────
+
 def _opl_cc(fragment: str) -> Optional[str]:
-    """Extract CC from OPL label: '🇸🇬[openproxylist.com] trojan-SG' → 'SG'."""
     m = _RE_OPL_CC.search(fragment)
     return m.group(1) if m else None
 
 
 async def fetch_opl(session: aiohttp.ClientSession) -> dict[str, list[str]]:
-    """
-    Fetch OpenProxyList from roosterkid/openproxylist GitHub mirror.
-    Order: raw.githubusercontent (primary) → jsDelivr CDN (fallback).
-    openproxylist.com direct URL is Cloudflare-protected and blocks Azure IPs.
-    """
     text = await fetch_with_fallback(session, OPL_RAW, OPL_CDN, "OPL")
     if not text:
         return {}
@@ -657,9 +623,10 @@ async def fetch_opl(session: aiohttp.ClientSession) -> dict[str, list[str]]:
     return result
 
 
-# ─────────────────────────── Deduplication ───────────────────────────────────
+# ═══════════════════════════════ 7. DEDUPLICATION ══════════════════════════
+
 def deduplicate(nodes: list[str]) -> list[str]:
-    """Remove duplicates by (scheme, host, port). Preserves order (v2nodes first)."""
+    """Remove duplicates by (scheme, host, port). Preserves order (first wins)."""
     seen: set = set()
     out: list[str] = []
     dups = 0
@@ -676,7 +643,9 @@ def deduplicate(nodes: list[str]) -> list[str]:
     return out
 
 
-# ─────────────────────────── sing-box parsers ────────────────────────────────
+# ═══════════════════════════════ 8. SING-BOX PARSERS ═══════════════════════
+# Convert node URLs → sing-box outbound configs.
+
 def _sni(raw: str, fallback: str = "") -> str:
     """Sanitize TLS SNI: must be plain hostname, no '/' '?' ' '."""
     for ch in ("/", "?", " "):
@@ -744,7 +713,7 @@ def _vless(url: str, tag: str) -> Optional[dict]:
         pr = urlparse(url)
         if not pr.hostname or not pr.port: return None
         uuid = pr.username or ""
-        if not _RE_UUID.match(uuid): return None   # reject non-UUID usernames
+        if not _RE_UUID.match(uuid): return None
         q = parse_qs(pr.query)
         def g(k): return q.get(k, [""])[0]
         net, sec = g("type") or "tcp", g("security")
@@ -806,12 +775,14 @@ def to_singbox(url: str, tag: str) -> Optional[dict]:
             else lambda *_: None)(url, tag)
 
 
-# ─────────────────────────── sing-box validation ─────────────────────────────
+# ═══════════════════════════════ 9. SING-BOX VALIDATE ══════════════════════
+
 async def _sb_check_node(ob: dict, sem: asyncio.Semaphore) -> bool:
     """
-    Run 'sing-box check' on a minimal config containing just this outbound.
-    Port 29000 is fine for check — it never binds (dry-run only).
-    Catches invalid SNI, bad reality keys, unsupported fields, etc.
+    Run 'sing-box check' on a minimal config with just this outbound.
+    Dry-run (no port binding). Catches invalid SNI, bad reality keys, etc.
+    BEFORE the node reaches a shared batch — a single bad config would
+    otherwise crash the whole batch's connectivity test.
     """
     cfg = {
         "log":      {"disabled": True},
@@ -837,14 +808,16 @@ async def _sb_check_node(ob: dict, sem: asyncio.Semaphore) -> bool:
             return False
         finally:
             try: os.unlink(tmp.name)
-            except: pass
+            except Exception: pass
 
 
-# ─────────────────────────── sing-box test ───────────────────────────────────
-async def _proxy_test(port: int, sem: asyncio.Semaphore) -> bool:
+# ═══════════════════════════════ 10. SING-BOX TEST ═════════════════════════
+
+async def _connect_test(port: int, sem: asyncio.Semaphore) -> bool:
+    """Basic reachability: does traffic through this node reach the internet?"""
     async with sem:
         to = aiohttp.ClientTimeout(total=TEST_TIMEOUT)
-        for url in TEST_URLS:
+        for url in CONNECT_URLS:
             try:
                 async with aiohttp.ClientSession(
                     connector=aiohttp.TCPConnector(ssl=False)
@@ -857,9 +830,36 @@ async def _proxy_test(port: int, sem: asyncio.Semaphore) -> bool:
         return False
 
 
+async def _geo_probe_test(port: int, cc: str, sem: asyncio.Semaphore) -> bool:
+    """
+    Empirical Layer-2 check (see module docstring). Returns True if no probe
+    is configured for `cc` (nothing to disprove — don't penalize), or if the
+    probe response indicates the node is accepted as a genuine local IP.
+    """
+    probe = GEO_PROBES.get(cc)
+    if not probe:
+        return True
+    async with sem:
+        to = aiohttp.ClientTimeout(total=TEST_TIMEOUT)
+        try:
+            async with aiohttp.ClientSession(
+                connector=aiohttp.TCPConnector(ssl=False)
+            ) as s:
+                async with s.get(probe["url"], proxy=f"http://127.0.0.1:{port}",
+                                 timeout=to, allow_redirects=True) as r:
+                    body = await r.text(errors="ignore")
+                    return probe["ok"](body)
+        except Exception:
+            return False
+
+
 async def _run_batch(
-    batch: list[tuple[str, dict, int]], sem: asyncio.Semaphore
+    batch: list[tuple[str, dict, int]], cc: str, sem: asyncio.Semaphore
 ) -> list[bool]:
+    """
+    Start sing-box for this batch, run connectivity test, then (only for
+    nodes that passed) the empirical geo-probe. A node must pass BOTH.
+    """
     cfg = {
         "log":      {"disabled": True},
         "inbounds": [{"type":"http","tag":f"in_{ob['tag']}",
@@ -885,29 +885,41 @@ async def _run_batch(
             log.warning("sing-box crash rc=%d: %s", proc.returncode, err[:200])
             return [False] * len(batch)
 
-        results = await asyncio.gather(*[_proxy_test(p, sem) for _,_,p in batch])
+        connected = await asyncio.gather(*[_connect_test(p, sem) for _,_,p in batch])
+
+        # Only geo-probe nodes that are actually reachable — saves requests
+        probe_tasks = [
+            _geo_probe_test(port, cc, sem) if alive else _false()
+            for (_,_,port), alive in zip(batch, connected)
+        ]
+        probed = await asyncio.gather(*probe_tasks)
+
         proc.terminate()
         try:    proc.wait(timeout=3)
-        except: proc.kill()
-        return list(results)
+        except Exception: proc.kill()
+
+        return [c and p for c, p in zip(connected, probed)]
     finally:
         try: os.unlink(tmp.name)
-        except: pass
+        except Exception: pass
 
 
-async def health_check(nodes: list[str]) -> list[str]:
+async def _false() -> bool:
+    """Trivial coroutine returning False — placeholder for skipped geo-probes."""
+    return False
+
+
+async def health_check(nodes: list[str], cc: str) -> list[str]:
     """
     1. Parse all nodes → sing-box outbound configs
-    2. Per-node 'sing-box check' (concurrent, no network) → filter invalid
-       Ensures nodes from ALL sources/locations pass validation before batching
-       (invalid SNI, bad UUID, malformed keys → caught here, don't kill batch)
-    3. Batch HTTP proxy test → keep online nodes
+    2. Per-node 'sing-box check' (concurrent, no network) — filters invalid
+       configs before they can crash a shared batch
+    3. Batch test: connectivity + (if configured) empirical geo-probe
     """
     if not Path(SINGBOX).exists():
         log.warning("sing-box not found → skipping health check")
         return nodes
 
-    # Step 1: parse
     candidates = [(url, ob, BASE_PORT + i)
                   for i, url in enumerate(nodes)
                   if (ob := to_singbox(url, f"n{i}")) is not None]
@@ -915,8 +927,7 @@ async def health_check(nodes: list[str]) -> list[str]:
     if parse_skip:
         log.info("  Parse skip: %d (ssr / unknown scheme)", parse_skip)
 
-    # Step 2: per-node config validation (catches bad configs before they kill a batch)
-    val_sem = asyncio.Semaphore(SB_VAL_SEM)
+    val_sem    = asyncio.Semaphore(SB_VAL_SEM)
     valid_mask = await asyncio.gather(*[
         _sb_check_node(ob, val_sem) for _, ob, _ in candidates
     ])
@@ -924,18 +935,20 @@ async def health_check(nodes: list[str]) -> list[str]:
     inv_count = len(candidates) - len(valid)
     if inv_count:
         log.info("  Config invalid (sing-box check): %d nodes removed", inv_count)
-    log.info("  Validated: %d nodes ready for proxy test", len(valid))
-
+    log.info("  Validated: %d nodes ready for testing", len(valid))
     if not valid:
         return []
 
-    # Step 3: batch proxy test
+    has_probe = cc in GEO_PROBES
+    log.info("  Testing: connectivity%s", " + geo-probe (" + GEO_PROBES[cc]["url"] + ")"
+             if has_probe else " only (no geo-probe configured for " + cc + ")")
+
     test_sem = asyncio.Semaphore(TEST_SEM)
     batches  = [valid[i:i+BATCH_SIZE] for i in range(0, len(valid), BATCH_SIZE)]
     online: list[str] = []
     for i, batch in enumerate(batches, 1):
         t0      = time.monotonic()
-        results = await _run_batch(batch, test_sem)
+        results = await _run_batch(batch, cc, test_sem)
         ok      = sum(results)
         log.info("  Batch %d/%d: %d/%d online (%.1fs)",
                  i, len(batches), ok, len(batch), time.monotonic()-t0)
@@ -944,11 +957,12 @@ async def health_check(nodes: list[str]) -> list[str]:
     return online
 
 
-# ─────────────────────────── Rename ──────────────────────────────────────────
+# ═══════════════════════════════ 11. RENAME ═════════════════════════════════
+
 def rename_nodes(nodes: list[str], cc: str) -> list[str]:
     """
     Format: "JP | 06"  — CC + zero-padded index.
-    Protocol omitted: Shadowrocket/clients show it on the sub-line.
+    Protocol omitted: Shadowrocket/clients show it on the sub-line already.
     vmess: update "ps" field inside base64 JSON (clients read ps, not #fragment).
     """
     pad = max(2, len(str(len(nodes))))
@@ -976,7 +990,8 @@ def rename_nodes(nodes: list[str], cc: str) -> list[str]:
     return out
 
 
-# ─────────────────────────── Pipeline ────────────────────────────────────────
+# ═══════════════════════════════ 12. PIPELINE ═══════════════════════════════
+
 async def process_country(
     session:  aiohttp.ClientSession,
     country:  str,
@@ -986,9 +1001,10 @@ async def process_country(
     epo:      dict[str, list[str]],
     opl:      dict[str, list[str]],
 ) -> None:
-    cc      = CC[country]
-    allowed = CC_ALLOW[country]
-    log.info("━━━ [%s] ━━━", cc)
+    cc        = CC[country]
+    allowed   = CC_ALLOW[country]
+    has_probe = cc in GEO_PROBES
+    log.info("━━━ [%s] %s━━━", cc, "(empirical geo-probe available) " if has_probe else "")
 
     # 1. Collect from 4 sources (v2nodes first → dedup keeps its nodes on conflict)
     v2n     = await scrape_v2nodes(session, country, http_sem)
@@ -1003,21 +1019,23 @@ async def process_country(
     nodes = deduplicate(nodes)
     log.info("[%s] After dedup: %d", cc, len(nodes))
 
-    # 3. GeoIP filter
+    # 3. GeoIP + quality filter — skip the X4B VPN heuristic if we have an
+    #    empirical probe for this country (Layer 2 will verify directly)
     if geoip.ok:
         before = len(nodes)
-        nodes  = await geoip.filter(nodes, allowed)
-        log.info("[%s] After GeoIP {%s}: %d/%d", cc, "/".join(sorted(allowed)), len(nodes), before)
+        nodes  = await geoip.filter(nodes, allowed, use_vpn_heuristic=not has_probe)
+        log.info("[%s] After GeoIP+quality {%s}: %d/%d",
+                 cc, "/".join(sorted(allowed)), len(nodes), before)
     else:
         log.warning("[%s] No GeoIP DB — skipping filter", cc)
     if not nodes:
         log.warning("[%s] No nodes after GeoIP filter", cc)
         return
 
-    # 4. sing-box validate + test
+    # 4. sing-box validate + test (+ empirical geo-probe if configured)
     log.info("[%s] sing-box: validating + testing %d nodes...", cc, len(nodes))
-    live = await health_check(nodes)
-    log.info("[%s] ✔ %d/%d online | ✘ %d offline",
+    live = await health_check(nodes, cc)
+    log.info("[%s] ✔ %d/%d online | ✘ %d rejected",
              cc, len(live), len(nodes), len(nodes)-len(live))
     if not live:
         log.warning("[%s] No online nodes", cc)
@@ -1031,11 +1049,13 @@ async def process_country(
     log.info("[%s] Saved %d nodes → %s_sub.txt\n", cc, len(renamed), country)
 
 
-# ─────────────────────────── Main ────────────────────────────────────────────
+# ═══════════════════════════════ 13. MAIN ═══════════════════════════════════
+
 async def main() -> None:
     log.info("Sources : v2nodes · EbraSha · Epodonios · OpenProxyList (GitHub mirrors)")
     log.info("URL order: raw.githubusercontent (primary) → jsDelivr CDN (fallback)")
-    log.info("Quality : GeoIP country match + hyperscale-CDN ASN + known-VPN CIDR (X4BNet)")
+    log.info("Quality : hyperscale-CDN ASN (always) + X4BNet known-VPN CIDR (no-probe "
+             "countries) + empirical geo-probe (%s)", ", ".join(GEO_PROBES) or "none configured")
     log.info("Label   : 'JP | 06'")
 
     geoip    = GeoIP()
@@ -1046,7 +1066,7 @@ async def main() -> None:
         async with aiohttp.ClientSession(
             connector=conn, cookie_jar=aiohttp.CookieJar(unsafe=True)
         ) as session:
-            # Load quality blocklists FIRST — needed by cc_of_node() below
+            # Load quality blocklists first — needed by cc_of_node() below
             await geoip.load_quality_lists(session)
 
             # Fetch all external sources in parallel before country loop
