@@ -2,73 +2,61 @@
 get_sub.py — Multi-source VPN node collector
 ══════════════════════════════════════════════════════════════════════════════
 Sources  : v2nodes.com (scrape) · EbraSha · Epodonios · OpenProxyList (GitHub)
-Pipeline : Collect → Dedup → GeoIP filter → sing-box validate → sing-box test
-           → (empirical geo-probe, if available) → Rename → Save
+Pipeline : Collect → Dedup → GeoIP country filter → sing-box validate
+           → empirical health test (connectivity + latency + geo-probe)
+           → keep top FINAL_NODE_COUNT by latency → Rename → Save
 Label    : "JP | 06"  (CC + index, no protocol — clients display it already)
 
 ──────────────────────────────────────────────────────────────────────────────
-QUALITY FILTERING — two complementary layers
+DESIGN PHILOSOPHY — test, don't guess
 ──────────────────────────────────────────────────────────────────────────────
-Problem: a node's IP can be geolocated correctly (e.g. "JP") by GeoIP yet
-still get blocked by real JP-only websites, because those sites use their
-own IP-intelligence (not GeoIP) to flag datacenter/CDN/VPN addresses.
+Earlier versions rejected nodes using static heuristics: ASN blocklists
+(Cloudflare/AWS/GCP/...) and community CIDR lists (X4BNet "known VPN
+networks"). This over-blocked in practice — entire popular datacenters got
+excluded wholesale even though many individual IPs inside them are
+perfectly clean and unblocked. A static list can only ever say "this ASN
+is often abused", never "this specific IP is currently blocked" — and the
+latter is what actually matters.
 
-Layer 1 — Static heuristic (GeoIP.is_low_quality), applied to ALL countries:
-  • Hyperscale-CDN ASN check (curated, ~30 entries: Cloudflare/AWS/GCP/
-    Azure/...) — ALWAYS applied. Fronting through these causes genuine
-    geolocation/attribution mismatches, a distinct & well-understood issue.
-  • X4BNet output/vpn/ipv4.txt ("strictly just known VPN networks") — a
-    community-maintained, auto-updated CIDR list. Applied ONLY to countries
-    that lack an empirical probe (Layer 2), because it's a heuristic that
-    can false-positive on legitimate datacenters the target sites don't
-    actually block. We deliberately do NOT use X4BNet's broader
-    "datacenter" list (input/datacenter/ASN.txt, output/datacenter/ipv4.txt)
-    — that one covers "anything that is not an eyeball network", i.e. ALL
-    VPS/hosting, which would reject virtually every self-hosted node.
+New approach: GeoIP now does ONLY country matching (is this IP geolocated
+in the target country?). ALL quality judgment moves to the TEST phase,
+where we can observe the node's REAL behavior:
 
-Layer 2 — Empirical geo-probe (GEO_PROBES), applied per country if defined:
-  Instead of guessing via static lists, verify DIRECTLY through the node's
-  own proxy connection against a real geo-fenced local service. A node that
-  passes is PROVEN to behave like a genuine local connection for at least
-  one major real-world service — much stronger evidence than any blocklist,
-  and immune to false positives on datacenters that aren't actually flagged.
+  1. Connectivity — does traffic through this node reach the internet at
+     all? Latency is measured, not just pass/fail.
+  2. Empirical geo-probe (JP only, see GEO_PROBES) — routed through the
+     node itself, checked against a real local geo-fenced service
+     (radiko.jp) that actively detects and blocks foreign/VPN IPs. A node
+     that passes is PROVEN clean for at least one real-world service —
+     far stronger evidence than any static list, and immune to false
+     positives on datacenters that aren't actually flagged.
 
-  Currently configured:
-    JP → radiko.jp/area (Japan's IP-simulcast radio; actively detects and
-         blocks VPN/proxy/foreign IPs). Returns an area code like "JP13"
-         for genuine Japan IPs, "OUT" for blocked ones. Free, no auth,
-         single lightweight GET request.
+Nodes that pass are ranked by latency (fastest first) and only the top
+FINAL_NODE_COUNT survive into the output file. This directly targets what
+matters — "give me the ~15 healthiest working nodes" — instead of
+filtering down to whatever's left after a series of blunt guesses.
 
-  HK / SG / VN: no free, no-auth, simple-GET geo-fenced probe has been
-  verified yet (candidates like myTV SUPER/ViuTV require complex login
-  flows) — these countries currently rely on Layer 1 only. Add an entry
-  to GEO_PROBES to extend once a suitable service is found; no other code
-  changes needed — process_country() and health_check() already handle
-  "probe not configured" gracefully.
+HK / SG / VN: no free, no-auth, simple-GET geo-fenced probe has been
+verified yet (candidates like myTV SUPER/ViuTV require login flows), so
+these rely on connectivity + latency ranking only. Add an entry to
+GEO_PROBES to extend once a suitable service is found — no other code
+changes needed, health_check() already handles "no probe configured"
+gracefully.
 
 ──────────────────────────────────────────────────────────────────────────────
-SCALING FOR LARGE SOURCES (EbraSha/Epodonios can list 100k+ raw lines)
+LARGE SOURCES (EbraSha/Epodonios dumps vary in size over time)
 ──────────────────────────────────────────────────────────────────────────────
-  1. Pre-dedup by (scheme, host, port) BEFORE classification — a source
-     dump this size is heavily duplicated (same infra, many labels/UUIDs);
-     typically removes >60% of raw lines before any network call is made.
-  2. GeoIP.resolve() fast-paths raw-IP hosts (no DNS call, just a local
-     socket.inet_pton check) — on a typical dump the large majority of
-     unique hosts are literal IPs, so only a minority needs a real
-     DNS round-trip. DNS_CONCURRENCY only gates that minority.
-  3. Classification/filtering run through gather_chunked() instead of one
-     giant asyncio.gather — bounds peak memory (predictable number of live
-     Task objects at a time) and logs progress on steps that can otherwise
-     run silently for minutes at this scale.
-  4. MAX_TEST_CANDIDATES caps how many GeoIP-passed nodes enter sing-box
-     testing per country. Testing is real network I/O (each batch spins
-     up a live proxy and makes HTTP requests); without a cap, an
-     unusually large source could make one country's test phase run for
-     hours. Source order is preserved end-to-end, so the cap naturally
-     favors the curated/labeled sources (v2nodes, OPL) over the raw dump.
+Regardless of how large a source gets, the pipeline stays efficient:
+  • Pre-dedup by (scheme, host, port) before classification.
+  • GeoIP.resolve() fast-paths raw-IP hosts (no DNS call needed).
+  • Classification runs in bounded chunks (gather_chunked), not one giant
+    asyncio.gather — keeps memory predictable and logs progress.
+  • TEST_POOL_SIZE caps how many GeoIP-passed candidates enter the (real
+    network I/O) test phase per country, so total runtime stays bounded
+    no matter how many raw nodes a source happens to list.
 """
 
-import asyncio, base64, bisect, ipaddress, json, logging, os, re, socket
+import asyncio, base64, json, logging, os, re, socket
 import subprocess, sys, tempfile, time
 from pathlib import Path
 from typing import Optional
@@ -90,13 +78,9 @@ CC_ALLOW = {"hk": {"HK","CN"}, "jp": {"JP"}, "sg": {"SG"}, "vn": {"VN"}}
 #    IPs, unlike the origin sites which are often Cloudflare-protected).
 #    Order: raw.githubusercontent (authoritative) → jsDelivr CDN (fallback) ──
 EBRASHA_RAW = ("https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list"
-               "/refs/heads/main//V2Ray-Config-By-EbraSha-All-Type.txt")
+               "/refs/heads/main/V2Ray-Config-By-EbraSha.txt")
 EBRASHA_CDN = ("https://cdn.jsdelivr.net/gh/ebrasha/free-v2ray-public-list"
-               "@main//V2Ray-Config-By-EbraSha-All-Type.txt")
-# NOTE: this source has grown from a small curated list to a large-scale
-# aggregator (~245k lines as of the last check, ~96k after endpoint dedup).
-# See LARGE-SCALE HANDLING below — the same pre-dedup/chunk/cap strategy
-# used for Epodonios now applies here too.
+               "@main/V2Ray-Config-By-EbraSha.txt")
 
 EPO_RAW = ("https://raw.githubusercontent.com/Epodonios/v2ray-configs"
            "/refs/heads/main/All_Configs_Sub.txt")
@@ -107,80 +91,31 @@ EPO_CDN = "https://cdn.jsdelivr.net/gh/Epodonios/v2ray-configs@main/All_Configs_
 OPL_RAW = "https://raw.githubusercontent.com/roosterkid/openproxylist/main/V2RAY_RAW.txt"
 OPL_CDN = "https://cdn.jsdelivr.net/gh/roosterkid/openproxylist@main/V2RAY_RAW.txt"
 
-# X4BNet known-VPN-network CIDR list (see module docstring, Layer 1)
-X4B_VPN_RAW = "https://raw.githubusercontent.com/X4BNet/lists_vpn/main/output/vpn/ipv4.txt"
-X4B_VPN_CDN = "https://cdn.jsdelivr.net/gh/X4BNet/lists_vpn@main/output/vpn/ipv4.txt"
-
 # ── GeoIP ────────────────────────────────────────────────────────────────────
-GEOIP_DB        = os.environ.get("GEOIP_DB",     "GeoLite2-Country.mmdb")
-GEOIP_ASN_DB    = os.environ.get("GEOIP_ASN_DB", "GeoLite2-ASN.mmdb")
-# 150 concurrent DNS lookups is cheap — the fast-path for raw-IP hosts
-# (~75% of a typical large source, see GeoIP.resolve) never touches this
-# semaphore at all, so it only gates genuine hostname resolution.
+# Country lookup ONLY — no ASN/blocklist reasoning. See module docstring.
+GEOIP_DB        = os.environ.get("GEOIP_DB", "GeoLite2-Country.mmdb")
 DNS_CONCURRENCY = 150
 DNS_TIMEOUT     = 5.0
 
-# ── Large-source scaling (EbraSha/Epodonios can list 100k+ raw lines) ───────
-# Classifying every node means resolving DNS for every unique host — done in
-# bounded chunks (not one giant asyncio.gather) to keep memory predictable
-# and give progress visibility on sources that take minutes to classify.
-CLASSIFY_CHUNK_SIZE   = 4000
-# Hard cap on how many GeoIP-passed candidates enter sing-box testing per
-# country. Testing is real network I/O (each batch spins up a live proxy
-# and makes HTTP requests) — without a cap, a source dump of 100k+ nodes
-# could make one country's test phase run for hours. Ordering is preserved
-# (v2nodes/OPL nodes are collected first, see process_country), so the cap
-# naturally prioritizes the curated/labeled sources over the raw dump.
-MAX_TEST_CANDIDATES  = 300
+# ── Chunked classification (any source size) ──────────────────────────────
+CLASSIFY_CHUNK_SIZE = 4000
 
-# Fallback IP-prefix detection when GeoLite2-ASN unavailable (legacy, coarse)
-_CDN_PREFIXES = (
+# ── Test-phase sizing ────────────────────────────────────────────────────────
+# TEST_POOL_SIZE: how many GeoIP-passed candidates enter the real empirical
+# test per country. This is now the ONLY thing standing between "raw source
+# size" and "test phase runtime" — bounded regardless of how large sources
+# get. Order favors curated/labeled sources (v2nodes/OPL collected first),
+# but a large pool is fine now since quality judgment happens in the test,
+# not before it.
+TEST_POOL_SIZE   = int(os.environ.get("TEST_POOL_SIZE", "450"))
+# FINAL_NODE_COUNT: after testing, keep only this many — the ones with the
+# lowest latency among those that passed. This is the actual answer to
+# "give me N healthy nodes", rather than "whatever happened to survive".
+FINAL_NODE_COUNT = int(os.environ.get("FINAL_NODE_COUNT", "15"))
 
-    "104.16.","104.17.","104.18.","104.19.","104.20.","104.21.",
-    "104.22.","104.23.","104.24.","104.25.","104.26.","104.27.",
-    "108.162.","141.101.","162.158.",
-    "172.64.","172.65.","172.66.","172.67.",
-    "173.245.","188.114.","190.93.","197.234.","198.41.",
-    "151.101.","199.232.",
-)
-
-# Curated hyperscale-cloud / CDN ASN blocklist — always applied (Layer 1).
-# Fronting through these causes genuine geolocation/attribution mismatches.
-_ASN_NUMBERS_LOWQ: frozenset[int] = frozenset({
-    13335, 209242,          # Cloudflare
-    54113,                  # Fastly
-    16509, 14618,           # Amazon AWS / EC2
-    15169, 396982,          # Google / Google Cloud
-    8075,   8068,           # Microsoft Azure
-    37963, 45102,           # Alibaba Cloud
-    132203, 59019,          # Tencent Cloud
-    31898, 20473,           # Vultr / Choopa
-    14061,                  # DigitalOcean
-    16276,                  # OVH
-    24940,                  # Hetzner
-    63949,                  # Linode / Akamai Connected Cloud
-    12876,                  # Scaleway
-    51167,                  # Contabo
-    9009,                   # M247
-    36351, 62240, 33182,    # SoftLayer/IBM Cloud, Clouvider, Psychz
-    203020,                 # QuadraNet
-    46844,                  # Sharktech
-})
-_ASN_ORG_KEYWORDS_LOWQ = (
-    "cloudflare", "fastly", "akamai",
-    "amazon", "aws", "google", "microsoft", "azure",
-    "alibaba", "tencent", "oracle cloud",
-    "digitalocean", "vultr", "choopa", "ovh", "hetzner", "linode",
-    "scaleway", "contabo", "leaseweb", "m247", "quadranet",
-    "zenlayer", "psychz", "g-core", "gcore", "colocrossing",
-    "hostroyale", "vdsina", "hivelocity", "cloudsigma", "upcloud",
-    "kamatera", "bunnycdn", "stackpath", "cachefly", "limelight",
-    "edgecast", "incapsula", "imperva", "sharktech", "servers.com",
-)
-
-# ── Empirical geo-fence probes (Layer 2) — see module docstring ─────────────
-# Each probe: GET `url` through the node's own proxy, decide pass/fail from
-# the response body. `ok(body) -> bool`.
+# ── Empirical geo-fence probes — the real quality signal, see docstring ────
+# Each probe: GET `url` through the node's own proxy connection, decide
+# pass/fail from the response body. `ok(body) -> bool`.
 GEO_PROBES: dict[str, dict] = {
     "JP": {
         "url": "http://radiko.jp/area",
@@ -263,11 +198,7 @@ async def fetch_with_fallback(
     name:      str,
     validator = None,
 ) -> Optional[str]:
-    """
-    Fetch primary URL; if content fails validator, try fallback.
-    validator defaults to "_RE_NODE found somewhere" (node-list sources);
-    pass a custom callable for other formats (e.g. CIDR blocklists).
-    """
+    """Fetch primary URL; if content fails validator, try fallback."""
     check = validator or (lambda t: bool(_RE_NODE.search(t)))
     text = await http_get(session, primary)
     if text and check(text):
@@ -290,85 +221,30 @@ async def gather_chunked(
 ) -> list:
     """
     Run coro_fn(item) for every item, in bounded chunks rather than one
-    giant asyncio.gather. Needed once a source scales into the tens/hundreds
-    of thousands of lines (e.g. EbraSha's full dump): keeps peak memory
-    predictable (bounded number of live Task objects at a time) and gives
-    progress feedback on a step that can otherwise run silently for minutes.
+    giant asyncio.gather — keeps peak memory predictable and gives progress
+    feedback regardless of source size.
     """
     results: list = []
     total = len(items)
     for i in range(0, total, chunk_size):
         chunk = items[i:i + chunk_size]
         results.extend(await asyncio.gather(*[coro_fn(x) for x in chunk]))
-        if label:
+        if label and total > chunk_size:
             done = min(i + chunk_size, total)
             log.info("  %s: %d/%d (%.0f%%)", label, done, total, 100 * done / total)
     return results
 
 
-# ═══════════════════════════════ 3. CIDR LOOKUP ════════════════════════════
-
-class CIDRSet:
-    """
-    Efficient "IP ∈ any of N CIDR ranges" lookup — O(log n) per query.
-    Ranges are merged (overlaps collapsed) after sorting, so a single
-    bisect + boundary check is always correct.
-    """
-    __slots__ = ("_starts", "_ranges")
-
-    def __init__(self, cidrs: list[str]) -> None:
-        raw: list[tuple[int, int]] = []
-        for c in cidrs:
-            c = c.strip()
-            if not c or c.startswith("#"):
-                continue
-            try:
-                net = ipaddress.ip_network(c, strict=False)
-                if net.version == 4:
-                    raw.append((int(net.network_address), int(net.broadcast_address)))
-            except ValueError:
-                continue
-
-        raw.sort()
-        merged: list[tuple[int, int]] = []
-        for start, end in raw:
-            if merged and start <= merged[-1][1] + 1:
-                merged[-1] = (merged[-1][0], max(merged[-1][1], end))
-            else:
-                merged.append((start, end))
-
-        self._ranges = merged
-        self._starts = [r[0] for r in merged]
-
-    def __len__(self) -> int:
-        return len(self._ranges)
-
-    def __contains__(self, ip: str) -> bool:
-        try:
-            ip_int = int(ipaddress.ip_address(ip))
-        except ValueError:
-            return False
-        idx = bisect.bisect_right(self._starts, ip_int) - 1
-        if idx < 0:
-            return False
-        start, end = self._ranges[idx]
-        return start <= ip_int <= end
-
-
-# ═══════════════════════════════ 4. GEOIP ══════════════════════════════════
+# ═══════════════════════════════ 3. GEOIP ══════════════════════════════════
 
 class GeoIP:
-    """
-    Country lookup + quality filter (Layer 1) + cached DNS resolution.
-    See module docstring for the full quality-filtering design rationale.
-    """
+    """Country lookup + cached DNS resolution. No quality/blocklist logic —
+    see module docstring for why that moved entirely to the test phase."""
 
     def __init__(self) -> None:
         self._country: Optional[maxminddb.Reader] = None
-        self._asn:     Optional[maxminddb.Reader] = None
         self._cache:   dict[str, Optional[str]]   = {}
         self._sem                                  = asyncio.Semaphore(DNS_CONCURRENCY)
-        self._vpn_ranges: Optional[CIDRSet]        = None  # X4BNet known-VPN networks
 
         if Path(GEOIP_DB).exists():
             self._country = maxminddb.open_database(GEOIP_DB)
@@ -376,32 +252,17 @@ class GeoIP:
         else:
             log.warning("GeoLite2-Country không tìm thấy — GeoIP filter bị bỏ qua")
 
-        if Path(GEOIP_ASN_DB).exists():
-            self._asn = maxminddb.open_database(GEOIP_ASN_DB)
-            log.info("GeoLite2-ASN: %s", GEOIP_ASN_DB)
-        else:
-            log.warning("GeoLite2-ASN không tìm thấy — quality check dùng IP-prefix fallback")
-
     @property
     def ok(self) -> bool:
         return self._country is not None
 
     def close(self) -> None:
-        if self._country: self._country.close()
-        if self._asn:     self._asn.close()
-
-    async def load_quality_lists(self, session: aiohttp.ClientSession) -> None:
-        """Fetch X4BNet known-VPN CIDR list once. Network failure = graceful skip."""
-        text = await fetch_with_fallback(
-            session, X4B_VPN_RAW, X4B_VPN_CDN, "X4B-VPN",
-            validator=lambda t: bool(re.search(r'\d+\.\d+\.\d+\.\d+/\d+', t)),
-        )
-        if text:
-            self._vpn_ranges = CIDRSet([l for l in text.splitlines() if l.strip()])
-            log.info("X4B-VPN: %d known-VPN ranges đã nạp", len(self._vpn_ranges))
+        if self._country:
+            self._country.close()
 
     async def resolve(self, host: str) -> Optional[str]:
-        """Resolve hostname → IPv4, result cached per session (shared across sources)."""
+        """Resolve hostname → IPv4, result cached per session (shared across sources).
+        Raw-IP hosts short-circuit via socket.inet_pton — no network call."""
         if host in self._cache:
             return self._cache[host]
         for fam in (socket.AF_INET, socket.AF_INET6):
@@ -426,36 +287,6 @@ class GeoIP:
         self._cache[host] = ip
         return ip
 
-    def _is_hyperscale_cdn(self, ip: str) -> bool:
-        """Curated ASN check — always applied, regardless of empirical probes."""
-        if self._asn:
-            try:
-                rec = self._asn.get(ip) or {}
-                num = rec.get("autonomous_system_number", 0)
-                org = (rec.get("autonomous_system_organization") or "").lower()
-                if num in _ASN_NUMBERS_LOWQ:
-                    return True
-                if any(kw in org for kw in _ASN_ORG_KEYWORDS_LOWQ):
-                    return True
-                return False
-            except Exception:
-                pass
-        return ip.startswith(_CDN_PREFIXES)
-
-    def is_low_quality(self, ip: str, *, use_vpn_heuristic: bool = True) -> bool:
-        """
-        True nếu IP nên bị loại.
-          • Hyperscale-CDN ASN: LUÔN kiểm tra (Layer 1, phần cố định).
-          • X4BNet known-VPN CIDR: chỉ áp dụng khi use_vpn_heuristic=True
-            — set False cho các country ĐÃ có empirical probe (GEO_PROBES),
-            vì probe thực nghiệm là bằng chứng đáng tin hơn heuristic tĩnh.
-        """
-        if self._is_hyperscale_cdn(ip):
-            return True
-        if use_vpn_heuristic and self._vpn_ranges and ip in self._vpn_ranges:
-            return True
-        return False
-
     def country_of(self, ip: str) -> Optional[str]:
         if not self._country:
             return None
@@ -465,27 +296,18 @@ class GeoIP:
             return None
 
     async def cc_of_node(self, url: str) -> Optional[str]:
-        """
-        Return CC để phân loại (dùng cho EbraSha/Epodonios — chưa biết
-        country đích lúc này). Chỉ loại sớm qua hyperscale-CDN check
-        (luôn đúng bất kể country); KHÔNG áp dụng X4B VPN heuristic ở đây
-        — quyết định "quality" cuối cùng thuộc về filter() sau khi đã biết
-        country đích và có thể chọn use_vpn_heuristic phù hợp.
-        """
+        """Return CC for classification (EbraSha/Epodonios have no CC in label)."""
         ep = parse_endpoint(url)
         if not ep:
             return None
         ip = await self.resolve(ep[1])
         if not ip:
             return None
-        if self._is_hyperscale_cdn(ip):
-            return None
         return self.country_of(ip)
 
-    async def filter(
-        self, nodes: list[str], allowed: set[str], *, use_vpn_heuristic: bool = True
-    ) -> list[str]:
-        """Keep node if not low-quality AND GeoIP country ∈ allowed. Drop DNS-fail."""
+    async def filter(self, nodes: list[str], allowed: set[str]) -> list[str]:
+        """Keep node if DNS resolves AND GeoIP country ∈ allowed. That's it —
+        no quality rejection here; the test phase judges quality empirically."""
         async def _keep(url: str) -> bool:
             ep = parse_endpoint(url)
             if not ep:
@@ -493,15 +315,13 @@ class GeoIP:
             ip = await self.resolve(ep[1])
             if ip is None:
                 return False
-            if self.is_low_quality(ip, use_vpn_heuristic=use_vpn_heuristic):
-                return False
             return self.country_of(ip) in allowed
 
-        mask = await gather_chunked(nodes, _keep)
+        mask = await gather_chunked(nodes, _keep, label="GeoIP filter")
         return [n for n, keep in zip(nodes, mask) if keep]
 
 
-# ═══════════════════════════════ 5. ENDPOINT PARSING ═══════════════════════
+# ═══════════════════════════════ 4. ENDPOINT PARSING ═══════════════════════
 
 def _b64d(s: str) -> Optional[str]:
     try:
@@ -546,11 +366,11 @@ def parse_endpoint(url: str) -> Optional[tuple[str, str, int]]:
     return None
 
 
-# ═══════════════════════════════ 6. SOURCES ═════════════════════════════════
+# ═══════════════════════════════ 5. SOURCES ═════════════════════════════════
 # Each fetch_* function returns node URLs, either as a flat list (v2nodes)
 # or pre-bucketed by country {CC: [nodes]} (EbraSha/Epodonios/OPL).
 
-# ── 6a. v2nodes.com (scrape, always country-accurate — no classification) ──
+# ── 5a. v2nodes.com (scrape, always country-accurate — no classification) ──
 
 async def _node_from_server(
     session: aiohttp.ClientSession, sid: str, sem: asyncio.Semaphore
@@ -601,25 +421,14 @@ async def scrape_v2nodes(
     return nodes
 
 
-# ── 6b. EbraSha (no CC in label → full GeoIP classify) ──────────────────────
+# ── 5b. EbraSha (no CC in label → full GeoIP classify) ──────────────────────
 
 async def fetch_ebrasha(
     session: aiohttp.ClientSession, geoip: GeoIP
 ) -> dict[str, list[str]]:
     """
-    EbraSha's full dump can list 100k+ raw lines (community aggregator,
-    heavy duplication). Same large-scale handling as fetch_epodonios:
-      • Pre-dedup by (scheme, host, port) BEFORE classify — typically
-        removes >60% of raw lines on the full dump, so DNS/GeoIP work
-        scales with unique endpoints, not raw line count.
-      • Classify in bounded chunks (gather_chunked) instead of one giant
-        gather — keeps memory predictable and logs progress on a step
-        that can take minutes at this scale.
-      • DNS cache in GeoIP is shared across ALL sources — repeated
-        hostnames (common CDN edges, shared infra) cost one lookup total.
-      • GeoIP.resolve() fast-paths raw-IP hosts (no network call at all);
-        on a typical large dump the majority of unique hosts are literal
-        IPs, so only a minority actually needs a DNS round-trip.
+    Pre-dedup before classify keeps this efficient regardless of how large
+    the source is on any given day (community dump — size varies over time).
     """
     text = await fetch_with_fallback(session, EBRASHA_RAW, EBRASHA_CDN, "EbraSha")
     if not text:
@@ -640,17 +449,17 @@ async def fetch_ebrasha(
         if cc is None: dropped += 1
         else:          result.setdefault(cc, []).append(node)
 
-    log.info("[EbraSha] %d classified · %d dropped (DNS fail / hyperscale-CDN)",
+    log.info("[EbraSha] %d classified · %d dropped (DNS fail)",
              sum(len(v) for v in result.values()), dropped)
     return result
 
 
-# ── 6c. Epodonios (~6000+ nodes, no CC in label → full GeoIP classify) ──────
+# ── 5c. Epodonios (no CC in label → full GeoIP classify) ────────────────────
 
 async def fetch_epodonios(
     session: aiohttp.ClientSession, geoip: GeoIP
 ) -> dict[str, list[str]]:
-    """Same large-scale handling as fetch_ebrasha — see its docstring."""
+    """Same handling as fetch_ebrasha — see its docstring."""
     text = await fetch_with_fallback(session, EPO_RAW, EPO_CDN, "Epodonios")
     if not text:
         return {}
@@ -670,12 +479,12 @@ async def fetch_epodonios(
         if cc is None: dropped += 1
         else:          result.setdefault(cc, []).append(node)
 
-    log.info("[Epodonios] %d classified · %d dropped (DNS fail / hyperscale-CDN)",
+    log.info("[Epodonios] %d classified · %d dropped (DNS fail)",
              sum(len(v) for v in result.values()), dropped)
     return result
 
 
-# ── 6d. OpenProxyList (CC embedded in label → no GeoIP needed here) ─────────
+# ── 5d. OpenProxyList (CC embedded in label → no GeoIP needed here) ─────────
 
 def _opl_cc(fragment: str) -> Optional[str]:
     m = _RE_OPL_CC.search(fragment)
@@ -703,7 +512,7 @@ async def fetch_opl(session: aiohttp.ClientSession) -> dict[str, list[str]]:
     return result
 
 
-# ═══════════════════════════════ 7. DEDUPLICATION ══════════════════════════
+# ═══════════════════════════════ 6. DEDUPLICATION ══════════════════════════
 
 def deduplicate(nodes: list[str]) -> list[str]:
     """Remove duplicates by (scheme, host, port). Preserves order (first wins)."""
@@ -723,7 +532,7 @@ def deduplicate(nodes: list[str]) -> list[str]:
     return out
 
 
-# ═══════════════════════════════ 8. SING-BOX PARSERS ═══════════════════════
+# ═══════════════════════════════ 7. SING-BOX PARSERS ═══════════════════════
 # Convert node URLs → sing-box outbound configs.
 
 def _sni(raw: str, fallback: str = "") -> str:
@@ -855,14 +664,14 @@ def to_singbox(url: str, tag: str) -> Optional[dict]:
             else lambda *_: None)(url, tag)
 
 
-# ═══════════════════════════════ 9. SING-BOX VALIDATE ══════════════════════
+# ═══════════════════════════════ 8. SING-BOX VALIDATE ══════════════════════
 
 async def _sb_check_node(ob: dict, sem: asyncio.Semaphore) -> bool:
     """
     Run 'sing-box check' on a minimal config with just this outbound.
     Dry-run (no port binding). Catches invalid SNI, bad reality keys, etc.
-    BEFORE the node reaches a shared batch — a single bad config would
-    otherwise crash the whole batch's connectivity test.
+    — config correctness, unrelated to the quality/health judgment below.
+    A single bad config would otherwise crash the whole batch's test.
     """
     cfg = {
         "log":      {"disabled": True},
@@ -891,30 +700,38 @@ async def _sb_check_node(ob: dict, sem: asyncio.Semaphore) -> bool:
             except Exception: pass
 
 
-# ═══════════════════════════════ 10. SING-BOX TEST ═════════════════════════
+# ═══════════════════════════════ 9. HEALTH TEST ═════════════════════════════
+# This is now the PRIMARY quality gate (see module docstring). A node's
+# fate is decided by its actual observed behavior, not by which ASN it's on.
 
-async def _connect_test(port: int, sem: asyncio.Semaphore) -> bool:
-    """Basic reachability: does traffic through this node reach the internet?"""
+async def _connect_test(port: int, sem: asyncio.Semaphore) -> Optional[float]:
+    """
+    Basic reachability + latency measurement. Returns elapsed ms for the
+    first CONNECT_URLS target that responds successfully, or None if all
+    fail — used both as a pass/fail gate and as the health ranking signal.
+    """
     async with sem:
         to = aiohttp.ClientTimeout(total=TEST_TIMEOUT)
         for url in CONNECT_URLS:
+            t0 = time.monotonic()
             try:
                 async with aiohttp.ClientSession(
                     connector=aiohttp.TCPConnector(ssl=False)
                 ) as s:
                     async with s.get(url, proxy=f"http://127.0.0.1:{port}",
                                      timeout=to, allow_redirects=True) as r:
-                        if r.status in (200, 204): return True
+                        if r.status in (200, 204):
+                            return (time.monotonic() - t0) * 1000
             except Exception:
                 continue
-        return False
+        return None
 
 
 async def _geo_probe_test(port: int, cc: str, sem: asyncio.Semaphore) -> bool:
     """
-    Empirical Layer-2 check (see module docstring). Returns True if no probe
-    is configured for `cc` (nothing to disprove — don't penalize), or if the
-    probe response indicates the node is accepted as a genuine local IP.
+    Empirical check against a real local geo-fenced service (GEO_PROBES).
+    Returns True if no probe is configured for `cc` (nothing to disprove),
+    or if the response indicates the node is accepted as a genuine local IP.
     """
     probe = GEO_PROBES.get(cc)
     if not probe:
@@ -933,12 +750,19 @@ async def _geo_probe_test(port: int, cc: str, sem: asyncio.Semaphore) -> bool:
             return False
 
 
+async def _false() -> bool:
+    """Placeholder coroutine — skips the geo-probe for already-dead nodes."""
+    return False
+
+
 async def _run_batch(
     batch: list[tuple[str, dict, int]], cc: str, sem: asyncio.Semaphore
-) -> list[bool]:
+) -> list[Optional[float]]:
     """
-    Start sing-box for this batch, run connectivity test, then (only for
-    nodes that passed) the empirical geo-probe. A node must pass BOTH.
+    Start sing-box for this batch, measure connectivity latency, then (only
+    for nodes that responded) run the empirical geo-probe. Returns, per
+    node in batch order: latency in ms if the node is healthy (passed
+    connectivity AND, if configured, the geo-probe), else None.
     """
     cfg = {
         "log":      {"disabled": True},
@@ -963,14 +787,14 @@ async def _run_batch(
         if proc.poll() is not None:
             err = proc.stderr.read().decode(errors="ignore").strip()
             log.warning("sing-box crash rc=%d: %s", proc.returncode, err[:200])
-            return [False] * len(batch)
+            return [None] * len(batch)
 
-        connected = await asyncio.gather(*[_connect_test(p, sem) for _,_,p in batch])
+        latencies = await asyncio.gather(*[_connect_test(p, sem) for _,_,p in batch])
 
-        # Only geo-probe nodes that are actually reachable — saves requests
+        # Only geo-probe nodes that actually responded — saves requests
         probe_tasks = [
-            _geo_probe_test(port, cc, sem) if alive else _false()
-            for (_,_,port), alive in zip(batch, connected)
+            _geo_probe_test(port, cc, sem) if lat is not None else _false()
+            for (_,_,port), lat in zip(batch, latencies)
         ]
         probed = await asyncio.gather(*probe_tasks)
 
@@ -978,15 +802,11 @@ async def _run_batch(
         try:    proc.wait(timeout=3)
         except Exception: proc.kill()
 
-        return [c and p for c, p in zip(connected, probed)]
+        return [lat if (lat is not None and ok) else None
+                for lat, ok in zip(latencies, probed)]
     finally:
         try: os.unlink(tmp.name)
         except Exception: pass
-
-
-async def _false() -> bool:
-    """Trivial coroutine returning False — placeholder for skipped geo-probes."""
-    return False
 
 
 async def health_check(nodes: list[str], cc: str) -> list[str]:
@@ -994,11 +814,15 @@ async def health_check(nodes: list[str], cc: str) -> list[str]:
     1. Parse all nodes → sing-box outbound configs
     2. Per-node 'sing-box check' (concurrent, no network) — filters invalid
        configs before they can crash a shared batch
-    3. Batch test: connectivity + (if configured) empirical geo-probe
+    3. Batch test: connectivity + latency + (if configured) geo-probe
+    4. Rank survivors by latency, keep only the top FINAL_NODE_COUNT
+
+    This is the primary quality decision in the whole pipeline — see the
+    module docstring for why it replaced static ASN/CIDR blocklisting.
     """
     if not Path(SINGBOX).exists():
         log.warning("sing-box not found → skipping health check")
-        return nodes
+        return nodes[:FINAL_NODE_COUNT]
 
     candidates = [(url, ob, BASE_PORT + i)
                   for i, url in enumerate(nodes)
@@ -1008,10 +832,10 @@ async def health_check(nodes: list[str], cc: str) -> list[str]:
         log.info("  Parse skip: %d (ssr / unknown scheme)", parse_skip)
 
     val_sem    = asyncio.Semaphore(SB_VAL_SEM)
-    valid_mask = await asyncio.gather(*[
-        _sb_check_node(ob, val_sem) for _, ob, _ in candidates
-    ])
-    valid     = [(url, ob, port) for (url, ob, port), ok in zip(candidates, valid_mask) if ok]
+    valid_mask = await gather_chunked(
+        candidates, lambda c: _sb_check_node(c[1], val_sem), label="sing-box validate"
+    )
+    valid     = [c for c, ok in zip(candidates, valid_mask) if ok]
     inv_count = len(candidates) - len(valid)
     if inv_count:
         log.info("  Config invalid (sing-box check): %d nodes removed", inv_count)
@@ -1020,24 +844,36 @@ async def health_check(nodes: list[str], cc: str) -> list[str]:
         return []
 
     has_probe = cc in GEO_PROBES
-    log.info("  Testing: connectivity%s", " + geo-probe (" + GEO_PROBES[cc]["url"] + ")"
-             if has_probe else " only (no geo-probe configured for " + cc + ")")
+    log.info("  Testing: connectivity + latency%s",
+             f" + geo-probe ({GEO_PROBES[cc]['url']})" if has_probe
+             else " only (no geo-probe configured for this country)")
 
     test_sem = asyncio.Semaphore(TEST_SEM)
     batches  = [valid[i:i+BATCH_SIZE] for i in range(0, len(valid), BATCH_SIZE)]
-    online: list[str] = []
+    scored: list[tuple[str, float]] = []   # (node_url, latency_ms)
+
     for i, batch in enumerate(batches, 1):
         t0      = time.monotonic()
         results = await _run_batch(batch, cc, test_sem)
-        ok      = sum(results)
-        log.info("  Batch %d/%d: %d/%d online (%.1fs)",
-                 i, len(batches), ok, len(batch), time.monotonic()-t0)
-        online.extend(url for (url,_,_), alive in zip(batch, results) if alive)
+        healthy = [(url, lat) for (url,_,_), lat in zip(batch, results) if lat is not None]
+        scored.extend(healthy)
+        log.info("  Batch %d/%d: %d/%d healthy (%.1fs)",
+                 i, len(batches), len(healthy), len(batch), time.monotonic()-t0)
 
-    return online
+    scored.sort(key=lambda x: x[1])
+    top = scored[:FINAL_NODE_COUNT]
+
+    if top:
+        log.info("  Health test: %d/%d passed — keeping top %d by latency "
+                 "(best %.0fms, worst kept %.0fms)",
+                 len(scored), len(valid), len(top), top[0][1], top[-1][1])
+    else:
+        log.info("  Health test: 0/%d passed", len(valid))
+
+    return [url for url, _ in top]
 
 
-# ═══════════════════════════════ 11. RENAME ═════════════════════════════════
+# ═══════════════════════════════ 10. RENAME ═════════════════════════════════
 
 def rename_nodes(nodes: list[str], cc: str) -> list[str]:
     """
@@ -1070,7 +906,7 @@ def rename_nodes(nodes: list[str], cc: str) -> list[str]:
     return out
 
 
-# ═══════════════════════════════ 12. PIPELINE ═══════════════════════════════
+# ═══════════════════════════════ 11. PIPELINE ═══════════════════════════════
 
 async def process_country(
     session:  aiohttp.ClientSession,
@@ -1099,12 +935,11 @@ async def process_country(
     nodes = deduplicate(nodes)
     log.info("[%s] After dedup: %d", cc, len(nodes))
 
-    # 3. GeoIP + quality filter — skip the X4B VPN heuristic if we have an
-    #    empirical probe for this country (Layer 2 will verify directly)
+    # 3. GeoIP country filter ONLY — no quality rejection (see module docstring)
     if geoip.ok:
         before = len(nodes)
-        nodes  = await geoip.filter(nodes, allowed, use_vpn_heuristic=not has_probe)
-        log.info("[%s] After GeoIP+quality {%s}: %d/%d",
+        nodes  = await geoip.filter(nodes, allowed)
+        log.info("[%s] After GeoIP country filter {%s}: %d/%d",
                  cc, "/".join(sorted(allowed)), len(nodes), before)
     else:
         log.warning("[%s] No GeoIP DB — skipping filter", cc)
@@ -1112,26 +947,22 @@ async def process_country(
         log.warning("[%s] No nodes after GeoIP filter", cc)
         return
 
-    # 3.5. Cap candidates entering sing-box test — bounds worst-case test
-    #      time regardless of how large the raw sources are. Order is
-    #      preserved from step 1 (v2nodes/OPL first), so capping naturally
-    #      favors the curated/labeled sources over the raw EbraSha/Epodonios
-    #      dump while still including some of it.
-    if len(nodes) > MAX_TEST_CANDIDATES:
-        log.info("[%s] %d candidates > cap %d — testing first %d only",
-                 cc, len(nodes), MAX_TEST_CANDIDATES, MAX_TEST_CANDIDATES)
-        nodes = nodes[:MAX_TEST_CANDIDATES]
+    # 4. Cap the pool entering the (real network I/O) test phase — bounds
+    #    runtime regardless of source size, order favors v2nodes/OPL first
+    if len(nodes) > TEST_POOL_SIZE:
+        log.info("[%s] %d candidates > pool cap %d — testing first %d",
+                 cc, len(nodes), TEST_POOL_SIZE, TEST_POOL_SIZE)
+        nodes = nodes[:TEST_POOL_SIZE]
 
-    # 4. sing-box validate + test (+ empirical geo-probe if configured)
-    log.info("[%s] sing-box: validating + testing %d nodes...", cc, len(nodes))
+    # 5. Empirical health test — THE quality gate. Returns top FINAL_NODE_COUNT
+    #    by latency among nodes that passed connectivity (+ geo-probe if any).
+    log.info("[%s] sing-box: validating + testing %d candidates...", cc, len(nodes))
     live = await health_check(nodes, cc)
-    log.info("[%s] ✔ %d/%d online | ✘ %d rejected",
-             cc, len(live), len(nodes), len(nodes)-len(live))
     if not live:
-        log.warning("[%s] No online nodes", cc)
+        log.warning("[%s] No healthy nodes found", cc)
         return
 
-    # 5. Rename + save
+    # 6. Rename + save
     renamed = rename_nodes(live, cc)
     for r in renamed[:3]:
         log.info("  [preview] %s", r.split("#")[-1] if "#" in r else r)
@@ -1139,16 +970,16 @@ async def process_country(
     log.info("[%s] Saved %d nodes → %s_sub.txt\n", cc, len(renamed), country)
 
 
-# ═══════════════════════════════ 13. MAIN ═══════════════════════════════════
+# ═══════════════════════════════ 12. MAIN ═══════════════════════════════════
 
 async def main() -> None:
     log.info("Sources : v2nodes · EbraSha · Epodonios · OpenProxyList (GitHub mirrors)")
     log.info("URL order: raw.githubusercontent (primary) → jsDelivr CDN (fallback)")
-    log.info("Quality : hyperscale-CDN ASN (always) + X4BNet known-VPN CIDR (no-probe "
-             "countries) + empirical geo-probe (%s)", ", ".join(GEO_PROBES) or "none configured")
+    log.info("Quality : empirical test only (connectivity+latency+geo-probe) — "
+             "no static ASN/CIDR blocklist")
+    log.info("Output  : top %d nodes/country by latency (pool cap %d) — geo-probe: %s",
+             FINAL_NODE_COUNT, TEST_POOL_SIZE, ", ".join(GEO_PROBES) or "none configured")
     log.info("Label   : 'JP | 06'")
-    log.info("Scaling : DNS concurrency=%d · classify chunk=%d · test cap/country=%d",
-              DNS_CONCURRENCY, CLASSIFY_CHUNK_SIZE, MAX_TEST_CANDIDATES)
 
     geoip    = GeoIP()
     http_sem = asyncio.Semaphore(HTTP_SEM)
@@ -1158,9 +989,6 @@ async def main() -> None:
         async with aiohttp.ClientSession(
             connector=conn, cookie_jar=aiohttp.CookieJar(unsafe=True)
         ) as session:
-            # Load quality blocklists first — needed by cc_of_node() below
-            await geoip.load_quality_lists(session)
-
             # Fetch all external sources in parallel before country loop
             ebrasha, epo, opl = await asyncio.gather(
                 fetch_ebrasha(session, geoip),
