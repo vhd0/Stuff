@@ -90,9 +90,9 @@ CC_ALLOW = {"hk": {"HK","CN"}, "jp": {"JP"}, "sg": {"SG"}, "vn": {"VN"}}
 #    IPs, unlike the origin sites which are often Cloudflare-protected).
 #    Order: raw.githubusercontent (authoritative) → jsDelivr CDN (fallback) ──
 EBRASHA_RAW = ("https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list"
-               "/refs/heads/main/V2Ray-Config-By-EbraSha.txt")
+               "/refs/heads/main//V2Ray-Config-By-EbraSha-All-Type.txt")
 EBRASHA_CDN = ("https://cdn.jsdelivr.net/gh/ebrasha/free-v2ray-public-list"
-               "@main/V2Ray-Config-By-EbraSha.txt")
+               "@main//V2Ray-Config-By-EbraSha-All-Type.txt")
 # NOTE: this source has grown from a small curated list to a large-scale
 # aggregator (~245k lines as of the last check, ~96k after endpoint dedup).
 # See LARGE-SCALE HANDLING below — the same pre-dedup/chunk/cap strategy
