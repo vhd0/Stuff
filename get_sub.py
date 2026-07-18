@@ -45,6 +45,27 @@ Layer 2 — Empirical geo-probe (GEO_PROBES), applied per country if defined:
   to GEO_PROBES to extend once a suitable service is found; no other code
   changes needed — process_country() and health_check() already handle
   "probe not configured" gracefully.
+
+──────────────────────────────────────────────────────────────────────────────
+SCALING FOR LARGE SOURCES (EbraSha/Epodonios can list 100k+ raw lines)
+──────────────────────────────────────────────────────────────────────────────
+  1. Pre-dedup by (scheme, host, port) BEFORE classification — a source
+     dump this size is heavily duplicated (same infra, many labels/UUIDs);
+     typically removes >60% of raw lines before any network call is made.
+  2. GeoIP.resolve() fast-paths raw-IP hosts (no DNS call, just a local
+     socket.inet_pton check) — on a typical dump the large majority of
+     unique hosts are literal IPs, so only a minority needs a real
+     DNS round-trip. DNS_CONCURRENCY only gates that minority.
+  3. Classification/filtering run through gather_chunked() instead of one
+     giant asyncio.gather — bounds peak memory (predictable number of live
+     Task objects at a time) and logs progress on steps that can otherwise
+     run silently for minutes at this scale.
+  4. MAX_TEST_CANDIDATES caps how many GeoIP-passed nodes enter sing-box
+     testing per country. Testing is real network I/O (each batch spins
+     up a live proxy and makes HTTP requests); without a cap, an
+     unusually large source could make one country's test phase run for
+     hours. Source order is preserved end-to-end, so the cap naturally
+     favors the curated/labeled sources (v2nodes, OPL) over the raw dump.
 """
 
 import asyncio, base64, bisect, ipaddress, json, logging, os, re, socket
@@ -72,6 +93,10 @@ EBRASHA_RAW = ("https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list
                "/refs/heads/main/V2Ray-Config-By-EbraSha.txt")
 EBRASHA_CDN = ("https://cdn.jsdelivr.net/gh/ebrasha/free-v2ray-public-list"
                "@main/V2Ray-Config-By-EbraSha.txt")
+# NOTE: this source has grown from a small curated list to a large-scale
+# aggregator (~245k lines as of the last check, ~96k after endpoint dedup).
+# See LARGE-SCALE HANDLING below — the same pre-dedup/chunk/cap strategy
+# used for Epodonios now applies here too.
 
 EPO_RAW = ("https://raw.githubusercontent.com/Epodonios/v2ray-configs"
            "/refs/heads/main/All_Configs_Sub.txt")
@@ -89,11 +114,28 @@ X4B_VPN_CDN = "https://cdn.jsdelivr.net/gh/X4BNet/lists_vpn@main/output/vpn/ipv4
 # ── GeoIP ────────────────────────────────────────────────────────────────────
 GEOIP_DB        = os.environ.get("GEOIP_DB",     "GeoLite2-Country.mmdb")
 GEOIP_ASN_DB    = os.environ.get("GEOIP_ASN_DB", "GeoLite2-ASN.mmdb")
-DNS_CONCURRENCY = 80
+# 150 concurrent DNS lookups is cheap — the fast-path for raw-IP hosts
+# (~75% of a typical large source, see GeoIP.resolve) never touches this
+# semaphore at all, so it only gates genuine hostname resolution.
+DNS_CONCURRENCY = 150
 DNS_TIMEOUT     = 5.0
+
+# ── Large-source scaling (EbraSha/Epodonios can list 100k+ raw lines) ───────
+# Classifying every node means resolving DNS for every unique host — done in
+# bounded chunks (not one giant asyncio.gather) to keep memory predictable
+# and give progress visibility on sources that take minutes to classify.
+CLASSIFY_CHUNK_SIZE   = 4000
+# Hard cap on how many GeoIP-passed candidates enter sing-box testing per
+# country. Testing is real network I/O (each batch spins up a live proxy
+# and makes HTTP requests) — without a cap, a source dump of 100k+ nodes
+# could make one country's test phase run for hours. Ordering is preserved
+# (v2nodes/OPL nodes are collected first, see process_country), so the cap
+# naturally prioritizes the curated/labeled sources over the raw dump.
+MAX_TEST_CANDIDATES  = 300
 
 # Fallback IP-prefix detection when GeoLite2-ASN unavailable (legacy, coarse)
 _CDN_PREFIXES = (
+
     "104.16.","104.17.","104.18.","104.19.","104.20.","104.21.",
     "104.22.","104.23.","104.24.","104.25.","104.26.","104.27.",
     "108.162.","141.101.","162.158.",
@@ -238,6 +280,30 @@ async def fetch_with_fallback(
         return text
     log.warning("[%s] Fetch thất bại từ cả hai nguồn", name)
     return None
+
+
+async def gather_chunked(
+    items:      list,
+    coro_fn,
+    chunk_size: int = CLASSIFY_CHUNK_SIZE,
+    label:      str = "",
+) -> list:
+    """
+    Run coro_fn(item) for every item, in bounded chunks rather than one
+    giant asyncio.gather. Needed once a source scales into the tens/hundreds
+    of thousands of lines (e.g. EbraSha's full dump): keeps peak memory
+    predictable (bounded number of live Task objects at a time) and gives
+    progress feedback on a step that can otherwise run silently for minutes.
+    """
+    results: list = []
+    total = len(items)
+    for i in range(0, total, chunk_size):
+        chunk = items[i:i + chunk_size]
+        results.extend(await asyncio.gather(*[coro_fn(x) for x in chunk]))
+        if label:
+            done = min(i + chunk_size, total)
+            log.info("  %s: %d/%d (%.0f%%)", label, done, total, 100 * done / total)
+    return results
 
 
 # ═══════════════════════════════ 3. CIDR LOOKUP ════════════════════════════
@@ -431,7 +497,7 @@ class GeoIP:
                 return False
             return self.country_of(ip) in allowed
 
-        mask = await asyncio.gather(*[_keep(n) for n in nodes])
+        mask = await gather_chunked(nodes, _keep)
         return [n for n, keep in zip(nodes, mask) if keep]
 
 
@@ -540,14 +606,34 @@ async def scrape_v2nodes(
 async def fetch_ebrasha(
     session: aiohttp.ClientSession, geoip: GeoIP
 ) -> dict[str, list[str]]:
+    """
+    EbraSha's full dump can list 100k+ raw lines (community aggregator,
+    heavy duplication). Same large-scale handling as fetch_epodonios:
+      • Pre-dedup by (scheme, host, port) BEFORE classify — typically
+        removes >60% of raw lines on the full dump, so DNS/GeoIP work
+        scales with unique endpoints, not raw line count.
+      • Classify in bounded chunks (gather_chunked) instead of one giant
+        gather — keeps memory predictable and logs progress on a step
+        that can take minutes at this scale.
+      • DNS cache in GeoIP is shared across ALL sources — repeated
+        hostnames (common CDN edges, shared infra) cost one lookup total.
+      • GeoIP.resolve() fast-paths raw-IP hosts (no network call at all);
+        on a typical large dump the majority of unique hosts are literal
+        IPs, so only a minority actually needs a DNS round-trip.
+    """
     text = await fetch_with_fallback(session, EBRASHA_RAW, EBRASHA_CDN, "EbraSha")
     if not text:
         return {}
 
-    nodes = [l.strip() for l in text.splitlines() if _RE_NODE.match(l.strip())]
-    log.info("[EbraSha] %d nodes — GeoIP classify...", len(nodes))
+    raw_nodes = [l.strip() for l in text.splitlines() if _RE_NODE.match(l.strip())]
+    nodes     = deduplicate(raw_nodes)
+    log.info("[EbraSha] %d raw → %d unique endpoints — GeoIP classify...",
+             len(raw_nodes), len(nodes))
 
-    ccs    = await asyncio.gather(*[geoip.cc_of_node(n) for n in nodes])
+    t0  = time.monotonic()
+    ccs = await gather_chunked(nodes, geoip.cc_of_node, label="EbraSha classify")
+    log.info("[EbraSha] Classify hoàn tất trong %.1fs", time.monotonic() - t0)
+
     result: dict[str, list[str]] = {}
     dropped = 0
     for cc, node in zip(ccs, nodes):
@@ -564,16 +650,7 @@ async def fetch_ebrasha(
 async def fetch_epodonios(
     session: aiohttp.ClientSession, geoip: GeoIP
 ) -> dict[str, list[str]]:
-    """
-    Optimization for large scale:
-      • _RE_NODE already filters to supported schemes (hy2/hysteria2/socks
-        auto-excluded — Epodonios includes those but sing-box test doesn't).
-      • Pre-dedup by (scheme, host, port) BEFORE classify — Epodonios has
-        many literal duplicates (same infra, different UUID/label). Cuts
-        DNS/GeoIP work substantially on a 6000-line source.
-      • DNS cache in GeoIP is shared across ALL sources — repeated hostnames
-        cost one lookup total, not one per occurrence.
-    """
+    """Same large-scale handling as fetch_ebrasha — see its docstring."""
     text = await fetch_with_fallback(session, EPO_RAW, EPO_CDN, "Epodonios")
     if not text:
         return {}
@@ -583,7 +660,10 @@ async def fetch_epodonios(
     log.info("[Epodonios] %d raw → %d unique endpoints — GeoIP classify...",
              len(raw_nodes), len(nodes))
 
-    ccs    = await asyncio.gather(*[geoip.cc_of_node(n) for n in nodes])
+    t0  = time.monotonic()
+    ccs = await gather_chunked(nodes, geoip.cc_of_node, label="Epodonios classify")
+    log.info("[Epodonios] Classify hoàn tất trong %.1fs", time.monotonic() - t0)
+
     result: dict[str, list[str]] = {}
     dropped = 0
     for cc, node in zip(ccs, nodes):
@@ -1032,6 +1112,16 @@ async def process_country(
         log.warning("[%s] No nodes after GeoIP filter", cc)
         return
 
+    # 3.5. Cap candidates entering sing-box test — bounds worst-case test
+    #      time regardless of how large the raw sources are. Order is
+    #      preserved from step 1 (v2nodes/OPL first), so capping naturally
+    #      favors the curated/labeled sources over the raw EbraSha/Epodonios
+    #      dump while still including some of it.
+    if len(nodes) > MAX_TEST_CANDIDATES:
+        log.info("[%s] %d candidates > cap %d — testing first %d only",
+                 cc, len(nodes), MAX_TEST_CANDIDATES, MAX_TEST_CANDIDATES)
+        nodes = nodes[:MAX_TEST_CANDIDATES]
+
     # 4. sing-box validate + test (+ empirical geo-probe if configured)
     log.info("[%s] sing-box: validating + testing %d nodes...", cc, len(nodes))
     live = await health_check(nodes, cc)
@@ -1057,6 +1147,8 @@ async def main() -> None:
     log.info("Quality : hyperscale-CDN ASN (always) + X4BNet known-VPN CIDR (no-probe "
              "countries) + empirical geo-probe (%s)", ", ".join(GEO_PROBES) or "none configured")
     log.info("Label   : 'JP | 06'")
+    log.info("Scaling : DNS concurrency=%d · classify chunk=%d · test cap/country=%d",
+              DNS_CONCURRENCY, CLASSIFY_CHUNK_SIZE, MAX_TEST_CANDIDATES)
 
     geoip    = GeoIP()
     http_sem = asyncio.Semaphore(HTTP_SEM)
