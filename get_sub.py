@@ -4,7 +4,8 @@ get_sub.py — Multi-source VPN node collector
 Sources  : v2nodes.com (scrape) · EbraSha · Epodonios · OpenProxyList (GitHub)
 Pipeline : Collect → Dedup → GeoIP country filter
            → Tier 1 SỐNG (alive)     : sing-box connectivity, must reach internet
-           → Tier 2 NHẤT QUÁN (consistent): cross-check exit IP/country across
+           → Tier 2 GEO-BLOCK (chặn theo vùng): fetch real geo-fenced sites
+                                                 through the node's proxy
                                             independent "what-is-my-ip" services
            → Rename → Save
 Label    : "JP | 06"  (CC + index, no protocol — clients display it already)
@@ -23,23 +24,37 @@ live, per-connection evidence, checked in two tiers:
   TIER 1 — SỐNG (alive): sing-box connectivity test. Cheapest tier, run
   first to eliminate dead nodes before spending effort on anything else.
 
-  TIER 2 — NHẤT QUÁN (consistent): a real destination site partly judges
-  visitors by IP *behavior*, and one behavioral tell is inconsistency — a
-  shared/rotating proxy pool, a broken NAT layer, or a load-balancer
-  fronting many backends will report DIFFERENT exit IPs/locations
-  depending on which service asks; a single dedicated VPS won't. Through
-  the node's own proxy connection we query 3 independent "what is my IP"
-  services (ipinfo.io, ip-api.com, Cloudflare's own edge trace) in
-  parallel and require them to agree on both the exit IP and the country.
-  Disagreement is itself the signal — free, keyless, no static list needed.
+  TIER 2 — GEO-BLOCK (chặn theo vùng): the strongest possible evidence a
+  node is genuinely useful for a target country isn't a cross-referenced
+  guess — it's watching the node try to access a real service that
+  actively enforces regional restrictions and observing whether it gets
+  through. Through the node's own proxy connection, we fetch one or more
+  confirmed geo-fenced destination sites per country and check the
+  response against a known block signature:
 
-FAIL-OPEN where it matters: if fewer than CONSISTENCY_MIN_AGREE providers
-respond, the node is NOT judged consistent (Tier 2 needs agreement to prove
-anything) — but a single flaky provider among three doesn't sink a node
-that the other two agree on.
+    HK — myTV SUPER (mytvsuper.com): non-HK/MO visitors get a page
+         containing a "GEO_BLOCK" marker and a notice that the service is
+         limited to Hong Kong/Macau. Fallback: viu.tv (looser heuristic).
+    JP — mintj.com: returns plain HTTP 403 Forbidden for non-Japan IPs,
+         200 for genuine local ones. Fallback: radiko.jp/area (returns an
+         area code like "JP13" for allowed IPs, "OUT" for blocked ones).
+    SG — singpass.gov.sg: non-Singapore IPs get HTTP 403 with body
+         "The request could not be satisfied." Fallback: mewatch.sg.
+    VN — vtvgo.vn: returns plain HTTP 403 Forbidden for non-Vietnam IPs.
+         Fallback: fptplay.vn.
 
-HK / SG / VN: both tiers are country-agnostic by design, so all four
-countries get the same quality bar without needing per-country probes.
+  Each country's probe list is tried in order; a probe is only skipped in
+  favor of its fallback if the REQUEST itself fails (timeout/connection
+  error) — a response that loads, blocked or not, is treated as final and
+  is NOT retried against the fallback site.
+
+FAIL-CLOSED for Tier 2 specifically: if every configured probe for a
+country fails to even respond, the node is rejected — Tier 2 exists to
+prove access, and "couldn't check" isn't proof.
+
+HK / SG / VN: both tiers are country-agnostic in implementation (same code
+path, different probe URLs), so all four countries get the same quality
+bar.
 
 ──────────────────────────────────────────────────────────────────────────────
 LARGE SOURCES (EbraSha/Epodonios dumps vary in size over time)
@@ -118,9 +133,90 @@ CONNECT_URLS = [
 TEST_TIMEOUT = 10
 TEST_SEM     = 30
 
-# ── Tier 2 — consistency check (country-agnostic, free, keyless) ──────────
-CONSISTENCY_PROVIDERS = ["ipinfo", "ip-api", "cf-trace"]
-CONSISTENCY_MIN_AGREE = 2   # need at least this many providers to agree
+# ── Tier 2 — geo-blocking test (empirical, real destination sites) ─────────
+# Fetch the target site through the node's own proxy connection and check
+# whether it responds as it would to a genuine local visitor. Each country
+# lists one or more probes tried in order — a probe is only skipped in
+# favor of the next if the REQUEST itself failed (timeout/connection
+# error); a successful response (blocked or not) is treated as final.
+GEO_BLOCK_PHRASES = (
+    "not available in your region", "not available in your country",
+    "content is not available", "geo-restricted", "geo restriction",
+    "unavailable in your area", "isn't available in your location",
+    "地域からご利用になれません",          # ABEMA (Japanese: "not available in your region")
+    "khu vực của bạn",                       # Vietnamese: "...your region..."
+    "không khả dụng",                        # Vietnamese: "not available"
+)
+
+
+def _radiko_ok(status: int, body: str) -> bool:
+    """
+    JP fallback — radiko.jp/area, VERIFIED response format (plain
+    document.write, no JS needed): class="JP13" style area code for
+    genuine Japan IPs, "OUT" for blocked/foreign.
+    """
+    return bool(re.search(r'class="JP\d+"', body)) and '"OUT"' not in body
+
+
+def _generic_geo_ok(status: int, body: str) -> bool:
+    """Fallback heuristic for sites without a confirmed exact signature."""
+    if status in (403, 451):
+        return False
+    if not body or len(body) < 500:
+        return False
+    low = body.lower()
+    return not any(p.lower() in low for p in GEO_BLOCK_PHRASES)
+
+
+def _mytvsuper_ok(status: int, body: str) -> bool:
+    """
+    HK — myTV SUPER live channel page. Confirmed: non-HK/MO IPs get a
+    "GEO_BLOCK" marker plus a Traditional-Chinese/English notice
+    ("...limited to Hong Kong and Macau...") embedded in the page.
+    """
+    if status in (403, 451):
+        return False
+    low = body.lower()
+    if "geo_block" in low or "limited to hong kong and macau" in low:
+        return False
+    return True
+
+
+def _status_403_blocked(status: int, body: str) -> bool:
+    """
+    JP (mintj.com) / VN (vtvgo.vn) — confirmed: these return a plain
+    HTTP 403 Forbidden for non-local IPs, 200 for genuine local ones.
+    """
+    return status != 403
+
+
+def _singpass_ok(status: int, body: str) -> bool:
+    """
+    SG — singpass.gov.sg. Confirmed: non-SG IPs get HTTP 403 with body
+    "The request could not be satisfied." (CloudFront-style geo block).
+    """
+    if status == 403:
+        return False
+    if "the request could not be satisfied" in body.lower():
+        return False
+    return True
+
+
+# Each entry: list of (url, ok_checker) tried in order. Only advances to the
+# next on a REQUEST failure (timeout/connection error) — a response that
+# loads (blocked or not) is final, not retried against the alternate site.
+# Primary probe per country = confirmed exact block signature; the second
+# entry (if any) is a resilience fallback using a looser heuristic.
+GEO_PROBES: dict[str, list[tuple[str, "callable"]]] = {
+    "HK": [("https://www.mytvsuper.com/tc/live/81/%E7%BF%A1%E7%BF%A0%E5%8F%B0/", _mytvsuper_ok),
+           ("https://www.viu.tv",                                                _generic_geo_ok)],
+    "JP": [("https://mintj.com/",     _status_403_blocked),
+           ("http://radiko.jp/area",  _radiko_ok)],
+    "SG": [("https://www.singpass.gov.sg/", _singpass_ok),
+           ("https://www.mewatch.sg",       _generic_geo_ok)],
+    "VN": [("https://vtvgo.vn",   _status_403_blocked),
+           ("https://fptplay.vn", _generic_geo_ok)],
+}
 
 # ── Regex / constants ───────────────────────────────────────────────────────
 _RE_TOTAL  = re.compile(r'\b\d+\s+of\s+(\d+)\b', re.I)
@@ -631,70 +727,37 @@ async def _sb_check_node(ob: dict, sem: asyncio.Semaphore) -> bool:
             except Exception: pass
 
 
-# ═══════════════════════════════ 9. TIER 2 — CONSISTENCY ════════════════════
-# Query several independent "what is my IP" services THROUGH the node's own
-# proxy connection. A single dedicated VPS reports the same exit IP/country
-# to everyone; a shared/rotating/misconfigured proxy often won't.
+# ═══════════════════════════════ 9. TIER 2 — GEO-BLOCKING TEST ══════════════
+# Fetch a real, strictly-geo-fenced destination site THROUGH the node's own
+# proxy connection — proves the node behaves like a genuine local visitor
+# to at least one service that actively enforces regional restrictions.
+# See GEO_PROBES (config section) for the site list per country.
 
-async def _probe_ipinfo(session: aiohttp.ClientSession, proxy: str) -> Optional[tuple[str, str]]:
-    try:
-        to = aiohttp.ClientTimeout(total=TEST_TIMEOUT)
-        async with session.get("https://ipinfo.io/json", proxy=proxy, timeout=to) as r:
-            d = await r.json(content_type=None)
-            ip, cc = d.get("ip"), (d.get("country") or "").upper()
-            return (ip, cc) if ip and cc else None
-    except Exception:
-        return None
-
-
-async def _probe_ipapi(session: aiohttp.ClientSession, proxy: str) -> Optional[tuple[str, str]]:
-    try:
-        to = aiohttp.ClientTimeout(total=TEST_TIMEOUT)
-        async with session.get("http://ip-api.com/json/", proxy=proxy, timeout=to) as r:
-            d = await r.json(content_type=None)
-            if d.get("status") != "success":
-                return None
-            ip, cc = d.get("query"), (d.get("countryCode") or "").upper()
-            return (ip, cc) if ip and cc else None
-    except Exception:
-        return None
-
-
-async def _probe_cf_trace(session: aiohttp.ClientSession, proxy: str) -> Optional[tuple[str, str]]:
-    try:
-        to = aiohttp.ClientTimeout(total=TEST_TIMEOUT)
-        async with session.get("https://www.cloudflare.com/cdn-cgi/trace",
-                               proxy=proxy, timeout=to) as r:
-            text = await r.text()
-        fields = dict(line.split("=", 1) for line in text.splitlines() if "=" in line)
-        ip, cc = fields.get("ip"), (fields.get("loc") or "").upper()
-        return (ip, cc) if ip and cc else None
-    except Exception:
-        return None
-
-
-_PROBE_FUNCS = {"ipinfo": _probe_ipinfo, "ip-api": _probe_ipapi, "cf-trace": _probe_cf_trace}
-
-
-async def consistency_check(port: int, target_cc: str, sem: asyncio.Semaphore) -> bool:
+async def geo_probe_test(port: int, cc: str, sem: asyncio.Semaphore) -> bool:
     """
-    Tier 2 — NHẤT QUÁN. Query all CONSISTENCY_PROVIDERS through the node's
-    proxy in parallel. Passes if at least CONSISTENCY_MIN_AGREE of them
-    report BOTH the same exit IP and the same country, matching target_cc.
+    Tier 2 — kiểm tra truy cập thực tế theo location. Try each configured
+    probe for `cc` in order; only advance to the next on a REQUEST failure
+    (timeout/connection error). A country with no configured probe passes
+    automatically (nothing to disprove).
     """
+    probes = GEO_PROBES.get(cc)
+    if not probes:
+        return True
+
     proxy_url = f"http://127.0.0.1:{port}"
+    to = aiohttp.ClientTimeout(total=TEST_TIMEOUT)
+
     async with sem:
         async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=False)) as s:
-            results = await asyncio.gather(*[
-                _PROBE_FUNCS[name](s, proxy_url) for name in CONSISTENCY_PROVIDERS
-            ])
-
-    successes = [r for r in results if r is not None]
-    if len(successes) < CONSISTENCY_MIN_AGREE:
-        return False
-
-    ips = {ip for ip, _ in successes}
-    ccs = {cc for _, cc in successes}
+            for url, ok_fn in probes:
+                try:
+                    async with s.get(url, proxy=proxy_url, timeout=to,
+                                     allow_redirects=True) as r:
+                        body = await r.text(errors="ignore")
+                        return ok_fn(r.status, body)
+                except Exception:
+                    continue   # this probe unreachable — try the next one
+    return False   # every configured probe failed to even respond
     return len(ips) == 1 and len(ccs) == 1 and next(iter(ccs)) == target_cc
 
 
@@ -759,7 +822,7 @@ async def _run_batch(
         async def _tier2(port, lat):
             if lat is None:
                 return False
-            return await consistency_check(port, cc, sem)
+            return await geo_probe_test(port, cc, sem)
 
         tier2_results = await asyncio.gather(*[
             _tier2(port, lat) for (_,_,port), lat in zip(batch, latencies)
@@ -779,7 +842,7 @@ async def _run_batch(
 async def health_check(nodes: list[str], cc: str) -> list[str]:
     """
     Runs both tiers, funnel-style. No fixed output size — returns whatever
-    clears Tier 1 (sống) + Tier 2 (nhất quán), sorted by latency (fastest
+    clears Tier 1 (sống) + Tier 2 (geo-block), sorted by latency (fastest
     first) for readability.
     """
     if not Path(SINGBOX).exists():
@@ -811,7 +874,7 @@ async def health_check(nodes: list[str], cc: str) -> list[str]:
         results = await _run_batch(batch, cc, test_sem)
         healthy = [(url, lat) for (url,_,_), lat in zip(batch, results) if lat is not None]
         scored.extend(healthy)
-        log.info("  Batch %2d/%-2d    : %2d/%2d sống+nhất quán (%.1fs)",
+        log.info("  Batch %2d/%-2d    : %2d/%2d sống+geo-block (%.1fs)",
                  i, len(batches), len(healthy), len(batch), time.monotonic()-t0)
 
     scored.sort(key=lambda x: x[1])
@@ -897,8 +960,8 @@ async def process_country(
         log.info("┃ Pool cap      : %d → testing first %d", len(nodes), TEST_POOL_SIZE)
         nodes = nodes[:TEST_POOL_SIZE]
 
-    # 5. Two-tier empirical test — SỐNG → NHẤT QUÁN
-    log.info("┃ Testing %d candidates (Tier 1 sống → Tier 2 nhất quán)...", len(nodes))
+    # 5. Two-tier empirical test — SỐNG → GEO-BLOCK
+    log.info("┃ Testing %d candidates (Tier 1 sống → Tier 2 geo-block)...", len(nodes))
     live = await health_check(nodes, cc)
     if not live:
         log.warning("┃ Không có node nào qua đủ 2 tầng")
@@ -925,8 +988,7 @@ async def main() -> None:
     t0 = time.monotonic()
     log.info("╔══════════════════════════════════════════════════════════════╗")
     log.info("║  get_sub.py — v2nodes · EbraSha · Epodonios · OPL             ║")
-    log.info("║  Tier 1: Sống (connectivity)  Tier 2: Nhất quán (%s) ║",
-             "/".join(CONSISTENCY_PROVIDERS).ljust(15))
+    log.info("║  Tier 1: Sống (connectivity)   Tier 2: Geo-block (HK/JP/SG/VN)  ║")
     log.info("║  Output: không giới hạn cố định — lấy tất cả node qua đủ tầng ║")
     log.info("╚══════════════════════════════════════════════════════════════╝")
 
