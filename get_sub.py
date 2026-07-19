@@ -1,16 +1,18 @@
 """
 get_sub.py — Multi-source VPN node collector
 ══════════════════════════════════════════════════════════════════════════════
-Sources  : v2nodes.com (scrape) · EbraSha · Epodonios · OpenProxyList (GitHub)
-Pipeline : Collect → Dedup → GeoIP country filter
-           → Tier 1 SỐNG (alive)     : sing-box connectivity, must reach internet
-           → Tier 2 GEO-BLOCK (chặn theo vùng): fetch real geo-fenced sites
-                                                 through the node's proxy
-                                            independent "what-is-my-ip" services
-           → Rename → Save
-Label    : "JP | 06"  (CC + index, no protocol — clients display it already)
-Output   : however many nodes clear both tiers — no fixed quota. The count
-           itself is information; nothing is padded or capped to a target.
+Sources : v2nodes.com (scrape) · EbraSha · Epodonios · OpenProxyList (GitHub)
+Pipeline: Collect -> Dedup -> GeoIP country filter
+          -> Phase 1 ONLINE     : sing-box connectivity + latency, plus an
+                                   independent location cross-check via
+                                   Cloudflare's cdn-cgi/trace
+          -> Phase 2 GEO-BLOCK  : fetch a real geo-fenced destination site
+                                   through the node's own proxy connection
+          -> Rename -> Save
+Label   : "JP | 06"  (country code + index; client apps already show the
+          protocol on their own sub-line, so it's omitted here)
+Output  : however many nodes clear both phases -- no fixed quota. The count
+          itself is information; nothing is padded or capped to a target.
 
 ──────────────────────────────────────────────────────────────────────────────
 DESIGN PHILOSOPHY
@@ -19,59 +21,57 @@ Static heuristics (ASN blocklists, community CIDR lists) over-block: whole
 datacenters get excluded even though individual IPs inside them are often
 clean. A static list can only say "this ASN is often abused", never "this
 specific IP is a problem right now". Every decision here instead comes from
-live, per-connection evidence, checked in two tiers:
+live, per-connection evidence, checked in two clearly separate phases.
 
-  TIER 1 — SỐNG (alive): sing-box connectivity test. Cheapest tier, run
-  first to eliminate dead nodes before spending effort on anything else.
+  PHASE 1 — ONLINE: cheapest phase, run first to eliminate dead nodes
+  before spending any further effort.
+    (a) Reachability: does traffic through this node reach the internet at
+        all? Measured via CONNECT_URLS, latency recorded for ordering.
+    (b) Location cross-check: fetch https://1.1.1.1/cdn-cgi/trace through
+        the node -- Cloudflare's own edge reports a `loc=` field, an
+        independent geolocation source from the GeoLite2 database used
+        earlier in the pipeline. If it responds and clearly disagrees with
+        the target country, the node is rejected here -- cheap, so there's
+        no reason to spend Phase 2 effort on an obviously wrong-location
+        node. A cdn-cgi/trace request that fails outright (timeout, network
+        error) does NOT reject the node by itself -- only an explicit
+        country mismatch does.
 
-  TIER 2 — GEO-BLOCK (chặn theo vùng): the strongest possible evidence a
-  node is genuinely useful for a target country isn't a cross-referenced
-  guess — it's watching the node try to access a real service that
-  actively enforces regional restrictions and observing whether it gets
-  through. Through the node's own proxy connection, we fetch one or more
-  confirmed geo-fenced destination sites per country and check the
-  response against a known block signature:
-
-    HK — myTV SUPER (mytvsuper.com): non-HK/MO visitors get a page
-         containing a "GEO_BLOCK" marker and a notice that the service is
-         limited to Hong Kong/Macau. Fallback: viu.tv (looser heuristic).
-    JP — mintj.com: returns plain HTTP 403 Forbidden for non-Japan IPs,
-         200 for genuine local ones. Fallback: radiko.jp/area (returns an
-         area code like "JP13" for allowed IPs, "OUT" for blocked ones).
-    SG — singpass.gov.sg: non-Singapore IPs get HTTP 403 with body
-         "The request could not be satisfied." Fallback: mewatch.sg.
-    VN — vtvgo.vn: returns plain HTTP 403 Forbidden for non-Vietnam IPs.
-         Fallback: fptplay.vn.
-
+  PHASE 2 — GEO-BLOCK TEST: the strongest possible evidence a node is
+  genuinely useful for a target country isn't a cross-referenced guess --
+  it's watching the node try to reach a real service that actively
+  enforces regional restrictions and observing whether it gets through.
+  Through the node's own proxy connection, we fetch one or more confirmed
+  geo-fenced destination sites per country and check the response against
+  a known block signature (see GEO_PROBES for exact URLs/signatures).
   Each country's probe list is tried in order; a probe is only skipped in
   favor of its fallback if the REQUEST itself fails (timeout/connection
-  error) — a response that loads, blocked or not, is treated as final and
+  error) -- a response that loads, blocked or not, is treated as final and
   is NOT retried against the fallback site.
 
-FAIL-CLOSED for Tier 2 specifically: if every configured probe for a
-country fails to even respond, the node is rejected — Tier 2 exists to
+FAIL-CLOSED for Phase 2 specifically: if every configured probe for a
+country fails to even respond, the node is rejected -- Phase 2 exists to
 prove access, and "couldn't check" isn't proof.
 
-HK / SG / VN: both tiers are country-agnostic in implementation (same code
-path, different probe URLs), so all four countries get the same quality
-bar.
-
+Both phases are implemented the same way for every country (same code
+path, different probe URLs/thresholds), so HK/SG/VN get the same quality
+bar as JP without needing bespoke logic.
 ──────────────────────────────────────────────────────────────────────────────
 LARGE SOURCES (EbraSha/Epodonios dumps vary in size over time)
 ──────────────────────────────────────────────────────────────────────────────
-  • Pre-dedup by (scheme, host, port) before classification.
-  • GeoIP.resolve() fast-paths raw-IP hosts (no DNS call needed).
-  • Classification runs in bounded chunks (gather_chunked) — predictable
+  - Pre-dedup by (scheme, host, port) before classification.
+  - GeoIP.resolve() fast-paths raw-IP hosts (no DNS call needed).
+  - Classification runs in bounded chunks (gather_chunked) -- predictable
     memory, progress logs instead of a silent multi-minute gap.
-  • TEST_POOL_SIZE bounds how many GeoIP-passed candidates enter the real
-    network-I/O tiers per country — a runtime safety valve, not a quality
-    filter (quality judgment happens inside the tiers themselves).
+  - TEST_POOL_SIZE bounds how many GeoIP-passed candidates enter the real
+    network-I/O phases per country -- a runtime safety valve, not a
+    quality filter (quality judgment happens inside the phases themselves).
 """
 
 import asyncio, base64, json, logging, os, re, socket
 import subprocess, sys, tempfile, time
 from pathlib import Path
-from typing import Optional
+from typing import Callable, Optional
 from urllib.parse import parse_qs, urlparse
 
 import aiohttp, maxminddb
@@ -88,7 +88,7 @@ CC_ALLOW = {"hk": {"HK","CN"}, "jp": {"JP"}, "sg": {"SG"}, "vn": {"VN"}}
 
 # ── External node sources (GitHub-hosted; accessible from Azure/GH Actions
 #    IPs, unlike the origin sites which are often Cloudflare-protected).
-#    Order: raw.githubusercontent (authoritative) → jsDelivr CDN (fallback) ──
+#    Order: raw.githubusercontent (authoritative) -> jsDelivr CDN (fallback) ─
 EBRASHA_RAW = ("https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list"
                "/refs/heads/main/V2Ray-Config-By-EbraSha.txt")
 EBRASHA_CDN = ("https://cdn.jsdelivr.net/gh/ebrasha/free-v2ray-public-list"
@@ -103,7 +103,7 @@ EPO_CDN = "https://cdn.jsdelivr.net/gh/Epodonios/v2ray-configs@main/All_Configs_
 OPL_RAW = "https://raw.githubusercontent.com/roosterkid/openproxylist/main/V2RAY_RAW.txt"
 OPL_CDN = "https://cdn.jsdelivr.net/gh/roosterkid/openproxylist@main/V2RAY_RAW.txt"
 
-# ── GeoIP — country lookup ONLY, no ASN/blocklist reasoning ─────────────────
+# ── GeoIP -- country lookup ONLY, no ASN/blocklist reasoning ────────────────
 GEOIP_DB        = os.environ.get("GEOIP_DB", "GeoLite2-Country.mmdb")
 DNS_CONCURRENCY = 150
 DNS_TIMEOUT     = 5.0
@@ -111,7 +111,7 @@ DNS_TIMEOUT     = 5.0
 # ── Chunked classification (any source size) ────────────────────────────────
 CLASSIFY_CHUNK_SIZE = 4000
 
-# ── Test-pool sizing — runtime safety valve, NOT a quality filter ──────────
+# ── Test-pool sizing -- runtime safety valve, NOT a quality filter ─────────
 TEST_POOL_SIZE = int(os.environ.get("TEST_POOL_SIZE", "450"))
 
 # ── HTTP ──────────────────────────────────────────────────────────────────
@@ -133,25 +133,27 @@ CONNECT_URLS = [
 TEST_TIMEOUT = 10
 TEST_SEM     = 30
 
-# ── Tier 2 — geo-blocking test (empirical, real destination sites) ─────────
+# ── Phase 1 -- independent location cross-check via Cloudflare edge ────────
+CF_TRACE_URL = "https://1.1.1.1/cdn-cgi/trace"
+
+# ── Phase 2 -- geo-blocking test (empirical, real destination sites) ───────
 # Fetch the target site through the node's own proxy connection and check
-# whether it responds as it would to a genuine local visitor. Each country
-# lists one or more probes tried in order — a probe is only skipped in
-# favor of the next if the REQUEST itself failed (timeout/connection
-# error); a successful response (blocked or not) is treated as final.
+# whether it responds as it would to a genuine local visitor.
 GEO_BLOCK_PHRASES = (
     "not available in your region", "not available in your country",
     "content is not available", "geo-restricted", "geo restriction",
     "unavailable in your area", "isn't available in your location",
-    "地域からご利用になれません",          # ABEMA (Japanese: "not available in your region")
-    "khu vực của bạn",                       # Vietnamese: "...your region..."
-    "không khả dụng",                        # Vietnamese: "not available"
+    "地域からご利用になれません",             # ABEMA (JP): "not available in your region"
+    "此服務不適用於你目前所在地區",           # myTV SUPER (HK): "not available in your region"
+    "myTV SUPER 只供香港境內使用",            # myTV SUPER (HK): "for Hong Kong use only"
+    "khu vực của bạn",                          # VN: "...your region..."
+    "không khả dụng",                           # VN: "not available"
 )
 
 
 def _radiko_ok(status: int, body: str) -> bool:
     """
-    JP fallback — radiko.jp/area, VERIFIED response format (plain
+    JP fallback -- radiko.jp/area, verified response format (plain
     document.write, no JS needed): class="JP13" style area code for
     genuine Japan IPs, "OUT" for blocked/foreign.
     """
@@ -170,21 +172,25 @@ def _generic_geo_ok(status: int, body: str) -> bool:
 
 def _mytvsuper_ok(status: int, body: str) -> bool:
     """
-    HK — myTV SUPER live channel page. Confirmed: non-HK/MO IPs get a
-    "GEO_BLOCK" marker plus a Traditional-Chinese/English notice
-    ("...limited to Hong Kong and Macau...") embedded in the page.
+    HK primary -- myTV SUPER live channel page. Confirmed block text
+    (Traditional Chinese): "此服務不適用於你目前所在地區...myTV SUPER
+    只供香港境內使用" ("not available in your region... for Hong Kong
+    use only"). NOTE: myTV SUPER sits behind Cloudflare bot-protection
+    that can 403 automated requests regardless of geolocation -- if this
+    probe rejects everything, check the diagnostic log (status/body
+    snippet) to tell that apart from a genuine geo-block.
     """
     if status in (403, 451):
         return False
     low = body.lower()
-    if "geo_block" in low or "limited to hong kong and macau" in low:
+    if "此服務不適用於你目前所在地區" in body or "geo_block" in low:
         return False
     return True
 
 
 def _status_403_blocked(status: int, body: str) -> bool:
     """
-    JP (mintj.com) / VN (vtvgo.vn) — confirmed: these return a plain
+    JP (mintj.com) / VN (vtvgo.vn) -- confirmed: these return a plain
     HTTP 403 Forbidden for non-local IPs, 200 for genuine local ones.
     """
     return status != 403
@@ -192,7 +198,7 @@ def _status_403_blocked(status: int, body: str) -> bool:
 
 def _singpass_ok(status: int, body: str) -> bool:
     """
-    SG — singpass.gov.sg. Confirmed: non-SG IPs get HTTP 403 with body
+    SG -- singpass.gov.sg. Confirmed: non-SG IPs get HTTP 403 with body
     "The request could not be satisfied." (CloudFront-style geo block).
     """
     if status == 403:
@@ -203,11 +209,11 @@ def _singpass_ok(status: int, body: str) -> bool:
 
 
 # Each entry: list of (url, ok_checker) tried in order. Only advances to the
-# next on a REQUEST failure (timeout/connection error) — a response that
+# next on a REQUEST failure (timeout/connection error) -- a response that
 # loads (blocked or not) is final, not retried against the alternate site.
 # Primary probe per country = confirmed exact block signature; the second
 # entry (if any) is a resilience fallback using a looser heuristic.
-GEO_PROBES: dict[str, list[tuple[str, "callable"]]] = {
+GEO_PROBES: dict[str, list[tuple[str, Callable[[int, str], bool]]]] = {
     "HK": [("https://www.mytvsuper.com/tc/live/81/%E7%BF%A1%E7%BF%A0%E5%8F%B0/", _mytvsuper_ok),
            ("https://www.viu.tv",                                                _generic_geo_ok)],
     "JP": [("https://mintj.com/",     _status_403_blocked),
@@ -271,21 +277,21 @@ async def fetch_with_fallback(
     check = validator or (lambda t: bool(_RE_NODE.search(t)))
     text = await http_get(session, primary)
     if text and check(text):
-        log.info("[%-10s] OK ← %s", name, primary.split("/")[2])
+        log.info("[%-10s] OK <- %s", name, primary.split("/")[2])
         return text
-    log.info("[%-10s] primary miss → fallback...", name)
+    log.info("[%-10s] primary miss -> fallback...", name)
     text = await http_get(session, fallback)
     if text and check(text):
-        log.info("[%-10s] OK ← %s", name, fallback.split("/")[2])
+        log.info("[%-10s] OK <- %s", name, fallback.split("/")[2])
         return text
-    log.warning("[%-10s] Fetch thất bại từ cả hai nguồn", name)
+    log.warning("[%-10s] Fetch failed from both sources", name)
     return None
 
 
 async def gather_chunked(
     items: list, coro_fn, chunk_size: int = CLASSIFY_CHUNK_SIZE, label: str = "",
 ) -> list:
-    """Run coro_fn(item) in bounded chunks — predictable memory, progress logs."""
+    """Run coro_fn(item) in bounded chunks -- predictable memory, progress logs."""
     results: list = []
     total = len(items)
     for i in range(0, total, chunk_size):
@@ -300,8 +306,8 @@ async def gather_chunked(
 # ═══════════════════════════════ 3. GEOIP ═══════════════════════════════════
 
 class GeoIP:
-    """Country lookup + cached DNS resolution. No quality/blocklist logic —
-    quality judgment lives entirely in the 2-tier test phase (see docstring)."""
+    """Country lookup + cached DNS resolution. No quality/blocklist logic --
+    quality judgment lives entirely in the 2-phase test (see docstring)."""
 
     def __init__(self) -> None:
         self._country: Optional[maxminddb.Reader] = None
@@ -312,7 +318,7 @@ class GeoIP:
             self._country = maxminddb.open_database(GEOIP_DB)
             log.info("GeoLite2-Country: %s", GEOIP_DB)
         else:
-            log.warning("GeoLite2-Country không tìm thấy — GeoIP filter bị bỏ qua")
+            log.warning("GeoLite2-Country not found -- GeoIP filter disabled")
 
     @property
     def ok(self) -> bool:
@@ -323,7 +329,7 @@ class GeoIP:
             self._country.close()
 
     async def resolve(self, host: str) -> Optional[str]:
-        """Resolve hostname → IPv4, cached per session. Raw-IP hosts short-circuit."""
+        """Resolve hostname -> IPv4, cached per session. Raw-IP hosts short-circuit."""
         if host in self._cache:
             return self._cache[host]
         for fam in (socket.AF_INET, socket.AF_INET6):
@@ -367,7 +373,7 @@ class GeoIP:
         return self.country_of(ip)
 
     async def filter(self, nodes: list[str], allowed: set[str]) -> list[str]:
-        """Keep node if DNS resolves AND GeoIP country ∈ allowed. Nothing else."""
+        """Keep node if DNS resolves AND GeoIP country is in `allowed`. Nothing else."""
         async def _keep(url: str) -> bool:
             ep = parse_endpoint(url)
             if not ep:
@@ -391,7 +397,7 @@ def _b64d(s: str) -> Optional[str]:
 
 
 def parse_endpoint(url: str) -> Optional[tuple[str, str, int]]:
-    """Return (scheme, host, port) — used for dedup key and GeoIP resolve."""
+    """Return (scheme, host, port) -- used for dedup key and GeoIP resolve."""
     try:
         clean  = url.split("#")[0].strip()
         scheme = clean.split("://")[0].lower()
@@ -472,7 +478,7 @@ async def scrape_v2nodes(
 
     raw   = await asyncio.gather(*[_node_from_server(session, sid, sem) for sid in ids])
     nodes = [r for r in raw if r]
-    log.info("[v2nodes  ] %s: %d page(s) → %d nodes", country.upper(), total, len(nodes))
+    log.info("[v2nodes  ] %s: %d page(s) -> %d nodes", country.upper(), total, len(nodes))
     return nodes
 
 
@@ -483,7 +489,7 @@ async def fetch_ebrasha(session: aiohttp.ClientSession, geoip: GeoIP) -> dict[st
 
     raw_nodes = [l.strip() for l in text.splitlines() if _RE_NODE.match(l.strip())]
     nodes     = deduplicate(raw_nodes)
-    log.info("[EbraSha  ] %d raw → %d unique — classifying...", len(raw_nodes), len(nodes))
+    log.info("[EbraSha  ] %d raw -> %d unique -- classifying...", len(raw_nodes), len(nodes))
 
     ccs = await gather_chunked(nodes, geoip.cc_of_node, label="EbraSha classify")
 
@@ -493,7 +499,7 @@ async def fetch_ebrasha(session: aiohttp.ClientSession, geoip: GeoIP) -> dict[st
         if cc is None: dropped += 1
         else:          result.setdefault(cc, []).append(node)
 
-    log.info("[EbraSha  ] %d classified · %d dropped (DNS fail)",
+    log.info("[EbraSha  ] %d classified, %d dropped (DNS fail)",
              sum(len(v) for v in result.values()), dropped)
     return result
 
@@ -505,7 +511,7 @@ async def fetch_epodonios(session: aiohttp.ClientSession, geoip: GeoIP) -> dict[
 
     raw_nodes = [l.strip() for l in text.splitlines() if _RE_NODE.match(l.strip())]
     nodes     = deduplicate(raw_nodes)
-    log.info("[Epodonios] %d raw → %d unique — classifying...", len(raw_nodes), len(nodes))
+    log.info("[Epodonios] %d raw -> %d unique -- classifying...", len(raw_nodes), len(nodes))
 
     ccs = await gather_chunked(nodes, geoip.cc_of_node, label="Epodonios classify")
 
@@ -515,7 +521,7 @@ async def fetch_epodonios(session: aiohttp.ClientSession, geoip: GeoIP) -> dict[
         if cc is None: dropped += 1
         else:          result.setdefault(cc, []).append(node)
 
-    log.info("[Epodonios] %d classified · %d dropped (DNS fail)",
+    log.info("[Epodonios] %d classified, %d dropped (DNS fail)",
              sum(len(v) for v in result.values()), dropped)
     return result
 
@@ -540,7 +546,7 @@ async def fetch_opl(session: aiohttp.ClientSession) -> dict[str, list[str]]:
         if cc: result.setdefault(cc, []).append(node)
         else:  no_cc += 1
 
-    log.info("[OPL      ] %d raw → %s · %d no-CC skipped",
+    log.info("[OPL      ] %d raw -> %s, %d no-CC skipped",
              len(nodes), {k: len(v) for k, v in sorted(result.items())}, no_cc)
     return result
 
@@ -698,7 +704,7 @@ def to_singbox(url: str, tag: str) -> Optional[dict]:
 # ═══════════════════════════════ 8. SING-BOX VALIDATE ════════════════════════
 
 async def _sb_check_node(ob: dict, sem: asyncio.Semaphore) -> bool:
-    """Dry-run 'sing-box check' — catches malformed configs before they can
+    """Dry-run 'sing-box check' -- catches malformed configs before they can
     crash a shared batch. Config correctness only, unrelated to IP quality."""
     cfg = {
         "log":      {"disabled": True},
@@ -727,44 +733,11 @@ async def _sb_check_node(ob: dict, sem: asyncio.Semaphore) -> bool:
             except Exception: pass
 
 
-# ═══════════════════════════════ 9. TIER 2 — GEO-BLOCKING TEST ══════════════
-# Fetch a real, strictly-geo-fenced destination site THROUGH the node's own
-# proxy connection — proves the node behaves like a genuine local visitor
-# to at least one service that actively enforces regional restrictions.
-# See GEO_PROBES (config section) for the site list per country.
+# ═══════════════════════════════ 9. PHASE 1 — ONLINE ═════════════════════════
 
-async def geo_probe_test(port: int, cc: str, sem: asyncio.Semaphore) -> bool:
-    """
-    Tier 2 — kiểm tra truy cập thực tế theo location. Try each configured
-    probe for `cc` in order; only advance to the next on a REQUEST failure
-    (timeout/connection error). A country with no configured probe passes
-    automatically (nothing to disprove).
-    """
-    probes = GEO_PROBES.get(cc)
-    if not probes:
-        return True
-
-    proxy_url = f"http://127.0.0.1:{port}"
-    to = aiohttp.ClientTimeout(total=TEST_TIMEOUT)
-
-    async with sem:
-        async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=False)) as s:
-            for url, ok_fn in probes:
-                try:
-                    async with s.get(url, proxy=proxy_url, timeout=to,
-                                     allow_redirects=True) as r:
-                        body = await r.text(errors="ignore")
-                        return ok_fn(r.status, body)
-                except Exception:
-                    continue   # this probe unreachable — try the next one
-    return False   # every configured probe failed to even respond
-    return len(ips) == 1 and len(ccs) == 1 and next(iter(ccs)) == target_cc
-
-
-# ═══════════════════════════════ 10. TIER 1 — CONNECTIVITY ══════════════════
-
-async def _connect_test(port: int, sem: asyncio.Semaphore) -> Optional[float]:
-    """Tier 1 — SỐNG. Returns latency (ms) if reachable, else None."""
+async def _reachability_test(port: int, sem: asyncio.Semaphore) -> Optional[float]:
+    """Does traffic through this node reach the internet? Returns latency
+    (ms) on the first successful CONNECT_URLS response, else None."""
     async with sem:
         to = aiohttp.ClientTimeout(total=TEST_TIMEOUT)
         for url in CONNECT_URLS:
@@ -782,15 +755,85 @@ async def _connect_test(port: int, sem: asyncio.Semaphore) -> Optional[float]:
         return None
 
 
-# ═══════════════════════════════ 11. HEALTH CHECK (Tier 1 + Tier 2) ═════════
+async def _location_cross_check(port: int, target_cc: str, sem: asyncio.Semaphore) -> bool:
+    """
+    Independent location cross-check via Cloudflare's cdn-cgi/trace (a
+    different geolocation source from the GeoLite2-Country DB used earlier
+    in the pipeline). Returns False ONLY on a clear country mismatch;
+    an unreachable/errored trace request is inconclusive and does NOT
+    reject the node by itself (fail-open).
+    """
+    async with sem:
+        to = aiohttp.ClientTimeout(total=TEST_TIMEOUT)
+        try:
+            async with aiohttp.ClientSession(
+                connector=aiohttp.TCPConnector(ssl=False)
+            ) as s:
+                async with s.get(CF_TRACE_URL, proxy=f"http://127.0.0.1:{port}",
+                                 timeout=to) as r:
+                    text = await r.text()
+        except Exception:
+            return True   # inconclusive -- don't penalize
+
+        fields = dict(line.split("=", 1) for line in text.splitlines() if "=" in line)
+        loc = (fields.get("loc") or "").upper()
+        if not loc:
+            return True   # no location field -- inconclusive
+        return loc == target_cc
+
+
+async def phase1_online(port: int, target_cc: str, sem: asyncio.Semaphore) -> Optional[float]:
+    """
+    PHASE 1 -- ONLINE. (a) reachability, must succeed. (b) Cloudflare
+    cdn-cgi/trace location cross-check, must not explicitly disagree.
+    Returns latency (ms) if the node passes both, else None.
+    """
+    latency = await _reachability_test(port, sem)
+    if latency is None:
+        return None
+    if not await _location_cross_check(port, target_cc, sem):
+        return None
+    return latency
+
+
+# ═══════════════════════════════ 10. PHASE 2 — GEO-BLOCK TEST ═══════════════
+
+async def phase2_geo_block(port: int, cc: str, sem: asyncio.Semaphore) -> bool:
+    """
+    PHASE 2 -- GEO-BLOCK TEST. Try each configured probe for `cc` in
+    order; only advance to the next on a REQUEST failure (timeout/
+    connection error). A country with no configured probe passes
+    automatically (nothing to disprove). Fail-closed: if every probe
+    fails to respond at all, the node is rejected.
+    """
+    probes = GEO_PROBES.get(cc)
+    if not probes:
+        return True
+
+    proxy_url = f"http://127.0.0.1:{port}"
+    to = aiohttp.ClientTimeout(total=TEST_TIMEOUT)
+
+    async with sem:
+        async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=False)) as s:
+            for url, ok_fn in probes:
+                try:
+                    async with s.get(url, proxy=proxy_url, timeout=to,
+                                     allow_redirects=True) as r:
+                        body = await r.text(errors="ignore")
+                        return ok_fn(r.status, body)
+                except Exception:
+                    continue   # this probe unreachable -- try the next one
+    return False   # every configured probe failed to even respond
+
+
+# ═══════════════════════════════ 11. HEALTH CHECK (Phase 1 + Phase 2) ═══════
 
 async def _run_batch(
-    batch: list[tuple[str, dict, int]], cc: str, sem: asyncio.Semaphore
-) -> list[Optional[float]]:
+    batch: list[tuple[str, dict, int]], cc: str, sem: asyncio.Semaphore,
+) -> tuple[list[Optional[float]], int]:
     """
-    Starts sing-box for the batch, runs Tier 1 then (for survivors) Tier 2.
-    Returns, per node in batch order: latency (ms) if it cleared both
-    tiers, else None.
+    Starts sing-box for the batch, runs Phase 1 then (for survivors)
+    Phase 2. Returns (per-node latency-or-None in batch order, phase1_pass_count).
     """
     cfg = {
         "log":      {"disabled": True},
@@ -814,26 +857,32 @@ async def _run_batch(
 
         if proc.poll() is not None:
             err = proc.stderr.read().decode(errors="ignore").strip()
-            log.warning("sing-box crash rc=%d: %s", proc.returncode, err[:200])
-            return [None] * len(batch)
+            log.warning("sing-box crashed rc=%d: %s", proc.returncode, err[:200])
+            return [None] * len(batch), 0
 
-        latencies = await asyncio.gather(*[_connect_test(p, sem) for _,_,p in batch])
+        # Phase 1 for the whole batch
+        phase1 = await asyncio.gather(*[
+            phase1_online(port, cc, sem) for _,_,port in batch
+        ])
+        phase1_pass = sum(1 for l in phase1 if l is not None)
 
-        async def _tier2(port, lat):
+        # Phase 2 only for Phase 1 survivors
+        async def _p2(port, lat):
             if lat is None:
                 return False
-            return await geo_probe_test(port, cc, sem)
+            return await phase2_geo_block(port, cc, sem)
 
-        tier2_results = await asyncio.gather(*[
-            _tier2(port, lat) for (_,_,port), lat in zip(batch, latencies)
+        phase2 = await asyncio.gather(*[
+            _p2(port, lat) for (_,_,port), lat in zip(batch, phase1)
         ])
 
         proc.terminate()
         try:    proc.wait(timeout=3)
         except Exception: proc.kill()
 
-        return [lat if (lat is not None and ok) else None
-                for lat, ok in zip(latencies, tier2_results)]
+        results = [lat if (lat is not None and ok) else None
+                   for lat, ok in zip(phase1, phase2)]
+        return results, phase1_pass
     finally:
         try: os.unlink(tmp.name)
         except Exception: pass
@@ -841,12 +890,12 @@ async def _run_batch(
 
 async def health_check(nodes: list[str], cc: str) -> list[str]:
     """
-    Runs both tiers, funnel-style. No fixed output size — returns whatever
-    clears Tier 1 (sống) + Tier 2 (geo-block), sorted by latency (fastest
-    first) for readability.
+    Runs both phases, funnel-style, with per-phase counts logged for
+    diagnostics. No fixed output size -- returns whatever clears Phase 1
+    (online) + Phase 2 (geo-block), sorted by latency (fastest first).
     """
     if not Path(SINGBOX).exists():
-        log.warning("sing-box not found → skipping health check")
+        log.warning("sing-box not found -- skipping health check")
         return nodes
 
     candidates = [(url, ob, BASE_PORT + i)
@@ -868,23 +917,28 @@ async def health_check(nodes: list[str], cc: str) -> list[str]:
     test_sem = asyncio.Semaphore(TEST_SEM)
     batches  = [valid[i:i+BATCH_SIZE] for i in range(0, len(valid), BATCH_SIZE)]
     scored: list[tuple[str, float]] = []
+    total_phase1 = 0
 
     for i, batch in enumerate(batches, 1):
-        t0      = time.monotonic()
-        results = await _run_batch(batch, cc, test_sem)
+        t0 = time.monotonic()
+        results, phase1_pass = await _run_batch(batch, cc, test_sem)
+        total_phase1 += phase1_pass
         healthy = [(url, lat) for (url,_,_), lat in zip(batch, results) if lat is not None]
         scored.extend(healthy)
-        log.info("  Batch %2d/%-2d    : %2d/%2d sống+geo-block (%.1fs)",
-                 i, len(batches), len(healthy), len(batch), time.monotonic()-t0)
+        log.info("  Batch %2d/%-2d    : phase1=%2d/%2d  phase2=%2d/%2d  (%.1fs)",
+                 i, len(batches), phase1_pass, len(batch),
+                 len(healthy), phase1_pass, time.monotonic()-t0)
 
     scored.sort(key=lambda x: x[1])
+    log.info("  Phase 1 (online): %d/%d", total_phase1, len(valid))
+    log.info("  Phase 2 (geo-block): %d/%d", len(scored), total_phase1)
     return [url for url, _ in scored]
 
 
 # ═══════════════════════════════ 12. RENAME ══════════════════════════════════
 
 def rename_nodes(nodes: list[str], cc: str) -> list[str]:
-    """Format: "JP | 06" — CC + zero-padded index. vmess: update "ps" field
+    """Format: "JP | 06" -- CC + zero-padded index. vmess: update "ps" field
     inside base64 JSON (clients read ps, not #fragment)."""
     pad = max(2, len(str(len(nodes))))
 
@@ -925,7 +979,7 @@ async def process_country(
     cc      = CC[country]
     allowed = CC_ALLOW[country]
     t_start = time.monotonic()
-    log.info("┏━━━ %s ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓", cc)
+    log.info("+--- %s %s", cc, "-" * 58)
 
     # 1. Collect from 4 sources
     v2n     = await scrape_v2nodes(session, country, http_sem)
@@ -933,39 +987,36 @@ async def process_country(
     ext_epo = [n for acc in allowed for n in epo.get(acc, [])]
     ext_opl = [n for acc in allowed for n in opl.get(acc, [])]
     nodes   = v2n + ext_eba + ext_epo + ext_opl
-    log.info("┃ Collected     : %d  (v2nodes=%d ebrasha=%d epodonios=%d opl=%d)",
+    log.info("| Collected     : %d  (v2nodes=%d ebrasha=%d epodonios=%d opl=%d)",
              len(nodes), len(v2n), len(ext_eba), len(ext_epo), len(ext_opl))
 
     # 2. Dedup
     nodes = deduplicate(nodes)
-    log.info("┃ After dedup   : %d", len(nodes))
+    log.info("| After dedup   : %d", len(nodes))
 
     # 3. GeoIP country filter ONLY
     if geoip.ok:
         before = len(nodes)
         nodes  = await geoip.filter(nodes, allowed)
-        log.info("┃ GeoIP {%s}%s: %d/%d",
-                 "/".join(sorted(allowed)),
-                 " " * max(0, 6 - len("/".join(sorted(allowed)))),
-                 len(nodes), before)
+        log.info("| GeoIP {%s}: %d/%d", "/".join(sorted(allowed)), len(nodes), before)
     else:
-        log.warning("┃ No GeoIP DB — skipping filter")
+        log.warning("| No GeoIP DB -- skipping filter")
     if not nodes:
-        log.warning("┃ No nodes after GeoIP filter")
-        log.info("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n")
+        log.warning("| No nodes after GeoIP filter")
+        log.info("+%s\n", "-" * 63)
         return
 
-    # 4. Runtime safety cap — NOT a quality filter, see module docstring
+    # 4. Runtime safety cap -- NOT a quality filter, see module docstring
     if len(nodes) > TEST_POOL_SIZE:
-        log.info("┃ Pool cap      : %d → testing first %d", len(nodes), TEST_POOL_SIZE)
+        log.info("| Pool cap      : %d -> testing first %d", len(nodes), TEST_POOL_SIZE)
         nodes = nodes[:TEST_POOL_SIZE]
 
-    # 5. Two-tier empirical test — SỐNG → GEO-BLOCK
-    log.info("┃ Testing %d candidates (Tier 1 sống → Tier 2 geo-block)...", len(nodes))
+    # 5. Two-phase empirical test -- ONLINE -> GEO-BLOCK
+    log.info("| Testing %d candidates (Phase 1 online -> Phase 2 geo-block)...", len(nodes))
     live = await health_check(nodes, cc)
     if not live:
-        log.warning("┃ Không có node nào qua đủ 2 tầng")
-        log.info("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n")
+        log.warning("| No nodes cleared both phases")
+        log.info("+%s\n", "-" * 63)
         return
 
     # 6. Rename + save
@@ -973,24 +1024,25 @@ async def process_country(
     Path(f"{country}_sub.txt").write_text("\n".join(renamed), encoding="utf-8")
 
     elapsed = time.monotonic() - t_start
-    log.info("┃ ✔ Kết quả     : %d node khoẻ mạnh → %s_sub.txt  (%.0fs)",
+    log.info("| Result        : %d healthy node(s) -> %s_sub.txt  (%.0fs)",
              len(renamed), country, elapsed)
     for r in renamed[:3]:
-        log.info("┃   · %s", r.split("#")[-1] if "#" in r else r)
+        log.info("|   - %s", r.split("#")[-1] if "#" in r else r)
     if len(renamed) > 3:
-        log.info("┃   · ... (+%d node khác)", len(renamed) - 3)
-    log.info("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n")
+        log.info("|   - ... (+%d more)", len(renamed) - 3)
+    log.info("+%s\n", "-" * 63)
 
 
 # ═══════════════════════════════ 14. MAIN ════════════════════════════════════
 
 async def main() -> None:
     t0 = time.monotonic()
-    log.info("╔══════════════════════════════════════════════════════════════╗")
-    log.info("║  get_sub.py — v2nodes · EbraSha · Epodonios · OPL             ║")
-    log.info("║  Tier 1: Sống (connectivity)   Tier 2: Geo-block (HK/JP/SG/VN)  ║")
-    log.info("║  Output: không giới hạn cố định — lấy tất cả node qua đủ tầng ║")
-    log.info("╚══════════════════════════════════════════════════════════════╝")
+    log.info("=" * 68)
+    log.info(" get_sub.py -- v2nodes / EbraSha / Epodonios / OPL")
+    log.info(" Phase 1: ONLINE (connectivity + cf-trace location check)")
+    log.info(" Phase 2: GEO-BLOCK TEST (real geo-fenced destination sites)")
+    log.info(" Output : no fixed quota -- every node clearing both phases")
+    log.info("=" * 68)
 
     geoip    = GeoIP()
     http_sem = asyncio.Semaphore(HTTP_SEM)
@@ -1005,7 +1057,7 @@ async def main() -> None:
                 fetch_epodonios(session, geoip),
                 fetch_opl(session),
             )
-            log.info("Nguồn ngoài đã nạp:")
+            log.info("External sources loaded:")
             log.info("  EbraSha   : %s", {k: len(v) for k,v in sorted(ebrasha.items())})
             log.info("  Epodonios : %s", {k: len(v) for k,v in sorted(epo.items())})
             log.info("  OPL       : %s", {k: len(v) for k,v in sorted(opl.items())})
@@ -1016,9 +1068,9 @@ async def main() -> None:
     finally:
         geoip.close()
 
-    log.info("╔══════════════════════════════════════════════════════════════╗")
-    log.info("║  Hoàn tất trong %6.0fs                                        ║", time.monotonic() - t0)
-    log.info("╚══════════════════════════════════════════════════════════════╝")
+    log.info("=" * 68)
+    log.info(" Done in %.0fs", time.monotonic() - t0)
+    log.info("=" * 68)
 
 
 if __name__ == "__main__":
