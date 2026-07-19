@@ -2,16 +2,17 @@ name: Auto Fetch & Filter Live VPN Nodes
 
 on:
   schedule:
-    - cron: '0 */2 * * *'
+    - cron: '0 * * * *'   # Chạy mỗi giờ — bắt kịp node mới từ các nguồn liên tục cập nhật
   workflow_dispatch:
+
+# Tránh 2 lần chạy chồng nhau (VD: chạy trước chưa xong đã tới giờ chạy sau)
+# gây tranh chấp khi git push cùng lúc.
+concurrency:
+  group: fetch-nodes
+  cancel-in-progress: false
 
 env:
   PYTHONUNBUFFERED: '1'
-  # Tier 3 (Fraud Score) — OPTIONAL. Đăng ký free tại ipqualityscore.com
-  # (5,000 lookups/tháng, không cần thẻ), thêm secret IPQS_KEY vào repo
-  # Settings → Secrets → Actions. Không set thì Tier 3 tự bỏ qua, pipeline
-  # vẫn chạy đầy đủ Tier 1+2.
-  IPQS_KEY: ${{ secrets.IPQS_KEY }}
 
 jobs:
   run:
@@ -54,8 +55,9 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name  "github-actions[bot]"
-          git add *_sub.txt fraud_score_cache.json
+          git add *_sub.txt
           git diff --cached --quiet \
-            && echo "No changes." \
-            || git commit -m "chore: update nodes + fraud-score cache $(date -u +'%Y-%m-%d %H:%M UTC')"
+            && echo "Không có thay đổi." \
+            || git commit -m "chore: update nodes — $(date -u +'%Y-%m-%d %H:%M UTC')"
+          git pull --rebase --autostash
           git push
