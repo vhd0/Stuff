@@ -171,7 +171,6 @@ jobs:
                     if line.startswith("#"):
                         continue
                         
-                    # TỐI ƯU CỐT LÕI: Thu thập MỌI dòng link liên tiếp thuộc về #EXTINF hiện tại (không clear về None)
                     if line.startswith("http://") or line.startswith("https://"):
                         if current_extinf and current_raw_name:
                             name = get_canonical_name(current_raw_name)
@@ -188,13 +187,17 @@ jobs:
                                     json_logo = ch_obj.get("logo", "").strip()
                                     break
                             
-                            final_logo = json_logo if json_logo else raw_logo
+                            # TỐI ƯU LOGIC LOGO: Ưu tiên logo từ file thô (raw_logo), json_logo chỉ làm dự phòng
+                            final_logo = raw_logo if raw_logo else json_logo
                             group = get_group(name, tvg_id)
                             
                             if name not in raw_collected:
                                 raw_collected[name] = {"group": group, "id": tvg_id, "logo": final_logo, "urls": []}
                             else:
-                                if not raw_collected[name]["logo"] and final_logo:
+                                # Ghi đè logo nếu có raw_logo (đề phòng trước đó chỉ đang dùng logo từ JSON hoặc trống)
+                                if raw_logo:
+                                    raw_collected[name]["logo"] = raw_logo
+                                elif not raw_collected[name]["logo"] and final_logo:
                                     raw_collected[name]["logo"] = final_logo
                             
                             if line not in raw_collected[name]["urls"]:
@@ -225,12 +228,12 @@ jobs:
                 for idx, url in enumerate(data["urls"]):
                     suffix = f" [Dự phòng {idx+1}]" if idx > 0 else ""
                     f.write(f'#EXTINF:-1{tvg} group-title="{data["group"]}",{name}{suffix}\n{url}\n')
-        print("Đã gom toàn bộ các danh sách đa link (Multi-link) thành công!")
+        print("Đã cập nhật: Ưu tiên sử dụng logo từ nguồn thô, lấy JSON làm dự phòng thành công!")
         EOF
         python3 optimize_m3u.py
         
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
         git add "listtivi.m3u"
-        git commit -m "Fix: Support multi-line links layout beneath a single extinf tag" || echo "No changes"
+        git commit -m "Enhancement: Set raw logo as primary and json logo as fallback" || echo "No changes"
         git push
