@@ -28,12 +28,13 @@ jobs:
         GROUP_ORDER = ["VTV", "ON", "HTV", "HTVC", "SCTV", "THVL", "Kenh Dac Biet",
                        "Phim & Giai Tri Quoc Te", "Dia Phuong", "VOV-VOH", "Radio"]
 
-        # File snapshot du lieu tu vnepg.site, commit chung repo voi workflow nay.
-        # LY DO: vnepg.site chan IP ngoai Viet Nam bang Cloudflare firewall nen
-        # GitHub Actions (chay tren datacenter nuoc ngoai) khong the tu fetch truc tiep.
-        # => Ban tu fetch JSON tu https://vnepg.site/api/... (hoac endpoint tuong duong)
-        #    tren mang VN, roi ghi de file vnepg_snapshot.json trong repo de cap nhat.
-        VNEPG_SNAPSHOT_FILE = "vnepg_snapshot.json"
+        # File backup du lieu tu vnepg.site, da co san trong repo chinh (nhanh main)
+        # cua ban. LY DO no ton tai o day: vnepg.site chan IP ngoai Viet Nam bang
+        # Cloudflare firewall nen GitHub Actions (chay tren datacenter nuoc ngoai)
+        # khong the tu fetch truc tiep tu vnepg.site. Ban tu fetch JSON tren mang VN
+        # roi commit de vnepg_backup.json trong repo, workflow se doc file nay
+        # (da co san sau buoc actions/checkout) lam TANG FALLBACK CUOI CUNG cho logo.
+        VNEPG_BACKUP_FILE = "vnepg_backup.json"
 
         # Logo API chinh thuc, on dinh, fetch duoc tu GitHub Actions (khong bi chan)
         IPTV_ORG_LOGOS_API = "https://iptv-org.github.io/api/logos.json"
@@ -105,7 +106,8 @@ jobs:
             return m.group(1).strip().lower() if m else ""
 
         def get_canonical_name(raw_name, tvg_id, vnepg_id_map):
-            # Uu tien 1: khop chinh xac theo tvg-id voi snapshot vnepg.site (dang tin cay nhat)
+            # Dat ten kenh: uu tien khop chinh xac theo tvg-id voi vnepg_backup.json
+            # (chi anh huong ten/nhom hien thi, KHONG anh huong thu tu uu tien logo)
             if tvg_id and tvg_id in vnepg_id_map:
                 return vnepg_id_map[tvg_id]["name"]
 
@@ -150,15 +152,16 @@ jobs:
             return "Dia Phuong"
 
         # ====================================================================
-        # 5. NAP SNAPSHOT VNEPG.SITE (BAKED-IN, VI GITHUB ACTIONS BI CHAN IP)
+        # 5. NAP VNEPG_BACKUP.JSON (DA CO SAN TRONG REPO CHINH, DUNG LAM TANG
+        #    FALLBACK CUOI CUNG - VNEPG.SITE CHAN IP NGOAI VN NEN KHONG TU FETCH)
         # ====================================================================
-        def load_vnepg_snapshot():
+        def load_vnepg_backup():
             id_map, name_map = {}, {}
-            if not os.path.exists(VNEPG_SNAPSHOT_FILE):
-                print(f"Khong tim thay {VNEPG_SNAPSHOT_FILE}, bo qua tang logo uu tien 1.")
+            if not os.path.exists(VNEPG_BACKUP_FILE):
+                print(f"Khong tim thay {VNEPG_BACKUP_FILE}, bo qua tang logo uu tien 1.")
                 return id_map, name_map
             try:
-                with open(VNEPG_SNAPSHOT_FILE, "r", encoding="utf-8") as f:
+                with open(VNEPG_BACKUP_FILE, "r", encoding="utf-8") as f:
                     data = json.load(f)
                 for ch in data.get("channels", []):
                     cid = str(ch.get("id", "")).strip().lower()
@@ -172,11 +175,11 @@ jobs:
                     name_map[remove_accents(name)] = entry
                 print(f"Da nap {len(id_map)} kenh tu snapshot vnepg.site.")
             except Exception as e:
-                print(f"Loi doc {VNEPG_SNAPSHOT_FILE}: {e}")
+                print(f"Loi doc {VNEPG_BACKUP_FILE}: {e}")
             return id_map, name_map
 
         # ====================================================================
-        # 6. LOGO API IPTV-ORG (TANG UU TIEN 2, FETCH DUOC TU GITHUB ACTIONS)
+        # 6. LOGO API IPTV-ORG (TANG UU TIEN 1 / PRIMARY, FETCH DUOC TU GITHUB ACTIONS)
         # ====================================================================
         def fetch_iptvorg_logos():
             by_id = {}
@@ -201,31 +204,36 @@ jobs:
         # 7. LOGIC CHINH
         # ====================================================================
         def pick_logo(canonical_name, tvg_id, vnepg_id_map, vnepg_name_map, iptvorg_logos, raw_logo):
-            # Uu tien 1: snapshot vnepg.site theo tvg-id
-            if tvg_id and tvg_id in vnepg_id_map and vnepg_id_map[tvg_id]["logo"]:
-                return vnepg_id_map[tvg_id]["logo"]
-            # Uu tien 2: snapshot vnepg.site theo ten da chuan hoa
-            key = remove_accents(canonical_name)
-            if key in vnepg_name_map and vnepg_name_map[key]["logo"]:
-                return vnepg_name_map[key]["logo"]
-            # Uu tien 3: iptv-org logos.json, thu id goi y truoc, sau do "<Ten>.vn"
+            # Uu tien 1: API logos.json cua iptv-org (nguon chinh, on dinh, fetch
+            # duoc truc tiep tu GitHub Actions). Thu id goi y truoc, sau do doan
+            # "<TenKhongDau>.vn" theo quy uoc dat id cua iptv-org.
             hinted_id = IPTV_ORG_ID_HINTS.get(canonical_name)
             if hinted_id and hinted_id in iptvorg_logos:
                 return iptvorg_logos[hinted_id]
             guess_id = re.sub(r'[^A-Za-z0-9]', '', canonical_name) + ".vn"
             if guess_id in iptvorg_logos:
                 return iptvorg_logos[guess_id]
-            # Uu tien 4: logo goc trong file M3U nguon
+
+            # Uu tien 2: logo goc (tvg-logo) lay thang tu 2 nguon raw .ndl / .m3u
             if raw_logo:
                 return raw_logo
+
+            # Uu tien 3: vnepg_backup.json (da co san trong repo chinh) - theo tvg-id
+            if tvg_id and tvg_id in vnepg_id_map and vnepg_id_map[tvg_id]["logo"]:
+                return vnepg_id_map[tvg_id]["logo"]
+            # Uu tien 4: vnepg_backup.json - theo ten da chuan hoa
+            key = remove_accents(canonical_name)
+            if key in vnepg_name_map and vnepg_name_map[key]["logo"]:
+                return vnepg_name_map[key]["logo"]
+
             return ""
 
         def main():
-            print("Nap snapshot vnepg.site...")
-            vnepg_id_map, vnepg_name_map = load_vnepg_snapshot()
-
-            print("Nap logo tu iptv-org API...")
+            print("Nap logo tu iptv-org API (uu tien 1)...")
             iptvorg_logos = fetch_iptvorg_logos()
+
+            print("Nap vnepg_backup.json (fallback cuoi cung)...")
+            vnepg_id_map, vnepg_name_map = load_vnepg_backup()
 
             channels_data = {}
 
@@ -316,5 +324,5 @@ jobs:
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
         git add "listtivi.m3u"
-        git commit -m "Refactor: vnepg.site snapshot as primary logo source, iptv-org API secondary, jsDelivr group icons" || echo "No changes"
+        git commit -m "Refactor: iptv-org logo API primary, raw source tvg-logo fallback, vnepg_backup.json last-resort, jsDelivr group icons" || echo "No changes"
         git push
