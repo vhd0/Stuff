@@ -14,88 +14,105 @@ jobs:
     - name: Clean, Optimize and Build M3U
       run: |
         cat << 'EOF' > optimize_m3u.py
-        import re, json, urllib.request
+        import re, json, os, urllib.request
         from collections import OrderedDict
 
         # ====================================================================
-        # 1. CẤU HÌNH CƠ BẢN (DỄ DÀNG CHỈNH SỬA & BẢO TRÌ)
+        # 1. CAU HINH CO BAN
         # ====================================================================
         M3U_SOURCES = [
             "https://raw.githubusercontent.com/DinhLap96/ListTivi/refs/heads/main/ListTiVi/dltivi_v2.ndl",
             "https://raw.githubusercontent.com/iptv-org/iptv/refs/heads/master/streams/vn.m3u"
         ]
 
-        GROUP_ORDER = ["VTV", "HTV", "THVL", "SCTV", "Kênh Đặc Biệt", "Địa Phương", "Radio"]
+        GROUP_ORDER = ["VTV", "ON", "HTV", "HTVC", "SCTV", "THVL", "Kenh Dac Biet",
+                       "Phim & Giai Tri Quoc Te", "Dia Phuong", "VOV-VOH", "Radio"]
+
+        # File snapshot du lieu tu vnepg.site, commit chung repo voi workflow nay.
+        # LY DO: vnepg.site chan IP ngoai Viet Nam bang Cloudflare firewall nen
+        # GitHub Actions (chay tren datacenter nuoc ngoai) khong the tu fetch truc tiep.
+        # => Ban tu fetch JSON tu https://vnepg.site/api/... (hoac endpoint tuong duong)
+        #    tren mang VN, roi ghi de file vnepg_snapshot.json trong repo de cap nhat.
+        VNEPG_SNAPSHOT_FILE = "vnepg_snapshot.json"
+
+        # Logo API chinh thuc, on dinh, fetch duoc tu GitHub Actions (khong bi chan)
+        IPTV_ORG_LOGOS_API = "https://iptv-org.github.io/api/logos.json"
+
+        # Vai id kenh da biet tren iptv-org (channel id dang "<Ten>.vn") de tang ty le
+        # khop khi kenh khong co trong vnepg_snapshot.json. Day chi la gợi y phu,
+        # uu tien 1 luon la vnepg_snapshot.json.
+        IPTV_ORG_ID_HINTS = {
+            "VTV1": "VTV1.vn", "VTV2": "VTV2.vn", "VTV3": "VTV3.vn", "VTV4": "VTV4.vn",
+            "VTV5": "VTV5.vn", "VTV6": "VTV6.vn", "VTV7": "VTV7.vn", "VTV8": "VTV8.vn",
+            "VTV9": "VTV9.vn", "VTV10": "VTV10.vn", "HTV7": "HTV7.vn", "HTV9": "HTV9.vn",
+            "ANTV": "ANTV.vn", "QPVN": "QPVN.vn", "VTC1": "VTC1.vn", "VTC9": "VTC9.vn",
+            "THVL1": "THVL1.vn", "THVL2": "THVL2.vn", "HBO": "HBO.us", "CNN": "CNNInternational.us",
+            "BBC News": "BBCNews.uk", "CNBC": "CNBC.us", "Discovery": "DiscoveryChannel.us",
+            "Cartoon Network": "CartoonNetwork.us", "Animal Planet": "AnimalPlanet.us",
+        }
 
         # ====================================================================
-        # 2. TỪ ĐIỂN CHUẨN HÓA TÊN KÊNH (MAPPING TABLE)
+        # 2. TU DIEN CHUAN HOA TEN KENH (dung khi khong khop tvg-id voi snapshot)
         # ====================================================================
         CHANNEL_MAPPING = {
             "VTV1": ["vtv1", "vtv1hd"], "VTV2": ["vtv2", "vtv2hd"], "VTV3": ["vtv3", "vtv3hd"],
             "VTV4": ["vtv4", "vtv4hd"], "VTV5": ["vtv5", "vtv5hd"], "VTV6": ["vtv6", "vtv6hd"],
             "VTV7": ["vtv7", "vtv7hd"], "VTV8": ["vtv8", "vtv8hd"], "VTV9": ["vtv9", "vtv9hd"],
-            "VTV10": ["vtv10", "vtv10hd", "vtvcantho", "vtv can tho", "vtv cần thơ"],
-            "VTV5 Tây Nam Bộ": ["vtv5 tây nam bộ", "vtv5tnb"],
-            "VTV5 Tây Nguyên": ["vtv5 tây nguyên", "vtv5tn"],
-            "HTV1": ["htv1"], "HTV2 - Vie Channel": ["htv2", "vie channel"], "HTV3": ["htv3"], 
+            "VTV10": ["vtv10", "vtv10hd", "vtvcantho", "vtv can tho", "vtv can tho"],
+            "VTV5 Tay Nam Bo": ["vtv5 tay nam bo", "vtv5tnb"],
+            "VTV5 Tay Nguyen": ["vtv5 tay nguyen", "vtv5tn"],
+            "HTV1": ["htv1"], "HTV2 - Vie Channel": ["htv2", "vie channel"], "HTV3": ["htv3"],
             "HTV4": ["htv4"], "HTV7": ["htv7", "htv7hd"], "HTV9": ["htv9", "htv9hd"],
-            "THVL1": ["thvl1", "vĩnh long 1", "vinh long 1"], 
-            "THVL2": ["thvl2", "vĩnh long 2", "vinh long 2"],
-            "THVL3": ["thvl3", "vĩnh long 3", "vinh long 3"], 
-            "THVL4": ["thvl4", "vĩnh long 4", "vinh long 4"],
-            "ANTV": ["antv", "an ninh tv"], "QPVN": ["qpvn", "quốc phòng việt nam"]
+            "THVL1": ["thvl1", "vinh long 1"], "THVL2": ["thvl2", "vinh long 2"],
+            "THVL3": ["thvl3", "vinh long 3"], "THVL4": ["thvl4", "vinh long 4"],
+            "ANTV": ["antv", "an ninh tv"], "QPVN": ["qpvn", "quoc phong viet nam"],
         }
 
         # ====================================================================
-        # 3. STATIC LOGOS (FALLBACK) - LINK ỔN ĐỊNH TỪ WIKIMEDIA
+        # 3. FALLBACK LOGO TINH (LINK ON DINH TU jsDelivr, PHIEN BAN GHIM CUNG,
+        #    KHONG DUNG LINK THUMB WIKIMEDIA VI DE 404 KHI CACHE THAY DOI)
         # ====================================================================
-        STATIC_CHANNEL_LOGOS = {
-            "VTV1": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/VTV1_logo_2013.svg/512px-VTV1_logo_2013.svg.png",
-            "VTV2": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/VTV2_logo_2013.svg/512px-VTV2_logo_2013.svg.png",
-            "VTV3": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/VTV3_logo_2013.svg/512px-VTV3_logo_2013.svg.png",
-            "VTV4": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/VTV4_logo_2013.svg/512px-VTV4_logo_2013.svg.png",
-            "VTV5": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/VTV5_logo_2013.svg/512px-VTV5_logo_2013.svg.png",
-            "VTV6": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/VTV6_logo_2013.svg/512px-VTV6_logo_2013.svg.png",
-            "VTV7": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/VTV7_logo_2015.svg/512px-VTV7_logo_2015.svg.png",
-            "VTV8": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/VTV8_logo_2016.svg/512px-VTV8_logo_2016.svg.png",
-            "VTV9": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/VTV9_logo_2013.svg/512px-VTV9_logo_2013.svg.png",
-            "HTV7": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/HTV7_2016.svg/512px-HTV7_2016.svg.png",
-            "HTV9": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/HTV9_2016.svg/512px-HTV9_2016.svg.png",
-            "THVL1": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Logo_THVL1.svg/512px-Logo_THVL1.svg.png",
-            "THVL2": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Logo_THVL2.svg/512px-Logo_THVL2.svg.png",
-            "ANTV": "https://upload.wikimedia.org/wikipedia/commons/4/4d/Logo_ANTV.png",
-            "QPVN": "https://upload.wikimedia.org/wikipedia/commons/c/cd/QPVN_logo.png"
-        }
-
         STATIC_GROUP_LOGOS = {
-            "VTV": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Vietnam_Television_logo_2013.svg/512px-Vietnam_Television_logo_2013.svg.png",
-            "HTV": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/HTV_logo_2016.svg/512px-HTV_logo_2016.svg.png",
-            "THVL": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Logo_THVL1.svg/512px-Logo_THVL1.svg.png",
-            "SCTV": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/SCTV_logo.png/512px-SCTV_logo.png",
-            "Kênh Đặc Biệt": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Gold_Star.svg/512px-Gold_Star.svg.png",
-            "Địa Phương": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Location_map_pin.svg/512px-Location_map_pin.svg.png",
-            "Radio": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Radio_icon.svg/512px-Radio_icon.svg.png"
+            "VTV": "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f4fa.png",
+            "ON": "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f4fa.png",
+            "HTV": "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f4fa.png",
+            "HTVC": "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f4fa.png",
+            "SCTV": "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f4fa.png",
+            "THVL": "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f4fa.png",
+            "Kenh Dac Biet": "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/2b50.png",
+            "Phim & Giai Tri Quoc Te": "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f3ac.png",
+            "Dia Phuong": "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f4cd.png",
+            "VOV-VOH": "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f4fb.png",
+            "Radio": "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f4fb.png",
         }
 
         # ====================================================================
-        # 4. HÀM TIỆN ÍCH (HELPER FUNCTIONS)
+        # 4. HAM TIEN ICH
         # ====================================================================
         def remove_accents(s):
             s = s.lower()
-            s = re.sub(r'[àáạảãâầấậẩẫăằắặẳẵ]', 'a', s)
-            s = re.sub(r'[èéẹẻẽêềếệểễ]', 'e', s)
-            s = re.sub(r'[ìíịỉĩ]', 'i', s)
-            s = re.sub(r'[òóọỏõôồốộổỗơờớợởỡ]', 'o', s)
-            s = re.sub(r'[ùúụủũưừứựửữ]', 'u', s)
-            s = re.sub(r'[ỳýỵỷỹ]', 'y', s)
+            s = re.sub(r'[aàáạảãâầấậẩẫăằắặẳẵ]', 'a', s)
+            s = re.sub(r'[eèéẹẻẽêềếệểễ]', 'e', s)
+            s = re.sub(r'[iìíịỉĩ]', 'i', s)
+            s = re.sub(r'[oòóọỏõôồốộổỗơờớợởỡ]', 'o', s)
+            s = re.sub(r'[uùúụủũưừứựửữ]', 'u', s)
+            s = re.sub(r'[yỳýỵỷỹ]', 'y', s)
             s = re.sub(r'[đ]', 'd', s)
-            return s.strip()
+            return re.sub(r'\s+', ' ', s).strip()
 
-        def get_canonical_name(raw_name):
+        def get_tvg_id(extinf_line):
+            m = re.search(r'tvg-id="([^"]*)"', extinf_line, re.IGNORECASE)
+            return m.group(1).strip().lower() if m else ""
+
+        def get_canonical_name(raw_name, tvg_id, vnepg_id_map):
+            # Uu tien 1: khop chinh xac theo tvg-id voi snapshot vnepg.site (dang tin cay nhat)
+            if tvg_id and tvg_id in vnepg_id_map:
+                return vnepg_id_map[tvg_id]["name"]
+
             clean = re.sub(r'\(.*?\)|\[.*?\]', '', raw_name)
             clean = re.sub(r'\b(hd|sd|4k|1080p|720p|fhd)\b', '', clean, flags=re.IGNORECASE)
             clean = " ".join(clean.split()).strip()
-            
+
             clean_no_mark = remove_accents(clean)
             for canonical, variants in CHANNEL_MAPPING.items():
                 variants_no_mark = [remove_accents(v) for v in variants]
@@ -103,103 +120,164 @@ jobs:
                     return canonical
             return clean
 
-        def determine_group(name):
+        def determine_group(name, tvg_id, vnepg_id_map):
+            # Neu co trong snapshot, xac dinh nhom dua vao id (chinh xac hon)
+            if tvg_id and tvg_id in vnepg_id_map:
+                gid = tvg_id
+                if gid.startswith("on"): return "ON"
+                if gid.startswith("vtv") or gid == "vietnamtoday": return "VTV"
+                if gid.startswith("htvc"): return "HTVC"
+                if gid.startswith("htv"): return "HTV"
+                if gid.startswith("sctv"): return "SCTV"
+                if gid.startswith("vinhlong") or gid.startswith("thvl"): return "THVL"
+                if gid in ("antvhd", "qpvnhd"): return "Kenh Dac Biet"
+                if gid.startswith("vov") or gid.startswith("voh"): return "VOV-VOH"
+                if "radio" in gid: return "Radio"
+
             name_lower = remove_accents(name)
             if any(x in name_lower for x in ["vtv", "vietnam today"]): return "VTV"
+            if "htvc" in name_lower: return "HTVC"
             if "htv" in name_lower: return "HTV"
             if any(x in name_lower for x in ["thvl", "vinh long"]): return "THVL"
             if "sctv" in name_lower: return "SCTV"
-            if any(x in name_lower for x in ["antv", "an ninh", "qpvn", "quoc phong", "quoc hoi"]): return "Kênh Đặc Biệt"
-            if any(x in name_lower for x in ["radio", "fm", "am", "vov"]): return "Radio"
-            return "Địa Phương"
+            if any(x in name_lower for x in ["antv", "an ninh", "qpvn", "quoc phong", "quoc hoi"]): return "Kenh Dac Biet"
+            if any(x in name_lower for x in ["radio", "fm ", "am ", "vov", "voh"]): return "Radio"
+            if any(x in name_lower for x in ["hbo", "cinemax", "cartoon", "discovery", "bbc", "cnn",
+                                              "cnbc", "history", "animal planet", "fashiontv", "axn",
+                                              "warner", "box movie", "hollywood", "kbs", "arirang",
+                                              "nhk", "dw", "france 24", "tv5monde", "bloomberg"]):
+                return "Phim & Giai Tri Quoc Te"
+            return "Dia Phuong"
 
         # ====================================================================
-        # 5. XỬ LÝ API LOGO TỪ IPTV-ORG (PRIMARY TIER)
+        # 5. NAP SNAPSHOT VNEPG.SITE (BAKED-IN, VI GITHUB ACTIONS BI CHAN IP)
         # ====================================================================
-        def fetch_primary_logos():
-            logos = {}
+        def load_vnepg_snapshot():
+            id_map, name_map = {}, {}
+            if not os.path.exists(VNEPG_SNAPSHOT_FILE):
+                print(f"Khong tim thay {VNEPG_SNAPSHOT_FILE}, bo qua tang logo uu tien 1.")
+                return id_map, name_map
             try:
-                # Đọc nội dung json trực tiếp từ API
-                req = urllib.request.Request("https://iptv-org.github.io/api/logos.json", headers={"User-Agent": "Mozilla/5.0"})
-                content = urllib.request.urlopen(req, timeout=15).read().decode("utf-8")
-                data = json.loads(content)
-                
-                # Tạo bảng mapping phù hợp từ dữ liệu JSON
-                if isinstance(data, list):
-                    for item in data:
-                        logo_url = item.get("logo") or item.get("url")
-                        name = item.get("name") or item.get("id") or item.get("channel")
-                        
-                        if logo_url and name:
-                            logos[remove_accents(str(name))] = logo_url
+                with open(VNEPG_SNAPSHOT_FILE, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                for ch in data.get("channels", []):
+                    cid = str(ch.get("id", "")).strip().lower()
+                    name = str(ch.get("name", "")).strip()
+                    logo = str(ch.get("logo", "")).strip()
+                    if not name:
+                        continue
+                    entry = {"name": name, "logo": logo}
+                    if cid:
+                        id_map[cid] = entry
+                    name_map[remove_accents(name)] = entry
+                print(f"Da nap {len(id_map)} kenh tu snapshot vnepg.site.")
             except Exception as e:
-                print(f"Lỗi nạp API logo iptv-org: {e}")
-            return logos
+                print(f"Loi doc {VNEPG_SNAPSHOT_FILE}: {e}")
+            return id_map, name_map
 
         # ====================================================================
-        # 6. LOGIC CHÍNH: XỬ LÝ M3U & TẠO FILE MỚI
+        # 6. LOGO API IPTV-ORG (TANG UU TIEN 2, FETCH DUOC TU GITHUB ACTIONS)
         # ====================================================================
+        def fetch_iptvorg_logos():
+            by_id = {}
+            try:
+                req = urllib.request.Request(IPTV_ORG_LOGOS_API, headers={"User-Agent": "Mozilla/5.0"})
+                content = urllib.request.urlopen(req, timeout=20).read().decode("utf-8")
+                data = json.loads(content)
+                for item in data:
+                    cid = item.get("channel")
+                    url = item.get("url")
+                    if not cid or not url:
+                        continue
+                    # Uu tien SVG/PNG, giu ban ghi dau tien gap cho moi channel id
+                    if cid not in by_id:
+                        by_id[cid] = url
+                print(f"Da nap {len(by_id)} logo tu iptv-org API.")
+            except Exception as e:
+                print(f"Loi nap API logo iptv-org: {e}")
+            return by_id
+
+        # ====================================================================
+        # 7. LOGIC CHINH
+        # ====================================================================
+        def pick_logo(canonical_name, tvg_id, vnepg_id_map, vnepg_name_map, iptvorg_logos, raw_logo):
+            # Uu tien 1: snapshot vnepg.site theo tvg-id
+            if tvg_id and tvg_id in vnepg_id_map and vnepg_id_map[tvg_id]["logo"]:
+                return vnepg_id_map[tvg_id]["logo"]
+            # Uu tien 2: snapshot vnepg.site theo ten da chuan hoa
+            key = remove_accents(canonical_name)
+            if key in vnepg_name_map and vnepg_name_map[key]["logo"]:
+                return vnepg_name_map[key]["logo"]
+            # Uu tien 3: iptv-org logos.json, thu id goi y truoc, sau do "<Ten>.vn"
+            hinted_id = IPTV_ORG_ID_HINTS.get(canonical_name)
+            if hinted_id and hinted_id in iptvorg_logos:
+                return iptvorg_logos[hinted_id]
+            guess_id = re.sub(r'[^A-Za-z0-9]', '', canonical_name) + ".vn"
+            if guess_id in iptvorg_logos:
+                return iptvorg_logos[guess_id]
+            # Uu tien 4: logo goc trong file M3U nguon
+            if raw_logo:
+                return raw_logo
+            return ""
+
         def main():
-            print("Fetching Primary Logos...")
-            primary_logos = fetch_primary_logos()
+            print("Nap snapshot vnepg.site...")
+            vnepg_id_map, vnepg_name_map = load_vnepg_snapshot()
+
+            print("Nap logo tu iptv-org API...")
+            iptvorg_logos = fetch_iptvorg_logos()
+
             channels_data = {}
-            
-            print("Parsing M3U Sources...")
+
+            print("Phan tich cac nguon M3U...")
             for url in M3U_SOURCES:
                 try:
                     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
                     content = urllib.request.urlopen(req, timeout=15).read().decode("utf-8-sig")
                     lines = content.splitlines()
-                    
+
                     current_extinf = ""
                     current_raw_name = ""
-                    
+
                     for line in lines:
                         line = line.strip()
-                        if not line: continue
-                        
+                        if not line:
+                            continue
+
                         if line.lower().startswith("#extinf:"):
                             current_extinf = line
                             match = re.search(r',([^,]*)$', line)
                             current_raw_name = match.group(1).strip() if match else line.split(',')[-1].strip()
                             continue
-                        
+
                         if line.startswith("http") and current_extinf and current_raw_name:
-                            name = get_canonical_name(current_raw_name)
-                            group = determine_group(name)
-                            
-                            # LOGIC CHỌN LOGO MỚI (ƯU TIÊN RÕ RÀNG)
-                            primary_logo = primary_logos.get(remove_accents(name), "")
-                            fallback_logo = STATIC_CHANNEL_LOGOS.get(name, "")
-                            
+                            tvg_id = get_tvg_id(current_extinf)
+                            name = get_canonical_name(current_raw_name, tvg_id, vnepg_id_map)
+                            group = determine_group(name, tvg_id, vnepg_id_map)
+
                             raw_logo = ""
                             raw_match = re.search(r'tvg-logo="([^"]*)"', current_extinf, re.IGNORECASE)
-                            if raw_match: raw_logo = raw_match.group(1).strip()
-                            
-                            # Đưa logo JSON làm Primary, fallback bằng Static, cuối cùng là Raw
-                            final_logo = primary_logo or fallback_logo or raw_logo
-                            
+                            if raw_match:
+                                raw_logo = raw_match.group(1).strip()
+
+                            final_logo = pick_logo(name, tvg_id, vnepg_id_map, vnepg_name_map,
+                                                    iptvorg_logos, raw_logo)
+
                             if name not in channels_data:
-                                channels_data[name] = {
-                                    "group": group,
-                                    "logo": final_logo,
-                                    "urls": [line]
-                                }
+                                channels_data[name] = {"group": group, "logo": final_logo, "urls": [line]}
                             else:
                                 if line not in channels_data[name]["urls"]:
                                     channels_data[name]["urls"].append(line)
-                                
-                                # Cập nhật logo nếu trước đó chưa tìm thấy
                                 if not channels_data[name]["logo"] and final_logo:
                                     channels_data[name]["logo"] = final_logo
-                                    
+
                             current_extinf = ""
                             current_raw_name = ""
-                            
-                except Exception as e:
-                    print(f"Lỗi khi xử lý {url}: {e}")
 
-            print("Exporting to listtivi.m3u...")
+                except Exception as e:
+                    print(f"Loi khi xu ly {url}: {e}")
+
+            print("Xuat ra listtivi.m3u...")
             final_ordered = OrderedDict()
             for g in GROUP_ORDER:
                 sorted_channels = sorted(
@@ -208,31 +286,35 @@ jobs:
                 )
                 for ch in sorted_channels:
                     final_ordered[ch] = channels_data[ch]
+            # Kenh chua khop nhom nao (an toan, khong bi mat khoi danh sach)
+            leftover = [k for k in channels_data if k not in final_ordered]
+            for ch in sorted(leftover, key=lambda s: remove_accents(s)):
+                final_ordered[ch] = channels_data[ch]
 
             with open("listtivi.m3u", "w", encoding="utf-8") as f:
                 f.write('#EXTM3U url-tvg="https://vnepg.site/epg.xml.gz"\n')
                 for name, data in final_ordered.items():
-                    if not data["urls"]: continue
-                    
+                    if not data["urls"]:
+                        continue
+
                     logo_attr = f' tvg-logo="{data["logo"]}"' if data["logo"] else ""
-                    
                     group_logo_url = STATIC_GROUP_LOGOS.get(data["group"], "")
                     group_logo_attr = f' group-logo="{group_logo_url}"' if group_logo_url else ""
-                    
-                    for idx, url in enumerate(data["urls"]):
-                        suffix = f" [Dự phòng {idx+1}]" if idx > 0 else ""
+
+                    for idx, u in enumerate(data["urls"]):
+                        suffix = f" [Du phong {idx+1}]" if idx > 0 else ""
                         extinf = f'#EXTINF:-1{logo_attr}{group_logo_attr} group-title="{data["group"]}",{name}{suffix}'
-                        f.write(f'{extinf}\n{url}\n')
-                        
+                        f.write(f'{extinf}\n{u}\n')
+
             print("Build Success!")
 
         if __name__ == "__main__":
             main()
         EOF
         python3 optimize_m3u.py
-        
+
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
         git add "listtivi.m3u"
-        git commit -m "Refactor: Modular code, prioritize iptv-org logos API, robust static fallbacks" || echo "No changes"
+        git commit -m "Refactor: vnepg.site snapshot as primary logo source, iptv-org API secondary, jsDelivr group icons" || echo "No changes"
         git push
