@@ -11,91 +11,76 @@ jobs:
     steps:
     - uses: actions/checkout@v5
 
-    - name: Process and Merge M3U
+    - name: Clean, Optimize and Build M3U
       run: |
         cat << 'EOF' > optimize_m3u.py
         import re, json, urllib.request
         from collections import OrderedDict
 
         # ====================================================================
-        # BẢNG MAPPING THỦ CÔNG TỪNG KÊNH DỰA THEO DANH SÁCH JSON CHUẨN
+        # 1. CẤU HÌNH CƠ BẢN (DỄ DÀNG CHỈNH SỬA & BẢO TRÌ)
         # ====================================================================
-        CHANNEL_MAP = {
-            # --- NHÓM KÊNH VTV ---
+        M3U_SOURCES = [
+            "https://raw.githubusercontent.com/DinhLap96/ListTivi/refs/heads/main/ListTiVi/dltivi_v2.ndl",
+            "https://raw.githubusercontent.com/iptv-org/iptv/refs/heads/master/streams/vn.m3u"
+        ]
+
+        GROUP_ORDER = ["VTV", "HTV", "THVL", "SCTV", "Kênh Đặc Biệt", "Địa Phương", "Radio"]
+
+        # ====================================================================
+        # 2. TỪ ĐIỂN CHUẨN HÓA TÊN KÊNH (MAPPING TABLE)
+        # ====================================================================
+        CHANNEL_MAPPING = {
             "VTV1": ["vtv1", "vtv1hd"], "VTV2": ["vtv2", "vtv2hd"], "VTV3": ["vtv3", "vtv3hd"],
             "VTV4": ["vtv4", "vtv4hd"], "VTV5": ["vtv5", "vtv5hd"], "VTV6": ["vtv6", "vtv6hd"],
             "VTV7": ["vtv7", "vtv7hd"], "VTV8": ["vtv8", "vtv8hd"], "VTV9": ["vtv9", "vtv9hd"],
             "VTV10": ["vtv10", "vtv10hd", "vtvcantho", "vtv can tho", "vtv cần thơ"],
-            "VTV5 Tây Nam Bộ": ["vtv5 tay nam bo", "vtv5 tây nam bộ", "vtv5tnb", "vtv5hdtnb"],
-            "VTV5 Tây Nguyên": ["vtv5 tay nguyen", "vtv5 tây nguyên", "vtv5tn", "vtv5hdtn"],
-            "Vietnam Today": ["vietnam today", "vietnamtoday", "vntoday"],
-
-            # --- KHỐI KÊNH AN NINH / QUỐC PHÒNG / ĐẶC BIỆT ---
-            "ANTV": ["antv", "an ninh tv", "antvhd"],
-            "QPVN": ["qpvn", "quốc phòng việt nam", "quoc phong vn", "qpvnhd"],
-
-            # --- NHÓM KÊNH VTVCAB (ON CHANNELS) ---
-            "ON Sports": ["on sports", "onsports"], "ON Sports+": ["on sports+", "onsports+"],
-            "ON Football": ["on football", "onfootball"], "ON Sports News": ["on sports news", "onsportsnews"],
-            "ON Golf": ["on golf", "ongolf"], "ON Vie Giải Trí": ["on vie giải trí", "onviegiaitri"],
-            "ON Phim Việt": ["on phim việt", "onphimviet"], "ON Movies": ["on movies", "onmovies"],
-            "ON E Channel": ["on e channel", "onechannel"], "ON Cine": ["on cine", "oncine"],
-            "ON BiBi": ["on bibi", "onbibi"], "ON Info TV": ["on info tv", "oninfotv"],
-            "ON O2TV": ["on o2tv", "ono2tv"], "ON Style TV": ["on style tv", "onstyle"],
-            "ON Music": ["on music", "onmusic"], "ON Trending": ["on trending", "ontrending"],
-            "ON Vie Dramas": ["on vie dramas", "onviedramas"], "ON VFamily": ["on vfamily", "onvfamily"],
-            "ON Kids": ["on kids", "onkids"], "ON Life": ["on life", "onlife"],
-
-            # --- NHÓM KÊNH HTV / HTVC ---
-            "HTV1": ["htv1"], "HTV3": ["htv3"], "HTV4": ["htv4"], "HTV7": ["htv7", "htv7hd"], "HTV9": ["htv9", "htv9hd"],
-            "HTV2 - Vie Channel": ["htv2", "htv2hd", "htv2 - vie channel", "vie channel"],
-            "HTV5 - Bchannel": ["htv5", "htv5 - bchannel", "bchannel"],
-            "HTV Thể Thao": ["htv thể thao", "htv the thao", "htvthethaohd"],
-            "HTVC Thuần Việt": ["htvc thuần việt", "htvc thuan viet", "htvcthuanviet"],
-            "HTVC Gia Đình": ["htvc gia định", "htvc giadinh", "htvcgiadinhhd"],
-            "HTVC Phụ Nữ": ["htvc phụ nữ", "htvc phu nu", "htvcphunuhd"],
-            "HTVC Ca Nhạc": ["htvc ca nhạc", "htvc ca nhac", "htvccanhachd"],
-            "HTVC Phim": ["htvc phim", "htvcphimhd"],
-            "HTVC Du Lịch và Cuộc Sống": ["htvc du lịch và cuộc sống", "htvc du lich", "htvcdulichhd"],
-            "HTVC Plus": ["htvc plus", "htvcplushd"],
-
-            # --- NHÓM KÊNH SCTV ---
-            "SCTV1": ["sctv1"], "SCTV2": ["sctv2"], "SCTV3": ["sctv3"], "SCTV4": ["sctv4"], "SCTV6": ["sctv6"],
-            "SCTV7": ["sctv7"], "SCTV8": ["sctv8"], "SCTV9": ["sctv9"], "SCTV11": ["sctv11"], "SCTV12": ["sctv12"],
-            "SCTV13": ["sctv13"], "SCTV14": ["sctv14"], "SCTV15": ["sctv15"], "SCTV16": ["sctv16"], "SCTV17": ["sctv17"],
-            "SCTV18": ["sctv18"], "SCTV19": ["sctv19"], "SCTV20": ["sctv20"], "SCTV21": ["sctv21"], "SCTV22": ["sctv22"],
-            "SCTV Phim Tổng Hợp": ["sctv phim tổng hợp", "sctv phim tong hop", "sctvhdpth"], "SCTV4K": ["sctv4k"],
-
-            # --- NHÓM KÊNH ĐỊA PHƯƠNG ---
-            "An Giang 1": ["an giang 1", "angiang1", "an giang tv1"], "An Giang 2": ["an giang 2", "angiang2", "an giang tv2"],
-            "An Giang 3": ["an giang 3", "angiang3", "an giang tv3"], "Bắc Ninh": ["bắc ninh", "bacninh", "bắc ninh 1"],
-            "Cần Thơ 1": ["cần thơ 1", "cantho1", "cần thơ tv1"], "Cần Thơ 2": ["cần thơ 2", "cantho2", "cần thơ tv2"],
-            "Cần Thơ 3": ["cần thơ 3", "cantho3", "cần thơ tv3"], "Cà Mau": ["cà mau", "camau", "cà mau tv"],
-            "Cao Bằng": ["cao bằng", "caobang", "cao bằng tv"], "Đắk Lắk": ["đắk lắk", "daklak", "đắk lắk tv"],
-            "Điện Biên": ["điện biên", "dienbien", "điện biên tv"], "Đà Nẵng 1": ["đà nẵng 1", "danang1", "đà nẵng tv1"],
-            "Đà Nẵng 2": ["đà nẵng 2", "danang2", "đà nẵng tv2"], "Đồng Nai 1": ["đồng nai 1", "dongnai1", "đồng nai tv1"],
-            "Đồng Nai 2": ["đồng nai 2", "dongnai2", "đồng nai tv2"], "Đồng Tháp 1": ["đồng tháp 1", "dongthap1", "đồng tháp tv1"],
-            "Đồng Tháp 2": ["đồng tháp 2", "dongthap2", "đồng tháp tv2"], "Gia Lai": ["gia lai", "gialai"],
-            "Hà Nội 1": ["hà nội 1", "hanoi1", "hanoitv1"], "Hà Nội 2": ["hà nội 2", "hanoi2", "hanoitv2"],
-            "HiTV": ["hitv"], "YouTV": ["youtv"], "Hà Tĩnh": ["hà tĩnh", "hatinh", "hà tĩnh tv"],
-            "Hải Phòng": ["hải phòng", "haiphong"], "Hải Phòng 3": ["hải phòng 3", "haiphong3"],
-            "Huế": ["huế", "hue", "huế tv"], "Hưng Yên": ["hưng yên", "hungyen"],
-            "Khánh Hòa": ["khánh hòa", "khanhhoa", "khánh hòa tv"], "Khánh Hòa 1": ["khánh hòa 1", "khanhhoa1", "khánh hòa tv1"],
-            "Lai Châu": ["lai châu", "laichau"], "Lâm Đồng 1": ["lâm đồng 1", "lamdong1", "lâm đồng tv"],
-            "Lâm Đồng 2": ["lâm đồng 2", "lamdong2"], "Lạng Sơn": ["lạng sơn", "langson"], "Lào Cai": ["lào cai", "laocai", "lào cai tv"],
-            "Nghệ An": ["nghệ an", "nghean", "nghệ an tv"], "Ninh Bình": ["ninh bình", "ninhbinh"], "Phú Thọ": ["phú thọ", "phutho"],
-            "Quảng Ngãi 1": ["quảng ngãi 1", "quangngai", "quảng ngãi tv1"], "Quảng Ngãi 2": ["quảng ngãi 2", "quangngai2"],
-            "Quảng Ninh 1": ["quảng ninh 1", "quangninh1"], "Quảng Ninh 3": ["quảng ninh 3", "quangninh3"],
-            "Quảng Trị": ["quảng trị", "quangtri"], "Sơn La": ["sơn la", "sonla"], "Tây Ninh": ["tây ninh", "tayninh", "tây ninh tv"],
-            "Thái Nguyên": ["thái nguyên", "thainguyen", "thái nguyên tv"], "Thanh Hóa": ["thanh hóa", "thanhhoa"],
-            "Tuyên Quang": ["tuyên quang", "tuyenquang"], "Vĩnh Long 1": ["vĩnh long 1", "vinhlong1", "vĩnh long tv1"],
-            "Vĩnh Long 2": ["vĩnh long 2", "vinhlong2"], "Vĩnh Long 3": ["vĩnh long 3", "vinhlong3"],
-            "Vĩnh Long 4": ["vĩnh long 4", "vinhlong4"], "Vĩnh Long 5": ["vĩnh long 5", "vinhlong5", "vĩnh long tv5"]
+            "VTV5 Tây Nam Bộ": ["vtv5 tây nam bộ", "vtv5tnb"],
+            "VTV5 Tây Nguyên": ["vtv5 tây nguyên", "vtv5tn"],
+            "HTV1": ["htv1"], "HTV2 - Vie Channel": ["htv2", "vie channel"], "HTV3": ["htv3"], 
+            "HTV4": ["htv4"], "HTV7": ["htv7", "htv7hd"], "HTV9": ["htv9", "htv9hd"],
+            "THVL1": ["thvl1", "vĩnh long 1", "vinh long 1"], 
+            "THVL2": ["thvl2", "vĩnh long 2", "vinh long 2"],
+            "THVL3": ["thvl3", "vĩnh long 3", "vinh long 3"], 
+            "THVL4": ["thvl4", "vĩnh long 4", "vinh long 4"],
+            "ANTV": ["antv", "an ninh tv"], "QPVN": ["qpvn", "quốc phòng việt nam"]
         }
 
-        GROUP_ORDER = ["VTV", "HTV", "SCTV", "Kênh Đặc Biệt", "Địa Phương", "Radio"]
+        # ====================================================================
+        # 3. STATIC LOGOS (FALLBACK) - LINK ỔN ĐỊNH TỪ WIKIMEDIA
+        # ====================================================================
+        STATIC_CHANNEL_LOGOS = {
+            "VTV1": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/VTV1_logo_2013.svg/512px-VTV1_logo_2013.svg.png",
+            "VTV2": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/VTV2_logo_2013.svg/512px-VTV2_logo_2013.svg.png",
+            "VTV3": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/VTV3_logo_2013.svg/512px-VTV3_logo_2013.svg.png",
+            "VTV4": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/VTV4_logo_2013.svg/512px-VTV4_logo_2013.svg.png",
+            "VTV5": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/VTV5_logo_2013.svg/512px-VTV5_logo_2013.svg.png",
+            "VTV6": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/VTV6_logo_2013.svg/512px-VTV6_logo_2013.svg.png",
+            "VTV7": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/VTV7_logo_2015.svg/512px-VTV7_logo_2015.svg.png",
+            "VTV8": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/VTV8_logo_2016.svg/512px-VTV8_logo_2016.svg.png",
+            "VTV9": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/VTV9_logo_2013.svg/512px-VTV9_logo_2013.svg.png",
+            "HTV7": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/HTV7_2016.svg/512px-HTV7_2016.svg.png",
+            "HTV9": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/HTV9_2016.svg/512px-HTV9_2016.svg.png",
+            "THVL1": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Logo_THVL1.svg/512px-Logo_THVL1.svg.png",
+            "THVL2": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Logo_THVL2.svg/512px-Logo_THVL2.svg.png",
+            "ANTV": "https://upload.wikimedia.org/wikipedia/commons/4/4d/Logo_ANTV.png",
+            "QPVN": "https://upload.wikimedia.org/wikipedia/commons/c/cd/QPVN_logo.png"
+        }
 
-        def no_marks(s):
+        STATIC_GROUP_LOGOS = {
+            "VTV": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Vietnam_Television_logo_2013.svg/512px-Vietnam_Television_logo_2013.svg.png",
+            "HTV": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/HTV_logo_2016.svg/512px-HTV_logo_2016.svg.png",
+            "THVL": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Logo_THVL1.svg/512px-Logo_THVL1.svg.png",
+            "SCTV": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/SCTV_logo.png/512px-SCTV_logo.png",
+            "Kênh Đặc Biệt": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Gold_Star.svg/512px-Gold_Star.svg.png",
+            "Địa Phương": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Location_map_pin.svg/512px-Location_map_pin.svg.png",
+            "Radio": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Radio_icon.svg/512px-Radio_icon.svg.png"
+        }
+
+        # ====================================================================
+        # 4. HÀM TIỆN ÍCH (HELPER FUNCTIONS)
+        # ====================================================================
+        def remove_accents(s):
             s = s.lower()
             s = re.sub(r'[àáạảãâầấậẩẫăằắặẳẵ]', 'a', s)
             s = re.sub(r'[èéẹẻẽêềếệểễ]', 'e', s)
@@ -104,136 +89,150 @@ jobs:
             s = re.sub(r'[ùúụủũưừứựửữ]', 'u', s)
             s = re.sub(r'[ỳýỵỷỹ]', 'y', s)
             s = re.sub(r'[đ]', 'd', s)
-            return s
-
-        registry = {}
-        try:
-            with open("vnepg_backup.json", "r", encoding="utf-8") as f:
-                raw_data = json.load(f)
-                for ch in raw_data.get("channels", []):
-                    registry[ch.get("id")] = ch
-        except Exception as e:
-            print(f"Lỗi nạp JSON: {e}")
+            return s.strip()
 
         def get_canonical_name(raw_name):
             clean = re.sub(r'\(.*?\)|\[.*?\]', '', raw_name)
-            clean = re.sub(r'\b(hd|sd|4k|1080p|720p)\b', '', clean, flags=re.IGNORECASE)
-            clean = re.sub(r'(hd|sd|4k)$', '', clean.strip(), flags=re.IGNORECASE)
+            clean = re.sub(r'\b(hd|sd|4k|1080p|720p|fhd)\b', '', clean, flags=re.IGNORECASE)
             clean = " ".join(clean.split()).strip()
             
-            clean_no_mark = no_marks(clean)
-            
-            for canonical, variants in CHANNEL_MAP.items():
-                if clean_no_mark == no_marks(canonical) or clean_no_mark in [no_marks(v) for v in variants]:
+            clean_no_mark = remove_accents(clean)
+            for canonical, variants in CHANNEL_MAPPING.items():
+                variants_no_mark = [remove_accents(v) for v in variants]
+                if clean_no_mark == remove_accents(canonical) or clean_no_mark in variants_no_mark:
                     return canonical
             return clean
 
-        def get_group(name, id_json):
-            name_lower = no_marks(name)
-            if "vietnam today" in name_lower: return "VTV"
-            if any(x in name_lower for x in ["vtv1", "vtv2", "vtv3", "vtv4", "vtv5", "vtv6", "vtv7", "vtv8", "vtv9", "vtv10", "vtv"]): return "VTV"
+        def determine_group(name):
+            name_lower = remove_accents(name)
+            if any(x in name_lower for x in ["vtv", "vietnam today"]): return "VTV"
             if "htv" in name_lower: return "HTV"
+            if any(x in name_lower for x in ["thvl", "vinh long"]): return "THVL"
             if "sctv" in name_lower: return "SCTV"
-            if any(x in name_lower for x in ["antv", "an ninh", "qpvn", "quoc phong"]): return "Kênh Đặc Biệt"
-            if any(x in name_lower for x in ["vov", "radio", "fm", "am", "zing", "xone"]): return "Radio"
-            if id_json and "radio" in id_json.lower(): return "Radio"
+            if any(x in name_lower for x in ["antv", "an ninh", "qpvn", "quoc phong", "quoc hoi"]): return "Kênh Đặc Biệt"
+            if any(x in name_lower for x in ["radio", "fm", "am", "vov"]): return "Radio"
             return "Địa Phương"
 
-        raw_collected = {}
-        urls = [
-            "https://raw.githubusercontent.com/DinhLap96/ListTivi/refs/heads/main/ListTiVi/dltivi_v2.ndl",
-            "https://raw.githubusercontent.com/iptv-org/iptv/refs/heads/master/streams/vn.m3u"
-        ]
-
-        for url in urls:
+        # ====================================================================
+        # 5. XỬ LÝ API LOGO TỪ IPTV-ORG (PRIMARY TIER)
+        # ====================================================================
+        def fetch_primary_logos():
+            logos = {}
             try:
-                req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-                content = urllib.request.urlopen(req, timeout=15).read().decode("utf-8-sig")
+                # Đọc nội dung json trực tiếp từ API
+                req = urllib.request.Request("https://iptv-org.github.io/api/logos.json", headers={"User-Agent": "Mozilla/5.0"})
+                content = urllib.request.urlopen(req, timeout=15).read().decode("utf-8")
+                data = json.loads(content)
                 
-                lines = content.splitlines()
-                current_extinf = None
-                current_raw_name = None
-                
-                for line in lines:
-                    line = line.strip()
-                    if not line:
-                        continue
-                    
-                    if line.lower().startswith("#extinf:"):
-                        current_extinf = line
-                        name_match = re.search(r',([^,]*)$', line)
-                        if name_match:
-                            current_raw_name = name_match.group(1).strip()
-                        else:
-                            current_raw_name = line.split(',')[-1].strip()
-                        continue
-                    
-                    if line.startswith("#"):
-                        continue
+                # Tạo bảng mapping phù hợp từ dữ liệu JSON
+                if isinstance(data, list):
+                    for item in data:
+                        logo_url = item.get("logo") or item.get("url")
+                        name = item.get("name") or item.get("id") or item.get("channel")
                         
-                    if line.startswith("http://") or line.startswith("https://"):
-                        if current_extinf and current_raw_name:
+                        if logo_url and name:
+                            logos[remove_accents(str(name))] = logo_url
+            except Exception as e:
+                print(f"Lỗi nạp API logo iptv-org: {e}")
+            return logos
+
+        # ====================================================================
+        # 6. LOGIC CHÍNH: XỬ LÝ M3U & TẠO FILE MỚI
+        # ====================================================================
+        def main():
+            print("Fetching Primary Logos...")
+            primary_logos = fetch_primary_logos()
+            channels_data = {}
+            
+            print("Parsing M3U Sources...")
+            for url in M3U_SOURCES:
+                try:
+                    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+                    content = urllib.request.urlopen(req, timeout=15).read().decode("utf-8-sig")
+                    lines = content.splitlines()
+                    
+                    current_extinf = ""
+                    current_raw_name = ""
+                    
+                    for line in lines:
+                        line = line.strip()
+                        if not line: continue
+                        
+                        if line.lower().startswith("#extinf:"):
+                            current_extinf = line
+                            match = re.search(r',([^,]*)$', line)
+                            current_raw_name = match.group(1).strip() if match else line.split(',')[-1].strip()
+                            continue
+                        
+                        if line.startswith("http") and current_extinf and current_raw_name:
                             name = get_canonical_name(current_raw_name)
+                            group = determine_group(name)
+                            
+                            # LOGIC CHỌN LOGO MỚI (ƯU TIÊN RÕ RÀNG)
+                            primary_logo = primary_logos.get(remove_accents(name), "")
+                            fallback_logo = STATIC_CHANNEL_LOGOS.get(name, "")
                             
                             raw_logo = ""
-                            logo_match = re.search(r'tvg-logo="([^"]*)"', current_extinf, re.IGNORECASE)
-                            if logo_match:
-                                raw_logo = logo_match.group(1).strip()
+                            raw_match = re.search(r'tvg-logo="([^"]*)"', current_extinf, re.IGNORECASE)
+                            if raw_match: raw_logo = raw_match.group(1).strip()
                             
-                            tvg_id, json_logo = "", ""
-                            for ch_id, ch_obj in registry.items():
-                                if no_marks(ch_obj.get("name")) == no_marks(name):
-                                    tvg_id = ch_obj.get("id", "")
-                                    json_logo = ch_obj.get("logo", "").strip()
-                                    break
+                            # Đưa logo JSON làm Primary, fallback bằng Static, cuối cùng là Raw
+                            final_logo = primary_logo or fallback_logo or raw_logo
                             
-                            # TỐI ƯU LOGIC LOGO: Ưu tiên logo từ file thô (raw_logo), json_logo chỉ làm dự phòng
-                            final_logo = raw_logo if raw_logo else json_logo
-                            group = get_group(name, tvg_id)
-                            
-                            if name not in raw_collected:
-                                raw_collected[name] = {"group": group, "id": tvg_id, "logo": final_logo, "urls": []}
+                            if name not in channels_data:
+                                channels_data[name] = {
+                                    "group": group,
+                                    "logo": final_logo,
+                                    "urls": [line]
+                                }
                             else:
-                                # Ghi đè logo nếu có raw_logo (đề phòng trước đó chỉ đang dùng logo từ JSON hoặc trống)
-                                if raw_logo:
-                                    raw_collected[name]["logo"] = raw_logo
-                                elif not raw_collected[name]["logo"] and final_logo:
-                                    raw_collected[name]["logo"] = final_logo
+                                if line not in channels_data[name]["urls"]:
+                                    channels_data[name]["urls"].append(line)
+                                
+                                # Cập nhật logo nếu trước đó chưa tìm thấy
+                                if not channels_data[name]["logo"] and final_logo:
+                                    channels_data[name]["logo"] = final_logo
+                                    
+                            current_extinf = ""
+                            current_raw_name = ""
                             
-                            if line not in raw_collected[name]["urls"]:
-                                raw_collected[name]["urls"].append(line)
+                except Exception as e:
+                    print(f"Lỗi khi xử lý {url}: {e}")
 
-            except Exception as e:
-                print(f"Lỗi xử lý nguồn {url}: {e}")
-                continue
+            print("Exporting to listtivi.m3u...")
+            final_ordered = OrderedDict()
+            for g in GROUP_ORDER:
+                sorted_channels = sorted(
+                    [k for k, v in channels_data.items() if v["group"] == g],
+                    key=lambda s: [int(t) if t.isdigit() else t.lower() for t in re.split(r'(\d+)', remove_accents(s))]
+                )
+                for ch in sorted_channels:
+                    final_ordered[ch] = channels_data[ch]
 
-        final_data = OrderedDict()
-        for g in GROUP_ORDER:
-            sorted_channels_in_group = sorted(
-                [k for k, v in raw_collected.items() if v["group"] == g],
-                key=lambda s: [int(t) if t.isdigit() else t.lower() for t in re.split(r'(\d+)', no_marks(s))]
-            )
-            for ch_name in sorted_channels_in_group:
-                final_data[ch_name] = raw_collected[ch_name]
+            with open("listtivi.m3u", "w", encoding="utf-8") as f:
+                f.write('#EXTM3U url-tvg="https://vnepg.site/epg.xml.gz"\n')
+                for name, data in final_ordered.items():
+                    if not data["urls"]: continue
+                    
+                    logo_attr = f' tvg-logo="{data["logo"]}"' if data["logo"] else ""
+                    
+                    group_logo_url = STATIC_GROUP_LOGOS.get(data["group"], "")
+                    group_logo_attr = f' group-logo="{group_logo_url}"' if group_logo_url else ""
+                    
+                    for idx, url in enumerate(data["urls"]):
+                        suffix = f" [Dự phòng {idx+1}]" if idx > 0 else ""
+                        extinf = f'#EXTINF:-1{logo_attr}{group_logo_attr} group-title="{data["group"]}",{name}{suffix}'
+                        f.write(f'{extinf}\n{url}\n')
+                        
+            print("Build Success!")
 
-        with open("listtivi.m3u", "w", encoding="utf-8") as f:
-            f.write('#EXTM3U url-tvg="https://vnepg.site/epg.xml.gz"\n')
-            for name, data in final_data.items():
-                if not data["urls"]: continue
-                
-                tvg = ""
-                if data["id"]: tvg += f' tvg-id="{data["id"]}"'
-                if data["logo"]: tvg += f' tvg-logo="{data["logo"]}"'
-                
-                for idx, url in enumerate(data["urls"]):
-                    suffix = f" [Dự phòng {idx+1}]" if idx > 0 else ""
-                    f.write(f'#EXTINF:-1{tvg} group-title="{data["group"]}",{name}{suffix}\n{url}\n')
-        print("Đã cập nhật: Ưu tiên sử dụng logo từ nguồn thô, lấy JSON làm dự phòng thành công!")
+        if __name__ == "__main__":
+            main()
         EOF
         python3 optimize_m3u.py
         
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
         git add "listtivi.m3u"
-        git commit -m "Enhancement: Set raw logo as primary and json logo as fallback" || echo "No changes"
+        git commit -m "Refactor: Modular code, prioritize iptv-org logos API, robust static fallbacks" || echo "No changes"
         git push
