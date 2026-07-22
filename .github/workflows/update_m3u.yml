@@ -14,7 +14,7 @@ jobs:
     - name: Clean, Optimize and Build M3U
       run: |
         cat << 'EOF' > optimize_m3u.py
-        import re, json, os, urllib.request
+        import re, json, os, urllib.request, urllib.error
         from collections import OrderedDict
 
         # ====================================================================
@@ -28,38 +28,41 @@ jobs:
         GROUP_ORDER = ["VTV", "ON", "HTV", "HTVC", "SCTV", "THVL", "Kenh Dac Biet",
                        "Phim & Giai Tri Quoc Te", "Dia Phuong", "VOV-VOH", "Radio"]
 
-        # File backup du lieu tu vnepg.site, da co san trong repo chinh (nhanh main)
-        # cua ban. LY DO no ton tai o day: vnepg.site chan IP ngoai Viet Nam bang
-        # Cloudflare firewall nen GitHub Actions (chay tren datacenter nuoc ngoai)
-        # khong the tu fetch truc tiep tu vnepg.site. Ban tu fetch JSON tren mang VN
-        # roi commit de vnepg_backup.json trong repo, workflow se doc file nay
-        # (da co san sau buoc actions/checkout) lam TANG FALLBACK CUOI CUNG cho logo.
+        # vnepg_backup.json: da co san trong repo chinh cua ban (nhanh main).
+        # LY DO ton tai: vnepg.site chan IP ngoai Viet Nam bang Cloudflare firewall
+        # nen GitHub Actions khong tu fetch truc tiep duoc. Ban tu fetch tren mang VN
+        # roi commit de cap nhat file nay. Dung lam FALLBACK CUOI CUNG cho logo,
+        # nhung van dung de chuan hoa TEN/NHOM kenh (đáng tin cậy nhất cho việc này).
         VNEPG_BACKUP_FILE = "vnepg_backup.json"
 
-        # Logo API chinh thuc, on dinh, fetch duoc tu GitHub Actions (khong bi chan)
+        IPTV_ORG_CHANNELS_API = "https://iptv-org.github.io/api/channels.json"
         IPTV_ORG_LOGOS_API = "https://iptv-org.github.io/api/logos.json"
 
-        # Vai id kenh da biet tren iptv-org (channel id dang "<Ten>.vn") de tang ty le
-        # khop khi kenh khong co trong vnepg_snapshot.json. Day chi la gợi y phu,
-        # uu tien 1 luon la vnepg_snapshot.json.
+        # Domain duoc tin tuong tuyet doi, KHONG validate qua HTTP (do bi Cloudflare
+        # chan IP datacenter/GitHub Actions nen HEAD request se bao loi gia du link
+        # van dung binh thuong voi nguoi dung that; hoac da duoc pin version on dinh).
+        TRUSTED_DOMAINS = ("vnepg.site", "cdn.jsdelivr.net")
+
+        # Vai goi y id thu cong cho truong hop ten kenh dac biet ma khong khop duoc
+        # qua channels.json (safety net, uu tien thap hon channels.json match).
         IPTV_ORG_ID_HINTS = {
-            "VTV1": "VTV1.vn", "VTV2": "VTV2.vn", "VTV3": "VTV3.vn", "VTV4": "VTV4.vn",
-            "VTV5": "VTV5.vn", "VTV6": "VTV6.vn", "VTV7": "VTV7.vn", "VTV8": "VTV8.vn",
-            "VTV9": "VTV9.vn", "VTV10": "VTV10.vn", "HTV7": "HTV7.vn", "HTV9": "HTV9.vn",
-            "ANTV": "ANTV.vn", "QPVN": "QPVN.vn", "VTC1": "VTC1.vn", "VTC9": "VTC9.vn",
-            "THVL1": "THVL1.vn", "THVL2": "THVL2.vn", "HBO": "HBO.us", "CNN": "CNNInternational.us",
-            "BBC News": "BBCNews.uk", "CNBC": "CNBC.us", "Discovery": "DiscoveryChannel.us",
-            "Cartoon Network": "CartoonNetwork.us", "Animal Planet": "AnimalPlanet.us",
+            "ANTV": "AnNinhTV.vn", "QPVN": "QPVN.vn", "Vietnam Today": "VietnamToday.vn",
+            "HTV Key": "HTVKey.vn", "HTV Thể thao": "HTVSports.vn",
         }
 
+        # Vai id tvg-id trong nguon raw khong khop truc tiep voi vnepg_backup.json,
+        # can quy doi thu cong (chi anh huong TEN/NHOM, khong anh huong logo).
+        ID_ALIASES = {"vntoday": "vietnamtoday"}
+
         # ====================================================================
-        # 2. TU DIEN CHUAN HOA TEN KENH (dung khi khong khop tvg-id voi snapshot)
+        # 2. TU DIEN CHUAN HOA TEN KENH (fallback khi khong khop tvg-id/ten voi
+        #    vnepg_backup.json)
         # ====================================================================
         CHANNEL_MAPPING = {
             "VTV1": ["vtv1", "vtv1hd"], "VTV2": ["vtv2", "vtv2hd"], "VTV3": ["vtv3", "vtv3hd"],
             "VTV4": ["vtv4", "vtv4hd"], "VTV5": ["vtv5", "vtv5hd"], "VTV6": ["vtv6", "vtv6hd"],
             "VTV7": ["vtv7", "vtv7hd"], "VTV8": ["vtv8", "vtv8hd"], "VTV9": ["vtv9", "vtv9hd"],
-            "VTV10": ["vtv10", "vtv10hd", "vtvcantho", "vtv can tho", "vtv can tho"],
+            "VTV10": ["vtv10", "vtv10hd", "vtvcantho", "vtv can tho"],
             "VTV5 Tay Nam Bo": ["vtv5 tay nam bo", "vtv5tnb"],
             "VTV5 Tay Nguyen": ["vtv5 tay nguyen", "vtv5tn"],
             "HTV1": ["htv1"], "HTV2 - Vie Channel": ["htv2", "vie channel"], "HTV3": ["htv3"],
@@ -70,25 +73,7 @@ jobs:
         }
 
         # ====================================================================
-        # 3. FALLBACK LOGO TINH (LINK ON DINH TU jsDelivr, PHIEN BAN GHIM CUNG,
-        #    KHONG DUNG LINK THUMB WIKIMEDIA VI DE 404 KHI CACHE THAY DOI)
-        # ====================================================================
-        STATIC_GROUP_LOGOS = {
-            "VTV": "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f4fa.png",
-            "ON": "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f4fa.png",
-            "HTV": "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f4fa.png",
-            "HTVC": "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f4fa.png",
-            "SCTV": "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f4fa.png",
-            "THVL": "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f4fa.png",
-            "Kenh Dac Biet": "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/2b50.png",
-            "Phim & Giai Tri Quoc Te": "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f3ac.png",
-            "Dia Phuong": "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f4cd.png",
-            "VOV-VOH": "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f4fb.png",
-            "Radio": "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f4fb.png",
-        }
-
-        # ====================================================================
-        # 4. HAM TIEN ICH
+        # 3. HAM TIEN ICH
         # ====================================================================
         def remove_accents(s):
             s = s.lower()
@@ -105,25 +90,33 @@ jobs:
             m = re.search(r'tvg-id="([^"]*)"', extinf_line, re.IGNORECASE)
             return m.group(1).strip().lower() if m else ""
 
-        def get_canonical_name(raw_name, tvg_id, vnepg_id_map):
-            # Dat ten kenh: uu tien khop chinh xac theo tvg-id voi vnepg_backup.json
-            # (chi anh huong ten/nhom hien thi, KHONG anh huong thu tu uu tien logo)
+        def get_canonical_name(raw_name, tvg_id, vnepg_id_map, vnepg_name_map):
+            tvg_id = ID_ALIASES.get(tvg_id, tvg_id)
+            # Uu tien 1: khop chinh xac theo tvg-id voi vnepg_backup.json
             if tvg_id and tvg_id in vnepg_id_map:
                 return vnepg_id_map[tvg_id]["name"]
 
             clean = re.sub(r'\(.*?\)|\[.*?\]', '', raw_name)
             clean = re.sub(r'\b(hd|sd|4k|1080p|720p|fhd)\b', '', clean, flags=re.IGNORECASE)
             clean = " ".join(clean.split()).strip()
-
             clean_no_mark = remove_accents(clean)
+
+            # Uu tien 2: khop theo ten (khong dau, khong phan biet hoa/thuong) voi
+            # vnepg_backup.json -> gom duoc cac bien the viet hoa/thuong khac nhau
+            # (vd "VietNam Today" va "Vietnam Today" ve chung 1 ten)
+            if clean_no_mark in vnepg_name_map:
+                return vnepg_name_map[clean_no_mark]["name"]
+
+            # Uu tien 3: bang chuan hoa thu cong
             for canonical, variants in CHANNEL_MAPPING.items():
                 variants_no_mark = [remove_accents(v) for v in variants]
                 if clean_no_mark == remove_accents(canonical) or clean_no_mark in variants_no_mark:
                     return canonical
+
             return clean
 
         def determine_group(name, tvg_id, vnepg_id_map):
-            # Neu co trong snapshot, xac dinh nhom dua vao id (chinh xac hon)
+            tvg_id = ID_ALIASES.get(tvg_id, tvg_id)
             if tvg_id and tvg_id in vnepg_id_map:
                 gid = tvg_id
                 if gid.startswith("on"): return "ON"
@@ -152,13 +145,12 @@ jobs:
             return "Dia Phuong"
 
         # ====================================================================
-        # 5. NAP VNEPG_BACKUP.JSON (DA CO SAN TRONG REPO CHINH, DUNG LAM TANG
-        #    FALLBACK CUOI CUNG - VNEPG.SITE CHAN IP NGOAI VN NEN KHONG TU FETCH)
+        # 4. NAP VNEPG_BACKUP.JSON (dung de chuan hoa ten/nhom + fallback logo cuoi)
         # ====================================================================
         def load_vnepg_backup():
             id_map, name_map = {}, {}
             if not os.path.exists(VNEPG_BACKUP_FILE):
-                print(f"Khong tim thay {VNEPG_BACKUP_FILE}, bo qua tang logo uu tien 1.")
+                print(f"Khong tim thay {VNEPG_BACKUP_FILE}, bo qua.")
                 return id_map, name_map
             try:
                 with open(VNEPG_BACKUP_FILE, "r", encoding="utf-8") as f:
@@ -173,69 +165,164 @@ jobs:
                     if cid:
                         id_map[cid] = entry
                     name_map[remove_accents(name)] = entry
-                print(f"Da nap {len(id_map)} kenh tu snapshot vnepg.site.")
+                print(f"Da nap {len(id_map)} kenh tu vnepg_backup.json.")
             except Exception as e:
                 print(f"Loi doc {VNEPG_BACKUP_FILE}: {e}")
             return id_map, name_map
 
         # ====================================================================
-        # 6. LOGO API IPTV-ORG (TANG UU TIEN 1 / PRIMARY, FETCH DUOC TU GITHUB ACTIONS)
+        # 5. NAP DU LIEU IPTV-ORG (channels.json + logos.json) - TANG UU TIEN 1
         # ====================================================================
-        def fetch_iptvorg_logos():
-            by_id = {}
+        def http_get_json(url, timeout=20):
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            content = urllib.request.urlopen(req, timeout=timeout).read().decode("utf-8")
+            return json.loads(content)
+
+        def load_iptvorg_data():
+            name_to_id = {}
+            id_to_logo = {}
             try:
-                req = urllib.request.Request(IPTV_ORG_LOGOS_API, headers={"User-Agent": "Mozilla/5.0"})
-                content = urllib.request.urlopen(req, timeout=20).read().decode("utf-8")
-                data = json.loads(content)
-                for item in data:
+                channels = http_get_json(IPTV_ORG_CHANNELS_API, timeout=30)
+                for ch in channels:
+                    cid = ch.get("id")
+                    if not cid:
+                        continue
+                    names = [ch.get("name", "")] + list(ch.get("alt_names") or [])
+                    for n in names:
+                        n = remove_accents(str(n))
+                        if n and n not in name_to_id:
+                            name_to_id[n] = cid
+                print(f"Da nap {len(channels)} kenh tu channels.json cua iptv-org.")
+            except Exception as e:
+                print(f"Loi nap channels.json: {e}")
+
+            try:
+                logos = http_get_json(IPTV_ORG_LOGOS_API, timeout=30)
+                for item in logos:
                     cid = item.get("channel")
                     url = item.get("url")
-                    if not cid or not url:
-                        continue
-                    # Uu tien SVG/PNG, giu ban ghi dau tien gap cho moi channel id
-                    if cid not in by_id:
-                        by_id[cid] = url
-                print(f"Da nap {len(by_id)} logo tu iptv-org API.")
+                    if cid and url and cid not in id_to_logo:
+                        id_to_logo[cid] = url
+                print(f"Da nap {len(id_to_logo)} logo tu logos.json cua iptv-org.")
             except Exception as e:
-                print(f"Loi nap API logo iptv-org: {e}")
-            return by_id
+                print(f"Loi nap logos.json: {e}")
+
+            return name_to_id, id_to_logo
 
         # ====================================================================
-        # 7. LOGIC CHINH
+        # 6. VALIDATE URL (LOAI BO LINK CHET/HALLUCINATED, VD WIKIMEDIA GIA)
+        #    Cache theo URL de khong goi lai nhieu lan cho cung 1 link.
         # ====================================================================
-        def pick_logo(canonical_name, tvg_id, vnepg_id_map, vnepg_name_map, iptvorg_logos, raw_logo):
-            # Uu tien 1: API logos.json cua iptv-org (nguon chinh, on dinh, fetch
-            # duoc truc tiep tu GitHub Actions). Thu id goi y truoc, sau do doan
-            # "<TenKhongDau>.vn" theo quy uoc dat id cua iptv-org.
+        _validate_cache = {}
+
+        def validate_url(url, timeout=4):
+            if not url:
+                return False
+            if url in _validate_cache:
+                return _validate_cache[url]
+            if any(d in url for d in TRUSTED_DOMAINS):
+                _validate_cache[url] = True
+                return True
+            ok = False
+            try:
+                req = urllib.request.Request(url, method="HEAD", headers={"User-Agent": "Mozilla/5.0"})
+                with urllib.request.urlopen(req, timeout=timeout) as resp:
+                    ok = 200 <= resp.status < 400
+            except Exception:
+                try:
+                    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0", "Range": "bytes=0-1024"})
+                    with urllib.request.urlopen(req, timeout=timeout) as resp:
+                        ok = 200 <= resp.status < 400
+                except Exception:
+                    ok = False
+            _validate_cache[url] = ok
+            return ok
+
+        # ====================================================================
+        # 7. CHON LOGO KENH: TANG 1 iptv-org -> TANG 2 raw nguon -> TANG 3 vnepg_backup
+        # ====================================================================
+        def pick_logo(canonical_name, tvg_id, vnepg_id_map, vnepg_name_map,
+                      iptvorg_name_to_id, iptvorg_id_to_logo, raw_logo):
+            tvg_id = ID_ALIASES.get(tvg_id, tvg_id)
+
+            # --- TANG 1: iptv-org ---
+            candidates = []
+            # a) tvg-id kieu "VTV1.vn@HD" (tu chinh nguon iptv-org) -> bo "@..."
+            if tvg_id and "@" in tvg_id:
+                base_id = tvg_id.split("@")[0]
+                # tvg-id trong file duoc .lower(), can khop hoa/thuong that su
+                for cid in iptvorg_id_to_logo:
+                    if cid.lower() == base_id:
+                        candidates.append(iptvorg_id_to_logo[cid])
+                        break
+            # b) khop theo ten (channels.json) đã chuẩn hoá
+            cid = iptvorg_name_to_id.get(remove_accents(canonical_name))
+            if cid and cid in iptvorg_id_to_logo:
+                candidates.append(iptvorg_id_to_logo[cid])
+            # c) goi y thu cong
             hinted_id = IPTV_ORG_ID_HINTS.get(canonical_name)
-            if hinted_id and hinted_id in iptvorg_logos:
-                return iptvorg_logos[hinted_id]
+            if hinted_id and hinted_id in iptvorg_id_to_logo:
+                candidates.append(iptvorg_id_to_logo[hinted_id])
+            # d) doan id ".vn"
             guess_id = re.sub(r'[^A-Za-z0-9]', '', canonical_name) + ".vn"
-            if guess_id in iptvorg_logos:
-                return iptvorg_logos[guess_id]
+            if guess_id in iptvorg_id_to_logo:
+                candidates.append(iptvorg_id_to_logo[guess_id])
 
-            # Uu tien 2: logo goc (tvg-logo) lay thang tu 2 nguon raw .ndl / .m3u
-            if raw_logo:
+            for c in candidates:
+                if validate_url(c):
+                    return c
+
+            # --- TANG 2: logo goc tu 2 nguon raw (.ndl / .m3u) ---
+            if raw_logo and validate_url(raw_logo):
                 return raw_logo
 
-            # Uu tien 3: vnepg_backup.json (da co san trong repo chinh) - theo tvg-id
+            # --- TANG 3: vnepg_backup.json (fallback cuoi cung) ---
             if tvg_id and tvg_id in vnepg_id_map and vnepg_id_map[tvg_id]["logo"]:
                 return vnepg_id_map[tvg_id]["logo"]
-            # Uu tien 4: vnepg_backup.json - theo ten da chuan hoa
             key = remove_accents(canonical_name)
             if key in vnepg_name_map and vnepg_name_map[key]["logo"]:
                 return vnepg_name_map[key]["logo"]
 
             return ""
 
-        def main():
-            print("Nap logo tu iptv-org API (uu tien 1)...")
-            iptvorg_logos = fetch_iptvorg_logos()
+        # ====================================================================
+        # 8. GROUP-LOGO: LOGO THAT CUA DAI (lay tu vnepg_backup.json, tin cay,
+        #    khong dung hinh minh hoa). Nhom "Dia Phuong"/"Radio" khong co 1
+        #    thuong hieu chung nen dung icon trung tinh (khong co logo dai nao
+        #    dai dien duoc cho hang chuc dai dia phuong khac nhau).
+        # ====================================================================
+        GROUP_LOGO_SOURCE_ID = {
+            "VTV": "vtv1hd", "ON": "onsports", "HTV": "htv7hd", "HTVC": "htvcphimhd",
+            "SCTV": "sctv1hd", "THVL": "vinhlong1hd", "Kenh Dac Biet": "antvhd",
+            "Phim & Giai Tri Quoc Te": "hbohd", "VOV-VOH": "vov1",
+        }
+        GENERIC_ICONS = {
+            "Dia Phuong": "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f4cd.png",
+            "Radio": "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f4fb.png",
+        }
 
-            print("Nap vnepg_backup.json (fallback cuoi cung)...")
+        def build_group_logos(vnepg_id_map):
+            group_logos = {}
+            for group, src_id in GROUP_LOGO_SOURCE_ID.items():
+                entry = vnepg_id_map.get(src_id)
+                if entry and entry["logo"]:
+                    group_logos[group] = entry["logo"]
+            group_logos.update(GENERIC_ICONS)
+            return group_logos
+
+        # ====================================================================
+        # 9. LOGIC CHINH
+        # ====================================================================
+        def main():
+            print("Nap vnepg_backup.json...")
             vnepg_id_map, vnepg_name_map = load_vnepg_backup()
 
-            channels_data = {}
+            print("Nap du lieu iptv-org (channels.json + logos.json)...")
+            iptvorg_name_to_id, iptvorg_id_to_logo = load_iptvorg_data()
+
+            static_group_logos = build_group_logos(vnepg_id_map)
+
+            channels_data = {}  # key = ten da chuan hoa khong dau (dedup key)
 
             print("Phan tich cac nguon M3U...")
             for url in M3U_SOURCES:
@@ -260,24 +347,26 @@ jobs:
 
                         if line.startswith("http") and current_extinf and current_raw_name:
                             tvg_id = get_tvg_id(current_extinf)
-                            name = get_canonical_name(current_raw_name, tvg_id, vnepg_id_map)
-                            group = determine_group(name, tvg_id, vnepg_id_map)
+                            display_name = get_canonical_name(current_raw_name, tvg_id, vnepg_id_map, vnepg_name_map)
+                            dedup_key = remove_accents(display_name)
+                            group = determine_group(display_name, tvg_id, vnepg_id_map)
 
                             raw_logo = ""
                             raw_match = re.search(r'tvg-logo="([^"]*)"', current_extinf, re.IGNORECASE)
                             if raw_match:
                                 raw_logo = raw_match.group(1).strip()
 
-                            final_logo = pick_logo(name, tvg_id, vnepg_id_map, vnepg_name_map,
-                                                    iptvorg_logos, raw_logo)
+                            final_logo = pick_logo(display_name, tvg_id, vnepg_id_map, vnepg_name_map,
+                                                    iptvorg_name_to_id, iptvorg_id_to_logo, raw_logo)
 
-                            if name not in channels_data:
-                                channels_data[name] = {"group": group, "logo": final_logo, "urls": [line]}
+                            if dedup_key not in channels_data:
+                                channels_data[dedup_key] = {"name": display_name, "group": group,
+                                                             "logo": final_logo, "urls": [line]}
                             else:
-                                if line not in channels_data[name]["urls"]:
-                                    channels_data[name]["urls"].append(line)
-                                if not channels_data[name]["logo"] and final_logo:
-                                    channels_data[name]["logo"] = final_logo
+                                if line not in channels_data[dedup_key]["urls"]:
+                                    channels_data[dedup_key]["urls"].append(line)
+                                if not channels_data[dedup_key]["logo"] and final_logo:
+                                    channels_data[dedup_key]["logo"] = final_logo
 
                             current_extinf = ""
                             current_raw_name = ""
@@ -288,30 +377,29 @@ jobs:
             print("Xuat ra listtivi.m3u...")
             final_ordered = OrderedDict()
             for g in GROUP_ORDER:
-                sorted_channels = sorted(
+                sorted_keys = sorted(
                     [k for k, v in channels_data.items() if v["group"] == g],
-                    key=lambda s: [int(t) if t.isdigit() else t.lower() for t in re.split(r'(\d+)', remove_accents(s))]
+                    key=lambda s: [int(t) if t.isdigit() else t for t in re.split(r'(\d+)', s)]
                 )
-                for ch in sorted_channels:
-                    final_ordered[ch] = channels_data[ch]
-            # Kenh chua khop nhom nao (an toan, khong bi mat khoi danh sach)
+                for k in sorted_keys:
+                    final_ordered[k] = channels_data[k]
             leftover = [k for k in channels_data if k not in final_ordered]
-            for ch in sorted(leftover, key=lambda s: remove_accents(s)):
-                final_ordered[ch] = channels_data[ch]
+            for k in sorted(leftover):
+                final_ordered[k] = channels_data[k]
 
             with open("listtivi.m3u", "w", encoding="utf-8") as f:
                 f.write('#EXTM3U url-tvg="https://vnepg.site/epg.xml.gz"\n')
-                for name, data in final_ordered.items():
+                for data in final_ordered.values():
                     if not data["urls"]:
                         continue
 
                     logo_attr = f' tvg-logo="{data["logo"]}"' if data["logo"] else ""
-                    group_logo_url = STATIC_GROUP_LOGOS.get(data["group"], "")
+                    group_logo_url = static_group_logos.get(data["group"], "")
                     group_logo_attr = f' group-logo="{group_logo_url}"' if group_logo_url else ""
 
                     for idx, u in enumerate(data["urls"]):
                         suffix = f" [Du phong {idx+1}]" if idx > 0 else ""
-                        extinf = f'#EXTINF:-1{logo_attr}{group_logo_attr} group-title="{data["group"]}",{name}{suffix}'
+                        extinf = f'#EXTINF:-1{logo_attr}{group_logo_attr} group-title="{data["group"]}",{data["name"]}{suffix}'
                         f.write(f'{extinf}\n{u}\n')
 
             print("Build Success!")
@@ -324,5 +412,5 @@ jobs:
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
         git add "listtivi.m3u"
-        git commit -m "Refactor: iptv-org logo API primary, raw source tvg-logo fallback, vnepg_backup.json last-resort, jsDelivr group icons" || echo "No changes"
+        git commit -m "Feat: iptv-org channels.json name-matching + logos.json, URL validation to drop dead links, real broadcaster group-logos, robust dedup" || echo "No changes"
         git push
