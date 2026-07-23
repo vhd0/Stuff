@@ -44,12 +44,13 @@ jobs:
         # van dung binh thuong voi nguoi dung that; hoac da duoc pin version on dinh).
         TRUSTED_DOMAINS = ("vnepg.site", "cdn.jsdelivr.net")
 
-        # Domain BI CHAN hoan toan khoi danh sach ung vien logo: cac dich vu nay
-        # (Fandom/Wikia resize service) tra ve anh dang WEBP bat ke duoi file
-        # trong URL la gi (vd "...ANTV_2023.png/revision/latest/scale-to-width-down/512"
-        # -> noi dung that su van la webp, phan lon IPTV player khong render duoc,
-        # dan den mat logo du link "mo duoc" tren trinh duyet).
-        BLOCKED_LOGO_DOMAINS = ("wikia.nocookie.net",)
+        # Domain BI CHAN hoan toan khoi danh sach ung vien logo:
+        # - wikia.nocookie.net: dich vu resize cua Fandom/Wikia luon tra ve WEBP
+        #   bat ke duoi file trong URL, phan lon IPTV player khong render duoc.
+        # - thainguyentv.vn: chung chi SSL cua website nay da HET HAN, khien
+        #   logo tu domain nay (ca ban raw lan iptv-org) khong dang tin, chan
+        #   han de luon roi ve fallback vnepg_backup.json.
+        BLOCKED_LOGO_DOMAINS = ("wikia.nocookie.net", "thainguyentv.vn")
 
         # Dinh dang anh "an toan" ma hau het IPTV player doc duoc. SVG/WEBP thuong
         # mo binh thuong tren trinh duyet nhung nhieu IPTV player (dac biet ban
