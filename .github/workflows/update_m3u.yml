@@ -66,7 +66,7 @@ jobs:
 
         # Vai id tvg-id trong nguon raw khong khop truc tiep voi vnepg_backup.json,
         # can quy doi thu cong.
-        ID_ALIASES = {"vntoday": "vietnamtoday"}
+        ID_ALIASES = {"vntoday": "vietnamtoday", "thuathienhuetv.vn": "hue"}
 
         # KHONG dung DISPLAY_NAME_OVERRIDE cho ten kenh nua (de gay nham lan giua
         # cac ban ghi). Thay vao do dung CHANNEL_MAPPING/MANUAL_ID_OVERRIDE de gom
@@ -101,6 +101,7 @@ jobs:
             "ANTV": ["antv", "an ninh tv"], "QPVN": ["qpvn", "quoc phong viet nam"],
             "Hà Nội 1": ["ha noi 1", "hanoitv1"], "Hà Nội 2": ["ha noi 2", "hanoitv2"],
             "Lâm Đồng 1": ["lam dong", "lam dong tv"],
+            "Huế": ["thua thien hue"],
         }
 
         # ====================================================================
@@ -153,9 +154,13 @@ jobs:
             clean = clean_raw_name(raw_name)
             key = remove_accents(clean)
 
-            tvg_id = ID_ALIASES.get(tvg_id, tvg_id)
-            if tvg_id and tvg_id in vnepg_id_map:
-                return vnepg_id_map[tvg_id], vnepg_id_map[tvg_id]["name"]
+            # Cat hau to "@HD"/"@SD" (kieu tvg-id cua nguon iptv-org, vd
+            # "ThuaThienHueTV.vn@SD") truoc khi tra ID_ALIASES/vnepg_id_map, de
+            # alias hoat dong dung bat ke hau to chat luong nao.
+            tvg_id_base = tvg_id.split("@")[0] if tvg_id else tvg_id
+            tvg_id_base = ID_ALIASES.get(tvg_id_base, tvg_id_base)
+            if tvg_id_base and tvg_id_base in vnepg_id_map:
+                return vnepg_id_map[tvg_id_base], vnepg_id_map[tvg_id_base]["name"]
 
             if key in vnepg_name_map:
                 return vnepg_name_map[key], vnepg_name_map[key]["name"]
