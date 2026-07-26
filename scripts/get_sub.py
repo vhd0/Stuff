@@ -3,13 +3,13 @@ get_sub.py -- Multi-source VPN node collector
 ==============================================================================
 Sources : v2nodes.com (scrape) . EbraSha . Epodonios . OpenProxyList (GitHub)
           . Au1rxx . Hueco (vauth) . MatinGhanbari . Vorz1k (3 files) . BarryFar
-Pipeline: Collect -> Dedup -> GeoIP country filter
+Pipeline: Collect -> Dedup -> GeoIP country filter -> Subnet diversity cap
           -> Phase 1 ONLINE      : sing-box connectivity + latency
           -> Phase 2 CONSISTENCY : cross-check exit IP/country across
                                     independent "what-is-my-ip" services
           -> Phase 3 GEO-BLOCK   : fetch a real geo-fenced destination site
                                     through the node's own proxy connection
-          -> Rename -> Save
+          -> Final subnet cap (latency-sorted) -> Rename -> Save
 Label   : "JP | 06"  (country code + index; client apps already show the
           protocol on their own sub-line, so it's omitted here)
 Output  : however many nodes clear the enabled phases -- no fixed quota.
@@ -89,7 +89,7 @@ LARGE SOURCES (EbraSha/Epodonios dumps vary in size over time)
     quality filter (quality judgment happens inside the phases themselves).
 """
 
-import asyncio, base64, json, logging, os, re, socket
+import asyncio, base64, ipaddress, json, logging, os, re, socket
 import subprocess, sys, tempfile, time
 from pathlib import Path
 from typing import Callable, Optional
@@ -160,6 +160,21 @@ CLASSIFY_CHUNK_SIZE = 4000
 
 # -- Test-pool sizing -- runtime safety valve, NOT a quality filter --------
 TEST_POOL_SIZE = int(os.environ.get("TEST_POOL_SIZE", "450"))
+
+# -- Subnet diversity -- many sources (esp. reseller dumps) publish dozens
+#    of hostnames that all resolve into the same /24 (or IPv6 /48): one
+#    physical box or one datacenter block advertised under many subdomains,
+#    e.g. the *.rooster465.autos trojan nodes in this run. Two independent
+#    caps keep the pipeline from wasting test budget on -- or shipping --
+#    many near-identical nodes from a single block:
+#      SUBNET_MAX_CANDIDATES -- applied BEFORE testing (after GeoIP filter,
+#        before TEST_POOL_SIZE), so diverse blocks get a shot at the test
+#        budget instead of it being consumed by duplicates of one block.
+#      SUBNET_MAX_FINAL -- applied AFTER Phase 1+2+3, on the latency-sorted
+#        survivors, so only the fastest node(s) per block make the final
+#        output -- quality selection, not a coin flip.
+SUBNET_MAX_CANDIDATES = int(os.environ.get("SUBNET_MAX_CANDIDATES", "4"))
+SUBNET_MAX_FINAL      = int(os.environ.get("SUBNET_MAX_FINAL", "2"))
 
 # -- HTTP -------------------------------------------------------------------
 HTTP_SEM     = 10
@@ -495,6 +510,48 @@ class GeoIP:
 
         mask = await gather_chunked(nodes, _keep, label="GeoIP filter")
         return [n for n, keep in zip(nodes, mask) if keep]
+
+    @staticmethod
+    def _subnet_key(ip: str) -> str:
+        """/24 for IPv4, /48 for IPv6 -- the block most free-node resellers
+        actually operate out of. Falls back to the raw IP if it doesn't
+        parse (shouldn't happen for anything DNS/GeoIP already accepted)."""
+        try:
+            addr = ipaddress.ip_address(ip)
+            prefix = 24 if addr.version == 4 else 48
+            return str(ipaddress.ip_network(f"{ip}/{prefix}", strict=False))
+        except ValueError:
+            return ip
+
+    async def cap_by_subnet(
+        self, nodes: list[str], max_per_subnet: int, label: str = "",
+    ) -> list[str]:
+        """Keep at most `max_per_subnet` nodes per /24 (IPv4) or /48 (IPv6)
+        block, preserving input order -- so callers control priority simply
+        by sorting/ordering `nodes` before calling this (e.g. by latency).
+        Nodes whose host doesn't resolve pass through unfiltered (parse_endpoint
+        failures, or hosts GeoIP.resolve couldn't look up) rather than being
+        dropped -- subnet capping is a diversity nudge, not a hard gate."""
+        counts: dict[str, int] = {}
+        kept:   list[str] = []
+        dropped = 0
+        for url in nodes:
+            ep = parse_endpoint(url)
+            ip = await self.resolve(ep[1]) if ep else None
+            if ip is None:
+                kept.append(url)
+                continue
+            key = self._subnet_key(ip)
+            n = counts.get(key, 0)
+            if n < max_per_subnet:
+                counts[key] = n + 1
+                kept.append(url)
+            else:
+                dropped += 1
+        if dropped and label:
+            log.info("  %s: -%d (subnet cap, max %d/block) -> %d",
+                      label, dropped, max_per_subnet, len(kept))
+        return kept
 
 
 # =============================== 4. ENDPOINT PARSING =========================
@@ -1075,13 +1132,15 @@ async def _run_batch(
         except Exception: pass
 
 
-async def health_check(nodes: list[str], cc: str) -> list[str]:
+async def health_check(nodes: list[str], cc: str, geoip: GeoIP) -> list[str]:
     """
     Runs Phase 1 -> 2 -> 3, funnel-style, with per-phase counts logged.
     If Phase 3 rejects EVERY Phase-1+2 survivor for this country (and there
     was at least one), falls back to the Phase-1+2 result set instead of
     returning empty -- see module docstring "PHASE 3 FALLBACK". Either way,
-    the returned list is sorted by latency (fastest first).
+    the returned list is sorted by latency (fastest first), then thinned to
+    at most SUBNET_MAX_FINAL nodes per /24-or-/48 block -- since the list is
+    latency-sorted first, capping preserves the fastest node(s) per block.
     """
     if not Path(SINGBOX).exists():
         log.warning("sing-box not found -- skipping health check")
@@ -1128,9 +1187,12 @@ async def health_check(nodes: list[str], cc: str) -> list[str]:
         log.warning("  Phase 3 probe rejected ALL %d Phase-1+2 survivors for %s -- "
                      "treating as a probe failure, not a genuine geo-block. "
                      "Falling back to Phase 1+2 results.", len(scored_p12), cc)
-        return [url for url, _ in scored_p12]
+        result = [url for url, _ in scored_p12]
+    else:
+        result = [url for url, _ in scored_final]
 
-    return [url for url, _ in scored_final]
+    final = await geoip.cap_by_subnet(result, SUBNET_MAX_FINAL, label="  Final subnet cap")
+    return final
 
 
 # =============================== 13. RENAME ===================================
@@ -1207,21 +1269,30 @@ async def process_country(
         log.info("+%s\n", "-" * 63)
         return
 
-    # 4. Runtime safety cap -- NOT a quality filter, see module docstring
+    # 4. Subnet diversity cap -- BEFORE spending test budget, thin out
+    #    hostnames that all resolve into the same /24 or /48 block (see
+    #    SUBNET_MAX_CANDIDATES docstring). Order is collection order here,
+    #    so this doesn't favor one source over another within a block.
+    before = len(nodes)
+    nodes  = await geoip.cap_by_subnet(nodes, SUBNET_MAX_CANDIDATES, label="| Subnet cap")
+    if len(nodes) != before:
+        log.info("| Subnet cap    : %d -> %d (max %d/block)", before, len(nodes), SUBNET_MAX_CANDIDATES)
+
+    # 5. Runtime safety cap -- NOT a quality filter, see module docstring
     if len(nodes) > TEST_POOL_SIZE:
         log.info("| Pool cap      : %d -> testing first %d", len(nodes), TEST_POOL_SIZE)
         nodes = nodes[:TEST_POOL_SIZE]
 
-    # 5. Three-phase empirical test -- ONLINE -> CONSISTENCY -> GEO-BLOCK
+    # 6. Three-phase empirical test -- ONLINE -> CONSISTENCY -> GEO-BLOCK
     log.info("| Testing %d candidates (Phase 1 online -> 2 consistency -> 3 geo-block)...",
              len(nodes))
-    live = await health_check(nodes, cc)
+    live = await health_check(nodes, cc, geoip)
     if not live:
         log.warning("| No nodes cleared the test phases")
         log.info("+%s\n", "-" * 63)
         return
 
-    # 6. Rename + save
+    # 7. Rename + save
     renamed = rename_nodes(live, cc)
     Path(f"{country}_sub.txt").write_text("\n".join(renamed), encoding="utf-8")
 
