@@ -25,67 +25,49 @@ jobs:
             "https://raw.githubusercontent.com/iptv-org/iptv/refs/heads/master/streams/vn.m3u"
         ]
 
-        # 5 nhom chinh theo thu tu uu tien, moi kenh khong khop nhom nao o tren
-        # se roi vao "Dia Phuong" (nhom gom-tat-ca).
         GROUP_ORDER = ["VTV", "HTV", "SCTV", "Kenh Dac Biet", "VOV", "Dia Phuong"]
 
-        # vnepg_backup.json: da co san trong repo chinh cua ban (nhanh main).
-        # LY DO ton tai: vnepg.site chan IP ngoai Viet Nam bang Cloudflare firewall
-        # nen GitHub Actions khong tu fetch truc tiep duoc. Ban tu fetch tren mang VN
-        # roi commit de cap nhat file nay. Day la NGUON CHUAN de chuan hoa TEN/NHOM/
-        # TVG-ID cua kenh, va la fallback cuoi cung cho logo.
+        # vnepg_backup.json: NGUON CHUAN de chuan hoa TEN/NHOM/TVG-ID cua kenh,
+        # va la fallback cuoi cung cho logo. File nay gio duoc TU DONG CAP NHAT
+        # moi lan chay workflow bang cach goi truc tiep API cua vnepg.site
+        # thong qua danh sach proxy VN free (vi vnepg.site chan IP ngoai VN
+        # bang Cloudflare firewall, GitHub Actions khong the fetch truc tiep).
+        # Neu tat ca proxy deu that bai, GIU NGUYEN noi dung file da commit lan
+        # truoc (fallback), khong lam gian doan pipeline.
         VNEPG_BACKUP_FILE = "vnepg_backup.json"
+        VNEPG_API_URL = "https://vnepg.site/api/channels"
+        VN_PROXY_LIST_API = (
+            "https://api.proxyscrape.com/v4/free-proxy-list/get"
+            "?request=display_proxies&proxy_format=protocolipport&format=text&country=vn"
+        )
+        MAX_PROXY_TRIES = 30       # so proxy toi da thu truoc khi bo cuoc
+        PROXY_FETCH_TIMEOUT = 15   # giay, cho lay danh sach proxy
+        PROXY_REQUEST_TIMEOUT = 8  # giay, cho moi lan thu goi API qua proxy
 
         IPTV_ORG_CHANNELS_API = "https://iptv-org.github.io/api/channels.json"
         IPTV_ORG_LOGOS_API = "https://iptv-org.github.io/api/logos.json"
 
-        # Domain duoc tin tuong tuyet doi, KHONG validate qua HTTP (do bi Cloudflare
-        # chan IP datacenter/GitHub Actions nen HEAD request se bao loi gia du link
-        # van dung binh thuong voi nguoi dung that; hoac da duoc pin version on dinh).
         TRUSTED_DOMAINS = ("vnepg.site", "cdn.jsdelivr.net")
 
-        # Domain BI CHAN hoan toan khoi danh sach ung vien logo:
-        # - wikia.nocookie.net: dich vu resize cua Fandom/Wikia luon tra ve WEBP
-        #   bat ke duoi file trong URL, phan lon IPTV player khong render duoc.
-        # - thainguyentv.vn: chung chi SSL cua website nay da HET HAN, khien
-        #   logo tu domain nay (ca ban raw lan iptv-org) khong dang tin, chan
-        #   han de luon roi ve fallback vnepg_backup.json.
         BLOCKED_LOGO_DOMAINS = ("wikia.nocookie.net", "thainguyentv.vn")
 
-        # Dinh dang anh "an toan" ma hau het IPTV player doc duoc. SVG/WEBP thuong
-        # mo binh thuong tren trinh duyet nhung nhieu IPTV player (dac biet ban
-        # Android/Kodi cu) khong render duoc -> uu tien PNG/JPG khi co lua chon.
         SAFE_LOGO_EXTS = (".png", ".jpg", ".jpeg")
 
-        # Vai goi y id thu cong cho truong hop ten kenh dac biet ma khong khop duoc
-        # qua channels.json (safety net, uu tien thap hon channels.json match).
         IPTV_ORG_ID_HINTS = {
             "ANTV": "AnNinhTV.vn", "QPVN": "QPVN.vn", "Vietnam Today": "VietnamToday.vn",
             "HTV Key": "HTVKey.vn", "HTV Thể thao": "HTVSports.vn",
         }
 
-        # Vai id tvg-id trong nguon raw khong khop truc tiep voi vnepg_backup.json,
-        # can quy doi thu cong.
         ID_ALIASES = {"vntoday": "vietnamtoday", "thuathienhuetv.vn": "hue"}
 
-        # KHONG dung DISPLAY_NAME_OVERRIDE cho ten kenh nua (de gay nham lan giua
-        # cac ban ghi). Thay vao do dung CHANNEL_MAPPING/MANUAL_ID_OVERRIDE de gom
-        # dung ve 1 kenh vnepg chuan duy nhat (xem muc 2 va MANUAL_ID_OVERRIDE).
         DISPLAY_NAME_OVERRIDE = {}
 
-        # Truong hop URL nguon bi GAN SAI NOI DUNG (loi tu ban duy tri nguon, da
-        # xac minh thu cong): "TH Lâm Đồng 2" (ndl) thuc chat la luong phat cua
-        # "Đồng Tháp 2" (co the nhan ra qua duong dan "mientaythdt02" - Mien Tay
-        # THDT = Dai truyen hinh Dong Thap). Ep kenh nay ve dung id "dongthap2"
-        # thay vi bi nham thanh "Lâm Đồng 2" (kenh nay khong ton tai).
-        # Key = remove_accents(clean_raw_name(raw_name)), Value = id trong vnepg.
         MANUAL_ID_OVERRIDE = {
             "th lam dong 2": "dongthap2",
         }
 
         # ====================================================================
-        # 2. TU DIEN CHUAN HOA TEN KENH (fallback khi khong khop tvg-id/ten voi
-        #    vnepg_backup.json)
+        # 2. TU DIEN CHUAN HOA TEN KENH
         # ====================================================================
         CHANNEL_MAPPING = {
             "VTV1": ["vtv1", "vtv1hd"], "VTV2": ["vtv2", "vtv2hd"], "VTV3": ["vtv3", "vtv3hd"],
@@ -119,8 +101,6 @@ jobs:
             return re.sub(r'\s+', ' ', s).strip()
 
         def collapse(s):
-            """Bo het khoang trang, dung de khop cac bien the viet dinh/roi rac
-            khoang trang khac nhau cua cung 1 ten (vd 'Ha Noi 1' va 'Hanoi1')."""
             return s.replace(" ", "")
 
         def get_tvg_id(extinf_line):
@@ -130,22 +110,11 @@ jobs:
         def clean_raw_name(raw_name):
             clean = re.sub(r'\(.*?\)|\[.*?\]', '', raw_name)
             clean = re.sub(r'\b(hd|sd|4k|1080p|720p|fhd)\b', '', clean, flags=re.IGNORECASE)
-            # Bo tien to viet tat "TH " (Truyen Hinh) hay gap truoc ten dai dia
-            # phuong, vd "TH Lâm Đồng 2" -> "Lâm Đồng 2".
             clean = re.sub(r'(?i)^\s*TH\s+', '', clean)
-            # Bo hau to "TV" doc lap (vd "Tay Ninh TV" -> "Tay Ninh", "Can Tho TV1"
-            # -> "Can Tho 1", "Hanoi 1 TV" -> "Hanoi 1"). Chi bo khi "TV" la 1 tu
-            # rieng (co ranh gioi tu ca 2 phia), khong dung cham "VTV1"/"HTVC".
             clean = re.sub(r'(?i)\bTV(\d*)\b', r'\1', clean)
             return " ".join(clean.split()).strip()
 
         def resolve_vnepg_entry(raw_name, tvg_id, vnepg_id_map, vnepg_name_map):
-            """Tim ban ghi vnepg_backup.json khop nhat voi kenh dang xu ly.
-            Tra ve (entry_hoac_None, ten_da_lam_sach)."""
-            # Uu tien cao nhat: override thu cong cho cac truong hop nguon gan
-            # sai ten/noi dung da biet (xem MANUAL_ID_OVERRIDE). Kiem tra tren
-            # ten GOC (chi chuan hoa khoang trang/hoa-thuong/dau), truoc khi bo
-            # tien to "TH " -- de override chi khop dung 1 bien the cu the.
             raw_key = remove_accents(" ".join(raw_name.split()))
             override_id = MANUAL_ID_OVERRIDE.get(raw_key)
             if override_id and override_id in vnepg_id_map:
@@ -154,9 +123,6 @@ jobs:
             clean = clean_raw_name(raw_name)
             key = remove_accents(clean)
 
-            # Cat hau to "@HD"/"@SD" (kieu tvg-id cua nguon iptv-org, vd
-            # "ThuaThienHueTV.vn@SD") truoc khi tra ID_ALIASES/vnepg_id_map, de
-            # alias hoat dong dung bat ke hau to chat luong nao.
             tvg_id_base = tvg_id.split("@")[0] if tvg_id else tvg_id
             tvg_id_base = ID_ALIASES.get(tvg_id_base, tvg_id_base)
             if tvg_id_base and tvg_id_base in vnepg_id_map:
@@ -172,8 +138,6 @@ jobs:
             return None, clean
 
         def resolve_channel(raw_name, tvg_id, vnepg_id_map, vnepg_name_map):
-            """Tra ve (canonical_id, display_name) nhat quan cho 1 kenh, dung
-            chung cho ca ten hien thi lan tvg-id xuat ra."""
             entry, resolved = resolve_vnepg_entry(raw_name, tvg_id, vnepg_id_map, vnepg_name_map)
 
             if entry is None:
@@ -182,9 +146,6 @@ jobs:
                     variants_no_mark = [remove_accents(v) for v in variants]
                     if clean_no_mark == remove_accents(canonical) or clean_no_mark in variants_no_mark:
                         resolved = canonical
-                        # Sau khi doi ten theo bang thu cong, thu tra lai vnepg
-                        # mot lan nua bang chinh ten da chuan hoa (vd "HanoiTV1"
-                        # -> "Hà Nội 1" -> khop duoc voi vnepg id "hanoi1").
                         again_key = remove_accents(canonical)
                         entry = vnepg_name_map.get(again_key) or vnepg_name_map.get(collapse(again_key))
                         break
@@ -211,8 +172,90 @@ jobs:
             return "Dia Phuong"
 
         # ====================================================================
-        # 4. NAP VNEPG_BACKUP.JSON (nguon chuan de chuan hoa ten/nhom/tvg-id +
-        #    fallback logo cuoi cung)
+        # 4. CAP NHAT vnepg_backup.json TU API TRUC TIEP QUA PROXY VN (MOI)
+        # ====================================================================
+        def fetch_vn_proxies():
+            """Lay danh sach proxy VN moi nhat tu ProxyScrape (free, cong khai)."""
+            try:
+                req = urllib.request.Request(VN_PROXY_LIST_API, headers={"User-Agent": "Mozilla/5.0"})
+                content = urllib.request.urlopen(req, timeout=PROXY_FETCH_TIMEOUT).read().decode("utf-8")
+                proxies = [l.strip() for l in content.splitlines() if l.strip()]
+                return proxies[:MAX_PROXY_TRIES]
+            except Exception as e:
+                print(f"Loi lay danh sach proxy VN: {e}")
+                return []
+
+        def fetch_channels_via_proxy(proxy_url):
+            """Goi API vnepg.site/api/channels thong qua 1 proxy VN cu the."""
+            proxy_handler = urllib.request.ProxyHandler({"http": proxy_url, "https": proxy_url})
+            opener = urllib.request.build_opener(proxy_handler)
+            req = urllib.request.Request(VNEPG_API_URL, headers={"User-Agent": "Mozilla/5.0"})
+            with opener.open(req, timeout=PROXY_REQUEST_TIMEOUT) as resp:
+                data = resp.read().decode("utf-8")
+            return json.loads(data)
+
+        def normalize_vnepg_api_response(raw):
+            """Chuan hoa JSON tra ve tu API sang dinh dang {"channels":[{"id",
+            "name","logo"}...]}. CANH BAO: schema thuc te cua API CHUA duoc
+            xac minh (bi chan khi kiem tra), ham nay thu doan cac ten truong
+            pho bien. Neu vnepg_backup.json sau khi build khong dung/thieu du
+            lieu, hay kiem tra JSON that va sua lai danh sach key ben duoi."""
+            items = raw
+            if isinstance(raw, dict):
+                items = None
+                for key in ("channels", "data", "items", "results"):
+                    if isinstance(raw.get(key), list):
+                        items = raw[key]
+                        break
+                if items is None:
+                    items = []
+
+            channels = []
+            for it in items:
+                if not isinstance(it, dict):
+                    continue
+                cid = str(it.get("id") or it.get("channel_id") or it.get("slug") or "").strip().lower()
+                name = str(it.get("name") or it.get("title") or it.get("display_name") or "").strip()
+                logo = str(it.get("logo") or it.get("icon") or it.get("logo_url") or it.get("image") or "").strip()
+                if name:
+                    channels.append({"id": cid, "name": name, "logo": logo})
+            return {"channels": channels}
+
+        def update_vnepg_backup():
+            """Thu fetch du lieu moi tu API qua danh sach proxy VN free. Neu
+            thanh cong (co it nhat 1 kenh hop le), GHI DE vnepg_backup.json.
+            Neu that bai voi TAT CA proxy da thu, GIU NGUYEN file hien co
+            (fallback = ban da commit lan chay truoc)."""
+            print("=== Cap nhat vnepg_backup.json tu API (qua proxy VN) ===")
+            proxies = fetch_vn_proxies()
+            print(f"Tim duoc {len(proxies)} proxy VN de thu (gioi han {MAX_PROXY_TRIES}).")
+
+            if not proxies:
+                print("Khong lay duoc danh sach proxy. Giu nguyen vnepg_backup.json cu.")
+                return False
+
+            for i, proxy in enumerate(proxies, 1):
+                try:
+                    print(f"  [{i}/{len(proxies)}] Thu proxy: {proxy}")
+                    raw = fetch_channels_via_proxy(proxy)
+                    normalized = normalize_vnepg_api_response(raw)
+                    if not normalized["channels"]:
+                        print("    -> Du lieu rong/khong khop schema, bo qua.")
+                        continue
+                    with open(VNEPG_BACKUP_FILE, "w", encoding="utf-8") as f:
+                        json.dump(normalized, f, ensure_ascii=False, indent=2)
+                    print(f"    -> THANH CONG! Da cap nhat {len(normalized['channels'])} kenh.")
+                    return True
+                except Exception as e:
+                    print(f"    -> Loi: {e}")
+                    continue
+
+            print("Khong co proxy VN nao hoat dong sau khi thu het. "
+                  "Giu nguyen vnepg_backup.json cu lam fallback.")
+            return False
+
+        # ====================================================================
+        # 5. NAP VNEPG_BACKUP.JSON (sau khi da thu cap nhat o buoc 4)
         # ====================================================================
         def load_vnepg_backup():
             id_map, name_map = {}, {}
@@ -240,7 +283,7 @@ jobs:
             return id_map, name_map
 
         # ====================================================================
-        # 5. NAP DU LIEU IPTV-ORG (channels.json + logos.json) - TANG UU TIEN 1
+        # 6. NAP DU LIEU IPTV-ORG (channels.json + logos.json)
         # ====================================================================
         def http_get_json(url, timeout=20):
             req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
@@ -279,8 +322,7 @@ jobs:
             return name_to_id, id_to_logo
 
         # ====================================================================
-        # 6. VALIDATE URL (LOAI BO LINK CHET/HALLUCINATED, VD WIKIMEDIA GIA)
-        #    Cache theo URL de khong goi lai nhieu lan cho cung 1 link.
+        # 7. VALIDATE URL
         # ====================================================================
         _validate_cache = {}
 
@@ -312,17 +354,13 @@ jobs:
             return path.endswith(SAFE_LOGO_EXTS)
 
         # ====================================================================
-        # 7. CHON LOGO KENH: gom ung vien theo tang uu tien (iptv-org -> raw
-        #    nguon -> vnepg_backup), roi trong so cac ung vien CON SONG (validate
-        #    OK), uu tien dinh dang AN TOAN (png/jpg) truoc, vi nhieu IPTV player
-        #    khong render duoc svg/webp du link do van "mo duoc" tren trinh duyet.
+        # 8. CHON LOGO KENH
         # ====================================================================
         def pick_logo(canonical_name, canonical_id, tvg_id, vnepg_id_map, vnepg_name_map,
                       iptvorg_name_to_id, iptvorg_id_to_logo, raw_logo):
             tvg_id = ID_ALIASES.get(tvg_id, tvg_id)
             ordered_candidates = []
 
-            # --- TANG 1: iptv-org ---
             if tvg_id and "@" in tvg_id:
                 base_id = tvg_id.split("@")[0]
                 for cid in iptvorg_id_to_logo:
@@ -339,11 +377,9 @@ jobs:
             if guess_id in iptvorg_id_to_logo:
                 ordered_candidates.append(iptvorg_id_to_logo[guess_id])
 
-            # --- TANG 2: logo goc tu 2 nguon raw (.ndl / .m3u) ---
             if raw_logo:
                 ordered_candidates.append(raw_logo)
 
-            # --- TANG 3: vnepg_backup.json (fallback cuoi cung, theo id chuan) ---
             if canonical_id and canonical_id in vnepg_id_map and vnepg_id_map[canonical_id]["logo"]:
                 ordered_candidates.append(vnepg_id_map[canonical_id]["logo"])
 
@@ -357,9 +393,7 @@ jobs:
             return safe[0] if safe else validated[0]
 
         # ====================================================================
-        # 8. GROUP-LOGO: logo that cua tung nhom, do nguoi dung chon tu Wikimedia
-        #    Commons (file goc, khong qua thumbnail service nen it bi 404 hon
-        #    link "thumb/..."). Ap dung truc tiep, KHONG qua validate_url.
+        # 9. GROUP-LOGO
         # ====================================================================
         STATIC_GROUP_LOGOS = {
             "VTV": "https://upload.wikimedia.org/wikipedia/commons/2/22/VTV_2013.png",
@@ -371,16 +405,18 @@ jobs:
         }
 
         # ====================================================================
-        # 9. LOGIC CHINH
+        # 10. LOGIC CHINH
         # ====================================================================
         def main():
+            update_vnepg_backup()
+
             print("Nap vnepg_backup.json...")
             vnepg_id_map, vnepg_name_map = load_vnepg_backup()
 
             print("Nap du lieu iptv-org (channels.json + logos.json)...")
             iptvorg_name_to_id, iptvorg_id_to_logo = load_iptvorg_data()
 
-            channels_data = {}  # key = ten da chuan hoa khong dau (dedup key)
+            channels_data = {}
 
             print("Phan tich cac nguon M3U...")
             for url in M3U_SOURCES:
@@ -471,6 +507,6 @@ jobs:
 
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
-        git add "listtivi.m3u"
-        git commit -m "Feat: 5-group priority ordering (VTV>HTV>SCTV>QPAN>VOV, rest to Dia Phuong), robust local-channel alias matching, unified tvg-id from vnepg canonical ids, format-aware logo selection (prefer png/jpg over svg/webp)" || echo "No changes"
-        git push
+        git add "listtivi.m3u" "vnepg_backup.json"
+        git commit -m "Feat: auto-refresh vnepg_backup.json via VN free proxies with fallback, 5-group priority ordering, robust local-channel alias matching, unified tvg-id, format-aware logo selection" || echo "No changes"
+        git push</parameter>
