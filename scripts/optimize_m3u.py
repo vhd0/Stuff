@@ -1,1 +1,546 @@
+import re, json, os, random, urllib.request, urllib.error
+from collections import OrderedDict
 
+# ====================================================================
+# 1. CAU HINH CO BAN
+# ====================================================================
+M3U_SOURCES = [
+    "https://raw.githubusercontent.com/DinhLap96/ListTivi/refs/heads/main/ListTiVi/dltivi_v2.ndl",
+    "https://raw.githubusercontent.com/iptv-org/iptv/refs/heads/master/streams/vn.m3u"
+]
+
+GROUP_ORDER = ["VTV", "HTV", "SCTV", "Kenh Dac Biet", "VOV", "Dia Phuong"]
+
+# vnepg_backup.json: NGUON CHUAN de chuan hoa TEN/NHOM/TVG-ID cua kenh, va la
+# fallback cuoi cung cho logo. File nay duoc TU DONG CAP NHAT moi lan chay
+# workflow bang cach goi truc tiep API cua vnepg.site thong qua danh sach
+# proxy VN free (gom tu nhieu nguon), vi vnepg.site chan IP ngoai VN bang
+# Cloudflare firewall nen GitHub Actions khong the fetch truc tiep.
+# Neu TAT CA proxy deu that bai, GIU NGUYEN noi dung file da commit lan
+# truoc (fallback), khong lam gian doan pipeline.
+VNEPG_BACKUP_FILE = "vnepg_backup.json"
+VNEPG_API_URL = "https://vnepg.site/api/channels"
+MAX_PROXY_TRIES = 40       # so proxy toi da thu truoc khi bo cuoc
+SOURCE_FETCH_TIMEOUT = 15  # giay, cho lay danh sach proxy tu 1 nguon
+PROXY_REQUEST_TIMEOUT = 8  # giay, cho moi lan thu goi API qua proxy
+
+IPTV_ORG_CHANNELS_API = "https://iptv-org.github.io/api/channels.json"
+IPTV_ORG_LOGOS_API = "https://iptv-org.github.io/api/logos.json"
+
+TRUSTED_DOMAINS = ("vnepg.site", "cdn.jsdelivr.net")
+
+BLOCKED_LOGO_DOMAINS = ("wikia.nocookie.net", "thainguyentv.vn")
+
+SAFE_LOGO_EXTS = (".png", ".jpg", ".jpeg")
+
+IPTV_ORG_ID_HINTS = {
+    "ANTV": "AnNinhTV.vn", "QPVN": "QPVN.vn", "Vietnam Today": "VietnamToday.vn",
+    "HTV Key": "HTVKey.vn", "HTV Thể thao": "HTVSports.vn",
+}
+
+ID_ALIASES = {"vntoday": "vietnamtoday", "thuathienhuetv.vn": "hue"}
+
+DISPLAY_NAME_OVERRIDE = {}
+
+MANUAL_ID_OVERRIDE = {
+    "th lam dong 2": "dongthap2",
+}
+
+# ====================================================================
+# 2. TU DIEN CHUAN HOA TEN KENH
+# ====================================================================
+CHANNEL_MAPPING = {
+    "VTV1": ["vtv1", "vtv1hd"], "VTV2": ["vtv2", "vtv2hd"], "VTV3": ["vtv3", "vtv3hd"],
+    "VTV4": ["vtv4", "vtv4hd"], "VTV5": ["vtv5", "vtv5hd"], "VTV6": ["vtv6", "vtv6hd"],
+    "VTV7": ["vtv7", "vtv7hd"], "VTV8": ["vtv8", "vtv8hd"], "VTV9": ["vtv9", "vtv9hd"],
+    "VTV10": ["vtv10", "vtv10hd", "vtvcantho", "vtv can tho"],
+    "VTV5 Tay Nam Bo": ["vtv5 tay nam bo", "vtv5tnb"],
+    "VTV5 Tay Nguyen": ["vtv5 tay nguyen", "vtv5tn"],
+    "HTV1": ["htv1"], "HTV2 - Vie Channel": ["htv2", "vie channel"], "HTV3": ["htv3"],
+    "HTV4": ["htv4"], "HTV7": ["htv7", "htv7hd"], "HTV9": ["htv9", "htv9hd"],
+    "THVL1": ["thvl1", "vinh long 1"], "THVL2": ["thvl2", "vinh long 2"],
+    "THVL3": ["thvl3", "vinh long 3"], "THVL4": ["thvl4", "vinh long 4"],
+    "ANTV": ["antv", "an ninh tv"], "QPVN": ["qpvn", "quoc phong viet nam"],
+    "Hà Nội 1": ["ha noi 1", "hanoitv1"], "Hà Nội 2": ["ha noi 2", "hanoitv2"],
+    "Lâm Đồng 1": ["lam dong", "lam dong tv"],
+    "Huế": ["thua thien hue"],
+}
+
+# ====================================================================
+# 3. HAM TIEN ICH
+# ====================================================================
+def remove_accents(s):
+    s = s.lower()
+    s = re.sub(r'[aàáạảãâầấậẩẫăằắặẳẵ]', 'a', s)
+    s = re.sub(r'[eèéẹẻẽêềếệểễ]', 'e', s)
+    s = re.sub(r'[iìíịỉĩ]', 'i', s)
+    s = re.sub(r'[oòóọỏõôồốộổỗơờớợởỡ]', 'o', s)
+    s = re.sub(r'[uùúụủũưừứựửữ]', 'u', s)
+    s = re.sub(r'[yỳýỵỷỹ]', 'y', s)
+    s = re.sub(r'[đ]', 'd', s)
+    return re.sub(r'\s+', ' ', s).strip()
+
+def collapse(s):
+    return s.replace(" ", "")
+
+def get_tvg_id(extinf_line):
+    m = re.search(r'tvg-id="([^"]*)"', extinf_line, re.IGNORECASE)
+    return m.group(1).strip().lower() if m else ""
+
+def clean_raw_name(raw_name):
+    clean = re.sub(r'\(.*?\)|\[.*?\]', '', raw_name)
+    clean = re.sub(r'\b(hd|sd|4k|1080p|720p|fhd)\b', '', clean, flags=re.IGNORECASE)
+    clean = re.sub(r'(?i)^\s*TH\s+', '', clean)
+    clean = re.sub(r'(?i)\bTV(\d*)\b', r'\1', clean)
+    return " ".join(clean.split()).strip()
+
+def resolve_vnepg_entry(raw_name, tvg_id, vnepg_id_map, vnepg_name_map):
+    raw_key = remove_accents(" ".join(raw_name.split()))
+    override_id = MANUAL_ID_OVERRIDE.get(raw_key)
+    if override_id and override_id in vnepg_id_map:
+        return vnepg_id_map[override_id], vnepg_id_map[override_id]["name"]
+
+    clean = clean_raw_name(raw_name)
+    key = remove_accents(clean)
+
+    tvg_id_base = tvg_id.split("@")[0] if tvg_id else tvg_id
+    tvg_id_base = ID_ALIASES.get(tvg_id_base, tvg_id_base)
+    if tvg_id_base and tvg_id_base in vnepg_id_map:
+        return vnepg_id_map[tvg_id_base], vnepg_id_map[tvg_id_base]["name"]
+
+    if key in vnepg_name_map:
+        return vnepg_name_map[key], vnepg_name_map[key]["name"]
+
+    key_collapsed = collapse(key)
+    if key_collapsed in vnepg_name_map:
+        return vnepg_name_map[key_collapsed], vnepg_name_map[key_collapsed]["name"]
+
+    return None, clean
+
+def resolve_channel(raw_name, tvg_id, vnepg_id_map, vnepg_name_map):
+    entry, resolved = resolve_vnepg_entry(raw_name, tvg_id, vnepg_id_map, vnepg_name_map)
+
+    if entry is None:
+        clean_no_mark = remove_accents(resolved)
+        for canonical, variants in CHANNEL_MAPPING.items():
+            variants_no_mark = [remove_accents(v) for v in variants]
+            if clean_no_mark == remove_accents(canonical) or clean_no_mark in variants_no_mark:
+                resolved = canonical
+                again_key = remove_accents(canonical)
+                entry = vnepg_name_map.get(again_key) or vnepg_name_map.get(collapse(again_key))
+                break
+
+    canonical_id = entry["id"] if (entry and entry.get("id")) else collapse(remove_accents(resolved)) or "unknown"
+    display_name = DISPLAY_NAME_OVERRIDE.get(resolved, resolved)
+    return canonical_id, display_name
+
+def determine_group(canonical_name, tvg_id, canonical_id):
+    tvg_id = ID_ALIASES.get(tvg_id, tvg_id)
+    gid = canonical_id or tvg_id or ""
+    if gid.startswith("vtv") or gid == "vietnamtoday": return "VTV"
+    if gid.startswith("htv"): return "HTV"
+    if gid.startswith("sctv"): return "SCTV"
+    if gid in ("antvhd", "qpvnhd"): return "Kenh Dac Biet"
+    if gid.startswith("vov") or gid.startswith("voh"): return "VOV"
+
+    name_lower = remove_accents(canonical_name)
+    if any(x in name_lower for x in ["vtv", "vietnam today"]): return "VTV"
+    if "htv" in name_lower: return "HTV"
+    if "sctv" in name_lower: return "SCTV"
+    if any(x in name_lower for x in ["antv", "an ninh", "qpvn", "quoc phong", "quoc hoi"]): return "Kenh Dac Biet"
+    if any(x in name_lower for x in ["vov", "voh", "zing"]): return "VOV"
+    return "Dia Phuong"
+
+# ====================================================================
+# 4. CAP NHAT vnepg_backup.json TU API TRUC TIEP QUA NHIEU NGUON PROXY VN
+# ====================================================================
+def _dedup_proxies(proxy_list):
+    seen = set()
+    out = []
+    for p in proxy_list:
+        key = p.split("://")[-1]  # so trung theo ip:port, bo qua giao thuc
+        if key not in seen:
+            seen.add(key)
+            out.append(p)
+    return out
+
+def fetch_from_proxyscrape():
+    """Nguon 1: ProxyScrape API (http/socks4/socks5, VN)."""
+    out = []
+    try:
+        url = ("https://api.proxyscrape.com/v4/free-proxy-list/get"
+               "?request=display_proxies&proxy_format=protocolipport&format=text&country=vn")
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        content = urllib.request.urlopen(req, timeout=SOURCE_FETCH_TIMEOUT).read().decode("utf-8")
+        out = [l.strip() for l in content.splitlines() if l.strip()]
+        print(f"  [ProxyScrape] lay duoc {len(out)} proxy.")
+    except Exception as e:
+        print(f"  [ProxyScrape] loi: {e}")
+    return out
+
+def fetch_from_geonode():
+    """Nguon 2: Geonode free proxy API, loc theo country=VN."""
+    out = []
+    try:
+        url = ("https://proxylist.geonode.com/api/proxy-list"
+               "?country=VN&protocols=http,https,socks4,socks5"
+               "&limit=100&page=1&sort_by=lastChecked&sort_type=desc")
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        content = urllib.request.urlopen(req, timeout=SOURCE_FETCH_TIMEOUT).read().decode("utf-8")
+        data = json.loads(content)
+        for item in data.get("data", []):
+            ip = item.get("ip")
+            port = item.get("port")
+            protocols = item.get("protocols") or ["http"]
+            if ip and port:
+                proto = protocols[0]
+                out.append(f"{proto}://{ip}:{port}")
+        print(f"  [Geonode] lay duoc {len(out)} proxy.")
+    except Exception as e:
+        print(f"  [Geonode] loi: {e}")
+    return out
+
+def fetch_from_proxylist_download():
+    """Nguon 3: proxy-list.download API, loc theo country=VN, nhieu giao thuc."""
+    out = []
+    for proto in ("http", "https", "socks4", "socks5"):
+        try:
+            url = f"https://www.proxy-list.download/api/v1/get?type={proto}&country=VN"
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            content = urllib.request.urlopen(req, timeout=SOURCE_FETCH_TIMEOUT).read().decode("utf-8")
+            lines = [l.strip() for l in content.splitlines() if l.strip() and ":" in l]
+            scheme = "http" if proto in ("http", "https") else proto
+            out.extend([f"{scheme}://{l}" for l in lines])
+        except Exception as e:
+            print(f"  [proxy-list.download:{proto}] loi: {e}")
+    print(f"  [proxy-list.download] lay duoc {len(out)} proxy.")
+    return out
+
+def fetch_vn_proxies():
+    """Gom proxy VN tu nhieu nguon free, loai trung, xao tron, gioi han so
+    luong thu de khong lam workflow chay qua lau."""
+    print("Dang gom proxy VN tu nhieu nguon...")
+    all_proxies = []
+    all_proxies.extend(fetch_from_proxyscrape())
+    all_proxies.extend(fetch_from_geonode())
+    all_proxies.extend(fetch_from_proxylist_download())
+
+    all_proxies = _dedup_proxies(all_proxies)
+    random.shuffle(all_proxies)
+    print(f"Tong cong {len(all_proxies)} proxy VN doc nhat (thu toi da {MAX_PROXY_TRIES}).")
+    return all_proxies[:MAX_PROXY_TRIES]
+
+def fetch_channels_via_proxy(proxy_url):
+    """Goi API vnepg.site/api/channels thong qua 1 proxy VN cu the."""
+    proxy_handler = urllib.request.ProxyHandler({"http": proxy_url, "https": proxy_url})
+    opener = urllib.request.build_opener(proxy_handler)
+    req = urllib.request.Request(VNEPG_API_URL, headers={"User-Agent": "Mozilla/5.0"})
+    with opener.open(req, timeout=PROXY_REQUEST_TIMEOUT) as resp:
+        data = resp.read().decode("utf-8")
+    return json.loads(data)
+
+def normalize_vnepg_api_response(raw):
+    """Chuan hoa JSON tra ve tu API sang dinh dang {"channels":[{"id","name",
+    "logo"}...]}. Thu doan cac ten truong pho bien; neu vnepg_backup.json sau
+    khi build thieu du lieu, kiem tra JSON that va sua lai danh sach key."""
+    items = raw
+    if isinstance(raw, dict):
+        items = None
+        for key in ("channels", "data", "items", "results"):
+            if isinstance(raw.get(key), list):
+                items = raw[key]
+                break
+        if items is None:
+            items = []
+
+    channels = []
+    for it in items:
+        if not isinstance(it, dict):
+            continue
+        cid = str(it.get("id") or it.get("channel_id") or it.get("slug") or "").strip().lower()
+        name = str(it.get("name") or it.get("title") or it.get("display_name") or "").strip()
+        logo = str(it.get("logo") or it.get("icon") or it.get("logo_url") or it.get("image") or "").strip()
+        if name:
+            channels.append({"id": cid, "name": name, "logo": logo})
+    return {"channels": channels}
+
+def update_vnepg_backup():
+    """Thu fetch du lieu moi tu API qua danh sach proxy VN gom tu nhieu
+    nguon. Neu thanh cong (co it nhat 1 kenh hop le), GHI DE vnepg_backup.json.
+    Neu that bai voi TAT CA proxy da thu, GIU NGUYEN file hien co (fallback
+    = ban da commit lan chay truoc)."""
+    print("=== Cap nhat vnepg_backup.json tu API (qua proxy VN) ===")
+    proxies = fetch_vn_proxies()
+
+    if not proxies:
+        print("Khong lay duoc proxy tu nguon nao. Giu nguyen vnepg_backup.json cu.")
+        return False
+
+    for i, proxy in enumerate(proxies, 1):
+        try:
+            print(f"  [{i}/{len(proxies)}] Thu proxy: {proxy}")
+            raw = fetch_channels_via_proxy(proxy)
+            normalized = normalize_vnepg_api_response(raw)
+            if not normalized["channels"]:
+                print("    -> Du lieu rong/khong khop schema, bo qua.")
+                continue
+            with open(VNEPG_BACKUP_FILE, "w", encoding="utf-8") as f:
+                json.dump(normalized, f, ensure_ascii=False, indent=2)
+            print(f"    -> THANH CONG! Da cap nhat {len(normalized['channels'])} kenh.")
+            return True
+        except Exception as e:
+            print(f"    -> Loi: {e}")
+            continue
+
+    print("Khong co proxy VN nao hoat dong sau khi thu het. "
+          "Giu nguyen vnepg_backup.json cu lam fallback.")
+    return False
+
+# ====================================================================
+# 5. NAP VNEPG_BACKUP.JSON (sau khi da thu cap nhat o buoc 4)
+# ====================================================================
+def load_vnepg_backup():
+    id_map, name_map = {}, {}
+    if not os.path.exists(VNEPG_BACKUP_FILE):
+        print(f"Khong tim thay {VNEPG_BACKUP_FILE}, bo qua.")
+        return id_map, name_map
+    try:
+        with open(VNEPG_BACKUP_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        for ch in data.get("channels", []):
+            cid = str(ch.get("id", "")).strip().lower()
+            name = str(ch.get("name", "")).strip()
+            logo = str(ch.get("logo", "")).strip()
+            if not name:
+                continue
+            entry = {"id": cid, "name": name, "logo": logo}
+            if cid:
+                id_map[cid] = entry
+            key = remove_accents(name)
+            name_map[key] = entry
+            name_map.setdefault(collapse(key), entry)
+        print(f"Da nap {len(id_map)} kenh tu vnepg_backup.json.")
+    except Exception as e:
+        print(f"Loi doc {VNEPG_BACKUP_FILE}: {e}")
+    return id_map, name_map
+
+# ====================================================================
+# 6. NAP DU LIEU IPTV-ORG (channels.json + logos.json)
+# ====================================================================
+def http_get_json(url, timeout=20):
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    content = urllib.request.urlopen(req, timeout=timeout).read().decode("utf-8")
+    return json.loads(content)
+
+def load_iptvorg_data():
+    name_to_id = {}
+    id_to_logo = {}
+    try:
+        channels = http_get_json(IPTV_ORG_CHANNELS_API, timeout=30)
+        for ch in channels:
+            cid = ch.get("id")
+            if not cid:
+                continue
+            names = [ch.get("name", "")] + list(ch.get("alt_names") or [])
+            for n in names:
+                n = remove_accents(str(n))
+                if n and n not in name_to_id:
+                    name_to_id[n] = cid
+        print(f"Da nap {len(channels)} kenh tu channels.json cua iptv-org.")
+    except Exception as e:
+        print(f"Loi nap channels.json: {e}")
+
+    try:
+        logos = http_get_json(IPTV_ORG_LOGOS_API, timeout=30)
+        for item in logos:
+            cid = item.get("channel")
+            url = item.get("url")
+            if cid and url and cid not in id_to_logo:
+                id_to_logo[cid] = url
+        print(f"Da nap {len(id_to_logo)} logo tu logos.json cua iptv-org.")
+    except Exception as e:
+        print(f"Loi nap logos.json: {e}")
+
+    return name_to_id, id_to_logo
+
+# ====================================================================
+# 7. VALIDATE URL
+# ====================================================================
+_validate_cache = {}
+
+def validate_url(url, timeout=4):
+    if not url:
+        return False
+    if url in _validate_cache:
+        return _validate_cache[url]
+    if any(d in url for d in TRUSTED_DOMAINS):
+        _validate_cache[url] = True
+        return True
+    ok = False
+    try:
+        req = urllib.request.Request(url, method="HEAD", headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            ok = 200 <= resp.status < 400
+    except Exception:
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0", "Range": "bytes=0-1024"})
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                ok = 200 <= resp.status < 400
+        except Exception:
+            ok = False
+    _validate_cache[url] = ok
+    return ok
+
+def is_safe_format(url):
+    path = url.split("?")[0].split("#")[0].lower()
+    return path.endswith(SAFE_LOGO_EXTS)
+
+# ====================================================================
+# 8. CHON LOGO KENH
+# ====================================================================
+def pick_logo(canonical_name, canonical_id, tvg_id, vnepg_id_map, vnepg_name_map,
+              iptvorg_name_to_id, iptvorg_id_to_logo, raw_logo):
+    tvg_id = ID_ALIASES.get(tvg_id, tvg_id)
+    ordered_candidates = []
+
+    if tvg_id and "@" in tvg_id:
+        base_id = tvg_id.split("@")[0]
+        for cid in iptvorg_id_to_logo:
+            if cid.lower() == base_id:
+                ordered_candidates.append(iptvorg_id_to_logo[cid])
+                break
+    cid = iptvorg_name_to_id.get(remove_accents(canonical_name))
+    if cid and cid in iptvorg_id_to_logo:
+        ordered_candidates.append(iptvorg_id_to_logo[cid])
+    hinted_id = IPTV_ORG_ID_HINTS.get(canonical_name)
+    if hinted_id and hinted_id in iptvorg_id_to_logo:
+        ordered_candidates.append(iptvorg_id_to_logo[hinted_id])
+    guess_id = re.sub(r'[^A-Za-z0-9]', '', canonical_name) + ".vn"
+    if guess_id in iptvorg_id_to_logo:
+        ordered_candidates.append(iptvorg_id_to_logo[guess_id])
+
+    if raw_logo:
+        ordered_candidates.append(raw_logo)
+
+    if canonical_id and canonical_id in vnepg_id_map and vnepg_id_map[canonical_id]["logo"]:
+        ordered_candidates.append(vnepg_id_map[canonical_id]["logo"])
+
+    ordered_candidates = [c for c in ordered_candidates
+                           if not any(d in c for d in BLOCKED_LOGO_DOMAINS)]
+
+    validated = [c for c in ordered_candidates if validate_url(c)]
+    if not validated:
+        return ""
+    safe = [c for c in validated if is_safe_format(c)]
+    return safe[0] if safe else validated[0]
+
+# ====================================================================
+# 9. GROUP-LOGO
+# ====================================================================
+STATIC_GROUP_LOGOS = {
+    "VTV": "https://upload.wikimedia.org/wikipedia/commons/2/22/VTV_2013.png",
+    "HTV": "https://upload.wikimedia.org/wikipedia/commons/7/74/HTV_Logo.png",
+    "SCTV": "https://upload.wikimedia.org/wikipedia/commons/d/d3/SCTV_logo_%28Vietnam%29.svg",
+    "Kenh Dac Biet": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Emblem_of_Vietnam.svg",
+    "VOV": "https://upload.wikimedia.org/wikipedia/commons/d/dd/Logo_VOV.svg",
+    "Dia Phuong": "https://upload.wikimedia.org/wikipedia/commons/2/21/Flag_of_Vietnam.svg",
+}
+
+# ====================================================================
+# 10. LOGIC CHINH
+# ====================================================================
+def main():
+    update_vnepg_backup()
+
+    print("Nap vnepg_backup.json...")
+    vnepg_id_map, vnepg_name_map = load_vnepg_backup()
+
+    print("Nap du lieu iptv-org (channels.json + logos.json)...")
+    iptvorg_name_to_id, iptvorg_id_to_logo = load_iptvorg_data()
+
+    channels_data = {}
+
+    print("Phan tich cac nguon M3U...")
+    for url in M3U_SOURCES:
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            content = urllib.request.urlopen(req, timeout=15).read().decode("utf-8-sig")
+            lines = content.splitlines()
+
+            current_extinf = ""
+            current_raw_name = ""
+
+            for line in lines:
+                line = line.strip()
+                if not line:
+                    continue
+
+                if line.lower().startswith("#extinf:"):
+                    current_extinf = line
+                    match = re.search(r',([^,]*)$', line)
+                    current_raw_name = match.group(1).strip() if match else line.split(',')[-1].strip()
+                    continue
+
+                if line.startswith("http") and current_extinf and current_raw_name:
+                    tvg_id = get_tvg_id(current_extinf)
+                    canonical_id, display_name = resolve_channel(current_raw_name, tvg_id, vnepg_id_map, vnepg_name_map)
+                    dedup_key = remove_accents(display_name)
+                    group = determine_group(display_name, tvg_id, canonical_id)
+
+                    raw_logo = ""
+                    raw_match = re.search(r'tvg-logo="([^"]*)"', current_extinf, re.IGNORECASE)
+                    if raw_match:
+                        raw_logo = raw_match.group(1).strip()
+
+                    final_logo = pick_logo(display_name, canonical_id, tvg_id, vnepg_id_map, vnepg_name_map,
+                                            iptvorg_name_to_id, iptvorg_id_to_logo, raw_logo)
+
+                    if dedup_key not in channels_data:
+                        channels_data[dedup_key] = {"name": display_name, "id": canonical_id,
+                                                     "group": group, "logo": final_logo, "urls": [line]}
+                    else:
+                        if line not in channels_data[dedup_key]["urls"]:
+                            channels_data[dedup_key]["urls"].append(line)
+                        if not channels_data[dedup_key]["logo"] and final_logo:
+                            channels_data[dedup_key]["logo"] = final_logo
+
+                    current_extinf = ""
+                    current_raw_name = ""
+
+        except Exception as e:
+            print(f"Loi khi xu ly {url}: {e}")
+
+    print("Xuat ra listtivi.m3u...")
+    final_ordered = OrderedDict()
+    for g in GROUP_ORDER:
+        sorted_keys = sorted(
+            [k for k, v in channels_data.items() if v["group"] == g],
+            key=lambda s: [int(t) if t.isdigit() else t for t in re.split(r'(\d+)', s)]
+        )
+        for k in sorted_keys:
+            final_ordered[k] = channels_data[k]
+    leftover = [k for k in channels_data if k not in final_ordered]
+    for k in sorted(leftover):
+        final_ordered[k] = channels_data[k]
+
+    with open("listtivi.m3u", "w", encoding="utf-8") as f:
+        f.write('#EXTM3U url-tvg="https://vnepg.site/epg.xml.gz"\n')
+        for data in final_ordered.values():
+            if not data["urls"]:
+                continue
+
+            id_attr = f' tvg-id="{data["id"]}"' if data["id"] else ""
+            logo_attr = f' tvg-logo="{data["logo"]}"' if data["logo"] else ""
+            group_logo_url = STATIC_GROUP_LOGOS.get(data["group"], "")
+            group_logo_attr = f' group-logo="{group_logo_url}"' if group_logo_url else ""
+
+            for idx, u in enumerate(data["urls"]):
+                suffix = f" [Du phong {idx}]" if idx > 0 else ""
+                extinf = (f'#EXTINF:-1{id_attr}{logo_attr}{group_logo_attr} '
+                          f'group-title="{data["group"]}",{data["name"]}{suffix}')
+                f.write(f'{extinf}\n{u}\n')
+
+    print("Build Success!")
+
+if __name__ == "__main__":
+    main()
