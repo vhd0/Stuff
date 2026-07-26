@@ -1,4 +1,4 @@
-import re, json, os, random, urllib.request, urllib.error
+import re, json, os, random, time, urllib.request, urllib.error
 from collections import OrderedDict
 
 # ====================================================================
@@ -201,7 +201,9 @@ def fetch_from_geonode():
     return out
 
 def fetch_from_proxylist_download():
-    """Nguon 3: proxy-list.download API, loc theo country=VN, nhieu giao thuc."""
+    """Nguon 3: proxy-list.download API, loc theo country=VN, nhieu giao thuc.
+    Co delay giua cac lan goi de tranh bi rate-limit (429), va dung som neu
+    da bi rate-limit (goi them cung mot domain chi ton thoi gian vo ich)."""
     out = []
     for proto in ("http", "https", "socks4", "socks5"):
         try:
@@ -211,8 +213,14 @@ def fetch_from_proxylist_download():
             lines = [l.strip() for l in content.splitlines() if l.strip() and ":" in l]
             scheme = "http" if proto in ("http", "https") else proto
             out.extend([f"{scheme}://{l}" for l in lines])
+        except urllib.error.HTTPError as e:
+            print(f"  [proxy-list.download:{proto}] loi: {e}")
+            if e.code == 429:
+                print("  [proxy-list.download] bi rate-limit, dung som nguon nay.")
+                break
         except Exception as e:
             print(f"  [proxy-list.download:{proto}] loi: {e}")
+        time.sleep(2)  # gian cach giua cac request de giam rui ro bi rate-limit
     print(f"  [proxy-list.download] lay duoc {len(out)} proxy.")
     return out
 
