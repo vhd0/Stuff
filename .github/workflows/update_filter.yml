@@ -47,7 +47,7 @@ jobs:
         run: pip install requests
 
       - name: Run Filter Compiler
-        run: python compiler.py
+        run: python scripts/compiler.py
 
       - name: Commit and Push Changes
         run: |
