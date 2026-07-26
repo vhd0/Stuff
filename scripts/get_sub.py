@@ -173,8 +173,8 @@ TEST_POOL_SIZE = int(os.environ.get("TEST_POOL_SIZE", "450"))
 #      SUBNET_MAX_FINAL -- applied AFTER Phase 1+2+3, on the latency-sorted
 #        survivors, so only the fastest node(s) per block make the final
 #        output -- quality selection, not a coin flip.
-SUBNET_MAX_CANDIDATES = int(os.environ.get("SUBNET_MAX_CANDIDATES", "4"))
-SUBNET_MAX_FINAL      = int(os.environ.get("SUBNET_MAX_FINAL", "2"))
+SUBNET_MAX_CANDIDATES = int(os.environ.get("SUBNET_MAX_CANDIDATES", "2"))
+SUBNET_MAX_FINAL      = int(os.environ.get("SUBNET_MAX_FINAL", "1"))
 
 # -- HTTP -------------------------------------------------------------------
 HTTP_SEM     = 10
