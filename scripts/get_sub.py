@@ -2,6 +2,7 @@
 get_sub.py -- Multi-source VPN node collector
 ==============================================================================
 Sources : v2nodes.com (scrape) . EbraSha . Epodonios . OpenProxyList (GitHub)
+          . Au1rxx . Hueco (vauth) . MatinGhanbari . Vorz1k (3 files) . BarryFar
 Pipeline: Collect -> Dedup -> GeoIP country filter
           -> Phase 1 ONLINE      : sing-box connectivity + latency
           -> Phase 2 CONSISTENCY : cross-check exit IP/country across
@@ -122,6 +123,32 @@ EPO_CDN = "https://cdn.jsdelivr.net/gh/Epodonios/v2ray-configs@main/All_Configs_
 # (the .com domain itself is Cloudflare-protected and blocks Azure IPs)
 OPL_RAW = "https://raw.githubusercontent.com/roosterkid/openproxylist/main/V2RAY_RAW.txt"
 OPL_CDN = "https://cdn.jsdelivr.net/gh/roosterkid/openproxylist@main/V2RAY_RAW.txt"
+
+# -- Additional GitHub-hosted sources (no CC in label -> GeoIP-classified,
+#    same treatment as EbraSha/Epodonios). Each entry is (primary, fallback);
+#    fallback is None when no CDN mirror is defined. A source with multiple
+#    files (vorz1k) is fetched as several independent targets and merged.
+AU1RXX_RAW = ("https://raw.githubusercontent.com/Au1rxx/free-vpn-subscriptions"
+              "/main/output/v2ray-base64.txt")
+HUECO_RAW  = "https://vauth.github.io/hueco/v.txt"
+MATIN_RAW  = ("https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs"
+              "/main/subscriptions/v2ray/super-sub.txt")
+VORZ1K_1   = "https://raw.githubusercontent.com/vorz1k/v2box/main/supreme_vpns_1.txt"
+VORZ1K_2   = "https://raw.githubusercontent.com/vorz1k/v2box/main/supreme_vpns_2.txt"
+VORZ1K_3   = "https://raw.githubusercontent.com/vorz1k/v2box/main/supreme_vpns_3.txt"
+BARRYFAR_RAW = "https://raw.githubusercontent.com/barry-far/V2ray-config/main/All_Configs_Sub.txt"
+
+# name -> list of (primary, fallback) targets; all targets are fetched and
+# their nodes merged under one source name before GeoIP classification.
+GENERIC_SOURCES: list[tuple[str, list[tuple[str, Optional[str]]]]] = [
+    ("EbraSha",       [(EBRASHA_RAW, EBRASHA_CDN)]),
+    ("Epodonios",     [(EPO_RAW, EPO_CDN)]),
+    ("Au1rxx",        [(AU1RXX_RAW, None)]),
+    ("Hueco",         [(HUECO_RAW, None)]),
+    ("MatinGhanbari", [(MATIN_RAW, None)]),
+    ("Vorz1k",        [(VORZ1K_1, None), (VORZ1K_2, None), (VORZ1K_3, None)]),
+    ("BarryFar",      [(BARRYFAR_RAW, None)]),
+]
 
 # -- GeoIP -- country lookup ONLY, no ASN/blocklist reasoning --------------
 GEOIP_DB        = os.environ.get("GEOIP_DB", "GeoLite2-Country.mmdb")
@@ -565,16 +592,73 @@ async def scrape_v2nodes(
     return nodes
 
 
-async def fetch_ebrasha(session: aiohttp.ClientSession, geoip: GeoIP) -> dict[str, list[str]]:
-    text = await fetch_with_fallback(session, EBRASHA_RAW, EBRASHA_CDN, "EbraSha")
+def _looks_like_nodes(text: Optional[str]) -> bool:
+    """True if raw text already contains node URIs, OR is a base64 blob that
+    decodes to some. Covers both plain-list sources and base64-subscription
+    sources (e.g. Au1rxx's v2ray-base64.txt) with one check."""
     if not text:
+        return False
+    t = text.strip()
+    if _RE_NODE.search(t):
+        return True
+    d = _b64d(t)
+    return bool(d and _RE_NODE.search(d))
+
+
+def _extract_nodes(text: str) -> list[str]:
+    """Pull node URIs out of a fetched body, transparently un-base64ing
+    whole-content-encoded subscriptions first when the raw text has none."""
+    body = text
+    if not _RE_NODE.search(body):
+        d = _b64d(body.strip())
+        if d and _RE_NODE.search(d):
+            body = d
+    return [l.strip() for l in body.splitlines() if _RE_NODE.match(l.strip())]
+
+
+async def fetch_generic_source(
+    session: aiohttp.ClientSession,
+    geoip:   GeoIP,
+    name:    str,
+    targets: list[tuple[str, Optional[str]]],
+) -> dict[str, list[str]]:
+    """Fetch one or more targets (primary [+ fallback]) for a single named
+    source, merge their nodes, GeoIP-classify (no CC in these sources'
+    labels -- same treatment as EbraSha/Epodonios). Handles plain-list and
+    whole-content-base64 subscriptions transparently via _looks_like_nodes /
+    _extract_nodes, so one code path covers every GENERIC_SOURCES entry."""
+    texts: list[str] = []
+    for primary, fallback in targets:
+        if fallback:
+            text = await fetch_with_fallback(session, primary, fallback, name,
+                                              validator=_looks_like_nodes)
+        else:
+            text = await http_get(session, primary)
+            if text and _looks_like_nodes(text):
+                log.info("[%-13s] OK <- %s", name, primary.split("/")[2])
+            elif text:
+                log.warning("[%-13s] fetched but no nodes found <- %s", name, primary)
+                text = None
+            else:
+                log.warning("[%-13s] fetch failed <- %s", name, primary)
+        if text:
+            texts.append(text)
+
+    if not texts:
+        log.warning("[%-13s] Fetch failed from all targets", name)
         return {}
 
-    raw_nodes = [l.strip() for l in text.splitlines() if _RE_NODE.match(l.strip())]
-    nodes     = deduplicate(raw_nodes)
-    log.info("[EbraSha  ] %d raw -> %d unique -- classifying...", len(raw_nodes), len(nodes))
+    raw_nodes: list[str] = []
+    for text in texts:
+        raw_nodes.extend(_extract_nodes(text))
+    if not raw_nodes:
+        log.warning("[%-13s] No node URIs parsed from fetched content", name)
+        return {}
 
-    ccs = await gather_chunked(nodes, geoip.cc_of_node, label="EbraSha classify")
+    nodes = deduplicate(raw_nodes)
+    log.info("[%-13s] %d raw -> %d unique -- classifying...", name, len(raw_nodes), len(nodes))
+
+    ccs = await gather_chunked(nodes, geoip.cc_of_node, label=f"{name} classify")
 
     result: dict[str, list[str]] = {}
     dropped = 0
@@ -582,30 +666,8 @@ async def fetch_ebrasha(session: aiohttp.ClientSession, geoip: GeoIP) -> dict[st
         if cc is None: dropped += 1
         else:          result.setdefault(cc, []).append(node)
 
-    log.info("[EbraSha  ] %d classified, %d dropped (DNS fail)",
-             sum(len(v) for v in result.values()), dropped)
-    return result
-
-
-async def fetch_epodonios(session: aiohttp.ClientSession, geoip: GeoIP) -> dict[str, list[str]]:
-    text = await fetch_with_fallback(session, EPO_RAW, EPO_CDN, "Epodonios")
-    if not text:
-        return {}
-
-    raw_nodes = [l.strip() for l in text.splitlines() if _RE_NODE.match(l.strip())]
-    nodes     = deduplicate(raw_nodes)
-    log.info("[Epodonios] %d raw -> %d unique -- classifying...", len(raw_nodes), len(nodes))
-
-    ccs = await gather_chunked(nodes, geoip.cc_of_node, label="Epodonios classify")
-
-    result: dict[str, list[str]] = {}
-    dropped = 0
-    for cc, node in zip(ccs, nodes):
-        if cc is None: dropped += 1
-        else:          result.setdefault(cc, []).append(node)
-
-    log.info("[Epodonios] %d classified, %d dropped (DNS fail)",
-             sum(len(v) for v in result.values()), dropped)
+    log.info("[%-13s] %d classified, %d dropped (DNS fail)",
+             name, sum(len(v) for v in result.values()), dropped)
     return result
 
 
@@ -1104,27 +1166,30 @@ def rename_nodes(nodes: list[str], cc: str) -> list[str]:
 # =============================== 14. PIPELINE ================================
 
 async def process_country(
-    session:  aiohttp.ClientSession,
-    country:  str,
-    http_sem: asyncio.Semaphore,
-    geoip:    GeoIP,
-    ebrasha:  dict[str, list[str]],
-    epo:      dict[str, list[str]],
-    opl:      dict[str, list[str]],
+    session:     aiohttp.ClientSession,
+    country:     str,
+    http_sem:    asyncio.Semaphore,
+    geoip:       GeoIP,
+    sources_map: dict[str, dict[str, list[str]]],  # source name -> {CC: [nodes]}
+    opl:         dict[str, list[str]],
 ) -> None:
     cc      = CC[country]
     allowed = CC_ALLOW[country]
     t_start = time.monotonic()
     log.info("+--- %s %s", cc, "-" * 58)
 
-    # 1. Collect from 4 sources
-    v2n     = await scrape_v2nodes(session, country, http_sem)
-    ext_eba = [n for acc in allowed for n in ebrasha.get(acc, [])]
-    ext_epo = [n for acc in allowed for n in epo.get(acc, [])]
+    # 1. Collect from v2nodes + every GENERIC_SOURCES entry + OPL
+    v2n = await scrape_v2nodes(session, country, http_sem)
+    per_source = {
+        name: [n for acc in allowed for n in result.get(acc, [])]
+        for name, result in sources_map.items()
+    }
     ext_opl = [n for acc in allowed for n in opl.get(acc, [])]
-    nodes   = v2n + ext_eba + ext_epo + ext_opl
-    log.info("| Collected     : %d  (v2nodes=%d ebrasha=%d epodonios=%d opl=%d)",
-             len(nodes), len(v2n), len(ext_eba), len(ext_epo), len(ext_opl))
+    nodes   = v2n + [n for ns in per_source.values() for n in ns] + ext_opl
+
+    breakdown = " ".join(f"{name.lower()}={len(ns)}" for name, ns in per_source.items())
+    log.info("| Collected     : %d  (v2nodes=%d %s opl=%d)",
+             len(nodes), len(v2n), breakdown, len(ext_opl))
 
     # 2. Dedup
     nodes = deduplicate(nodes)
@@ -1175,7 +1240,8 @@ async def process_country(
 async def main() -> None:
     t0 = time.monotonic()
     log.info("=" * 68)
-    log.info(" get_sub.py -- v2nodes / EbraSha / Epodonios / OPL")
+    log.info(" get_sub.py -- v2nodes / EbraSha / Epodonios / OPL /")
+    log.info("               Au1rxx / Hueco / MatinGhanbari / Vorz1k / BarryFar")
     log.info(" Phase 1: ONLINE (connectivity)")
     log.info(" Phase 2: CONSISTENCY (%s)", "/".join(CONSISTENCY_PROVIDERS))
     log.info(" Phase 3: GEO-BLOCK TEST (real geo-fenced destination sites)")
@@ -1192,19 +1258,21 @@ async def main() -> None:
         async with aiohttp.ClientSession(
             connector=conn, cookie_jar=aiohttp.CookieJar(unsafe=True)
         ) as session:
-            ebrasha, epo, opl = await asyncio.gather(
-                fetch_ebrasha(session, geoip),
-                fetch_epodonios(session, geoip),
+            *generic_results, opl = await asyncio.gather(
+                *[fetch_generic_source(session, geoip, name, targets)
+                  for name, targets in GENERIC_SOURCES],
                 fetch_opl(session),
             )
+            sources_map = dict(zip((name for name, _ in GENERIC_SOURCES), generic_results))
+
             log.info("External sources loaded:")
-            log.info("  EbraSha   : %s", {k: len(v) for k,v in sorted(ebrasha.items())})
-            log.info("  Epodonios : %s", {k: len(v) for k,v in sorted(epo.items())})
-            log.info("  OPL       : %s", {k: len(v) for k,v in sorted(opl.items())})
+            for name, result in sources_map.items():
+                log.info("  %-13s: %s", name, {k: len(v) for k, v in sorted(result.items())})
+            log.info("  %-13s: %s", "OPL", {k: len(v) for k, v in sorted(opl.items())})
             log.info("")
 
             for country in COUNTRIES:
-                await process_country(session, country, http_sem, geoip, ebrasha, epo, opl)
+                await process_country(session, country, http_sem, geoip, sources_map, opl)
     finally:
         geoip.close()
 
