@@ -49,7 +49,7 @@ jobs:
           ls -lh GeoLite2-Country.mmdb
 
       - name: Run
-        run: python get_sub.py
+        run: python scripts/get_sub.py
 
       - name: Commit & push
         run: |
