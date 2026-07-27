@@ -3,7 +3,8 @@ get_sub.py -- Multi-source VPN node collector
 ==============================================================================
 Sources : v2nodes.com (scrape) . EbraSha . Epodonios . OpenProxyList (GitHub)
           . Au1rxx . Hueco (vauth) . MatinGhanbari . Vorz1k (3 files) . BarryFar
-Pipeline: Collect -> Dedup -> GeoIP country filter -> Subnet diversity cap
+Pipeline: Collect -> Dedup -> GeoIP country filter -> Abuse-history filter
+          (AbuseIPDB, optional) -> Subnet diversity cap
           -> Phase 1 ONLINE      : sing-box connectivity + latency
           -> Phase 2 CONSISTENCY : cross-check exit IP/country across
                                     independent "what-is-my-ip" services
@@ -173,8 +174,30 @@ TEST_POOL_SIZE = int(os.environ.get("TEST_POOL_SIZE", "450"))
 #      SUBNET_MAX_FINAL -- applied AFTER Phase 1+2+3, on the latency-sorted
 #        survivors, so only the fastest node(s) per block make the final
 #        output -- quality selection, not a coin flip.
-SUBNET_MAX_CANDIDATES = int(os.environ.get("SUBNET_MAX_CANDIDATES", "2"))
-SUBNET_MAX_FINAL      = int(os.environ.get("SUBNET_MAX_FINAL", "1"))
+SUBNET_MAX_CANDIDATES = int(os.environ.get("SUBNET_MAX_CANDIDATES", "4"))
+SUBNET_MAX_FINAL      = int(os.environ.get("SUBNET_MAX_FINAL", "2"))
+
+# -- Abuse-history check (AbuseIPDB) -- optional, needs a free API key ------
+#    (https://www.abuseipdb.com/register, 1000 checks/day free tier).
+#    See AbuseChecker docstring for why this uses a live reputation score
+#    instead of a static CIDR blocklist.
+ABUSEIPDB_API_KEY      = os.environ.get("ABUSEIPDB_API_KEY", "").strip()
+ABUSEIPDB_MAX_SCORE    = int(os.environ.get("ABUSEIPDB_MAX_SCORE", "25"))   # 0-100, drop if higher
+ABUSEIPDB_MAX_AGE_DAYS = int(os.environ.get("ABUSEIPDB_MAX_AGE_DAYS", "90"))
+ABUSEIPDB_CONCURRENCY  = int(os.environ.get("ABUSEIPDB_CONCURRENCY", "5"))  # be gentle with the free tier
+
+# Persistent on-disk cache of past AbuseIPDB scores, keyed by IP, so hourly
+# CI runs (GitHub Actions) don't re-spend quota re-checking IPs seen in the
+# last ABUSE_CACHE_TTL_DAYS. Only ABUSEIPDB_API_KEY needs to be a secret --
+# these two are plain config and safe to hardcode as workflow env vars.
+# In the workflow, cache this file across runs with actions/cache, e.g.:
+#   - uses: actions/cache@v4
+#     with:
+#       path: abuse_cache.json
+#       key: abuse-cache-${{ github.run_id }}
+#       restore-keys: abuse-cache-
+ABUSE_CACHE_FILE     = os.environ.get("ABUSE_CACHE_FILE", "abuse_cache.json")
+ABUSE_CACHE_TTL_DAYS = int(os.environ.get("ABUSE_CACHE_TTL_DAYS", "30"))
 
 # -- HTTP -------------------------------------------------------------------
 HTTP_SEM     = 10
@@ -554,7 +577,157 @@ class GeoIP:
         return kept
 
 
-# =============================== 4. ENDPOINT PARSING =========================
+# =============================== 3b. ABUSE-HISTORY CHECK =====================
+
+class AbuseChecker:
+    """
+    Per-IP abuse-history check via AbuseIPDB's community-reported confidence
+    score (0-100, higher = more reported abuse). Deliberately NOT a static
+    CIDR blocklist (Spamhaus/FireHOL-style) -- see module DESIGN PHILOSOPHY:
+    those over-block whole datacenters. AbuseIPDB's score is per-IP, decays
+    with report age, and includes each report's origin country -- i.e. it
+    IS abuse history "theo location": a Vietnam-target node whose IP has a
+    pile of recent abuse reports filed by/against services worldwide is a
+    better signal of a bad exit than "this /24 belongs to a hosting ASN".
+
+    Optional by design: needs a free AbuseIPDB API key (ABUSEIPDB_API_KEY
+    env var, https://www.abuseipdb.com/register -- 1000 checks/day free).
+    Without a key the filter is a no-op and logs once at startup, exactly
+    like GeoIP.ok when the GeoLite2 DB is missing.
+
+    Persists looked-up scores to ABUSE_CACHE_FILE (ip -> {score, ts}) so a
+    scheduled run (e.g. hourly GitHub Actions) doesn't re-spend quota on an
+    IP it already checked within ABUSE_CACHE_TTL_DAYS -- only new or
+    cache-expired IPs hit the API. Only ABUSEIPDB_API_KEY needs to be a
+    secret; the cache file itself holds no credentials and is meant to be
+    restored/saved by the CI workflow between runs (see config comment).
+    """
+
+    def __init__(self) -> None:
+        self.enabled = bool(ABUSEIPDB_API_KEY)
+        self._cache:   dict[str, Optional[int]]        = {}   # this-run memo (incl. None misses)
+        self._persist: dict[str, tuple[int, float]]     = {}   # ip -> (score, checked_at) -- disk-backed
+        self._dirty    = False
+        self._sem      = asyncio.Semaphore(ABUSEIPDB_CONCURRENCY)
+        self._load_cache()
+        if self.enabled:
+            log.info("AbuseIPDB: enabled (max score %d/100, report window %dd, cache TTL %dd)",
+                      ABUSEIPDB_MAX_SCORE, ABUSEIPDB_MAX_AGE_DAYS, ABUSE_CACHE_TTL_DAYS)
+        else:
+            log.warning("AbuseIPDB: no ABUSEIPDB_API_KEY set -- abuse-history filter disabled")
+
+    def _load_cache(self) -> None:
+        path = Path(ABUSE_CACHE_FILE)
+        if not path.exists():
+            log.info("AbuseIPDB cache: no existing cache file (%s) -- starting empty",
+                      ABUSE_CACHE_FILE)
+            return
+        try:
+            raw = json.loads(path.read_text(encoding="utf-8"))
+        except Exception as e:
+            log.warning("AbuseIPDB cache: unreadable %s (%s) -- starting empty",
+                         ABUSE_CACHE_FILE, e)
+            return
+
+        cutoff, kept, expired = time.time() - ABUSE_CACHE_TTL_DAYS * 86400, 0, 0
+        for ip, entry in raw.items():
+            try:
+                score, ts = entry["score"], float(entry["ts"])
+            except (TypeError, KeyError, ValueError):
+                continue
+            if ts >= cutoff:
+                self._persist[ip] = (score, ts)
+                kept += 1
+            else:
+                expired += 1
+        log.info("AbuseIPDB cache: loaded %d entries (%d expired > %dd, dropped) <- %s",
+                  kept, expired, ABUSE_CACHE_TTL_DAYS, ABUSE_CACHE_FILE)
+
+    def save_cache(self) -> None:
+        """Write the (possibly-updated) persistent cache back to disk.
+        No-op if nothing new was looked up this run. Call once at the end
+        of main(), even on partial/failed runs, so progress isn't lost."""
+        if not self._dirty:
+            return
+        try:
+            payload = {ip: {"score": score, "ts": ts} for ip, (score, ts) in self._persist.items()}
+            Path(ABUSE_CACHE_FILE).write_text(json.dumps(payload), encoding="utf-8")
+            log.info("AbuseIPDB cache: saved %d entries -> %s", len(payload), ABUSE_CACHE_FILE)
+        except Exception as e:
+            log.warning("AbuseIPDB cache: failed to save %s (%s)", ABUSE_CACHE_FILE, e)
+
+    async def score(self, session: aiohttp.ClientSession, ip: str) -> Optional[int]:
+        """abuseConfidenceScore for `ip` -- disk cache first (if fresh),
+        else a live API call, or None if unknown/unavailable (missing key,
+        lookup error, or daily quota hit -- always fail OPEN, never drop a
+        node just because the reputation check itself failed)."""
+        if ip in self._cache:
+            return self._cache[ip]
+        if ip in self._persist:
+            score, _ = self._persist[ip]
+            self._cache[ip] = score
+            return score
+        if not self.enabled:
+            return None
+
+        to = aiohttp.ClientTimeout(connect=CONN_TIMEOUT, total=READ_TIMEOUT)
+        async with self._sem:
+            try:
+                async with session.get(
+                    "https://api.abuseipdb.com/api/v2/check",
+                    params={"ipAddress": ip, "maxAgeInDays": str(ABUSEIPDB_MAX_AGE_DAYS)},
+                    headers={"Key": ABUSEIPDB_API_KEY, "Accept": "application/json"},
+                    timeout=to,
+                ) as r:
+                    if r.status == 429:
+                        log.warning("AbuseIPDB: daily quota hit -- disabling for "
+                                     "the rest of this run (fail-open)")
+                        self.enabled = False
+                        return None
+                    if r.status != 200:
+                        score = None
+                    else:
+                        data  = await r.json()
+                        score = (data.get("data") or {}).get("abuseConfidenceScore")
+            except Exception:
+                score = None
+
+        self._cache[ip] = score
+        if score is not None:
+            self._persist[ip] = (score, time.time())
+            self._dirty = True
+        return score
+
+    async def filter(
+        self, session: aiohttp.ClientSession, nodes: list[str], geoip: GeoIP,
+        label: str = "Abuse filter",
+    ) -> list[str]:
+        """Drop nodes whose resolved IP's abuseConfidenceScore exceeds
+        ABUSEIPDB_MAX_SCORE. No-op (returns `nodes` unchanged) if disabled,
+        and never drops a node solely because the IP was unresolved or the
+        lookup itself failed -- only a CONFIRMED high score removes a node."""
+        if not self.enabled:
+            return nodes
+
+        async def _keep(url: str) -> bool:
+            ep = parse_endpoint(url)
+            if not ep:
+                return True
+            ip = await geoip.resolve(ep[1])
+            if ip is None:
+                return True
+            s = await self.score(session, ip)
+            return s is None or s <= ABUSEIPDB_MAX_SCORE
+
+        mask    = await gather_chunked(nodes, _keep, chunk_size=ABUSEIPDB_CONCURRENCY, label=label)
+        kept    = [n for n, keep in zip(nodes, mask) if keep]
+        dropped = len(nodes) - len(kept)
+        if dropped:
+            log.info("  %s: -%d (abuse score > %d/100) -> %d",
+                      label, dropped, ABUSEIPDB_MAX_SCORE, len(kept))
+        return kept
+
+
 
 def _b64d(s: str) -> Optional[str]:
     try:
@@ -1232,6 +1405,7 @@ async def process_country(
     country:     str,
     http_sem:    asyncio.Semaphore,
     geoip:       GeoIP,
+    abuse:       AbuseChecker,
     sources_map: dict[str, dict[str, list[str]]],  # source name -> {CC: [nodes]}
     opl:         dict[str, list[str]],
 ) -> None:
@@ -1269,7 +1443,18 @@ async def process_country(
         log.info("+%s\n", "-" * 63)
         return
 
-    # 4. Subnet diversity cap -- BEFORE spending test budget, thin out
+    # 4. Abuse-history filter (AbuseIPDB, per-IP live reported abuse -- see
+    #    AbuseChecker docstring). No-op if ABUSEIPDB_API_KEY isn't set.
+    if abuse.enabled:
+        before = len(nodes)
+        nodes  = await abuse.filter(session, nodes, geoip, label="| Abuse filter")
+        log.info("| Abuse filter  : %d/%d (max score %d/100)", len(nodes), before, ABUSEIPDB_MAX_SCORE)
+        if not nodes:
+            log.warning("| No nodes after abuse-history filter")
+            log.info("+%s\n", "-" * 63)
+            return
+
+    # 5. Subnet diversity cap -- BEFORE spending test budget, thin out
     #    hostnames that all resolve into the same /24 or /48 block (see
     #    SUBNET_MAX_CANDIDATES docstring). Order is collection order here,
     #    so this doesn't favor one source over another within a block.
@@ -1278,12 +1463,12 @@ async def process_country(
     if len(nodes) != before:
         log.info("| Subnet cap    : %d -> %d (max %d/block)", before, len(nodes), SUBNET_MAX_CANDIDATES)
 
-    # 5. Runtime safety cap -- NOT a quality filter, see module docstring
+    # 6. Runtime safety cap -- NOT a quality filter, see module docstring
     if len(nodes) > TEST_POOL_SIZE:
         log.info("| Pool cap      : %d -> testing first %d", len(nodes), TEST_POOL_SIZE)
         nodes = nodes[:TEST_POOL_SIZE]
 
-    # 6. Three-phase empirical test -- ONLINE -> CONSISTENCY -> GEO-BLOCK
+    # 7. Three-phase empirical test -- ONLINE -> CONSISTENCY -> GEO-BLOCK
     log.info("| Testing %d candidates (Phase 1 online -> 2 consistency -> 3 geo-block)...",
              len(nodes))
     live = await health_check(nodes, cc, geoip)
@@ -1292,7 +1477,7 @@ async def process_country(
         log.info("+%s\n", "-" * 63)
         return
 
-    # 7. Rename + save
+    # 8. Rename + save
     renamed = rename_nodes(live, cc)
     Path(f"{country}_sub.txt").write_text("\n".join(renamed), encoding="utf-8")
 
@@ -1322,6 +1507,7 @@ async def main() -> None:
     log.info("=" * 68)
 
     geoip    = GeoIP()
+    abuse    = AbuseChecker()
     http_sem = asyncio.Semaphore(HTTP_SEM)
     conn     = aiohttp.TCPConnector(limit=30, ssl=False, ttl_dns_cache=300)
 
@@ -1343,9 +1529,10 @@ async def main() -> None:
             log.info("")
 
             for country in COUNTRIES:
-                await process_country(session, country, http_sem, geoip, sources_map, opl)
+                await process_country(session, country, http_sem, geoip, abuse, sources_map, opl)
     finally:
         geoip.close()
+        abuse.save_cache()
 
     log.info("=" * 68)
     log.info(" Done in %.0fs", time.monotonic() - t0)
