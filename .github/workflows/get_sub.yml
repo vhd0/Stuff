@@ -13,6 +13,14 @@ concurrency:
 
 env:
   PYTHONUNBUFFERED: '1'
+  # -- Abuse-history filter (AbuseIPDB) -- chỉ API key là secret, phần còn
+  #    lại là config thường, để thẳng đây cho dễ chỉnh mà không cần vào Settings.
+  ABUSEIPDB_API_KEY: ${{ secrets.ABUSEIPDB_API_KEY }}
+  ABUSEIPDB_MAX_SCORE: '25'
+  ABUSEIPDB_MAX_AGE_DAYS: '90'
+  ABUSEIPDB_CONCURRENCY: '5'
+  ABUSE_CACHE_FILE: 'abuse_cache.json'
+  ABUSE_CACHE_TTL_DAYS: '30'
 
 jobs:
   run:
@@ -32,24 +40,76 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Install sing-box
+      # -- Abuse-score cache -----------------------------------------------
+      # Không khớp key chính xác (ngày đổi mỗi lần) => luôn rơi vào
+      # restore-keys và phục hồi bản gần nhất, rồi lại lưu bản mới ở cuối
+      # job. Nhờ vậy cache TÍCH LŨY qua nhiều lần chạy thay vì mất sau mỗi
+      # giờ. TTL 30 ngày được chính script tự lọc khi đọc file, cache action
+      # ở đây chỉ lo việc mang file đi qua các lần chạy.
+      - name: Restore AbuseIPDB score cache
+        uses: actions/cache/restore@v4
+        with:
+          path: abuse_cache.json
+          key: abuse-cache-${{ github.run_id }}
+          restore-keys: |
+            abuse-cache-
+
+      # -- sing-box: cache theo tag, chỉ tải lại khi có bản mới -------------
+      - name: Resolve sing-box version
+        id: singbox_ver
         run: |
-          TAG=$(curl -sL https://api.github.com/repos/SagerNet/sing-box/releases/latest \
+          TAG=$(curl -sL -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+               https://api.github.com/repos/SagerNet/sing-box/releases/latest \
                | grep '"tag_name"' | cut -d'"' -f4)
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Cache sing-box binary
+        id: singbox_cache
+        uses: actions/cache@v4
+        with:
+          path: /usr/local/bin/sing-box
+          key: singbox-${{ steps.singbox_ver.outputs.tag }}
+
+      - name: Install sing-box
+        if: steps.singbox_cache.outputs.cache-hit != 'true'
+        run: |
+          TAG="${{ steps.singbox_ver.outputs.tag }}"
           VER=${TAG#v}
           wget -q "https://github.com/SagerNet/sing-box/releases/download/${TAG}/sing-box-${VER}-linux-amd64.tar.gz"
           tar xf sing-box-${VER}-linux-amd64.tar.gz
           sudo mv sing-box-${VER}-linux-amd64/sing-box /usr/local/bin/sing-box
           rm -rf sing-box-${VER}-linux-amd64*
-          sing-box version
+
+      - name: sing-box version
+        run: sing-box version
+
+      # -- GeoLite2: cache theo tuần, đỡ tải lại file ~7MB mỗi giờ ----------
+      - name: Get ISO week
+        id: date
+        run: echo "week=$(date -u +'%G-W%V')" >> "$GITHUB_OUTPUT"
+
+      - name: Cache GeoLite2-Country
+        id: geolite_cache
+        uses: actions/cache@v4
+        with:
+          path: GeoLite2-Country.mmdb
+          key: geolite-${{ steps.date.outputs.week }}
 
       - name: Download GeoLite2-Country
+        if: steps.geolite_cache.outputs.cache-hit != 'true'
         run: |
           wget -q "https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-Country.mmdb"
           ls -lh GeoLite2-Country.mmdb
 
       - name: Run
         run: python scripts/get_sub.py
+
+      - name: Save AbuseIPDB score cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: abuse_cache.json
+          key: abuse-cache-${{ github.run_id }}
 
       - name: Commit & push
         run: |
