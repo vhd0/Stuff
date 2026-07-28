@@ -2,7 +2,7 @@ name: Auto Fetch & Filter Live VPN Nodes
 
 on:
   schedule:
-    - cron: '0 * * * *'   # Chạy mỗi giờ — bắt kịp node mới từ các nguồn liên tục cập nhật
+    - cron: '7 * * * *'   # Chạy mỗi giờ — bắt kịp node mới từ các nguồn liên tục cập nhật
   workflow_dispatch:
 
 # Tránh 2 lần chạy chồng nhau (VD: chạy trước chưa xong đã tới giờ chạy sau)
