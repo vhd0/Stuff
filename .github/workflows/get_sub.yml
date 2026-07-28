@@ -2,11 +2,13 @@ name: Auto Fetch & Filter Live VPN Nodes
 
 on:
   schedule:
-    # Lệch phút :07 thay vì :00 -- GitHub Actions bị nghẽn hàng đợi nặng
-    # nhất đúng vào phút 0 mỗi giờ vì phần lớn workflow khác cũng đặt lịch
-    # tại đó, khiến job có thể trễ 1-4 giờ. Một phút lẻ ít bị xếp hàng hơn,
-    # nhưng vẫn không được đảm bảo đúng giờ tuyệt đối (giới hạn của GitHub).
-    - cron: '7 * * * *'
+    # Lưới dự phòng, KHÔNG phải nguồn trigger chính -- external cron
+    # (cron-job.org) đã lo phần mỗi-giờ-đúng-giờ. Đặt tần suất thấp (4h/lần)
+    # và lệch phút (:37) để không bao giờ trùng với trigger của cron ngoài
+    # ở :07 -- tránh 2 job xếp hàng chờ nhau do `concurrency` bên dưới.
+    # Nếu cron ngoài chết vài giờ, đây vẫn đảm bảo repo không bị "bỏ đói"
+    # quá lâu.
+    - cron: '37 */4 * * *'
   # Cổng vào chính xác giờ: gọi dispatch API này từ một cron service ngoài
   # (cron-job.org, EasyCron...) mỗi giờ đúng phút mong muốn, dùng PAT có
   # quyền "workflow":
