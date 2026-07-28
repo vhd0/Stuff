@@ -2,7 +2,20 @@ name: Auto Fetch & Filter Live VPN Nodes
 
 on:
   schedule:
-    - cron: '7 * * * *'   # Chạy mỗi giờ — bắt kịp node mới từ các nguồn liên tục cập nhật
+    # Lệch phút :07 thay vì :00 -- GitHub Actions bị nghẽn hàng đợi nặng
+    # nhất đúng vào phút 0 mỗi giờ vì phần lớn workflow khác cũng đặt lịch
+    # tại đó, khiến job có thể trễ 1-4 giờ. Một phút lẻ ít bị xếp hàng hơn,
+    # nhưng vẫn không được đảm bảo đúng giờ tuyệt đối (giới hạn của GitHub).
+    - cron: '7 * * * *'
+  # Cổng vào chính xác giờ: gọi dispatch API này từ một cron service ngoài
+  # (cron-job.org, EasyCron...) mỗi giờ đúng phút mong muốn, dùng PAT có
+  # quyền "workflow":
+  #   curl -X POST \
+  #     -H "Authorization: Bearer <PAT_MỚI>" \
+  #     -H "Accept: application/vnd.github+json" \
+  #     https://api.github.com/repos/vhd0/Stuff/actions/workflows/get_sub.yml/dispatches \
+  #     -d '{"ref":"main"}'
+  # `schedule` ở trên vẫn giữ làm lưới dự phòng nếu cron ngoài lỡ không gọi.
   workflow_dispatch:
 
 # Tránh 2 lần chạy chồng nhau (VD: chạy trước chưa xong đã tới giờ chạy sau)
