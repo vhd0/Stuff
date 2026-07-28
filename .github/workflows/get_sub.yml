@@ -28,15 +28,6 @@ concurrency:
 
 env:
   PYTHONUNBUFFERED: '1'
-  # -- Abuse-history filter (AbuseIPDB) -- chỉ API key là secret, phần còn
-  #    lại là config thường, để thẳng đây cho dễ chỉnh mà không cần vào Settings.
-  ABUSEIPDB_API_KEY: ${{ secrets.ABUSEIPDB_API_KEY }}
-  ABUSEIPDB_MAX_SCORE: '25'
-  ABUSEIPDB_MAX_AGE_DAYS: '90'
-  ABUSEIPDB_CONCURRENCY: '5'
-  ABUSE_CACHE_FILE: 'abuse_cache.json'
-  ABUSE_CACHE_TTL_DAYS: '30'
-
 jobs:
   run:
     runs-on: ubuntu-latest
@@ -45,7 +36,7 @@ jobs:
       contents: write
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: actions/setup-python@v5
         with:
@@ -54,20 +45,6 @@ jobs:
 
       - name: Install dependencies
         run: pip install -r requirements.txt
-
-      # -- Abuse-score cache -----------------------------------------------
-      # Không khớp key chính xác (ngày đổi mỗi lần) => luôn rơi vào
-      # restore-keys và phục hồi bản gần nhất, rồi lại lưu bản mới ở cuối
-      # job. Nhờ vậy cache TÍCH LŨY qua nhiều lần chạy thay vì mất sau mỗi
-      # giờ. TTL 30 ngày được chính script tự lọc khi đọc file, cache action
-      # ở đây chỉ lo việc mang file đi qua các lần chạy.
-      - name: Restore AbuseIPDB score cache
-        uses: actions/cache/restore@v4
-        with:
-          path: abuse_cache.json
-          key: abuse-cache-${{ github.run_id }}
-          restore-keys: |
-            abuse-cache-
 
       # -- sing-box: cache theo tag, chỉ tải lại khi có bản mới -------------
       - name: Resolve sing-box version
@@ -118,13 +95,6 @@ jobs:
 
       - name: Run
         run: python scripts/get_sub.py
-
-      - name: Save AbuseIPDB score cache
-        if: always()
-        uses: actions/cache/save@v4
-        with:
-          path: abuse_cache.json
-          key: abuse-cache-${{ github.run_id }}
 
       - name: Commit & push
         run: |
