@@ -28,6 +28,7 @@ concurrency:
 
 env:
   PYTHONUNBUFFERED: '1'
+
 jobs:
   run:
     runs-on: ubuntu-latest
@@ -36,7 +37,7 @@ jobs:
       contents: write
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
         with:
@@ -96,7 +97,7 @@ jobs:
       - name: Run
         run: python scripts/get_sub.py
 
-      - name: Commit & push
+      - name: Commit & push (repo Stuff)
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name  "github-actions[bot]"
@@ -105,4 +106,38 @@ jobs:
             && echo "Không có thay đổi." \
             || git commit -m "chore: update nodes — $(date -u +'%Y-%m-%d %H:%M UTC')"
           git pull --rebase --autostash
+          git push
+
+      # -- Publish sang vhd0.github.io --------------------------------------
+      # vhd0.github.io là REPO KHÁC (repo Pages gốc của user), nên
+      # GITHUB_TOKEN mặc định (chỉ có quyền trên repo Stuff) không push
+      # được sang đó. Cần một PAT riêng lưu ở secret PAGES_TOKEN, cấp quyền
+      # Contents: Read & write CHỈ trên repo vhd0/vhd0.github.io.
+      # Kết quả: các file .txt sẽ truy cập được tại
+      #   https://vhd0.github.io/subs/hk_sub.txt
+      #   https://vhd0.github.io/subs/jp_sub.txt  ...v.v.
+      - name: Publish to vhd0.github.io
+        env:
+          PAGES_TOKEN: ${{ secrets.PAGES_TOKEN }}
+        run: |
+          if [ -z "$PAGES_TOKEN" ]; then
+            echo "::warning::PAGES_TOKEN chưa được set trong Secrets -- bỏ qua bước publish lên vhd0.github.io"
+            exit 0
+          fi
+
+          rm -rf pages_repo
+          git clone --depth 1 \
+            "https://x-access-token:${PAGES_TOKEN}@github.com/vhd0/vhd0.github.io.git" \
+            pages_repo
+
+          mkdir -p pages_repo/subs
+          cp *_sub.txt pages_repo/subs/
+
+          cd pages_repo
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name  "github-actions[bot]"
+          git add subs/*_sub.txt
+          git diff --cached --quiet \
+            && echo "Không có thay đổi." \
+            || git commit -m "chore: sync nodes from Stuff — $(date -u +'%Y-%m-%d %H:%M UTC')"
           git push
