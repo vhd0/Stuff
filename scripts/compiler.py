@@ -77,7 +77,7 @@ def write_pure_filter(rules):
     header = f"""[Adblock Plus 2.0]
 ! Title: ABP Filter by @vhd0
 ! Description: Bộ lọc tổng hợp tối ưu diện rộng.
-! Version: 17.0.{datetime.utcnow().strftime('%Y%m%d')}
+! Version: {datetime.utcnow().strftime('%Y%m%d')}
 ! Author: @vhd0_
 ! Last modified: {today} UTC
 ! Expires: 1 days
