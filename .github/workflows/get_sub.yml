@@ -3,12 +3,7 @@ name: Auto Fetch & Filter Live VPN Nodes
 on:
   schedule:
     # Lưới dự phòng, KHÔNG phải nguồn trigger chính -- external cron
-    # (cron-job.org) đã lo phần mỗi-giờ-đúng-giờ. Đặt tần suất thấp (4h/lần)
-    # và lệch phút (:37) để không bao giờ trùng với trigger của cron ngoài
-    # ở :07 -- tránh 2 job xếp hàng chờ nhau do `concurrency` bên dưới.
-    # Nếu cron ngoài chết vài giờ, đây vẫn đảm bảo repo không bị "bỏ đói"
-    # quá lâu.
-    - cron: '37 */4 * * *'
+    - cron: '0 0 * * *'
   # Cổng vào chính xác giờ: gọi dispatch API này từ một cron service ngoài
   # (cron-job.org, EasyCron...) mỗi giờ đúng phút mong muốn, dùng PAT có
   # quyền "workflow":
