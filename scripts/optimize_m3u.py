@@ -470,7 +470,7 @@ STATIC_GROUP_LOGOS = {
     "HTV": "https://upload.wikimedia.org/wikipedia/commons/7/74/HTV_Logo.png",
     "SCTV": "https://upload.wikimedia.org/wikipedia/commons/d/d3/SCTV_logo_%28Vietnam%29.svg",
     "Kenh Dac Biet": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Emblem_of_Vietnam.svg",
-    "VOV": "https://upload.wikimedia.org/wikipedia/commons/d/dd/
+    "VOV": "https://upload.wikimedia.org/wikipedia/commons/d/dd/Logo_VOV.svg",
     "VTVCab ON": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/VTVcab_logo_2013.svg/960px-VTVcab_logo_2013.svg.png",
     "Dia Phuong": "https://upload.wikimedia.org/wikipedia/commons/2/21/Flag_of_Vietnam.svg",
 }
