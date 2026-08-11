@@ -9,7 +9,11 @@ M3U_SOURCES = [
     "https://raw.githubusercontent.com/iptv-org/iptv/refs/heads/master/streams/vn.m3u"
 ]
 
-GROUP_ORDER = ["VTV", "HTV", "SCTV", "Kenh Dac Biet", "VOV", "Dia Phuong"]
+GROUP_ORDER = ["VTV", "HTV", "SCTV", "Kenh Dac Biet", "VOV", "ON", "Dia Phuong"]
+
+# Cac kenh co ten/id chua tu khoa lien quan ca do, cam theo phap luat VN.
+# Kenh nao khop se bi LOAI BO HOAN TOAN khoi danh sach dau ra.
+BLOCKED_NAME_KEYWORDS = ("bet",)
 
 # vnepg_backup.json: NGUON CHUAN de chuan hoa TEN/NHOM/TVG-ID cua kenh, va la
 # fallback cuoi cung cho logo. File nay duoc TU DONG CAP NHAT moi lan chay
@@ -134,6 +138,14 @@ def resolve_channel(raw_name, tvg_id, vnepg_id_map, vnepg_name_map):
     display_name = DISPLAY_NAME_OVERRIDE.get(resolved, resolved)
     return canonical_id, display_name
 
+def is_blocked_channel(raw_name, tvg_id):
+    """Tra ve True neu ten kenh hoac tvg-id chua tu khoa vi pham phap luat
+    VN (vd ca do/gambling). So sanh substring khong dau, khong phan biet
+    hoa-thuong, khong yeu cau ranh gioi tu (de bat duoc ca dang dinh lien
+    nhau kieu "VSBet")."""
+    haystack = remove_accents(raw_name) + " " + (tvg_id or "")
+    return any(kw in haystack for kw in BLOCKED_NAME_KEYWORDS)
+
 def determine_group(canonical_name, tvg_id, canonical_id):
     tvg_id = ID_ALIASES.get(tvg_id, tvg_id)
     gid = canonical_id or tvg_id or ""
@@ -142,6 +154,9 @@ def determine_group(canonical_name, tvg_id, canonical_id):
     if gid.startswith("sctv"): return "SCTV"
     if gid in ("antvhd", "qpvnhd"): return "Kenh Dac Biet"
     if gid.startswith("vov") or gid.startswith("voh"): return "VOV"
+    # Nhom "ON" (ON Kids, ON Life, ON Movies, ON Vie Drama...): id dang
+    # "onkids"/"onlife"/"onmovies"/"onviedrama" bat dau bang "on" + chu cai.
+    if re.match(r'^on[a-z]', gid): return "ON"
 
     name_lower = remove_accents(canonical_name)
     if any(x in name_lower for x in ["vtv", "vietnam today"]): return "VTV"
@@ -149,6 +164,11 @@ def determine_group(canonical_name, tvg_id, canonical_id):
     if "sctv" in name_lower: return "SCTV"
     if any(x in name_lower for x in ["antv", "an ninh", "qpvn", "quoc phong", "quoc hoi"]): return "Kenh Dac Biet"
     if any(x in name_lower for x in ["vov", "voh", "zing"]): return "VOV"
+    # Ten kenh dang "ON <ten>" (vd "On Kids", "On Life", "On Movies",
+    # "On Vie Drama") - kiem tra tu dau rieng biet de tranh nham voi cac
+    # ten dia phuong khac (khong co ten nao trong CHANNEL_MAPPING/Dia
+    # Phuong bat dau bang tu "on" rieng biet).
+    if re.match(r'^on\s', name_lower): return "ON"
     return "Dia Phuong"
 
 # ====================================================================
@@ -451,6 +471,11 @@ STATIC_GROUP_LOGOS = {
     "SCTV": "https://upload.wikimedia.org/wikipedia/commons/d/d3/SCTV_logo_%28Vietnam%29.svg",
     "Kenh Dac Biet": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Emblem_of_Vietnam.svg",
     "VOV": "https://upload.wikimedia.org/wikipedia/commons/d/dd/Logo_VOV.svg",
+    # CHUA tim duoc logo thuong hieu "ON" chinh thuc tren Wikimedia Commons de
+    # dam bao ban quyen/do tin cay nhu cac nhom khac. Tam dung logo cua kenh
+    # "ON Kids" (da co san trong nguon du lieu, tu epg.io.vn) lam dai dien
+    # chung cho nhom. Neu ban co URL logo "ON" chinh thuc, thay the o day.
+    "ON": "https://epg.io.vn/logos/29.png",
     "Dia Phuong": "https://upload.wikimedia.org/wikipedia/commons/2/21/Flag_of_Vietnam.svg",
 }
 
@@ -491,6 +516,14 @@ def main():
 
                 if line.startswith("http") and current_extinf and current_raw_name:
                     tvg_id = get_tvg_id(current_extinf)
+
+                    # Loai bo hoan toan kenh vi pham phap luat VN (ca do/gambling)
+                    if is_blocked_channel(current_raw_name, tvg_id):
+                        print(f"  [BI CHAN] Loai bo kenh vi pham: {current_raw_name}")
+                        current_extinf = ""
+                        current_raw_name = ""
+                        continue
+
                     canonical_id, display_name = resolve_channel(current_raw_name, tvg_id, vnepg_id_map, vnepg_name_map)
                     dedup_key = remove_accents(display_name)
                     group = determine_group(display_name, tvg_id, canonical_id)
