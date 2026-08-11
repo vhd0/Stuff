@@ -9,7 +9,7 @@ M3U_SOURCES = [
     "https://raw.githubusercontent.com/iptv-org/iptv/refs/heads/master/streams/vn.m3u"
 ]
 
-GROUP_ORDER = ["VTV", "HTV", "SCTV", "Kenh Dac Biet", "VOV", "ON", "Dia Phuong"]
+GROUP_ORDER = ["VTV", "VTVCab ON", "HTV", "SCTV", "Kenh Dac Biet", "VOV", "Dia Phuong"]
 
 # Cac kenh co ten/id chua tu khoa lien quan ca do, cam theo phap luat VN.
 # Kenh nao khop se bi LOAI BO HOAN TOAN khoi danh sach dau ra.
@@ -156,7 +156,7 @@ def determine_group(canonical_name, tvg_id, canonical_id):
     if gid.startswith("vov") or gid.startswith("voh"): return "VOV"
     # Nhom "ON" (ON Kids, ON Life, ON Movies, ON Vie Drama...): id dang
     # "onkids"/"onlife"/"onmovies"/"onviedrama" bat dau bang "on" + chu cai.
-    if re.match(r'^on[a-z]', gid): return "ON"
+    if re.match(r'^on[a-z]', gid): return "VTVCab ON"
 
     name_lower = remove_accents(canonical_name)
     if any(x in name_lower for x in ["vtv", "vietnam today"]): return "VTV"
@@ -168,7 +168,7 @@ def determine_group(canonical_name, tvg_id, canonical_id):
     # "On Vie Drama") - kiem tra tu dau rieng biet de tranh nham voi cac
     # ten dia phuong khac (khong co ten nao trong CHANNEL_MAPPING/Dia
     # Phuong bat dau bang tu "on" rieng biet).
-    if re.match(r'^on\s', name_lower): return "ON"
+    if re.match(r'^on\s', name_lower): return "VTVCab ON"
     return "Dia Phuong"
 
 # ====================================================================
@@ -470,12 +470,8 @@ STATIC_GROUP_LOGOS = {
     "HTV": "https://upload.wikimedia.org/wikipedia/commons/7/74/HTV_Logo.png",
     "SCTV": "https://upload.wikimedia.org/wikipedia/commons/d/d3/SCTV_logo_%28Vietnam%29.svg",
     "Kenh Dac Biet": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Emblem_of_Vietnam.svg",
-    "VOV": "https://upload.wikimedia.org/wikipedia/commons/d/dd/Logo_VOV.svg",
-    # CHUA tim duoc logo thuong hieu "ON" chinh thuc tren Wikimedia Commons de
-    # dam bao ban quyen/do tin cay nhu cac nhom khac. Tam dung logo cua kenh
-    # "ON Kids" (da co san trong nguon du lieu, tu epg.io.vn) lam dai dien
-    # chung cho nhom. Neu ban co URL logo "ON" chinh thuc, thay the o day.
-    "ON": "https://epg.io.vn/logos/29.png",
+    "VOV": "https://upload.wikimedia.org/wikipedia/commons/d/dd/
+    "VTVCab ON": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/VTVcab_logo_2013.svg/960px-VTVcab_logo_2013.svg.png",
     "Dia Phuong": "https://upload.wikimedia.org/wikipedia/commons/2/21/Flag_of_Vietnam.svg",
 }
 
