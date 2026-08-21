@@ -24,8 +24,13 @@ checked across three phases of increasing cost and specificity.
 
   PHASE 1 -- ONLINE: cheapest phase, run first to eliminate dead nodes
   before spending any further effort. Does traffic through this node reach
-  the internet at all? Measured via CONNECT_URLS, latency recorded both for
-  ordering and as the fallback sort key (see Phase 3 fallback below).
+  the internet at all -- RELIABLY, not just at one instant? Free public
+  nodes are heavily oversubscribed and often flap online for a few seconds
+  then die, so a single successful connect is a weak signal; this phase
+  requires PHASE1_MIN_OK successes out of PHASE1_ATTEMPTS spaced-out tries
+  via CONNECT_URLS before passing. Average latency of the successful
+  attempts is recorded both for ordering and as the fallback sort key (see
+  Phase 3 fallback below).
 
   PHASE 2 -- CONSISTENCY: a real destination site partly judges visitors by
   IP *behavior*, and one behavioral tell is inconsistency -- a shared or
@@ -190,6 +195,16 @@ CONNECT_URLS = [
 ]
 TEST_TIMEOUT = 10
 TEST_SEM     = 30
+
+# -- Phase 1 stability -- a single successful connect can be a fluke: free
+# public nodes are heavily oversubscribed (thousands of people pull the
+# same list) and often flap online/offline within seconds. Requiring
+# PHASE1_MIN_OK successes out of PHASE1_ATTEMPTS attempts, spaced
+# PHASE1_RETRY_GAP apart, filters out "alive for one instant" nodes that
+# would otherwise pass our test but time out moments later in a real client.
+PHASE1_ATTEMPTS   = int(os.environ.get("PHASE1_ATTEMPTS", "2"))
+PHASE1_MIN_OK     = int(os.environ.get("PHASE1_MIN_OK", "2"))
+PHASE1_RETRY_GAP  = float(os.environ.get("PHASE1_RETRY_GAP", "4.0"))
 
 # -- Phase 2 -- consistency check (country-agnostic, free, keyless) --------
 CONSISTENCY_PROVIDERS = ["ipinfo", "ip-api", "cf-trace"]
@@ -678,7 +693,7 @@ async def fetch_generic_source(
     """Fetch one or more targets (primary [+ fallback]) for a single named
     source, merge their nodes, GeoIP-classify (no CC in these sources'
     labels -- same treatment as EbraSha/Epodonios). Handles plain-list and
-    whole-content-base64 subscriptions transparently via _looks_like_nodes /
+    whole-content-base64 subscriions transparently via _looks_like_nodes /
     _extract_nodes, so one code path covers every GENERIC_SOURCES entry."""
     texts: list[str] = []
     for primary, fallback in targets:
@@ -931,29 +946,114 @@ async def _sb_check_node(ob: dict, sem: asyncio.Semaphore) -> bool:
             except Exception: pass
 
 
-# =============================== 9. PHASE 1 -- ONLINE ========================
+# =============================== 9. TCP REACHABILITY PRECHECK ================
+# Cheap sanity gate BEFORE the expensive sing-box phases (each sing-box batch
+# costs SB_STARTUP + up to TEST_TIMEOUT per node). A raw TCP handshake to
+# host:port needs no proxy process, no config file, no subprocess -- so it
+# can run at far higher concurrency and a far shorter timeout, and it is a
+# NECESSARY (not sufficient) condition for a node to ever pass Phase 1
+# anyway: if the TCP port itself never accepts a connection, sing-box's own
+# outbound dial will fail the exact same way, just slower and in a shared
+# batch where SB_STARTUP is paid regardless of the outcome.
+#
+# With more sources feeding the pool, a large fraction of candidates are
+# simply dead (host down, port closed, subscription expired) -- this step
+# is what actually fixes the "lots of Phase-1 timeouts" symptom: dead nodes
+# get dropped in seconds instead of consuming sing-box batch slots.
+
+TCP_PRECHECK_TIMEOUT     = float(os.environ.get("TCP_PRECHECK_TIMEOUT", "3.0"))
+TCP_PRECHECK_CONCURRENCY = int(os.environ.get("TCP_PRECHECK_CONCURRENCY", "300"))
+
+
+async def _tcp_reachable(host: str, port: int, sem: asyncio.Semaphore) -> bool:
+    async with sem:
+        try:
+            reader, writer = await asyncio.wait_for(
+                asyncio.open_connection(host, port), timeout=TCP_PRECHECK_TIMEOUT
+            )
+        except Exception:
+            return False
+        writer.close()
+        try:
+            await asyncio.wait_for(writer.wait_closed(), timeout=1.0)
+        except Exception:
+            pass
+        return True
+
+
+async def tcp_precheck(nodes: list[str], label: str = "TCP precheck") -> list[str]:
+    """Drop nodes whose host:port doesn't even complete a TCP handshake.
+    Unparseable URLs pass through unfiltered (let later stages judge them)."""
+    sem = asyncio.Semaphore(TCP_PRECHECK_CONCURRENCY)
+
+    async def _check(url: str) -> bool:
+        ep = parse_endpoint(url)
+        if not ep:
+            return True
+        _, host, port = ep
+        if not port:
+            return False
+        return await _tcp_reachable(host, port, sem)
+
+    mask    = await gather_chunked(nodes, _check, chunk_size=CLASSIFY_CHUNK_SIZE, label=label)
+    kept    = [n for n, ok in zip(nodes, mask) if ok]
+    dropped = len(nodes) - len(kept)
+    if dropped:
+        log.info("  %s: -%d (TCP unreachable) -> %d", label, dropped, len(kept))
+    return kept
+
+
+# =============================== 10. PHASE 1 -- ONLINE =======================
+
+async def _connect_once(port: int) -> Optional[float]:
+    """Single connectivity attempt against CONNECT_URLS. Returns latency
+    (ms) on the first successful response, else None."""
+    to = aiohttp.ClientTimeout(total=TEST_TIMEOUT)
+    for url in CONNECT_URLS:
+        t0 = time.monotonic()
+        try:
+            async with aiohttp.ClientSession(
+                connector=aiohttp.TCPConnector(ssl=False)
+            ) as s:
+                async with s.get(url, proxy=f"http://127.0.0.1:{port}",
+                                 timeout=to, allow_redirects=True) as r:
+                    if r.status in (200, 204):
+                        return (time.monotonic() - t0) * 1000
+        except Exception:
+            continue
+    return None
+
 
 async def phase1_online(port: int, sem: asyncio.Semaphore) -> Optional[float]:
-    """Does traffic through this node reach the internet? Returns latency
-    (ms) on the first successful CONNECT_URLS response, else None."""
+    """
+    Does traffic through this node reach the internet -- RELIABLY, not just
+    at one instant? A single successful connect is a weak signal for free
+    public nodes: they're heavily oversubscribed and often flap online for
+    a few seconds then die. Requires PHASE1_MIN_OK successes out of
+    PHASE1_ATTEMPTS attempts (spaced PHASE1_RETRY_GAP apart) before passing.
+    Returns the average latency (ms) of the successful attempts, else None.
+    """
     async with sem:
-        to = aiohttp.ClientTimeout(total=TEST_TIMEOUT)
-        for url in CONNECT_URLS:
-            t0 = time.monotonic()
-            try:
-                async with aiohttp.ClientSession(
-                    connector=aiohttp.TCPConnector(ssl=False)
-                ) as s:
-                    async with s.get(url, proxy=f"http://127.0.0.1:{port}",
-                                     timeout=to, allow_redirects=True) as r:
-                        if r.status in (200, 204):
-                            return (time.monotonic() - t0) * 1000
-            except Exception:
-                continue
-        return None
+        oks: list[float] = []
+        for attempt in range(PHASE1_ATTEMPTS):
+            lat = await _connect_once(port)
+            if lat is not None:
+                oks.append(lat)
+                # Early exit once PHASE1_MIN_OK is already met -- no need to
+                # keep re-testing a node that has already proven itself.
+                if len(oks) >= PHASE1_MIN_OK:
+                    return sum(oks) / len(oks)
+            remaining = PHASE1_ATTEMPTS - attempt - 1
+            # Bail early if even a perfect run of the remaining attempts
+            # couldn't reach PHASE1_MIN_OK -- don't waste the retry gap.
+            if len(oks) + remaining < PHASE1_MIN_OK:
+                return None
+            if remaining:
+                await asyncio.sleep(PHASE1_RETRY_GAP)
+        return sum(oks) / len(oks) if len(oks) >= PHASE1_MIN_OK else None
 
 
-# =============================== 10. PHASE 2 -- CONSISTENCY ==================
+# =============================== 11. PHASE 2 -- CONSISTENCY ==================
 # Query several independent "what is my IP" services THROUGH the node's own
 # proxy connection. A single dedicated VPS reports the same exit IP/country
 # to everyone; a shared/rotating/misconfigured proxy often won't.
@@ -1020,7 +1120,7 @@ async def phase2_consistency(port: int, target_cc: str, sem: asyncio.Semaphore) 
     return len(ips) == 1 and len(ccs) == 1 and next(iter(ccs)) == target_cc
 
 
-# =============================== 11. PHASE 3 -- GEO-BLOCK TEST ===============
+# =============================== 12. PHASE 3 -- GEO-BLOCK TEST ===============
 
 async def phase3_geo_block(port: int, cc: str, sem: asyncio.Semaphore) -> bool:
     """
@@ -1052,7 +1152,7 @@ async def phase3_geo_block(port: int, cc: str, sem: asyncio.Semaphore) -> bool:
     return False   # every configured probe failed to even respond
 
 
-# =============================== 12. HEALTH CHECK (Phase 1+2+3) ==============
+# =============================== 13. HEALTH CHECK (Phase 1+2+3) ==============
 
 async def _run_batch(
     batch: list[tuple[str, dict, int]], cc: str, sem: asyncio.Semaphore,
@@ -1130,17 +1230,24 @@ async def _run_batch(
 
 async def health_check(nodes: list[str], cc: str, geoip: GeoIP) -> list[str]:
     """
-    Runs Phase 1 -> 2 -> 3, funnel-style, with per-phase counts logged.
-    If Phase 3 rejects EVERY Phase-1+2 survivor for this country (and there
-    was at least one), falls back to the Phase-1+2 result set instead of
-    returning empty -- see module docstring "PHASE 3 FALLBACK". Either way,
-    the returned list is sorted by latency (fastest first), then thinned to
-    at most SUBNET_MAX_FINAL nodes per /24-or-/48 block -- since the list is
-    latency-sorted first, capping preserves the fastest node(s) per block.
+    Runs TCP precheck -> Phase 1 -> 2 -> 3, funnel-style, with per-phase
+    counts logged. If Phase 3 rejects EVERY Phase-1+2 survivor for this
+    country (and there was at least one), falls back to the Phase-1+2
+    result set instead of returning empty -- see module docstring "PHASE 3
+    FALLBACK". Either way, the returned list is sorted by latency (fastest
+    first), then thinned to at most SUBNET_MAX_FINAL nodes per /24-or-/48
+    block -- since the list is latency-sorted first, capping preserves the
+    fastest node(s) per block.
     """
     if not Path(SINGBOX).exists():
         log.warning("sing-box not found -- skipping health check")
         return nodes
+
+    before_tcp = len(nodes)
+    nodes = await tcp_precheck(nodes, label="  TCP precheck")
+    log.info("  TCP reachable  : %d/%d", len(nodes), before_tcp)
+    if not nodes:
+        return []
 
     candidates = [(url, ob, BASE_PORT + i)
                   for i, url in enumerate(nodes)
@@ -1191,7 +1298,7 @@ async def health_check(nodes: list[str], cc: str, geoip: GeoIP) -> list[str]:
     return final
 
 
-# =============================== 13. RENAME ===================================
+# =============================== 14. RENAME ===================================
 
 def rename_nodes(nodes: list[str], cc: str) -> list[str]:
     """Format: "JP | 06" -- CC + zero-padded index. vmess: update "ps" field
@@ -1221,7 +1328,7 @@ def rename_nodes(nodes: list[str], cc: str) -> list[str]:
     return out
 
 
-# =============================== 14. PIPELINE ================================
+# =============================== 15. PIPELINE ================================
 
 async def process_country(
     session:     aiohttp.ClientSession,
@@ -1279,9 +1386,11 @@ async def process_country(
         log.info("| Pool cap      : %d -> testing first %d", len(nodes), TEST_POOL_SIZE)
         nodes = nodes[:TEST_POOL_SIZE]
 
-    # 6. Three-phase empirical test -- ONLINE -> CONSISTENCY -> GEO-BLOCK
-    log.info("| Testing %d candidates (Phase 1 online -> 2 consistency -> 3 geo-block)...",
-             len(nodes))
+    # 6. TCP precheck -> Three-phase empirical test -- ONLINE -> CONSISTENCY
+    #    -> GEO-BLOCK. TCP precheck runs first inside health_check() so dead
+    #    nodes never reach the expensive sing-box batches.
+    log.info("| Testing %d candidates (TCP precheck -> Phase 1 online -> "
+             "2 consistency -> 3 geo-block)...", len(nodes))
     live = await health_check(nodes, cc, geoip)
     if not live:
         log.warning("| No nodes cleared the test phases")
@@ -1302,13 +1411,14 @@ async def process_country(
     log.info("+%s\n", "-" * 63)
 
 
-# =============================== 15. MAIN =====================================
+# =============================== 16. MAIN =====================================
 
 async def main() -> None:
     t0 = time.monotonic()
     log.info("=" * 68)
     log.info(" get_sub.py -- v2nodes / EbraSha / Epodonios / OPL /")
     log.info("               Au1rxx / Hueco / MatinGhanbari / Vorz1k / BarryFar")
+    log.info(" TCP precheck: reachability gate before sing-box batches")
     log.info(" Phase 1: ONLINE (connectivity)")
     log.info(" Phase 2: CONSISTENCY (%s)", "/".join(CONSISTENCY_PROVIDERS))
     log.info(" Phase 3: GEO-BLOCK TEST (real geo-fenced destination sites)")
