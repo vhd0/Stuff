@@ -5,14 +5,51 @@ from collections import OrderedDict
 # 1. CAU HINH CO BAN
 # ====================================================================
 M3U_SOURCES = [
-    "https://raw.githubusercontent.com/DinhLap96/ListTivi/refs/heads/main/ListTiVi/dltivi_v2.ndl",
-    "https://raw.githubusercontent.com/iptv-org/iptv/refs/heads/master/streams/vn.m3u"
+    # Cac nguon cu: KHONG tin group-title co san trong nguon (neu co), tiep
+    # tuc tu phan loai qua determine_group() nhu truoc gio (giu hanh vi cu).
+    {"url": "https://raw.githubusercontent.com/DinhLap96/ListTivi/refs/heads/main/ListTiVi/dltivi_v2.ndl",
+     "trust_group_title": False},
+    {"url": "https://raw.githubusercontent.com/iptv-org/iptv/refs/heads/master/streams/vn.m3u",
+     "trust_group_title": False},
+    # Nguon moi: co san rat nhieu nhom da dang (the thao quoc te, TVB, VTVcab,
+    # HTVC, cac kenh su kien, radio...). TIN TUONG group-title goc cua nguon
+    # nay thay vi ep vao 6 nhom cu, vi phan loai theo tu khoa VTV/HTV/SCTV se
+    # khong dung cho cac kenh quoc te/nuoc ngoai trong nguon nay.
+    {"url": "https://raw.githubusercontent.com/vuminhthanh12/vuminhthanh12/refs/heads/main/vmttv",
+     "trust_group_title": True},
 ]
 
-GROUP_ORDER = ["VTV", "VTVCab ON", "HTV", "SCTV", "Kenh Dac Biet", "VOV", "Dia Phuong"]
+# Nhom "goc" uu tien hien thi truoc, mo phong dung cach chia nhom cua cac
+# app OTT thuc te (FPT Play, TV360, VieON...): VTV va VTVCab la 2 THUONG
+# HIEU RIENG BIET (VTVCab la kenh cap con cua VTV, chuong trinh khac han),
+# tuong tu HTV va HTVC. KHONG gop chung, du cung "ho" VTV/HTV. Cac nhom MOI
+# phat hien tu nguon co trust_group_title=True se duoc TU DONG noi vao ngay
+# sau nhom goc (theo thu tu xuat hien lan dau), va "Dia Phuong" luon o CUOI
+# CUNG vi day la nhom "gom-tat-ca" mac dinh.
+BASE_GROUP_ORDER = ["VTV", "VTVCab", "HTV", "HTVC", "SCTV", "Kenh Dac Biet", "VOV", "ON"]
+CATCH_ALL_GROUP = "Dia Phuong"
 
-# Cac kenh co ten/id chua tu khoa lien quan ca do, cam theo phap luat VN.
-# Kenh nao khop se bi LOAI BO HOAN TOAN khoi danh sach dau ra.
+# Gop CHINH XAC (khong dau, khong phan biet hoa-thuong, da bo ky tu khong
+# phai chu/so) - KHONG dung tien to/startswith nua, vi lam "VTVcab" bi nuot
+# nham vao "VTV". Chi gop khi ten nhom TRUNG KHOP hoan toan voi 1 trong cac
+# bien the duoi day; nhom nao khong khop se GIU NGUYEN ten goc cua nguon.
+GROUP_TITLE_EXACT_ALIASES = {
+    "vtv": "VTV",
+    "vtvcab": "VTVCab",
+    "htv": "HTV",
+    "htvc": "HTVC",
+    "sctv": "SCTV",
+    "diaphuong": CATCH_ALL_GROUP,
+}
+
+# Loc theo NHOM (group-title) cho cac nguon TIN TUONG group-title cua ho
+# (trust_group_title=True) - tranh dinh oan ten phim/kenh co chua tu tieng
+# Anh trung ngau nhien (vd phim "Betting With Ghost" khong phai kenh ca do).
+BLOCKED_GROUP_KEYWORDS = ("bet",)
+
+# Loc theo TEN KENH/tvg-id cho cac nguon KHONG co group-title dang tin cay
+# (trust_group_title=False) - vi cac nguon nay khong the phan loai theo
+# nhom, nen van phai loc truc tiep tren ten kenh nhu truoc (vd "VSBet").
 BLOCKED_NAME_KEYWORDS = ("bet",)
 
 # vnepg_backup.json: NGUON CHUAN de chuan hoa TEN/NHOM/TVG-ID cua kenh, va la
@@ -91,6 +128,19 @@ def get_tvg_id(extinf_line):
     m = re.search(r'tvg-id="([^"]*)"', extinf_line, re.IGNORECASE)
     return m.group(1).strip().lower() if m else ""
 
+def get_source_group_title(extinf_line):
+    """Lay group-title co san trong dong EXTINF cua nguon (neu co)."""
+    m = re.search(r'group-title="([^"]*)"', extinf_line, re.IGNORECASE)
+    return m.group(1).strip() if m else ""
+
+def normalize_group_title(raw_group):
+    """Gop nhom CHINH XAC theo GROUP_TITLE_EXACT_ALIASES (vd 'VTVcab' ->
+    'VTVCab' la thuong hieu rieng, KHONG gop vao 'VTV'). Giu nguyen ten goc
+    neu khong trung khop hoan toan bien the nao (nhom doc lap/hoan toan
+    moi)."""
+    key_clean = re.sub(r'[^a-z0-9]', '', remove_accents(raw_group))
+    return GROUP_TITLE_EXACT_ALIASES.get(key_clean, raw_group)
+
 def clean_raw_name(raw_name):
     clean = re.sub(r'\(.*?\)|\[.*?\]', '', raw_name)
     clean = re.sub(r'\b(hd|sd|4k|1080p|720p|fhd)\b', '', clean, flags=re.IGNORECASE)
@@ -139,12 +189,19 @@ def resolve_channel(raw_name, tvg_id, vnepg_id_map, vnepg_name_map):
     return canonical_id, display_name
 
 def is_blocked_channel(raw_name, tvg_id):
-    """Tra ve True neu ten kenh hoac tvg-id chua tu khoa vi pham phap luat
-    VN (vd ca do/gambling). So sanh substring khong dau, khong phan biet
-    hoa-thuong, khong yeu cau ranh gioi tu (de bat duoc ca dang dinh lien
-    nhau kieu "VSBet")."""
+    """Danh cho nguon KHONG co group-title dang tin cay: chan theo ten kenh/
+    tvg-id (khong dau, khong phan biet hoa-thuong, khong can ranh gioi tu,
+    de bat duoc ca dang dinh lien nhau kieu "VSBet")."""
     haystack = remove_accents(raw_name) + " " + (tvg_id or "")
     return any(kw in haystack for kw in BLOCKED_NAME_KEYWORDS)
+
+def is_blocked_group(group_name):
+    """Danh cho nguon CO group-title dang tin cay: chan theo TEN NHOM thay vi
+    ten tung kenh/phim, tranh dinh oan cac ten phim/kenh co chua tu tieng
+    Anh trung ngau nhien (vd phim "Betting With Ghost" khong phai kenh ca
+    do)."""
+    haystack = remove_accents(group_name or "")
+    return any(kw in haystack for kw in BLOCKED_GROUP_KEYWORDS)
 
 def determine_group(canonical_name, tvg_id, canonical_id):
     tvg_id = ID_ALIASES.get(tvg_id, tvg_id)
@@ -156,7 +213,7 @@ def determine_group(canonical_name, tvg_id, canonical_id):
     if gid.startswith("vov") or gid.startswith("voh"): return "VOV"
     # Nhom "ON" (ON Kids, ON Life, ON Movies, ON Vie Drama...): id dang
     # "onkids"/"onlife"/"onmovies"/"onviedrama" bat dau bang "on" + chu cai.
-    if re.match(r'^on[a-z]', gid): return "VTVCab ON"
+    if re.match(r'^on[a-z]', gid): return "ON"
 
     name_lower = remove_accents(canonical_name)
     if any(x in name_lower for x in ["vtv", "vietnam today"]): return "VTV"
@@ -168,7 +225,7 @@ def determine_group(canonical_name, tvg_id, canonical_id):
     # "On Vie Drama") - kiem tra tu dau rieng biet de tranh nham voi cac
     # ten dia phuong khac (khong co ten nao trong CHANNEL_MAPPING/Dia
     # Phuong bat dau bang tu "on" rieng biet).
-    if re.match(r'^on\s', name_lower): return "VTVCab ON"
+    if re.match(r'^on\s', name_lower): return "ON"
     return "Dia Phuong"
 
 # ====================================================================
@@ -467,11 +524,21 @@ def pick_logo(canonical_name, canonical_id, tvg_id, vnepg_id_map, vnepg_name_map
 # ====================================================================
 STATIC_GROUP_LOGOS = {
     "VTV": "https://upload.wikimedia.org/wikipedia/commons/2/22/VTV_2013.png",
+    # Logo chinh thuc VTVcab (2023), lay qua Special:FilePath de khong can do
+    # chinh xac hash thu muc luu tru cua Wikimedia.
+    "VTVCab": "https://commons.wikimedia.org/wiki/Special:FilePath/VTVcab_logo_2023_(2).svg",
     "HTV": "https://upload.wikimedia.org/wikipedia/commons/7/74/HTV_Logo.png",
+    # CHUA tim duoc logo HTVC dang tin cay (CC/PD) tren Wikimedia Commons -
+    # de trong, script se tu bo qua group-logo cho nhom nay. Neu ban co URL
+    # logo HTVC chinh thuc, them vao day.
     "SCTV": "https://upload.wikimedia.org/wikipedia/commons/d/d3/SCTV_logo_%28Vietnam%29.svg",
     "Kenh Dac Biet": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Emblem_of_Vietnam.svg",
     "VOV": "https://upload.wikimedia.org/wikipedia/commons/d/dd/Logo_VOV.svg",
-    "VTVCab ON": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/VTVcab_logo_2013.svg/960px-VTVcab_logo_2013.svg.png",
+    # CHUA tim duoc logo thuong hieu "ON" chinh thuc tren Wikimedia Commons de
+    # dam bao ban quyen/do tin cay nhu cac nhom khac. Tam dung logo cua kenh
+    # "ON Kids" (da co san trong nguon du lieu, tu epg.io.vn) lam dai dien
+    # chung cho nhom. Neu ban co URL logo "ON" chinh thuc, thay the o day.
+    "ON": "https://epg.io.vn/logos/29.png",
     "Dia Phuong": "https://upload.wikimedia.org/wikipedia/commons/2/21/Flag_of_Vietnam.svg",
 }
 
@@ -488,9 +555,12 @@ def main():
     iptvorg_name_to_id, iptvorg_id_to_logo = load_iptvorg_data()
 
     channels_data = {}
+    group_first_seen = []  # thu tu xuat hien lan dau cua tung nhom (giu on dinh)
 
     print("Phan tich cac nguon M3U...")
-    for url in M3U_SOURCES:
+    for source in M3U_SOURCES:
+        url = source["url"]
+        trust_group_title = source.get("trust_group_title", False)
         try:
             req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
             content = urllib.request.urlopen(req, timeout=15).read().decode("utf-8-sig")
@@ -498,6 +568,7 @@ def main():
 
             current_extinf = ""
             current_raw_name = ""
+            current_extra_tags = []  # vd #EXTVLCOPT:http-user-agent=..., #KODIPROP:...
 
             for line in lines:
                 line = line.strip()
@@ -508,21 +579,53 @@ def main():
                     current_extinf = line
                     match = re.search(r',([^,]*)$', line)
                     current_raw_name = match.group(1).strip() if match else line.split(',')[-1].strip()
+                    current_extra_tags = []
+                    continue
+
+                # Cac tag phu tro can giu nguyen di kem URL (vd user-agent
+                # rieng, drm key...) - KHONG duoc bo qua, neu khong stream se
+                # khong phat duoc tren player.
+                if line.lower().startswith("#extvlcopt:") or line.lower().startswith("#kodiprop:"):
+                    current_extra_tags.append(line)
+                    continue
+
+                # Cac dong # khac khong ro dinh dang (comment la, vv.) - bo qua
+                # nhung KHONG reset context dang xu ly.
+                if line.startswith("#"):
                     continue
 
                 if line.startswith("http") and current_extinf and current_raw_name:
                     tvg_id = get_tvg_id(current_extinf)
 
-                    # Loai bo hoan toan kenh vi pham phap luat VN (ca do/gambling)
-                    if is_blocked_channel(current_raw_name, tvg_id):
-                        print(f"  [BI CHAN] Loai bo kenh vi pham: {current_raw_name}")
+                    # Nguon KHONG co group-title dang tin cay: chan som theo
+                    # ten kenh/tvg-id (vd "VSBet"), truoc khi resolve.
+                    if not trust_group_title and is_blocked_channel(current_raw_name, tvg_id):
+                        print(f"  [BI CHAN - TEN KENH] Loai bo: {current_raw_name}")
                         current_extinf = ""
                         current_raw_name = ""
+                        current_extra_tags = []
                         continue
 
                     canonical_id, display_name = resolve_channel(current_raw_name, tvg_id, vnepg_id_map, vnepg_name_map)
                     dedup_key = remove_accents(display_name)
-                    group = determine_group(display_name, tvg_id, canonical_id)
+
+                    if trust_group_title:
+                        source_group = get_source_group_title(current_extinf)
+                        group = normalize_group_title(source_group) if source_group else determine_group(display_name, tvg_id, canonical_id)
+                    else:
+                        group = determine_group(display_name, tvg_id, canonical_id)
+
+                    # Nguon CO group-title dang tin cay: chan theo TEN NHOM,
+                    # tranh dinh oan ten phim/kenh (vd "Betting With Ghost").
+                    if trust_group_title and is_blocked_group(group):
+                        print(f"  [BI CHAN - NHOM] Loai bo '{current_raw_name}' (nhom: {group})")
+                        current_extinf = ""
+                        current_raw_name = ""
+                        current_extra_tags = []
+                        continue
+
+                    if group not in group_first_seen:
+                        group_first_seen.append(group)
 
                     raw_logo = ""
                     raw_match = re.search(r'tvg-logo="([^"]*)"', current_extinf, re.IGNORECASE)
@@ -532,24 +635,40 @@ def main():
                     final_logo = pick_logo(display_name, canonical_id, tvg_id, vnepg_id_map, vnepg_name_map,
                                             iptvorg_name_to_id, iptvorg_id_to_logo, raw_logo)
 
+                    entry = {"url": line, "tags": list(current_extra_tags)}
+
                     if dedup_key not in channels_data:
                         channels_data[dedup_key] = {"name": display_name, "id": canonical_id,
-                                                     "group": group, "logo": final_logo, "urls": [line]}
+                                                     "group": group, "logo": final_logo, "urls": [entry]}
                     else:
-                        if line not in channels_data[dedup_key]["urls"]:
-                            channels_data[dedup_key]["urls"].append(line)
+                        existing_urls = [e["url"] for e in channels_data[dedup_key]["urls"]]
+                        if line not in existing_urls:
+                            channels_data[dedup_key]["urls"].append(entry)
                         if not channels_data[dedup_key]["logo"] and final_logo:
                             channels_data[dedup_key]["logo"] = final_logo
 
                     current_extinf = ""
                     current_raw_name = ""
+                    current_extra_tags = []
 
         except Exception as e:
             print(f"Loi khi xu ly {url}: {e}")
 
     print("Xuat ra listtivi.m3u...")
+
+    # Thu tu nhom cuoi cung: nhom "goc" (BASE_GROUP_ORDER, chi lay nhom nao
+    # thuc su co kenh) -> cac nhom MOI phat hien theo dung thu tu xuat hien
+    # lan dau -> nhom "gom-tat-ca" (Dia Phuong) luon o cuoi.
+    dynamic_extra_groups = [g for g in group_first_seen
+                             if g not in BASE_GROUP_ORDER and g != CATCH_ALL_GROUP]
+    final_group_order = (
+        [g for g in BASE_GROUP_ORDER if g in group_first_seen]
+        + dynamic_extra_groups
+        + ([CATCH_ALL_GROUP] if CATCH_ALL_GROUP in group_first_seen else [])
+    )
+
     final_ordered = OrderedDict()
-    for g in GROUP_ORDER:
+    for g in final_group_order:
         sorted_keys = sorted(
             [k for k, v in channels_data.items() if v["group"] == g],
             key=lambda s: [int(t) if t.isdigit() else t for t in re.split(r'(\d+)', s)]
@@ -559,6 +678,8 @@ def main():
     leftover = [k for k in channels_data if k not in final_ordered]
     for k in sorted(leftover):
         final_ordered[k] = channels_data[k]
+
+    print(f"Cac nhom kenh trong ban build nay ({len(final_group_order)}): {final_group_order}")
 
     with open("listtivi.m3u", "w", encoding="utf-8") as f:
         f.write('#EXTM3U url-tvg="https://vnepg.site/epg.xml.gz"\n')
@@ -571,11 +692,14 @@ def main():
             group_logo_url = STATIC_GROUP_LOGOS.get(data["group"], "")
             group_logo_attr = f' group-logo="{group_logo_url}"' if group_logo_url else ""
 
-            for idx, u in enumerate(data["urls"]):
+            for idx, entry in enumerate(data["urls"]):
                 suffix = f" [Du phong {idx}]" if idx > 0 else ""
                 extinf = (f'#EXTINF:-1{id_attr}{logo_attr}{group_logo_attr} '
                           f'group-title="{data["group"]}",{data["name"]}{suffix}')
-                f.write(f'{extinf}\n{u}\n')
+                f.write(f'{extinf}\n')
+                for tag in entry["tags"]:
+                    f.write(f'{tag}\n')
+                f.write(f'{entry["url"]}\n')
 
     print("Build Success!")
 
