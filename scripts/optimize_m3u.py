@@ -15,8 +15,24 @@ M3U_SOURCES = [
     # HTVC, cac kenh su kien, radio...). TIN TUONG group-title goc cua nguon
     # nay thay vi ep vao 6 nhom cu, vi phan loai theo tu khoa VTV/HTV/SCTV se
     # khong dung cho cac kenh quoc te/nuoc ngoai trong nguon nay.
+    # exclude_group_keys: loai BO HOAN TOAN cac kenh thuoc nhom Live Event,
+    # Radio, cac nuoc (Han Quoc/Trung Quoc/Thai Lan/Campuchia/UK/Israel), va
+    # cac nhom TRUNG voi nhom da co san tu nguon khac (VTV/HTV/HTVC/VTVCab/
+    # ON/Dia Phuong/Kenh thiet yeu) - CHI ap dung rieng cho nguon vmttv nay,
+    # khong anh huong cac nguon khac.
     {"url": "https://raw.githubusercontent.com/vuminhthanh12/vuminhthanh12/refs/heads/main/vmttv",
-     "trust_group_title": True},
+     "trust_group_title": True,
+     "exclude_group_keys": None},  # duoc gan gia tri thuc te ngay ben duoi
+]
+
+# Danh sach TU KHOA nhom can loai bo rieng cho nguon vmttv (viet tu nhien,
+# se duoc chuan hoa ve "key" khong dau/khong ky tu dac biet de so khop chinh
+# xac voi group-title thuc te, du group-title co emoji/dau gach dung kem).
+_VMTTV_EXCLUDE_TERMS = [
+    "LIVE EVENTS",                          # su kien truc tiep
+    "Radio", "UK Radio",                    # cac kenh radio
+    "Israel", "Han Quoc", "Trung Quoc", "Thai Lan", "Campuchia",  # kenh nuoc ngoai
+    "VTV", "VTVCab", "HTV", "HTVC", "Dia Phuong", "Thiet yeu", "ON",  # nhom trung
 ]
 
 # Nhom "goc" uu tien hien thi truoc, mo phong dung cach chia nhom cua cac
@@ -123,6 +139,16 @@ def remove_accents(s):
 
 def collapse(s):
     return s.replace(" ", "")
+
+def group_match_key(s):
+    """Chuan hoa ten nhom ve 'key' chi gom chu/so, khong dau, khong phan
+    biet hoa-thuong, da bo emoji/dau gach/ky tu dac biet - dung de so khop
+    CHINH XAC ten nhom bat ke cach trinh bay khac nhau giua cac nguon."""
+    return re.sub(r'[^a-z0-9]', '', remove_accents(s or ""))
+
+# Gan gia tri thuc te cho exclude_group_keys cua nguon vmttv (dat sau khi da
+# co ham group_match_key va _VMTTV_EXCLUDE_TERMS).
+M3U_SOURCES[2]["exclude_group_keys"] = {group_match_key(t) for t in _VMTTV_EXCLUDE_TERMS}
 
 def get_tvg_id(extinf_line):
     m = re.search(r'tvg-id="([^"]*)"', extinf_line, re.IGNORECASE)
@@ -596,6 +622,7 @@ def main():
 
                 if line.startswith("http") and current_extinf and current_raw_name:
                     tvg_id = get_tvg_id(current_extinf)
+                    exclude_group_keys = source.get("exclude_group_keys")
 
                     # Nguon KHONG co group-title dang tin cay: chan som theo
                     # ten kenh/tvg-id (vd "VSBet"), truoc khi resolve.
@@ -606,6 +633,18 @@ def main():
                         current_extra_tags = []
                         continue
 
+                    # Loai bo SOM theo group-title GOC cua nguon (truoc khi
+                    # chuan hoa/resolve), ap dung rieng cho nguon co khai bao
+                    # exclude_group_keys (hien tai la nguon vmttv) - loai cac
+                    # nhom Live Event/Radio/nuoc ngoai/nhom trung voi nguon khac.
+                    if exclude_group_keys:
+                        raw_group_key = group_match_key(get_source_group_title(current_extinf))
+                        if raw_group_key in exclude_group_keys:
+                            current_extinf = ""
+                            current_raw_name = ""
+                            current_extra_tags = []
+                            continue
+
                     canonical_id, display_name = resolve_channel(current_raw_name, tvg_id, vnepg_id_map, vnepg_name_map)
                     dedup_key = remove_accents(display_name)
 
@@ -614,6 +653,15 @@ def main():
                         group = normalize_group_title(source_group) if source_group else determine_group(display_name, tvg_id, canonical_id)
                     else:
                         group = determine_group(display_name, tvg_id, canonical_id)
+
+                    # Kiem tra lai theo group CUOI CUNG (bat ca truong hop kenh
+                    # khong co group-title rieng, roi ve determine_group() ra
+                    # dung 1 trong cac nhom bi loai, vd "ON"/"Dia Phuong").
+                    if exclude_group_keys and group_match_key(group) in exclude_group_keys:
+                        current_extinf = ""
+                        current_raw_name = ""
+                        current_extra_tags = []
+                        continue
 
                     # Nguon CO group-title dang tin cay: chan theo TEN NHOM,
                     # tranh dinh oan ten phim/kenh (vd "Betting With Ghost").
