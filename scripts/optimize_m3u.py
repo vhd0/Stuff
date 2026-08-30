@@ -31,7 +31,7 @@ M3U_SOURCES = [
 _VMTTV_EXCLUDE_TERMS = [
     "LIVE EVENTS",                          # su kien truc tiep
     "Radio", "UK Radio",                    # cac kenh radio
-    "Israel", "Han Quoc", "Trung Quoc", "Thai Lan", "Campuchia",  # kenh nuoc ngoai
+    "Israel", "Han Quoc", "Trung Quoc", "Thai Lan", "Campuchia", "In The Box", "TVB",  # kenh nuoc ngoai
     "VTV", "VTVCab", "HTV", "HTVC", "Dia Phuong", "Thiet yeu", "ON",  # nhom trung
 ]
 
