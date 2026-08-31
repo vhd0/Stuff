@@ -1,0 +1,6 @@
+# Human-readable source of truth; runtime defaults are in pipeline.py.
+# Edit this file when the rule engine is split into independently configurable modules.
+epg_url: https://lichphatsong.io.vn/epg.xml
+special_channels: [antv, qpvn]
+max_streams_per_channel: 2
+skip_kodiprop_healthcheck: true
