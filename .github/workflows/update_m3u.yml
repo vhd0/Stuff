@@ -1,57 +1,50 @@
 name: Auto Update M3U Daily
 
 on:
-  # Kich hoat tu CRON NGOAI (khong dung GitHub Actions schedule nua, ban tu
-  # quan ly lich chay ben ngoai de kiem soat chinh xac thoi diem).
   repository_dispatch:
     types: [update_m3u]
-  # Van giu nut bam thu cong tren GitHub de test/chay tay khi can.
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   update-list:
     runs-on: ubuntu-latest
     steps:
-    # 1. Checkout repo nguon (chua script + vnepg_backup.json cache)
-    - name: Checkout source repo
-      uses: actions/checkout@v5
-      with:
-        path: source-repo
+      - name: Checkout source repo
+        uses: actions/checkout@v5
+        with:
+          path: source-repo
 
-    - name: Build M3U
-      working-directory: source-repo
-      run: python3 scripts/optimize_m3u.py
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
 
-    # 2. Cap nhat lai vnepg_backup.json (cache/fallback) vao repo nguon (Stuff)
-    - name: Commit vnepg_backup.json cache vao repo nguon
-      working-directory: source-repo
-      run: |
-        git config --local user.email "github-actions[bot]@users.noreply.github.com"
-        git config --local user.name "github-actions[bot]"
-        git add vnepg_backup.json
-        git commit -m "Auto update vnepg_backup.json cache" || echo "No changes"
-        git push
+      - name: Install dependencies
+        working-directory: source-repo
+        run: python -m pip install -r m3u/requirements.txt
 
-    # 3. Checkout repo Pages dich (vhd0.github.io) bang PAT rieng
-    - name: Checkout Pages repo (vhd0.github.io)
-      uses: actions/checkout@v5
-      with:
-        repository: vhd0/vhd0.github.io
-        token: ${{ secrets.PAGES_DEPLOY_TOKEN }}
-        path: pages-repo
+      - name: Build M3U
+        working-directory: source-repo
+        run: python3 optimize_m3u.py
 
-    # 4. Copy file m3u vua build vao thu muc IPTV/ cua repo Pages
-    - name: Copy listtivi.m3u vao repo Pages
-      run: |
-        mkdir -p pages-repo/IPTV
-        cp source-repo/listtivi.m3u pages-repo/IPTV/listtivi.m3u
+      - name: Checkout Pages repo
+        uses: actions/checkout@v5
+        with:
+          repository: vhd0/vhd0.github.io
+          token: ${{ secrets.PAGES_DEPLOY_TOKEN }}
+          path: pages-repo
 
-    # 5. Commit va push sang repo Pages
-    - name: Commit and push to Pages repo
-      working-directory: pages-repo
-      run: |
-        git config --local user.email "github-actions[bot]@users.noreply.github.com"
-        git config --local user.name "github-actions[bot]"
-        git add IPTV/listtivi.m3u
-        git commit -m "Auto update listtivi.m3u" || echo "No changes"
-        git push
+      - name: Copy final playlist
+        run: mkdir -p pages-repo/IPTV && cp source-repo/listtivi.m3u pages-repo/IPTV/listtivi.m3u
+
+      - name: Commit and push Pages repo
+        working-directory: pages-repo
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add IPTV/listtivi.m3u
+          git commit -m "Auto update listtivi.m3u" || echo "No playlist changes"
+          git push
