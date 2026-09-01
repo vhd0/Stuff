@@ -1,43 +1,74 @@
-from __future__ import annotations
-import re, unicodedata
-from pathlib import Path
-import yaml
+"""
+Chuan hoa ten kenh (muc 4 CHANNEL NAME NORMALIZATION) va ten nhom.
+"""
 
-ROOT=Path(__file__).resolve().parent
-CFG=yaml.safe_load((ROOT/'config.yaml').read_text(encoding='utf-8'))
-CHANNELS=yaml.safe_load((ROOT/'channels.yaml').read_text(encoding='utf-8')).get('channels',{})
+import re
 
-def deaccent(s):
-    return ''.join(c for c in unicodedata.normalize('NFD',s or '') if unicodedata.category(c)!='Mn')
+# Nhan/annotation ky thuat can loai bo khoi TEN HIEN THI (muc 4). Ap dung
+# TRUOC khi bo dau, nen viet ca dang co dau/khong dau, hoa/thuong.
+_TECH_LABEL_PATTERNS = [
+    r'\bHD\b', r'\bFHD\b', r'\bUHD\b', r'\b4K\b', r'\b8K\b', r'\bSD\b',
+    r'\b720P\b', r'\b1080P\b', r'\b1440P\b', r'\b2160P\b',
+    r'\b50FPS\b', r'\b60FPS\b', r'\bHEVC\b', r'\bH\.?265\b', r'\bH\.?264\b',
+]
 
-def key(s):
-    s=deaccent(s).lower()
-    s=re.sub(r'[|_/]+',' ',s)
-    return re.sub(r'[^a-z0-9+]+',' ',s).strip()
+# Chu thich nguon can loai bo hoan toan (ca ngoac).
+_SOURCE_ANNOTATION_PATTERNS = [
+    r'\[\s*Geo[\s\-]?Blocked\s*\]', r'\(\s*Geo[\s\-]?Blocked\s*\)',
+    r'\[\s*Not\s*24/7\s*\]',
+    r'\[\s*Backup\s*\]',
+    r'\[\s*TEST\s*\]',
+]
 
-def clean_name(raw: str) -> str:
-    s=(raw or '').strip()
-    # Remove source annotations/quality markers anywhere at the edge.
-    markers=CFG['normalization'].get('strip_markers',[])
-    for marker in markers:
-        s=re.sub(re.escape(marker), '', s, flags=re.I)
-    tech=CFG['normalization']['technical_suffixes']
-    # Remove repeated technical suffixes, e.g. 'VTV5 HD 50FPS'.
-    prev=None
-    while s != prev:
-        prev=s
-        s=re.sub(rf'\s*[\[\(]?\s*(?:{tech})\s*[\]\)]?\s*$', '', s, flags=re.I)
-    # Repeated whitespace and decorative separators.
-    s=re.sub(r'\s+', ' ', s).strip(' -–—|')
-    return s
+_TECH_RE = re.compile('|'.join(_TECH_LABEL_PATTERNS), re.IGNORECASE)
+_ANNOTATION_RE = re.compile('|'.join(_SOURCE_ANNOTATION_PATTERNS), re.IGNORECASE)
 
-def channel_identity(name: str, tvgid: str):
-    n=key(clean_name(name)); t=key(tvgid)
-    for cid,r in CHANNELS.items():
-        vals={key(cid),key(r.get('name',''))}|{key(x) for x in r.get('aliases',[])}
-        if n in vals or t in vals:
-            return cid,r['name'],r
-    return (t or n),clean_name(name) or tvgid,runtime_rule(t or n)
 
-def runtime_rule(cid):
-    return {'groups':[],'order':999999,'aliases':[],'name':''}
+def clean_display_name(raw_name):
+    """Loai bo nhan ky thuat + chu thich nguon khoi ten kenh, KHONG dong
+    cham vao tu ngu mang y nghia dinh danh kenh (muc 4).
+
+    Vi du: 'VTV7 HD [Geo-blocked]' -> 'VTV7'
+           'VTV5 HD 50FPS' -> 'VTV5'
+    """
+    name = raw_name
+    name = _ANNOTATION_RE.sub('', name)
+    name = _TECH_RE.sub('', name)
+    # Don khoang trang/dau ngoac rong con sot lai sau khi xoa nhan.
+    name = re.sub(r'\(\s*\)|\[\s*\]', '', name)
+    name = re.sub(r'\s+', ' ', name).strip(" -_,")
+    return name.strip()
+
+
+def remove_accents(s):
+    s = (s or "").lower()
+    s = re.sub(r'[aàáạảãâầấậẩẫăằắặẳẵ]', 'a', s)
+    s = re.sub(r'[eèéẹẻẽêềếệểễ]', 'e', s)
+    s = re.sub(r'[iìíịỉĩ]', 'i', s)
+    s = re.sub(r'[oòóọỏõôồốộổỗơờớợởỡ]', 'o', s)
+    s = re.sub(r'[uùúụủũưừứựửữ]', 'u', s)
+    s = re.sub(r'[yỳýỵỷỹ]', 'y', s)
+    s = re.sub(r'[đ]', 'd', s)
+    return re.sub(r'\s+', ' ', s).strip()
+
+
+def collapse(s):
+    return s.replace(" ", "")
+
+
+def identity_key(clean_name, tvg_id="", tvg_name=""):
+    """Khoa dinh danh dung de gop cac bien the ve CUNG 1 kenh (muc 5), khi
+    chua tra duoc qua channels.yaml aliases. Uu tien tvg-id/tvg-name (it bi
+    bien dang boi hau to chat luong hon ten hien thi), fallback ve ten da
+    chuan hoa (da bo nhan ky thuat) + collapse khoang trang."""
+    for candidate in (tvg_id, tvg_name):
+        if candidate:
+            return collapse(remove_accents(candidate))
+    return collapse(remove_accents(clean_name)) or "unknown"
+
+
+def group_match_key(s):
+    """Chuan hoa ten nhom (group-title) ve key chi gom chu/so, khong dau,
+    khong phan biet hoa-thuong, da bo emoji/dau gach - dung de so khop
+    CHINH XAC voi group_alias trong groups.yaml."""
+    return re.sub(r'[^a-z0-9]', '', remove_accents(s or ""))

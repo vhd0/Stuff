@@ -1,21 +1,17 @@
-from __future__ import annotations
-from .normalize import key
+"""
+Chon logo cho 1 kenh canonical (muc 18 LOGO).
+Uu tien: logo tu nguon dau vao (theo dung SOURCE PRIORITY) -> IPTV-org
+fallback cuoi cung. KHONG BAO GIO ghi de logo nguon uu tien cao hon bang
+IPTV-org.
+"""
 
-def choose_logo(channel, item):
-    logo=(item.attrs.get('tvg-logo') or '').strip()
-    if logo and item.priority>channel.logo_priority:
-        channel.logo=logo; channel.logo_priority=item.priority
 
-def apply_iptv_org_fallback(channels, items):
-    index={}
-    for i in items:
-        if i.source!='iptv_org': continue
-        logo=(i.attrs.get('tvg-logo') or '').strip()
-        if not logo: continue
-        for k in (i.attrs.get('tvg-id',''),i.attrs.get('tvg-name',''),i.name):
-            if k: index[key(k)]=logo
-    for c in channels.values():
-        if c.logo: continue
-        for k in (c.tvg_id,c.name,c.id):
-            if key(k) in index:
-                c.logo=index[key(k)]; break
+def choose_logo(candidates_by_source_priority, iptvorg_logo="", ):
+    """candidates_by_source_priority: list cac logo tho theo dung thu tu
+    SOURCE PRIORITY (candidates[0] la nguon uu tien cao nhat). Tra ve logo
+    dau tien khac rong trong danh sach; neu khong co cai nao -> dung
+    iptvorg_logo (co the la chuoi rong neu khong co)."""
+    for logo in candidates_by_source_priority:
+        if logo:
+            return logo
+    return iptvorg_logo or ""

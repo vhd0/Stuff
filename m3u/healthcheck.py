@@ -1,26 +1,65 @@
-from __future__ import annotations
+"""
+Healthcheck song song cho danh sach URL DUY NHAT (muc 16 HEALTHCHECK).
+KODIPROP: KHONG healthcheck, danh dau "skipped" nhung VAN eligible (muc 17).
+"""
+
+import re
+import urllib.request
+import urllib.error
 from concurrent.futures import ThreadPoolExecutor
-from urllib.request import Request,urlopen
-from urllib.parse import urlparse
 
-def _one(c, timeout=8, max_bytes=8192):
-    if c.kodi:
-        return c,'skipped','KODIPROP'
-    headers={'User-Agent':'Mozilla/5.0 (M3U-Optimizer/2.0)','Range':f'bytes=0-{max_bytes-1}'}
-    headers.update(c.headers)
+from . import config
+
+
+def _extract_user_agent(tags):
+    for t in tags:
+        m = re.search(r'http-user-agent\s*=\s*(.+)$', t, re.IGNORECASE)
+        if m:
+            return m.group(1).strip()
+    return "Mozilla/5.0"
+
+
+def _check_one(url, user_agent):
+    headers = {
+        "User-Agent": user_agent,
+        "Range": config.HEALTHCHECK_RANGE_BYTES,
+    }
     try:
-        with urlopen(Request(c.url,headers=headers),timeout=timeout) as r:
-            data=r.read(max_bytes)
-            code=getattr(r,'status',200)
-            return c,('healthy' if data and code in (200,206) else 'dead'),f'HTTP {code}'
-    except Exception as e:
-        return c,'dead',str(e)[:160]
+        req = urllib.request.Request(url, headers=headers, method="GET")
+        with urllib.request.urlopen(req, timeout=config.HEALTHCHECK_TIMEOUT) as resp:
+            return 200 <= resp.status < 400
+    except urllib.error.HTTPError as e:
+        # 416 = Range Not Satisfiable: tai nguyen TON TAI nhung qua nho hon
+        # range yeu cau - van coi la healthy. Cac ma 2xx-3xx khac da duoc
+        # xu ly o nhanh binh thuong ben tren.
+        if e.code == 416:
+            return True
+        return False
+    except Exception:
+        return False
 
-def check(candidates, workers=32, timeout=8, max_bytes=8192):
-    unique={}
-    for c in candidates:
-        unique.setdefault((c.url,tuple(sorted(c.headers.items()))),c)
-    with ThreadPoolExecutor(max_workers=workers) as ex:
-        for c,status,reason in ex.map(lambda x:_one(x,timeout,max_bytes),unique.values()):
-            c.health=status;c.health_reason=reason
-    return len(unique)
+
+def healthcheck_candidates(unique_candidates):
+    """unique_candidates: dict {url: {"tags": [...], "is_kodiprop": bool}}.
+    Tra ve dict {url: "healthy" | "dead" | "skipped"}. Moi URL duy nhat chi
+    duoc healthcheck 1 LAN du xuat hien o nhieu nhom/kenh (muc 11, 16)."""
+    results = {}
+    to_check = []
+
+    for url, meta in unique_candidates.items():
+        if meta.get("is_kodiprop"):
+            results[url] = "skipped"
+        else:
+            to_check.append((url, _extract_user_agent(meta.get("tags", []))))
+
+    def worker(item):
+        url, ua = item
+        ok = _check_one(url, ua)
+        return url, ("healthy" if ok else "dead")
+
+    if to_check:
+        with ThreadPoolExecutor(max_workers=config.HEALTHCHECK_WORKERS) as ex:
+            for url, status in ex.map(worker, to_check):
+                results[url] = status
+
+    return results

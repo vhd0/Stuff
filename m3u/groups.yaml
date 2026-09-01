@@ -1,52 +1,105 @@
-# Canonical groups. Source groups are mapped here; they are not discarded.
-# Order is the TV UX order.
-groups:
-  - {id: vtv, name: '📺 VTV', order: 10}
-  - {id: htv, name: '📺 HTV', order: 20}
-  - {id: vtvcab, name: '📡 VTVCab', order: 30}
-  - {id: special, name: '⭐ Kênh đặc biệt', order: 40}
-  - {id: htvc, name: '📡 HTVC', order: 50}
-  - {id: sctv, name: '📡 SCTV', order: 60}
-  - {id: local, name: '🏠 Địa phương', order: 70}
-  - {id: news, name: '📰 Tin tức', order: 80}
-  - {id: movies, name: '🎬 Phim', order: 90}
-  - {id: entertainment, name: '🎭 Giải trí', order: 100}
-  - {id: music, name: '🎵 Âm nhạc', order: 110}
-  - {id: sports, name: '⚽ Thể thao', order: 120}
-  - {id: kids, name: '👶 Thiếu nhi', order: 130}
-  - {id: education, name: '🎓 Giáo dục & Khám phá', order: 140}
-  - {id: radio, name: '📻 Radio', order: 150}
-  - {id: events, name: '🎟️ Sự kiện', order: 160}
-  - {id: other, name: '📦 Khác', order: 999}
+# groups.yaml
+# ====================================================================
+# 1. GROUP ALIAS (tin tuong TUYET DOI khi nguon co trust_group_title=True)
+# Key da duoc chuan hoa: bo dau, chu thuong, chi giu chu/so (khong emoji,
+# khong khoang trang, khong dau gach). Xem group_match_key() trong
+# m3u/normalize.py.
+# ====================================================================
+group_alias:
+  vtv: "📺 VTV"
+  vtvcab: "📡 VTVCab"
+  htv: "📺 HTV"
+  htvc: "📡 HTVC"
+  sctv: "📡 SCTV"
+  diaphuong: "🏠 Địa phương"
+  thietyeu: "🏠 Địa phương"      # "Kenh thiet yeu" cua TV360/MyTV ~ dia phuong+VTV/HTV co ban
+  thethaoquocte: "⚽ Thể thao"
+  thethao: "⚽ Thể thao"
+  radio: "📻 Radio"
+  ukradio: "📻 Radio"
+  thieunhi: "👶 Thiếu nhi"
+  tvb: "🎭 Giải trí"
+  giaitri: "🎭 Giải trí"
+  amnhac: "🎵 Âm nhạc"
+  tintuc: "📰 Tin tức"
+  phim: "🎬 Phim"
+  giaoduc: "🎓 Giáo dục & Khám phá"
+  # Cac nhom "su kien" cua nhieu OTT khac nhau deu quy ve 1 nhom Su kien.
+  liveevents: "🎟️ Sự kiện"
+  sukientv360: "🎟️ Sự kiện"
+  sukienvtvprime: "🎟️ Sự kiện"
+  sukienfptplay: "🎟️ Sự kiện"
+  inthebox: "🎟️ Sự kiện"
+  # LUU Y: "Quoc Te" / cac nhom quoc gia (Han Quoc/Trung Quoc/Thai Lan/
+  # Campuchia/Israel/UK...) CO CHU Y KHONG duoc liet ke o day (muc 8: khong
+  # co nhom "Quoc te" dau ra). Cac nhom nay se roi qua OTT secondary
+  # classifier ben duoi, phan loai theo NOI DUNG thay vi theo quoc gia.
 
-# Exact/semantic mappings for source group-title values. Keep these broad
-# enough to absorb variations, but never use them as channel-name filters.
-aliases:
-  vtv: ['vtv', 'kênh vtv', 'kenh vtv']
-  htv: ['htv', 'kênh htv', 'htv/htvc']
-  vtvcab: ['vtvcab', 'vtv cab', 'vtv cab', 'kênh vtvcab', 'on']
-  htvc: ['htvc', 'kênh htvc']
-  sctv: ['sctv', 'kênh sctv']
-  local: ['địa phương', 'dia phuong', 'kênh địa phương', 'kenh dia phuong', 'tỉnh', 'thành phố']
-  news: ['tin tức', 'tin tuc', 'thời sự', 'thoi su', 'news', 'tin tức & khám phá', 'tin tuc va kham pha']
-  movies: ['phim', 'phim truyện', 'phim truyen', 'điện ảnh', 'dien anh', 'movies', 'cinema']
-  entertainment: ['giải trí', 'giai tri', 'giải trí tổng hợp', 'giai tri tong hop', 'show', 'reality']
-  music: ['âm nhạc', 'am nhac', 'ca nhạc', 'ca nhac', 'music', 'mtv']
-  sports: ['thể thao', 'the thao', 'sports', 'sport', 'bóng đá', 'bong da', 'football', 'k+ sports']
-  kids: ['thiếu nhi', 'thieu nhi', 'kids', 'children', 'cartoon', 'hoạt hình', 'hoat hinh']
-  education: ['giáo dục', 'giao duc', 'khám phá', 'kham pha', 'education', 'discovery', 'science']
-  radio: ['radio', 'vov', 'fm']
-  events: ['live events', 'sự kiện', 'su kien', 'sự kiện trực tiếp', 'su kien truc tiep', 'live event', 'event']
-  other: []
+# ====================================================================
+# 2. OTT SECONDARY CONTENT CLASSIFIER (muc 7)
+# Dung khi: (a) nguon khong trust group-title, hoac (b) group-title khong
+# khop group_alias o tren (vd cac nhom quoc gia, "Quoc Te" chung chung).
+# Khop theo TU KHOA xuat hien trong TEN KENH DA CHUAN HOA (khong dau, chu
+# thuong). Kiem tra THEO THU TU, nhom dau tien khop duoc se duoc chon.
+# ====================================================================
+content_keywords:
+  "📰 Tin tức":
+    - "bbc news"
+    - "cnn"
+    - "thoi su"
+    - "tin tuc"
+    - "al jazeera"
+    - "nhk world"
+    - "france 24"
+    - "dw news"
+  "⚽ Thể thao":
+    - "espn"
+    - "spotv"
+    - "sport"
+    - "the thao"
+    - "bong da"
+    - "fox sports"
+    - "golf"
+    - "f1"
+  "👶 Thiếu nhi":
+    - "cartoon"
+    - "disney"
+    - "nick"
+    - "boomerang"
+    - "thieu nhi"
+    - "kid"
+  "🎬 Phim":
+    - "hbo"
+    - "cinemax"
+    - "cinema"
+    - "movie"
+    - "movies"
+    - "phim truyen"
+    - "on cine"
+    - "galaxy play"
+  "🎓 Giáo dục & Khám phá":
+    - "national geographic"
+    - "nat geo"
+    - "discovery"
+    - "history"
+    - "animal planet"
+    - "giao duc"
+    - "khoa hoc"
+  "🎵 Âm nhạc":
+    - "mtv"
+    - "am nhac"
+    - "zing"
+    - "music"
+  "📻 Radio":
+    - "radio"
+    - "fm "
+  "🎭 Giải trí":
+    - "tvb"
+    - "giai tri"
+    - "variety"
+    - "drama"
 
-# Group signals from known OTT categorization. They are secondary to a
-# trustworthy source group-title.
-name_keywords:
-  news: ['news', 'tin tức', 'tin tuc', 'thời sự', 'thoi su', 'news hd', 'vietnam news']
-  movies: ['hbo', 'cinemax', 'cinema', 'movie', 'movies', 'phim', 'film', 'warner tv', 'hits', 'k+ cine']
-  entertainment: ['giải trí', 'giai tri', 'entertainment', 'e channel', 'family', 'style', 'women', 'woman', 'vfamily']
-  music: ['music', 'âm nhạc', 'am nhac', 'mtv', 'music box', 'ca nhạc', 'ca nhac']
-  sports: ['sport', 'sports', 'thể thao', 'the thao', 'football', 'soccer', 'golf', 'espn', 'bein sports', 'spotv', 'k+ sport']
-  kids: ['kids', 'thiếu nhi', 'thieu nhi', 'cartoon', 'cartoonito', 'animax', 'cbeebies', 'nickelodeon', 'baby tv']
-  education: ['discovery', 'national geographic', 'nat geo', 'history', 'animal planet', 'science', 'education', 'outdoor']
-  radio: ['radio', 'vov', 'fm']
+# Nhom mac dinh khi khong khop tu khoa nao o tren VA nguon co goi y
+# default_content_hint (vd EaSport -> "sports").
+default_content_hint_map:
+  sports: "⚽ Thể thao"
