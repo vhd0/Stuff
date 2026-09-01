@@ -1,0 +1,484 @@
+M3U OPTIMIZER — RECOVERY / CODER GUIDELINES v2
+===============================================
+
+PURPOSE
+-------
+Build a personal, clean, TV-friendly M3U playlist from multiple sources.
+The most important correction in v2 is classification:
+
+  SOURCE GROUP TITLE (trusted)
+        ↓
+  CANONICAL GROUP NORMALIZATION
+        ↓
+  OTT-STYLE CONTENT CLASSIFICATION (secondary)
+        ↓
+  CHANNEL IDENTITY / NAME NORMALIZATION
+        ↓
+  STREAM HEALTH + PRIMARY/BACKUP
+
+Do NOT replace source group-title with a broad keyword classifier. The source
+lists already contain useful group information and should be treated as the
+strongest classification signal.
+
+1. REPOSITORY LAYOUT
+--------------------
+The current repository layout is:
+
+  /scripts/optimize_m3u.py
+  /m3u/*.py
+  /m3u/*.yaml
+  /m3u/cache/
+  /update_m3u.yml
+
+Run from repository root:
+
+  python3 scripts/optimize_m3u.py
+
+Do not assume optimize_m3u.py is at repository root.
+
+2. INPUT SOURCES
+----------------
+VMTTV:
+https://raw.githubusercontent.com/vuminhthanh12/vuminhthanh12/refs/heads/main/vmttv
+
+DLTivi:
+https://raw.githubusercontent.com/DinhLap96/ListTivi/refs/heads/main/ListTiVi/dltivi_v2.ndl
+
+TinhLaGi:
+https://tinhlagi.pro/tv.json
+
+IPTV-org Vietnam:
+https://raw.githubusercontent.com/iptv-org/iptv/refs/heads/master/streams/vn.m3u
+
+EaSport:
+https://livesport.s.gy/easport
+
+The supplied adult endpoint:
+https://tv.vietanhtv.top/sex/
+
+is disabled and must never enter the clean playlist.
+
+3. EPG
+------
+Use only:
+https://lichphatsong.io.vn/epg.xml
+
+No legacy EPG API.
+
+Validate XML before replacing the cache. If the current download fails, keep
+using the last valid cached EPG. EPG failure must not remove otherwise valid
+channels.
+
+4. CHANNEL NAME NORMALIZATION — IMPORTANT
+------------------------------------------
+The output name must NOT simply copy the raw list name.
+
+Examples:
+  VTV7 HD [Geo-blocked] -> VTV7
+  VTV1 FHD -> VTV1
+  VTV5 HD 50FPS -> VTV5
+  HTV9 HD -> HTV9
+
+Remove delivery/technical labels such as:
+  HD, FHD, UHD, 4K, 8K, SD, 720P, 1080P, 1440P, 2160P,
+  50FPS, 60FPS, HEVC, H265, H264
+
+Remove source annotations such as:
+  [Geo-blocked]
+  [Geo Blocked]
+  (Geo-blocked)
+  [Not 24/7]
+  [Backup]
+  [TEST]
+
+Do NOT remove meaningful channel identity words.
+
+Canonical aliases must be maintained in channels.yaml.
+
+5. CHANNEL IDENTITY
+-------------------
+A channel is not a stream.
+
+Canonical channel identity should combine:
+  tvg-id
+  tvg-name
+  normalized display name
+  aliases
+  manual canonical rules
+
+Never use URL alone as channel identity.
+
+Examples:
+  VTV1
+  VTV 1
+  VTV1 HD
+  VTV1 FHD
+  VTV1 1080P
+
+must merge to one canonical channel VTV1.
+
+6. GROUPING PRINCIPLE — MAJOR CHANGE FROM v1
+---------------------------------------------
+The input group-title is the primary grouping signal.
+
+Do NOT do this:
+  name -> keyword classifier -> group
+
+Do this:
+  source group-title -> canonical group alias -> group
+  then add secondary OTT-style content groups when appropriate.
+
+The source group is useful because lists such as VMTTV already separate groups
+like sports, VTVcab, HTVC, local channels, radio, events, etc.
+
+Example:
+  source group = "THỂ THAO QUỐC TẾ"
+  canonical group = ⚽ Thể thao
+
+  source group = "LIVE EVENTS 🔴"
+  canonical group = 🎟️ Sự kiện
+
+A movie-looking title inside LIVE EVENTS is NOT automatically a VOD filtering
+reason. Group context is stronger than the word "movie".
+
+7. OTT REFERENCE MODEL
+----------------------
+Use OTT services as a taxonomy reference, not as a source of stream URLs.
+
+The current reference model is consistent with publicly documented TV360 and
+MyTV organization:
+  - essential / VTV / HTV / VTVCab / local
+  - news
+  - movies
+  - entertainment
+  - sports
+  - kids
+  - music
+  - education/discovery
+  - radio
+  - live events
+
+TV360 documents categories such as Tất cả, Thiếu nhi, Phim truyện, Thể thao,
+Tin tức, plus sections such as Kênh thiết yếu, Kênh VTV and Sự kiện trực tiếp.
+
+MyTV similarly separates essential VTV/HTV/VTC, Phim truyện & Giải trí,
+Thể thao, Thiếu nhi and Tin tức & Khám phá.
+
+These are taxonomy references only. Do not scrape OTT services for streams.
+
+8. FINAL GROUP ORDER
+--------------------
+  1. 📺 VTV
+  2. 📺 HTV
+  3. 📡 VTVCab
+  4. ⭐ Kênh đặc biệt
+  5. 📡 HTVC
+  6. 📡 SCTV
+  7. 🏠 Địa phương
+  8. 📰 Tin tức
+  9. 🎬 Phim
+ 10. 🎭 Giải trí
+ 11. 🎵 Âm nhạc
+ 12. ⚽ Thể thao
+ 13. 👶 Thiếu nhi
+ 14. 🎓 Giáo dục & Khám phá
+ 15. 📻 Radio
+ 16. 🎟️ Sự kiện
+ 17. 📦 Khác
+
+There is NO "🌍 Quốc tế" output group.
+
+An international channel should be placed by content:
+  BBC News -> Tin tức
+  ESPN -> Thể thao
+  Cartoon Network -> Thiếu nhi
+  NHK World -> Tin tức / Giải trí / Giáo dục depending on source metadata
+  National Geographic -> Giáo dục & Khám phá
+
+Do not send an international channel to Khác merely because it is foreign.
+
+9. SPECIAL GROUP
+-----------------
+⭐ Kênh đặc biệt contains ONLY:
+  ANTV
+  QPVN
+
+It is positioned between VTVCab and HTVC.
+
+ANTV/QPVN may also appear in Tin tức because multi-group membership is
+allowed.
+
+No third channel may be put in ⭐ Kênh đặc biệt.
+
+10. LOCAL GROUP
+----------------
+🏠 Địa phương is above 📰 Tin tức.
+
+Provincial/local channels should be identified by:
+  - source group-title
+  - tvg-id
+  - canonical known names
+  - province/city identity
+
+Do NOT put all unrecognized foreign or event streams into local.
+
+11. MULTI-GROUP MEMBERSHIP
+--------------------------
+A channel may appear in multiple groups.
+
+Examples:
+  ANTV -> ⭐ Kênh đặc biệt + 📰 Tin tức
+  VTV7 -> 📺 VTV + 👶 Thiếu nhi + 🎓 Giáo dục & Khám phá
+  a sports channel from VTVCab -> 📡 VTVCab + ⚽ Thể thao
+
+The same canonical channel must reuse the same selected primary/backup streams.
+Do not duplicate healthchecks because a channel appears in multiple groups.
+
+12. OTHER GROUP
+----------------
+📦 Khác is a last resort.
+
+It should become smaller after every iteration, not larger.
+
+For every channel placed in Khác, build_stats.json should make it possible to
+inspect the raw name/group/source and add a better rule later.
+
+A channel should NOT be placed in Khác merely because:
+  - it is international
+  - it is a movie channel
+  - it is a sports channel
+  - it is a local channel
+  - it belongs to a source-specific event group
+
+13. FILTERING — MAJOR CHANGE FROM v1
+-------------------------------------
+Filtering must be conservative.
+
+Hard-remove only high-confidence junk:
+  porn / xxx / adult
+  casino / gambling / betting
+  explicit test/demo channels
+  offline/no-signal placeholders
+  obvious self-promotion/advertising entries
+  explicitly blocked domains
+
+DO NOT hard-remove based only on generic content words:
+  movie
+  film
+  sport
+  sports
+  news
+  event
+  live
+  channel
+
+Those words can describe legitimate linear TV channels.
+
+A source group of LIVE EVENTS can contain legitimate event channels and must
+not be treated as a generic VOD filter.
+
+14. VOD / MOVIE HANDLING
+-------------------------
+Do not use a global rule like:
+  if name contains "movie": drop
+
+That incorrectly removes legitimate movie channels.
+
+Instead consider:
+  - group-title
+  - tvg-id
+  - recurring channel identity
+  - URL pattern
+  - whether the entry has a canonical channel identity
+
+A one-off movie title in an event/VOD group may be filtered only when there is
+strong evidence it is not a linear channel. A recognized movie channel such as
+HBO/CINEMAX/ON Cine must remain.
+
+15. STREAM SELECTION
+--------------------
+For each canonical channel:
+  maximum 2 streams
+  primary
+  backup
+
+Before selection:
+  - deduplicate URL + relevant headers
+  - healthcheck unique candidates
+  - retain healthy or KODIPROP-skipped candidates
+  - sort by source priority
+  - use quality as a secondary tie-breaker
+  - choose max 2
+
+Source priority is more important than resolution by default.
+
+16. HEALTHCHECK
+----------------
+Use GET/Range rather than relying only on HEAD.
+
+Default:
+  timeout ~8 seconds
+  Range bytes 0-8191
+  parallel workers ~32
+
+A unique URL should be healthchecked once even if it occurs in multiple groups.
+
+17. KODIPROP
+------------
+If a candidate contains #KODIPROP:
+  status = skipped
+  candidate remains eligible
+
+Never classify KODIPROP skip as dead.
+
+18. LOGO
+--------
+Logo selection is independent from stream selection.
+
+Priority:
+  1. logo provided by an input source
+  2. among sources, higher source priority wins
+  3. IPTV-org logo is fallback only
+
+Never overwrite an existing higher-priority source logo with IPTV-org.
+
+19. OUTPUT
+----------
+Use canonical display names and canonical group names.
+
+The group title is the final canonical emoji group title.
+Channel names should remain clean and compact for TV screens.
+
+Primary:
+  Channel Name
+
+Backup:
+  Channel Name [Dự phòng]
+
+Do not append technical quality labels to the canonical channel name.
+
+20. QUALITY GATE
+----------------
+Never replace a known-good playlist with a clearly broken build.
+
+At minimum verify:
+  - #EXTM3U exists
+  - #EXTINF exists
+  - enough channels were produced
+  - every output channel has at least one selected stream
+  - special group contains only ANTV/QPVN
+  - no international output group exists
+  - no disabled adult source leaked into output
+
+Keep:
+  m3u/cache/build_stats.json
+
+Recommended statistics:
+  source item counts
+  source errors
+  filtered counts by reason
+  channel count before/after healthcheck
+  unique healthchecks
+  KODIPROP skipped count
+  primary count
+  backup count
+  channels in each group
+  Khác channel list
+  EPG status
+
+21. GITHUB ACTIONS
+------------------
+The current layout requires:
+
+  - name: Checkout repository
+    uses: actions/checkout@v5
+
+  - name: Setup Python
+    uses: actions/setup-python@v6
+    with:
+      python-version: '3.12'
+
+  - name: Install dependencies
+    run: python -m pip install -r m3u/requirements.txt
+
+  - name: Build optimized M3U
+    run: python3 scripts/optimize_m3u.py
+
+Do not use:
+  path: source-repo
+  working-directory: source-repo
+
+22. RECOVERY PRINCIPLES
+-----------------------
+If the implementation is lost, preserve these invariants:
+
+  A. source group-title is primary classification evidence
+  B. OTT taxonomy is secondary classification evidence
+  C. name keywords must never become aggressive hard filters
+  D. canonical names remove technical/source annotations
+  E. one channel can belong to multiple groups
+  F. special = ANTV + QPVN only
+  G. local is above news
+  H. no international output group
+  I. other is last-resort only
+  J. one primary + one backup
+  K. KODIPROP skips healthcheck but remains eligible
+  L. logo source priority, IPTV-org fallback
+  M. EPG = lichphatsong.io.vn/epg.xml
+  N. quality gate protects the last good output
+
+23. ACCEPTANCE EXAMPLES
+-----------------------
+These must behave correctly:
+
+  VTV7 HD [Geo-blocked]
+    -> VTV7
+    -> VTV + Kids + Education where supported
+
+  THỂ THAO QUỐC TẾ / Sky Sport F1
+    -> Thể thao
+    -> NOT Khác
+    -> NOT Quốc tế
+
+  LIVE EVENTS / a legitimate event stream
+    -> Sự kiện
+    -> NOT automatically deleted because the name looks like a movie
+
+  ANTV
+    -> ⭐ Kênh đặc biệt
+    -> 📰 Tin tức
+
+  QPVN
+    -> ⭐ Kênh đặc biệt
+    -> 📰 Tin tức
+
+  BBC News
+    -> 📰 Tin tức
+    -> NOT Quốc tế
+    -> NOT Khác
+
+  Cartoon Network
+    -> 👶 Thiếu nhi
+
+  National Geographic
+    -> 🎓 Giáo dục & Khám phá
+
+  HBO / CINEMAX
+    -> 🎬 Phim
+
+  ON SPORTS / ESPN / SPOTV
+    -> ⚽ Thể thao
+
+24. WHY THIS VERSION EXISTS
+----------------------------
+The previous implementation was too aggressive because it attempted to infer
+classification primarily from channel names and then used hard filters for
+words that are valid in real TV channel names. This caused valid IPTV streams
+to disappear and pushed many foreign/local/event/movie channels into Khác.
+
+Version 2 reverses that priority:
+  source grouping is trusted first;
+  canonical OTT grouping improves it second;
+  hard filtering is conservative;
+  name normalization is deterministic;
+  Khác is the actual last resort.
