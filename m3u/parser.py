@@ -118,6 +118,17 @@ def parse_json_source(text):
 
 
 def parse_source(source_format, text):
+    """Tu dong NHAN DIEN dinh dang THUC TE cua noi dung, thay vi chi tin
+    vao 'format' khai bao trong config.SOURCES. Ly do: mot so nguon (vd
+    TinhLaGi 'tv.json') dat ten file .json nhung THUC TE tra ve noi dung
+    M3U/EXTM3U - neu chi dua vao 'format' khai bao se parse sai hoan toan
+    va dong gop 0 kenh."""
+    stripped = text.lstrip()
+    if stripped.startswith("#EXTM3U") or stripped.startswith("#EXTINF"):
+        return parse_m3u_source(text)
+    if stripped.startswith("{") or stripped.startswith("["):
+        return parse_json_source(text)
+    # Fallback: dung dung "format" khai bao neu khong doan duoc tu noi dung.
     if source_format == "json":
         return parse_json_source(text)
     return parse_m3u_source(text)

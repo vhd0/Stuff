@@ -19,6 +19,26 @@ class GroupResolver:
         self.content_keywords = data.get("content_keywords", {}) or {}
         self.default_content_hint_map = data.get("default_content_hint_map", {}) or {}
 
+    def _tvg_id_brand_group(self, tvg_id):
+        """Fallback theo TIEN TO tvg-id (dang tin cay hon group-title cua
+        mot so nguon hay GOM CHUNG nhieu thuong hieu vao 1 group-title, vd
+        TinhLaGi dat chung "HTV & HTVC" cho ca kenh HTV lan HTVC). Quy uoc
+        dat ten tvg-id trong thuc te (htv1, htvcplushd, vtv1hd, sctv1hd...)
+        du de phan biet thuong hieu chinh xac hon group-title trong truong
+        hop nay."""
+        tid = (tvg_id or "").lower()
+        if tid.startswith("htvc"):
+            return "📡 HTVC"
+        if tid.startswith("htv"):
+            return "📺 HTV"
+        if tid.startswith("vtvcab"):
+            return "📡 VTVCab"
+        if tid.startswith("vtv"):
+            return "📺 VTV"
+        if tid.startswith("sctv"):
+            return "📡 SCTV"
+        return None
+
     def resolve_primary_group(self, source_group_raw, trust_group_title,
                                clean_name, tvg_id="", default_content_hint=None):
         """Tra ve TEN NHOM CHINH (1 chuoi, khong phai list) cho 1 kenh.
@@ -26,17 +46,21 @@ class GroupResolver:
         Uu tien (muc 6):
           1. Neu nguon duoc tin tuong VA co group-title khop group_alias
              -> dung luon canonical group do.
-          2. Neu khong (khong tin tuong / khong co group-title / group-title
-             khong khop, vd cac nhom quoc gia hay "Quoc Te" chung chung) ->
-             OTT content classifier theo tu khoa trong TEN KENH (muc 7).
-          3. Neu van khong khop -> default_content_hint cua nguon (vd
-             EaSport -> the thao).
-          4. Cuoi cung -> "Khac" (muc 12, luon la last resort).
+          2. Fallback theo TIEN TO tvg-id (xem _tvg_id_brand_group) - xu ly
+             truong hop group-title cua nguon GOM CHUNG nhieu thuong hieu
+             (vd "HTV & HTVC") ma group_alias khong the tach duoc.
+          3. OTT content classifier theo tu khoa trong TEN KENH (muc 7).
+          4. default_content_hint cua nguon (vd EaSport -> the thao).
+          5. Cuoi cung -> "Khac" (muc 12, luon la last resort).
         """
         if trust_group_title and source_group_raw:
             key = group_match_key(source_group_raw)
             if key in self.group_alias:
                 return self.group_alias[key]
+
+        brand_group = self._tvg_id_brand_group(tvg_id)
+        if brand_group:
+            return brand_group
 
         name_lower = remove_accents(clean_name) + " " + remove_accents(tvg_id)
         for group, keywords in self.content_keywords.items():

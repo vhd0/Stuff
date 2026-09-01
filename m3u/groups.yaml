@@ -29,7 +29,13 @@ group_alias:
   sukientv360: "🎟️ Sự kiện"
   sukienvtvprime: "🎟️ Sự kiện"
   sukienfptplay: "🎟️ Sự kiện"
-  inthebox: "🎟️ Sự kiện"
+  # LUU Y: "In The Box" DA BI GO KHOI danh sach nay (truoc day gan nham
+  # thanh "Su kien"). Kiem chung tren nguon TinhLaGi cho thay "📦 In The
+  # Box" thuc chat la 1 bundle linh tinh gom kenh PHIM/NHAC (Box Movie,
+  # Music Box, Woman, TVB...), khong phai su kien. De rieng ten nhom nay
+  # (va cac bundle mo ho tuong tu nhu "⭐ Kênh yêu thích", "🌐 Quốc Tế VIP",
+  # "🎬 Rạp Phim") RA KHOI group_alias, de OTT content classifier ben duoi
+  # tu phan loai dung theo TEN TUNG KENH thay vi theo bundle chung chung.
   # LUU Y: "Quoc Te" / cac nhom quoc gia (Han Quoc/Trung Quoc/Thai Lan/
   # Campuchia/Israel/UK...) CO CHU Y KHONG duoc liet ke o day (muc 8: khong
   # co nhom "Quoc te" dau ra). Cac nhom nay se roi qua OTT secondary
@@ -61,6 +67,11 @@ content_keywords:
     - "fox sports"
     - "golf"
     - "f1"
+    - "champions league"
+    - "uefa"
+    - "cup c1"
+    - "ngoai hang anh"
+    - "premier league"
   "👶 Thiếu nhi":
     - "cartoon"
     - "disney"
@@ -75,8 +86,11 @@ content_keywords:
     - "movie"
     - "movies"
     - "phim truyen"
+    - "phim"
     - "on cine"
     - "galaxy play"
+    - "hollywood classics"
+    - "box movie"
   "🎓 Giáo dục & Khám phá":
     - "national geographic"
     - "nat geo"

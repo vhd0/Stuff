@@ -38,13 +38,18 @@ SOURCES = [
     {
         "name": "tinhlagi",
         "url": "https://tinhlagi.pro/tv.json",
-        "format": "json",
-        # CHUA xac minh duoc schema JSON thuc te cua nguon nay (endpoint tra
-        # ve khong the kiem tra truc tiep tu moi truong build). Parser trong
-        # m3u/parser.py doan cac ten truong pho bien (name/title, url/link/
-        # stream, logo/icon, group/category) - neu sau khi chay build_stats
-        # cho thay nguon nay dong gop 0 kenh, hay kiem tra JSON that va sua
-        # lai parse_json_source() trong m3u/parser.py.
+        # DA XAC MINH: endpoint nay dat ten ".json" nhung THUC TE tra ve noi
+        # dung M3U/EXTM3U (khong phai JSON). parser.parse_source() tu nhan
+        # dien dinh dang thuc te tu noi dung nen "format" o day chi la gia
+        # tri fallback, khong con anh huong ket qua parse.
+        "format": "m3u",
+        # trust_group_title=True: cac nhom RO RANG theo genre (VTV/HTV/
+        # SCTV/VTVcab/Dia Phuong) van duoc tin tuong binh thuong. Rieng cac
+        # nhom "bundle" mo ho nhu "⭐ KÊNH YÊU THÍCH", "🌐 Quốc Tế VIP",
+        # "📦 In The Box", "🎬 Rạp Phim" (gom lan cac kenh khac genre voi
+        # nhau) KHONG duoc dua vao groups.yaml/group_alias, nen tu dong roi
+        # qua OTT content classifier de phan loai dung theo TEN KENH thay vi
+        # theo bundle mo ho cua nguon.
         "trust_group_title": True,
     },
     {
