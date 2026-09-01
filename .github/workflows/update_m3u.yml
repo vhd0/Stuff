@@ -1,48 +1,35 @@
-name: Auto Update M3U Daily
+name: Update M3U
 
 on:
-  repository_dispatch:
-    types: [update_m3u]
   workflow_dispatch:
+  schedule:
+    - cron: '17 */6 * * *'
 
 permissions:
   contents: write
 
 jobs:
-  update-list:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v5
 
       - name: Setup Python
         uses: actions/setup-python@v6
         with:
-          python-version: "3.12"
+          python-version: '3.12'
 
       - name: Install dependencies
         run: python -m pip install -r m3u/requirements.txt
 
-      - name: Build M3U
-        env:
-          PYTHONPATH: .
+      - name: Build optimized M3U
         run: python3 scripts/optimize_m3u.py
 
-      - name: Checkout Pages repository
-        uses: actions/checkout@v5
-        with:
-          repository: vhd0/vhd0.github.io
-          token: ${{ secrets.PAGES_DEPLOY_TOKEN }}
-          path: pages-repo
-
-      - name: Copy final playlist
-        run: mkdir -p pages-repo/IPTV && cp listtivi.m3u pages-repo/IPTV/listtivi.m3u
-
-      - name: Commit and push Pages repo
-        working-directory: pages-repo
+      - name: Commit playlist and build stats
         run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add IPTV/listtivi.m3u
-          git commit -m "Auto update listtivi.m3u" || echo "No playlist changes"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add listtivi.m3u m3u/cache/build_stats.json m3u/cache/epg.xml
+          git commit -m 'Auto update M3U' || echo 'No changes'
           git push
