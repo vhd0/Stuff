@@ -1,6 +1,81 @@
-# Human-readable source of truth; runtime defaults are in pipeline.py.
-# Edit this file when the rule engine is split into independently configurable modules.
 epg_url: https://lichphatsong.io.vn/epg.xml
-special_channels: [antv, qpvn]
-max_streams_per_channel: 2
-skip_kodiprop_healthcheck: true
+output: listtivi.m3u
+cache_dir: m3u/cache
+
+http:
+  source_timeout: 25
+  health_timeout: 8
+  retries: 2
+  workers: 32
+  range_bytes: 8192
+
+selection:
+  max_streams: 2
+  source_priority_weight: 1000
+  quality_weight: 1
+
+sources:
+  - id: vmttv
+    name: VMTTV
+    url: https://raw.githubusercontent.com/vuminhthanh12/vuminhthanh12/refs/heads/main/vmttv
+    priority: 100
+    enabled: true
+  - id: dltivi
+    name: DLTivi
+    url: https://raw.githubusercontent.com/DinhLap96/ListTivi/refs/heads/main/ListTiVi/dltivi_v2.ndl
+    priority: 90
+    enabled: true
+  - id: tinhlagi
+    name: TinhLaGi
+    url: https://tinhlagi.pro/tv.json
+    priority: 70
+    enabled: true
+  - id: iptv_org
+    name: IPTV-org Vietnam
+    url: https://raw.githubusercontent.com/iptv-org/iptv/refs/heads/master/streams/vn.m3u
+    priority: 50
+    enabled: true
+  - id: easport
+    name: EaSport
+    url: https://livesport.s.gy/easport
+    priority: 30
+    enabled: true
+  - id: vietanhtv_sex
+    name: VietAnhTV adult endpoint
+    url: https://tv.vietanhtv.top/sex/
+    priority: 0
+    enabled: false
+
+# Metadata from the input group-title is intentionally trusted more than
+# broad name keyword guesses. See groups.py.
+grouping:
+  source_group_weight: 100
+  name_keyword_weight: 20
+  tvg_weight: 40
+  content_group_weight: 30
+
+healthcheck:
+  enabled: true
+  skip_kodiprop: true
+
+filters:
+  blocked_name_patterns:
+    - '(?i)\b(porn|xxx|adult|casino|gambling|betting)\b'
+    - '(?i)\b(test|demo)\s*(channel|stream)?\b'
+    - '(?i)\b(no[ _-]?signal|offline|placeholder)\b'
+    - '(?i)\b(self[ _-]?promo|tự[ _-]?quảng[ _-]?cáo)\b'
+  blocked_group_patterns:
+    - '(?i)^\s*(adult|porn|xxx|sex|casino|gambling)\s*$'
+    - '(?i)^\s*(🎯\s*)?TINHLAGI\.PRO\s*$'
+  blocked_domains:
+    - tv.vietanhtv.top
+
+normalization:
+  strip_markers:
+    - '[Geo-blocked]'
+    - '[Geo Blocked]'
+    - '(Geo-blocked)'
+    - '[Not 24/7]'
+    - '[Backup]'
+    - '[TEST]'
+  technical_suffixes: 'HD|FHD|UHD|4K|8K|SD|720P|1080P|1440P|2160P|50FPS|60FPS|HEVC|H265|H264'

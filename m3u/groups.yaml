@@ -1,0 +1,52 @@
+# Canonical groups. Source groups are mapped here; they are not discarded.
+# Order is the TV UX order.
+groups:
+  - {id: vtv, name: '📺 VTV', order: 10}
+  - {id: htv, name: '📺 HTV', order: 20}
+  - {id: vtvcab, name: '📡 VTVCab', order: 30}
+  - {id: special, name: '⭐ Kênh đặc biệt', order: 40}
+  - {id: htvc, name: '📡 HTVC', order: 50}
+  - {id: sctv, name: '📡 SCTV', order: 60}
+  - {id: local, name: '🏠 Địa phương', order: 70}
+  - {id: news, name: '📰 Tin tức', order: 80}
+  - {id: movies, name: '🎬 Phim', order: 90}
+  - {id: entertainment, name: '🎭 Giải trí', order: 100}
+  - {id: music, name: '🎵 Âm nhạc', order: 110}
+  - {id: sports, name: '⚽ Thể thao', order: 120}
+  - {id: kids, name: '👶 Thiếu nhi', order: 130}
+  - {id: education, name: '🎓 Giáo dục & Khám phá', order: 140}
+  - {id: radio, name: '📻 Radio', order: 150}
+  - {id: events, name: '🎟️ Sự kiện', order: 160}
+  - {id: other, name: '📦 Khác', order: 999}
+
+# Exact/semantic mappings for source group-title values. Keep these broad
+# enough to absorb variations, but never use them as channel-name filters.
+aliases:
+  vtv: ['vtv', 'kênh vtv', 'kenh vtv']
+  htv: ['htv', 'kênh htv', 'htv/htvc']
+  vtvcab: ['vtvcab', 'vtv cab', 'vtv cab', 'kênh vtvcab', 'on']
+  htvc: ['htvc', 'kênh htvc']
+  sctv: ['sctv', 'kênh sctv']
+  local: ['địa phương', 'dia phuong', 'kênh địa phương', 'kenh dia phuong', 'tỉnh', 'thành phố']
+  news: ['tin tức', 'tin tuc', 'thời sự', 'thoi su', 'news', 'tin tức & khám phá', 'tin tuc va kham pha']
+  movies: ['phim', 'phim truyện', 'phim truyen', 'điện ảnh', 'dien anh', 'movies', 'cinema']
+  entertainment: ['giải trí', 'giai tri', 'giải trí tổng hợp', 'giai tri tong hop', 'show', 'reality']
+  music: ['âm nhạc', 'am nhac', 'ca nhạc', 'ca nhac', 'music', 'mtv']
+  sports: ['thể thao', 'the thao', 'sports', 'sport', 'bóng đá', 'bong da', 'football', 'k+ sports']
+  kids: ['thiếu nhi', 'thieu nhi', 'kids', 'children', 'cartoon', 'hoạt hình', 'hoat hinh']
+  education: ['giáo dục', 'giao duc', 'khám phá', 'kham pha', 'education', 'discovery', 'science']
+  radio: ['radio', 'vov', 'fm']
+  events: ['live events', 'sự kiện', 'su kien', 'sự kiện trực tiếp', 'su kien truc tiep', 'live event', 'event']
+  other: []
+
+# Group signals from known OTT categorization. They are secondary to a
+# trustworthy source group-title.
+name_keywords:
+  news: ['news', 'tin tức', 'tin tuc', 'thời sự', 'thoi su', 'news hd', 'vietnam news']
+  movies: ['hbo', 'cinemax', 'cinema', 'movie', 'movies', 'phim', 'film', 'warner tv', 'hits', 'k+ cine']
+  entertainment: ['giải trí', 'giai tri', 'entertainment', 'e channel', 'family', 'style', 'women', 'woman', 'vfamily']
+  music: ['music', 'âm nhạc', 'am nhac', 'mtv', 'music box', 'ca nhạc', 'ca nhac']
+  sports: ['sport', 'sports', 'thể thao', 'the thao', 'football', 'soccer', 'golf', 'espn', 'bein sports', 'spotv', 'k+ sport']
+  kids: ['kids', 'thiếu nhi', 'thieu nhi', 'cartoon', 'cartoonito', 'animax', 'cbeebies', 'nickelodeon', 'baby tv']
+  education: ['discovery', 'national geographic', 'nat geo', 'history', 'animal planet', 'science', 'education', 'outdoor']
+  radio: ['radio', 'vov', 'fm']

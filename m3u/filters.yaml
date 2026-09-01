@@ -1,0 +1,10 @@
+blocked_name_patterns:
+  - '\b(porn|xxx|adult|casino|gambling|betting)\b'
+  - '\b(test|demo)\s*(channel|stream)?\b'
+  - '\b(no[ _-]?signal|offline|placeholder)\b'
+  - '\b(self[ _-]?promo|tự[ _-]?quảng[ _-]?cáo)\b'
+blocked_group_patterns:
+  - '^\s*(adult|porn|xxx|sex|casino|gambling)\s*$'
+  - '^\s*(🎯\s*)?TINHLAGI\.PRO\s*$'
+blocked_domains:
+  - tv.vietanhtv.top

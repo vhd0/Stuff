@@ -1,0 +1,23 @@
+# Canonical display names and aliases. Technical delivery labels are never
+# part of the canonical name.
+channels:
+  antv: {name: 'ANTV', aliases: ['ANTV HD', 'AN NINH TV', 'Truyền hình Công an Nhân dân'], groups: [special, news], order: 1}
+  qpvn: {name: 'QPVN', aliases: ['QPVN HD', 'Quốc phòng Việt Nam', 'Kênh QPVN'], groups: [special, news], order: 2}
+  vtv1: {name: 'VTV1', aliases: ['VTV 1'], groups: [vtv], order: 10}
+  vtv2: {name: 'VTV2', aliases: ['VTV 2'], groups: [vtv], order: 20}
+  vtv3: {name: 'VTV3', aliases: ['VTV 3'], groups: [vtv], order: 30}
+  vtv4: {name: 'VTV4', aliases: ['VTV 4'], groups: [vtv], order: 40}
+  vtv5: {name: 'VTV5', aliases: ['VTV 5'], groups: [vtv], order: 50}
+  vtv5_tay_nguyen: {name: 'VTV5 Tây Nguyên', aliases: ['VTV5 Tây Nguyên'], groups: [vtv, local], order: 55}
+  vtv5_tay_nam_bo: {name: 'VTV5 Tây Nam Bộ', aliases: ['VTV5 Tây Nam Bộ'], groups: [vtv, local], order: 56}
+  vtv7: {name: 'VTV7', aliases: ['VTV 7'], groups: [vtv, education, kids], order: 70}
+  vtv8: {name: 'VTV8', aliases: ['VTV 8'], groups: [vtv, local], order: 80}
+  vtv9: {name: 'VTV9', aliases: ['VTV 9'], groups: [vtv, local], order: 90}
+  htv7: {name: 'HTV7', aliases: ['HTV 7'], groups: [htv], order: 10}
+  htv9: {name: 'HTV9', aliases: ['HTV 9'], groups: [htv], order: 20}
+  htv3: {name: 'HTV3', aliases: ['HTV 3'], groups: [htv, kids], order: 30}
+  htv2: {name: 'HTV2', aliases: ['HTV 2', 'Vie Channel - HTV2'], groups: [htv, entertainment], order: 40}
+  thvl1: {name: 'THVL1', aliases: ['THVL 1', 'Vĩnh Long 1'], groups: [local, entertainment], order: 10}
+  thvl2: {name: 'THVL2', aliases: ['THVL 2', 'Vĩnh Long 2'], groups: [local, entertainment], order: 20}
+  thvl3: {name: 'THVL3', aliases: ['THVL 3', 'Vĩnh Long 3'], groups: [local, entertainment], order: 30}
+  thvl4: {name: 'THVL4', aliases: ['THVL 4', 'Vĩnh Long 4'], groups: [local, entertainment], order: 40}
