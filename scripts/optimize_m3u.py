@@ -51,6 +51,32 @@ def is_blocked_entry(clean_name, tvg_id, url):
     return False
 
 
+# Dau hieu VOD/phim bo-tap le (khong phai channel tuyen tinh). Khop theo
+# TU DA CHUAN HOA (khong dau). Muc dich: giu lai CHANNEL PHIM (HBO, Cinemax,
+# ON Cine, SCTV Phim Tong Hop, HTVC Phim...) nhung loai bo cac muc trong
+# thuc chat la 1 TAP/BO phim VOD bi lan vao danh sach kenh (vd "Tên phim -
+# Tập 12", "Phim ABC (2019) Vietsub").
+_VOD_EPISODE_RE = re.compile(
+    r'\btap\s*\d+\b'          # "Tap 12", "tap12"
+    r'|\bphan\s*\d+\b'        # "Phan 2" (season/part)
+    r'|\bepisode\s*\d+\b'
+    r'|\bep\s*\d+\b'
+    r'|\bss\d+\b'             # "SS1", "SS2"
+    r'|\(\s*(19|20)\d{2}\s*\)'  # nam phat hanh trong ngoac, vd "(2019)"
+    r'|\bvietsub\b'
+    r'|\bthuyet minh\b'
+    r'|\bfull\s*(bo|series)\b'
+)
+
+
+def is_vod_episode_entry(raw_name):
+    """True neu ten muc trong giong 1 TAP/BO phim VOD le hon la 1 channel
+    phim tuyen tinh. Chi loai bo phan nay, KHONG dong den cac channel phim
+    that su (HBO, Cinemax, ON Cine, SCTV Phim Tong Hop...) vi cac ten do
+    khong chua dau hieu tap/nam phat hanh/vietsub o tren."""
+    return bool(_VOD_EPISODE_RE.search(remove_accents(raw_name)))
+
+
 def extract_quality_score(raw_name, url):
     """Diem chat luong dung lam TIE-BREAKER phu (muc 15: source priority
     quan trong hon resolution theo mac dinh). Lay so lon nhat tim duoc
@@ -97,6 +123,14 @@ def main():
             if is_blocked_entry(clean_name, entry["tvg_id"], entry["url"]):
                 filtered_counts["blocked_keyword_or_domain"] = (
                     filtered_counts.get("blocked_keyword_or_domain", 0) + 1
+                )
+                continue
+
+            # --- VOD/PHIM BO-TAP LE (muc 14): chi giu CHANNEL PHIM tuyen
+            # tinh, loai bo cac muc thuc chat la 1 tap/bo phim rieng le. ---
+            if is_vod_episode_entry(entry["raw_name"]):
+                filtered_counts["vod_episode_filtered"] = (
+                    filtered_counts.get("vod_episode_filtered", 0) + 1
                 )
                 continue
 
