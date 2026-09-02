@@ -74,10 +74,13 @@ SOURCES = [
     },
 ]
 
-# Endpoint nguoi lon DA BI VO HIEU HOA - KHONG duoc dua vao SOURCES o tren,
-# va domain cua no cung nam trong BLOCKED_DOMAINS phia duoi de phong truong
-# hop bi tham chieu gian tiep tu 1 nguon khac.
-DISABLED_ADULT_SOURCE = "https://tv.vietanhtv.top/sex/"
+# LUU Y: guidelines.txt (ban dau) liet ke "https://tv.vietanhtv.top/sex/"
+# la "endpoint nguoi lon da bi vo hieu hoa". Nguoi dung xac nhan LAI day
+# CHI LA MOT DUONG DAN/TEN MIEN chua danh sach m3u thong thuong, KHONG
+# phai noi dung nguoi lon - nen KHONG con bi chan theo domain nua (da xoa
+# khoi BLOCKED_DOMAINS ben duoi). Neu ban muon dua link nay vao lam 1
+# NGUON THUC SU (them vao SOURCES o tren), hay cung cap URL M3U/JSON cu
+# the (vd "https://tv.vietanhtv.top/sex/tv.m3u" hay tuong tu) de bo sung.
 
 # ====================================================================
 # 2. EPG (muc 3)
@@ -90,8 +93,9 @@ EPG_URL = "https://lichphatsong.io.vn/epg.xml"
 # channel) vao day.
 # ====================================================================
 BLOCKED_NAME_KEYWORDS = (
-    # nguoi lon / khieu dam
-    "porn", "xxx", "adult", "sex",
+    # nguoi lon / khieu dam (loc theo TEN KENH, khong lien quan domain
+    # vietanhtv.top da giai thich o tren)
+    "porn", "xxx", "adult",
     # ca do / gambling
     "casino", "gambling", "bet", "ca do", "cado",
     # kenh test/demo/offline ro rang
@@ -99,9 +103,10 @@ BLOCKED_NAME_KEYWORDS = (
     "placeholder", "khong co tin hieu",
 )
 
-BLOCKED_DOMAINS = (
-    "vietanhtv.top",  # domain cua DISABLED_ADULT_SOURCE o tren
-)
+# Domain THAT SU can chan (rong - hien chua co domain nao duoc xac nhan la
+# noi dung xau; vietanhtv.top DA DUOC BO KHOI danh sach nay theo xac nhan
+# cua nguoi dung o tren).
+BLOCKED_DOMAINS = ()
 
 # ====================================================================
 # 4. HEALTHCHECK (muc 16)
