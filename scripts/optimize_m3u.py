@@ -51,11 +51,8 @@ def is_blocked_entry(clean_name, tvg_id, url):
     return False
 
 
-# Dau hieu VOD/phim bo-tap le (khong phai channel tuyen tinh). Khop theo
-# TU DA CHUAN HOA (khong dau). Muc dich: giu lai CHANNEL PHIM (HBO, Cinemax,
-# ON Cine, SCTV Phim Tong Hop, HTVC Phim...) nhung loai bo cac muc trong
-# thuc chat la 1 TAP/BO phim VOD bi lan vao danh sach kenh (vd "Tên phim -
-# Tập 12", "Phim ABC (2019) Vietsub").
+# Dau hieu VOD/phim bo-tap le RO RANG (co tag cu the). Khop theo TU DA
+# CHUAN HOA (khong dau).
 _VOD_EPISODE_RE = re.compile(
     r'\btap\s*\d+\b'          # "Tap 12", "tap12"
     r'|\bphan\s*\d+\b'        # "Phan 2" (season/part)
@@ -68,13 +65,58 @@ _VOD_EPISODE_RE = re.compile(
     r'|\bfull\s*(bo|series)\b'
 )
 
+# Dau hieu "day la 1 CHANNEL" (bundle/thuong hieu da biet, hau to kenh...).
+# Neu mot muc KHONG co tvg-id VA KHONG khop bat ky dau hieu nao o day, kha
+# nang cao day la 1 TUA PHIM RIENG LE bi lan vao danh sach (muc 14 - vi du
+# thuc te: "Tử Chiến Trên Không" khong co tvg-id, khong co tag tap/nam/
+# vietsub, nhung ro rang la 1 phim le chu khong phai kenh).
+_CHANNEL_LIKE_RE = re.compile(
+    r'\b(kenh|channel|tv|box|cine|360|htvc|sctv|vtv|htv|rap chieu|'
+    r'phim tong hop|onsports|oncine)\b'
+)
 
-def is_vod_episode_entry(raw_name):
-    """True neu ten muc trong giong 1 TAP/BO phim VOD le hon la 1 channel
-    phim tuyen tinh. Chi loai bo phan nay, KHONG dong den cac channel phim
-    that su (HBO, Cinemax, ON Cine, SCTV Phim Tong Hop...) vi cac ten do
-    khong chua dau hieu tap/nam phat hanh/vietsub o tren."""
-    return bool(_VOD_EPISODE_RE.search(remove_accents(raw_name)))
+
+def is_vod_episode_entry(raw_name, tvg_id="", group_raw=""):
+    """True neu muc trong nhieu kha nang la 1 TAP/BO/TUA PHIM VOD rieng le
+    hon la 1 channel phim tuyen tinh. Chi loai bo phan nay, KHONG dong den
+    cac channel phim that su (HBO, Cinemax, ON Cine, SCTV Phim Tong Hop,
+    360 Phim Viet...).
+
+    2 dieu kien (bat ky dieu kien nao dung deu bi loai):
+      1. Co tag ro rang (Tap/Phan/Episode/nam phat hanh/Vietsub/Thuyet
+         minh) - AP DUNG CHO MOI NGUON, vi day la dau hieu manh, khong phu
+         thuoc ngu canh nhom.
+      2. Group-title GOC cua nguon goi y day la 1 bucket PHIM (vd "Rạp
+         Phim") VA muc nay KHONG co tvg-id VA ten KHONG khop dau hieu "la 1
+         channel" nao. CHI ap dung dieu kien nay khi group goi y "phim", de
+         tranh bat nham cac kenh khong lien quan (vd kenh dia phuong nhu
+         "Sơn La", "Cần Thơ 1" cung thuong khong co tvg-id nhung KHONG nam
+         trong bucket phim nao ca).
+    """
+    name_l = remove_accents(raw_name)
+    if _VOD_EPISODE_RE.search(name_l):
+        return True
+
+    group_l = remove_accents(group_raw)
+    is_movie_bucket = "phim" in group_l
+    if is_movie_bucket and not tvg_id and not _CHANNEL_LIKE_RE.search(name_l) \
+            and len(name_l.split()) >= 2:
+        return True
+
+    return False
+
+
+# Cac muc "info/tu quang cao" cua chinh nha cung cap nguon (vd TinhLaGi co
+# cac "kenh" nhu "Địa Chỉ IP Của Bạn", "Cập Nhật", "Chào Khách Lạ..." tro
+# thang toi 1 FILE ANH TINH (logo.jpg) thay vi 1 stream that. Loc theo dung
+# dau hieu nay (duoi file anh), KHONG can doan tu khoa - vung chac hon va
+# tu dong bat duoc ca cac nguon khac lam tuong tu trong tuong lai.
+_IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".svg")
+
+
+def is_non_stream_url(url):
+    path = url.split("?")[0].split("#")[0].lower()
+    return path.endswith(_IMAGE_EXTENSIONS)
 
 
 def extract_quality_score(raw_name, url):
@@ -126,9 +168,17 @@ def main():
                 )
                 continue
 
+            # --- KENH INFO/TU QUANG CAO cua nha cung cap nguon (URL tro
+            # toi 1 file anh tinh thay vi stream that, vd "logo.jpg"). ---
+            if is_non_stream_url(entry["url"]):
+                filtered_counts["non_stream_url_filtered"] = (
+                    filtered_counts.get("non_stream_url_filtered", 0) + 1
+                )
+                continue
+
             # --- VOD/PHIM BO-TAP LE (muc 14): chi giu CHANNEL PHIM tuyen
-            # tinh, loai bo cac muc thuc chat la 1 tap/bo phim rieng le. ---
-            if is_vod_episode_entry(entry["raw_name"]):
+            # tinh, loai bo cac muc thuc chat la 1 tap/bo/tua phim rieng le. ---
+            if is_vod_episode_entry(entry["raw_name"], entry["tvg_id"], entry["group_raw"]):
                 filtered_counts["vod_episode_filtered"] = (
                     filtered_counts.get("vod_episode_filtered", 0) + 1
                 )
