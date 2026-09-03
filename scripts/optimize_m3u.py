@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import html
 import json
 import os
 import re
@@ -8,7 +9,6 @@ import time
 import unicodedata
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
 from urllib.parse import urlparse
 
 import requests
@@ -17,58 +17,119 @@ from rapidfuzz import fuzz, process
 
 
 # ============================================================
-# CONFIG
+# PATHS
 # ============================================================
 
 ROOT = Path(__file__).resolve().parents[1]
 
 CONFIG_FILE = ROOT / "m3u" / "channel_aliases.yml"
 CACHE_DIR = ROOT / ".cache" / "iptv"
+
 OUTPUT_FILE = ROOT / "listtivi.m3u"
 FALLBACK_FILE = ROOT / "m3u" / "listtivi.m3u"
 
-META_CACHE_TTL = int(os.getenv("META_CACHE_TTL", "86400"))
 
-MIN_CHANNELS = int(os.getenv("MIN_CHANNELS", "100"))
-MIN_RATIO = float(os.getenv("MIN_RATIO", "0.70"))
+# ============================================================
+# SETTINGS
+# ============================================================
 
-TIMEOUT = (
-    int(os.getenv("CONNECT_TIMEOUT", "15")),
-    int(os.getenv("READ_TIMEOUT", "45")),
+META_CACHE_TTL = int(
+    os.getenv("META_CACHE_TTL", "86400")
 )
 
-DALVIK_UA = (
+MIN_CHANNELS = int(
+    os.getenv("MIN_CHANNELS", "100")
+)
+
+MIN_RATIO = float(
+    os.getenv("MIN_RATIO", "0.70")
+)
+
+CONNECT_TIMEOUT = int(
+    os.getenv("CONNECT_TIMEOUT", "15")
+)
+
+READ_TIMEOUT = int(
+    os.getenv("READ_TIMEOUT", "45")
+)
+
+REQUEST_TIMEOUT = (
+    CONNECT_TIMEOUT,
+    READ_TIMEOUT,
+)
+
+DALVIK_USER_AGENT = (
     "Dalvik/2.1.0 "
-    "(Linux; U; Android 13; SM-S918B Build/TP1A.220624.014)"
+    "(Linux; U; Android 13; SM-S918B "
+    "Build/TP1A.220624.014)"
 )
 
-HEADERS = {
-    "User-Agent": DALVIK_UA,
+HTTP_HEADERS = {
+    "User-Agent": DALVIK_USER_AGENT,
     "Accept": "*/*",
     "Connection": "keep-alive",
 }
 
-IPTV_ORG_CHANNELS = (
-    "https://raw.githubusercontent.com/iptv-org/iptv/"
-    "master/data/channels.json"
+
+# ============================================================
+# OFFICIAL IPTV-ORG API
+# ============================================================
+
+IPTV_ORG_CHANNELS_URL = (
+    "https://iptv-org.github.io/api/channels.json"
 )
 
-IPTV_ORG_LOGOS = (
-    "https://raw.githubusercontent.com/iptv-org/iptv/"
-    "master/data/logos.json"
+IPTV_ORG_LOGOS_URL = (
+    "https://iptv-org.github.io/api/logos.json"
 )
 
 
 # ============================================================
-# DATA STRUCTURES
+# DEFAULT SOURCES
+# ============================================================
+
+DEFAULT_SOURCES = {
+    "vmttv": (
+        "https://raw.githubusercontent.com/"
+        "vuminhthanh12/vuminhthanh12/"
+        "refs/heads/main/vmttv"
+    ),
+
+    "vietanhtv": (
+        "https://tv.vietanhtv.top/sex/"
+    ),
+
+    "dltivi": (
+        "https://raw.githubusercontent.com/"
+        "DinhLap96/ListTivi/"
+        "refs/heads/main/ListTiVi/dltivi_v2.ndl"
+    ),
+
+    "iptv-org": (
+        "https://raw.githubusercontent.com/"
+        "iptv-org/iptv/"
+        "refs/heads/master/streams/vn.m3u"
+    ),
+
+    "easport": (
+        "https://livesport.s.gy/easport"
+    ),
+}
+
+
+# ============================================================
+# DATA MODEL
 # ============================================================
 
 @dataclass
-class Entry:
+class M3UEntry:
     source: str
     extinf: str
     url: str
-    metadata: list[str] = field(default_factory=list)
+
+    metadata: list[str] = field(
+        default_factory=list
+    )
 
     tvg_id: str = ""
     tvg_name: str = ""
@@ -80,52 +141,91 @@ class Entry:
     canonical_name: str = ""
     canonical_group: str = ""
 
-    alias_score: int = 0
     mapping_method: str = "unknown"
+    mapping_score: int = 0
 
 
 # ============================================================
-# HTTP
+# HTTP SESSION
 # ============================================================
 
-session = requests.Session()
-session.headers.update(HEADERS)
+SESSION = requests.Session()
+SESSION.headers.update(HTTP_HEADERS)
 
 
 def fetch_text(url: str) -> str:
+    """
+    Download text with retry.
+    No stream health-checking is performed.
+    """
+
     last_error = None
 
     for attempt in range(3):
         try:
-            response = session.get(url, timeout=TIMEOUT)
+            response = SESSION.get(
+                url,
+                timeout=REQUEST_TIMEOUT,
+            )
+
             response.raise_for_status()
-            response.encoding = response.encoding or "utf-8"
+
+            if not response.encoding:
+                response.encoding = "utf-8"
+
             return response.text
+
         except Exception as exc:
             last_error = exc
+
             if attempt < 2:
                 time.sleep(2 ** attempt)
 
-    raise RuntimeError(f"Cannot fetch {url}: {last_error}")
+    raise RuntimeError(
+        f"Không thể tải nguồn: {url} | {last_error}"
+    )
 
 
-def cached_json(url: str, filename: str):
-    CACHE_DIR.mkdir(parents=True, exist_ok=True)
-    path = CACHE_DIR / filename
+def load_cached_json(
+    url: str,
+    filename: str,
+):
+    """
+    Cache only metadata.
+    """
 
-    if path.exists():
-        age = time.time() - path.stat().st_mtime
+    CACHE_DIR.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    cache_file = CACHE_DIR / filename
+
+    if cache_file.exists():
+        age = (
+            time.time()
+            - cache_file.stat().st_mtime
+        )
+
         if age < META_CACHE_TTL:
             try:
-                return json.loads(path.read_text(encoding="utf-8"))
+                return json.loads(
+                    cache_file.read_text(
+                        encoding="utf-8"
+                    )
+                )
             except Exception:
                 pass
 
     data = fetch_text(url)
+
     parsed = json.loads(data)
 
-    path.write_text(
-        json.dumps(parsed, ensure_ascii=False),
+    cache_file.write_text(
+        json.dumps(
+            parsed,
+            ensure_ascii=False,
+        ),
         encoding="utf-8",
     )
 
@@ -133,14 +233,19 @@ def cached_json(url: str, filename: str):
 
 
 # ============================================================
-# NORMALIZATION
+# TEXT NORMALIZATION
 # ============================================================
 
 def remove_accents(value: str) -> str:
-    value = unicodedata.normalize("NFD", value)
+    value = unicodedata.normalize(
+        "NFD",
+        value,
+    )
+
     return "".join(
-        ch for ch in value
-        if unicodedata.category(ch) != "Mn"
+        char
+        for char in value
+        if unicodedata.category(char) != "Mn"
     )
 
 
@@ -148,48 +253,68 @@ def normalize_text(value: str) -> str:
     if not value:
         return ""
 
-    value = remove_accents(value.lower())
+    value = html.unescape(str(value))
 
-    value = value.replace("&", " and ")
+    value = value.lower().strip()
 
-    # Common Vietnamese spelling variants.
+    value = remove_accents(value)
+
     value = value.replace("đ", "d")
 
-    # HD / FHD / SD / 4K normally do not identify the channel.
+    # Quality suffixes are not part of channel identity.
     value = re.sub(
-        r"\b(4k|8k|uhd|fhd|fullhd|hd|sd|1080p|720p|576p|480p)\b",
+        r"\b("
+        r"8k|4k|uhd|fhd|fullhd|"
+        r"1080p|1080i|720p|576p|480p|"
+        r"hd|sd"
+        r")\b",
         " ",
         value,
-        flags=re.I,
+        flags=re.IGNORECASE,
     )
 
-    # Common separators.
-    value = re.sub(r"[_./|:+\-]+", " ", value)
+    # Common words that don't identify the channel.
+    value = re.sub(
+        r"\b("
+        r"live|truc tiep|trực tiếp|"
+        r"channel|kenh|kênh"
+        r")\b",
+        " ",
+        value,
+        flags=re.IGNORECASE,
+    )
 
-    value = re.sub(r"[^a-z0-9\s]", " ", value)
+    value = value.replace(
+        "&",
+        " and ",
+    )
 
-    value = re.sub(r"\s+", " ", value).strip()
+    value = re.sub(
+        r"[_./|:+\-]+",
+        " ",
+        value,
+    )
 
-    return value
+    value = re.sub(
+        r"[^a-z0-9\s]",
+        " ",
+        value,
+    )
+
+    value = re.sub(
+        r"\s+",
+        " ",
+        value,
+    )
+
+    return value.strip()
 
 
 def compact(value: str) -> str:
-    return normalize_text(value).replace(" ", "")
-
-
-def normalize_channel_name(value: str) -> str:
-    value = normalize_text(value)
-
-    replacements = {
-        "truyen hinh": "",
-        "television": "",
-        "tv": "tv",
-    }
-
-    for old, new in replacements.items():
-        value = value.replace(old, new)
-
-    return re.sub(r"\s+", " ", value).strip()
+    return normalize_text(value).replace(
+        " ",
+        "",
+    )
 
 
 # ============================================================
@@ -197,39 +322,70 @@ def normalize_channel_name(value: str) -> str:
 # ============================================================
 
 def extract_m3u_payload(text: str) -> str:
-    pos = text.find("#EXTM3U")
+    """
+    Some sources may return HTML or extra content
+    before the actual M3U payload.
+    """
 
-    if pos >= 0:
-        return text[pos:]
+    extm3u_pos = text.find("#EXTM3U")
 
-    pos = text.find("#EXTINF")
+    if extm3u_pos >= 0:
+        return text[extm3u_pos:]
 
-    if pos >= 0:
-        return "#EXTM3U\n" + text[pos:]
+    extinf_pos = text.find("#EXTINF")
 
-    raise ValueError("Source does not contain M3U data")
+    if extinf_pos >= 0:
+        return (
+            "#EXTM3U\n"
+            + text[extinf_pos:]
+        )
+
+    raise ValueError(
+        "Nguồn không chứa dữ liệu M3U hợp lệ."
+    )
 
 
 def parse_extinf(line: str):
-    attrs = {}
+    attributes = {}
 
     for match in re.finditer(
         r'([\w-]+)="([^"]*)"',
         line,
     ):
-        attrs[match.group(1).lower()] = match.group(2)
+        key = match.group(1).lower()
+        value = html.unescape(
+            match.group(2)
+        )
+
+        attributes[key] = value
 
     if "," in line:
-        name = line.split(",", 1)[1].strip()
+        name = line.split(
+            ",",
+            1,
+        )[1].strip()
     else:
-        name = attrs.get("tvg-name", "").strip()
+        name = attributes.get(
+            "tvg-name",
+            "",
+        ).strip()
 
-    group = attrs.get("group-title", "").strip()
+    group = attributes.get(
+        "group-title",
+        "",
+    ).strip()
 
-    return attrs, name, group
+    return (
+        attributes,
+        name,
+        group,
+    )
 
 
-def parse_m3u(text: str, source: str) -> tuple[str, list[Entry]]:
+def parse_m3u(
+    text: str,
+    source: str,
+):
     text = extract_m3u_payload(text)
 
     lines = [
@@ -243,54 +399,74 @@ def parse_m3u(text: str, source: str) -> tuple[str, list[Entry]]:
     if lines:
         header = lines[0]
 
-        match = re.search(
+        for match in re.finditer(
             r'url-tvg="([^"]+)"',
             header,
-            flags=re.I,
-        )
-
-        if match:
+            flags=re.IGNORECASE,
+        ):
             epg_urls.extend(
-                x.strip()
-                for x in match.group(1).split(",")
-                if x.strip()
+                item.strip()
+                for item in match.group(1).split(",")
+                if item.strip()
             )
 
-    entries: list[Entry] = []
+    entries = []
 
-    i = 0
+    index = 0
 
-    while i < len(lines):
-        line = lines[i]
+    while index < len(lines):
 
-        if not line.startswith("#EXTINF"):
-            i += 1
+        line = lines[index]
+
+        if not line.startswith(
+            "#EXTINF"
+        ):
+            index += 1
             continue
 
-        attrs, name, group = parse_extinf(line)
+        (
+            attributes,
+            name,
+            group,
+        ) = parse_extinf(line)
 
         metadata = []
 
-        j = i + 1
         url = ""
 
-        while j < len(lines):
-            current = lines[j]
+        cursor = index + 1
 
-            if current.startswith("#EXTINF"):
+        while cursor < len(lines):
+
+            current = lines[cursor]
+
+            if current.startswith(
+                "#EXTINF"
+            ):
                 break
 
             if current.startswith("#"):
-                # Preserve important stream/player metadata.
-                if (
-                    current.startswith("#KODIPROP")
-                    or current.startswith("#EXTVLCOPT")
-                    or current.startswith("#EXTHTTP")
-                    or current.startswith("#EXT-X-")
-                ):
-                    metadata.append(current)
 
-                j += 1
+                # Preserve playback-related metadata.
+                if (
+                    current.startswith(
+                        "#KODIPROP"
+                    )
+                    or current.startswith(
+                        "#EXTVLCOPT"
+                    )
+                    or current.startswith(
+                        "#EXTHTTP"
+                    )
+                    or current.startswith(
+                        "#EXT-X-"
+                    )
+                ):
+                    metadata.append(
+                        current
+                    )
+
+                cursor += 1
                 continue
 
             url = current
@@ -298,111 +474,151 @@ def parse_m3u(text: str, source: str) -> tuple[str, list[Entry]]:
 
         if url:
             entries.append(
-                Entry(
+                M3UEntry(
                     source=source,
                     extinf=line,
                     url=url,
                     metadata=metadata,
-                    tvg_id=attrs.get("tvg-id", "").strip(),
-                    tvg_name=attrs.get("tvg-name", "").strip(),
-                    tvg_logo=attrs.get("tvg-logo", "").strip(),
+                    tvg_id=attributes.get(
+                        "tvg-id",
+                        "",
+                    ).strip(),
+                    tvg_name=attributes.get(
+                        "tvg-name",
+                        "",
+                    ).strip(),
+                    tvg_logo=attributes.get(
+                        "tvg-logo",
+                        "",
+                    ).strip(),
                     group=group,
                     name=name,
                 )
             )
 
-        i = max(j, i + 1)
+        index = max(
+            cursor,
+            index + 1,
+        )
 
-    return ",".join(dict.fromkeys(epg_urls)), entries
-
-
-# ============================================================
-# SOURCE CONFIG
-# ============================================================
-
-DEFAULT_SOURCES = {
-    "vmttv": (
-        "https://raw.githubusercontent.com/vuminhthanh12/"
-        "vuminhthanh12/refs/heads/main/vmttv"
-    ),
-    "vietanhtv": "https://tv.vietanhtv.top/sex/",
-    "dltivi": (
-        "https://raw.githubusercontent.com/DinhLap96/ListTivi/"
-        "refs/heads/main/ListTiVi/dltivi_v2.ndl"
-    ),
-    "iptv-org": (
-        "https://raw.githubusercontent.com/iptv-org/iptv/"
-        "refs/heads/master/streams/vn.m3u"
-    ),
-    "easport": "https://livesport.s.gy/easport",
-}
+    return (
+        epg_urls,
+        entries,
+    )
 
 
 # ============================================================
 # IPTV-ORG DATABASE
 # ============================================================
 
-class IptvDatabase:
-    def __init__(self, channels, logos):
+class IPTVOrgDatabase:
+
+    def __init__(
+        self,
+        channels,
+        logos,
+    ):
         self.channels = channels
         self.logos = logos
 
         self.by_id = {}
-        self.name_index = {}
-        self.alias_index = {}
-
+        self.name_to_id = {}
         self.logo_by_channel = {}
 
         self._build()
 
     def _build(self):
-        for item in self.channels:
-            channel_id = str(item.get("id", "")).strip()
+
+        for channel in self.channels:
+
+            channel_id = str(
+                channel.get(
+                    "id",
+                    "",
+                )
+            ).strip()
 
             if not channel_id:
                 continue
 
-            self.by_id[channel_id] = item
+            self.by_id[
+                channel_id
+            ] = channel
 
             names = []
 
-            name = item.get("name")
+            name = channel.get(
+                "name"
+            )
+
             if name:
-                names.append(name)
+                names.append(
+                    str(name)
+                )
 
-            names.extend(item.get("alt_names") or [])
+            alt_names = (
+                channel.get(
+                    "alt_names"
+                )
+                or []
+            )
 
-            for value in names:
-                key = compact(str(value))
+            names.extend(
+                str(x)
+                for x in alt_names
+                if x
+            )
+
+            for name in names:
+
+                key = compact(name)
 
                 if key:
-                    self.name_index.setdefault(
+                    self.name_to_id.setdefault(
                         key,
                         channel_id,
                     )
 
         for logo in self.logos:
+
             channel_id = str(
-                logo.get("channel", "")
+                logo.get(
+                    "channel",
+                    "",
+                )
             ).strip()
 
-            url = str(
-                logo.get("url", "")
+            logo_url = str(
+                logo.get(
+                    "url",
+                    "",
+                )
             ).strip()
 
-            if not channel_id or not url:
+            if (
+                not channel_id
+                or not logo_url
+            ):
                 continue
 
-            # Prefer in_use logo.
+            current = self.logo_by_channel.get(
+                channel_id
+            )
+
+            # Prefer an in-use logo.
             if (
-                channel_id not in self.logo_by_channel
-                or logo.get("in_use") is True
+                current is None
+                or logo.get(
+                    "in_use"
+                ) is True
             ):
-                self.logo_by_channel[channel_id] = url
+                self.logo_by_channel[
+                    channel_id
+                ] = logo_url
 
 
 # ============================================================
-# YAML MAPPING
+# CONFIG
 # ============================================================
 
 def load_config():
@@ -415,50 +631,171 @@ def load_config():
                 "iptv-org": 40,
                 "easport": 50,
             },
+            "sources": DEFAULT_SOURCES,
             "groups": {},
             "channels": {},
             "exclude": {},
+            "avoid_labels": [],
+            "group_order": [],
         }
 
     return yaml.safe_load(
-        CONFIG_FILE.read_text(encoding="utf-8")
+        CONFIG_FILE.read_text(
+            encoding="utf-8"
+        )
     ) or {}
 
 
 # ============================================================
-# EXCLUSIONS
+# YAML CHANNEL INDEX
 # ============================================================
 
-def is_excluded(entry: Entry, config: dict) -> bool:
-    exclude = config.get("exclude", {})
-
-    source_groups = exclude.get("groups", {})
-    source_channels = exclude.get("channels", {})
-
-    forbidden_groups = source_groups.get(
-        entry.source,
-        [],
+def build_yaml_channel_indexes(
+    config: dict,
+):
+    channels = config.get(
+        "channels",
+        {},
     )
 
-    forbidden_channels = source_channels.get(
-        entry.source,
-        [],
+    by_id = {}
+    alias_to_id = {}
+
+    for canonical_id, definition in channels.items():
+
+        canonical_id = str(
+            canonical_id
+        ).strip()
+
+        if not canonical_id:
+            continue
+
+        definition = (
+            definition
+            if isinstance(
+                definition,
+                dict,
+            )
+            else {}
+        )
+
+        by_id[
+            canonical_id
+        ] = definition
+
+        values = [
+            canonical_id,
+            definition.get(
+                "name",
+                "",
+            ),
+        ]
+
+        values.extend(
+            definition.get(
+                "aliases",
+                [],
+            )
+            or []
+        )
+
+        values.extend(
+            definition.get(
+                "ids",
+                [],
+            )
+            or []
+        )
+
+        for value in values:
+
+            if not value:
+                continue
+
+            alias_to_id[
+                compact(value)
+            ] = canonical_id
+
+    return (
+        by_id,
+        alias_to_id,
     )
 
-    normalized_group = compact(entry.group)
-    normalized_name = compact(entry.name)
-    normalized_id = compact(entry.tvg_id)
 
-    for item in forbidden_groups:
-        if normalized_group == compact(item):
+# ============================================================
+# EXCLUSION
+# ============================================================
+
+def is_excluded(
+    entry: M3UEntry,
+    config: dict,
+) -> bool:
+
+    exclude = config.get(
+        "exclude",
+        {},
+    )
+
+    group_exclusions = (
+        exclude.get(
+            "groups",
+            {},
+        )
+        or {}
+    )
+
+    channel_exclusions = (
+        exclude.get(
+            "channels",
+            {},
+        )
+        or {}
+    )
+
+    forbidden_groups = (
+        group_exclusions.get(
+            entry.source,
+            [],
+        )
+        or []
+    )
+
+    forbidden_channels = (
+        channel_exclusions.get(
+            entry.source,
+            [],
+        )
+        or []
+    )
+
+    group_key = compact(
+        entry.group
+    )
+
+    name_key = compact(
+        entry.name
+    )
+
+    tvg_id_key = compact(
+        entry.tvg_id
+    )
+
+    for forbidden in forbidden_groups:
+
+        if group_key == compact(
+            forbidden
+        ):
             return True
 
-    for item in forbidden_channels:
-        item_key = compact(item)
+    for forbidden in forbidden_channels:
+
+        forbidden_key = compact(
+            forbidden
+        )
 
         if (
-            normalized_name == item_key
-            or normalized_id == item_key
+            name_key == forbidden_key
+            or tvg_id_key == forbidden_key
         ):
             return True
 
@@ -469,30 +806,89 @@ def is_excluded(entry: Entry, config: dict) -> bool:
 # GROUP MAPPING
 # ============================================================
 
-def map_group(group: str, config: dict) -> str:
+def map_group(
+    group: str,
+    config: dict,
+) -> str:
+
     if not group:
         return "Khác"
 
-    groups = config.get("groups", {})
+    groups = config.get(
+        "groups",
+        {},
+    ) or {}
 
     key = compact(group)
 
+    # Exact first.
     for canonical, definition in groups.items():
-        aliases = definition.get("aliases", [])
-        aliases = list(aliases) + [canonical]
+
+        definition = (
+            definition
+            if isinstance(
+                definition,
+                dict,
+            )
+            else {}
+        )
+
+        aliases = [
+            canonical
+        ]
+
+        aliases.extend(
+            definition.get(
+                "aliases",
+                [],
+            )
+            or []
+        )
 
         for alias in aliases:
+
             if key == compact(alias):
                 return canonical
 
-    # Conservative fuzzy group mapping.
+    # Conservative fuzzy fallback.
     candidates = {}
 
     for canonical, definition in groups.items():
-        for alias in definition.get("aliases", []):
-            candidates[normalize_text(alias)] = canonical
+
+        definition = (
+            definition
+            if isinstance(
+                definition,
+                dict,
+            )
+            else {}
+        )
+
+        aliases = [
+            canonical
+        ]
+
+        aliases.extend(
+            definition.get(
+                "aliases",
+                [],
+            )
+            or []
+        )
+
+        for alias in aliases:
+
+            normalized = normalize_text(
+                alias
+            )
+
+            if normalized:
+                candidates[
+                    normalized
+                ] = canonical
 
     if candidates:
+
         result = process.extractOne(
             normalize_text(group),
             candidates.keys(),
@@ -500,10 +896,13 @@ def map_group(group: str, config: dict) -> str:
         )
 
         if result:
+
             matched, score, _ = result
 
             if score >= 94:
-                return candidates[matched]
+                return candidates[
+                    matched
+                ]
 
     return group.strip()
 
@@ -512,178 +911,255 @@ def map_group(group: str, config: dict) -> str:
 # CHANNEL MAPPING
 # ============================================================
 
-def build_yaml_indexes(config: dict):
-    channels = config.get("channels", {})
+def map_channel(
+    entry: M3UEntry,
+    config: dict,
+    db: IPTVOrgDatabase,
+):
+    (
+        yaml_channels,
+        yaml_aliases,
+    ) = build_yaml_channel_indexes(
+        config
+    )
 
-    by_id = {}
-    aliases = {}
+    # --------------------------------------------------------
+    # 1. EXACT IPTV-ORG ID
+    # Highest confidence.
+    # --------------------------------------------------------
 
-    for canonical_id, definition in channels.items():
-        canonical_id = str(canonical_id)
+    tvg_id = entry.tvg_id.strip()
 
-        by_id[canonical_id] = definition
+    if tvg_id in db.by_id:
 
-        names = [
-            canonical_id,
-            definition.get("name", ""),
+        channel = db.by_id[
+            tvg_id
         ]
 
-        names.extend(
-            definition.get("aliases", [])
-        )
+        entry.canonical_id = tvg_id
 
-        names.extend(
-            definition.get("ids", [])
-        )
-
-        for name in names:
-            if not name:
-                continue
-
-            aliases[compact(name)] = canonical_id
-
-    return by_id, aliases
-
-
-def iptv_org_channel_name(db: IptvDatabase, channel_id: str):
-    item = db.by_id.get(channel_id)
-
-    if not item:
-        return ""
-
-    return str(item.get("name", "")).strip()
-
-
-def map_channel(
-    entry: Entry,
-    config: dict,
-    db: IptvDatabase,
-):
-    yaml_channels, yaml_aliases = build_yaml_indexes(config)
-
-    # --------------------------------------------------------
-    # 1. Explicit YAML tvg-id / alias mapping
-    # --------------------------------------------------------
-
-    for candidate in [
-        entry.tvg_id,
-        entry.tvg_name,
-        entry.name,
-    ]:
-        key = compact(candidate)
-
-        if key and key in yaml_aliases:
-            canonical_id = yaml_aliases[key]
-            definition = yaml_channels[canonical_id]
-
-            entry.canonical_id = canonical_id
-            entry.canonical_name = (
-                definition.get("name")
-                or canonical_id
-            )
-            entry.mapping_method = "yaml-exact"
-            entry.alias_score = 100
-
-            return
-
-    # --------------------------------------------------------
-    # 2. Exact iptv-org channel ID
-    # --------------------------------------------------------
-
-    if entry.tvg_id in db.by_id:
-        item = db.by_id[entry.tvg_id]
-
-        entry.canonical_id = entry.tvg_id
         entry.canonical_name = str(
-            item.get("name")
+            channel.get(
+                "name"
+            )
             or entry.name
+        ).strip()
+
+        entry.mapping_method = (
+            "iptv-org-id"
         )
 
-        entry.mapping_method = "iptv-org-id"
-        entry.alias_score = 100
+        entry.mapping_score = 100
 
         return
 
     # --------------------------------------------------------
-    # 3. Exact normalized name / alt_name
+    # 2. EXACT YAML ID
     # --------------------------------------------------------
 
-    candidates = [
+    tvg_id_key = compact(
+        tvg_id
+    )
+
+    if (
+        tvg_id_key
+        and tvg_id_key in yaml_aliases
+    ):
+
+        canonical_id = yaml_aliases[
+            tvg_id_key
+        ]
+
+        definition = yaml_channels[
+            canonical_id
+        ]
+
+        entry.canonical_id = (
+            canonical_id
+        )
+
+        entry.canonical_name = (
+            definition.get(
+                "name"
+            )
+            or entry.name
+        )
+
+        entry.mapping_method = (
+            "yaml-id"
+        )
+
+        entry.mapping_score = 99
+
+        return
+
+    # --------------------------------------------------------
+    # 3. EXACT YAML ALIAS
+    # --------------------------------------------------------
+
+    for candidate in [
         entry.tvg_name,
         entry.name,
-    ]
+    ]:
 
-    for candidate in candidates:
         key = compact(candidate)
 
-        if key in db.name_index:
-            canonical_id = db.name_index[key]
-            item = db.by_id.get(canonical_id, {})
+        if (
+            key
+            and key in yaml_aliases
+        ):
 
-            entry.canonical_id = canonical_id
-            entry.canonical_name = str(
-                item.get("name")
+            canonical_id = yaml_aliases[
+                key
+            ]
+
+            definition = yaml_channels[
+                canonical_id
+            ]
+
+            entry.canonical_id = (
+                canonical_id
+            )
+
+            entry.canonical_name = (
+                definition.get(
+                    "name"
+                )
                 or candidate
             )
 
-            entry.mapping_method = "iptv-org-name"
-            entry.alias_score = 95
+            entry.mapping_method = (
+                "yaml-alias"
+            )
+
+            entry.mapping_score = 98
 
             return
 
     # --------------------------------------------------------
-    # 4. Fuzzy only for unknown channels
+    # 4. EXACT IPTV-ORG NAME / ALT NAME
     # --------------------------------------------------------
 
-    query = normalize_channel_name(
-        entry.tvg_name or entry.name
+    for candidate in [
+        entry.tvg_name,
+        entry.name,
+    ]:
+
+        key = compact(candidate)
+
+        if (
+            key
+            and key in db.name_to_id
+        ):
+
+            canonical_id = db.name_to_id[
+                key
+            ]
+
+            channel = db.by_id.get(
+                canonical_id,
+                {},
+            )
+
+            entry.canonical_id = (
+                canonical_id
+            )
+
+            entry.canonical_name = str(
+                channel.get(
+                    "name"
+                )
+                or candidate
+            ).strip()
+
+            entry.mapping_method = (
+                "iptv-org-name"
+            )
+
+            entry.mapping_score = 95
+
+            return
+
+    # --------------------------------------------------------
+    # 5. HIGH-CONFIDENCE FUZZY
+    # Only unknown channels reach this point.
+    # --------------------------------------------------------
+
+    query = normalize_text(
+        entry.tvg_name
+        or entry.name
     )
 
     if query:
+
         result = process.extractOne(
             query,
-            db.name_index.keys(),
+            db.name_to_id.keys(),
             scorer=fuzz.ratio,
         )
 
         if result:
+
             matched, score, _ = result
 
-            # High threshold intentionally.
             if score >= 95:
-                canonical_id = db.name_index[matched]
-                item = db.by_id.get(canonical_id, {})
 
-                entry.canonical_id = canonical_id
-                entry.canonical_name = str(
-                    item.get("name")
-                    or entry.name
+                canonical_id = (
+                    db.name_to_id[
+                        matched
+                    ]
                 )
 
-                entry.mapping_method = "iptv-org-fuzzy"
-                entry.alias_score = int(score)
+                channel = db.by_id.get(
+                    canonical_id,
+                    {},
+                )
+
+                entry.canonical_id = (
+                    canonical_id
+                )
+
+                entry.canonical_name = str(
+                    channel.get(
+                        "name"
+                    )
+                    or entry.name
+                ).strip()
+
+                entry.mapping_method = (
+                    "iptv-org-fuzzy"
+                )
+
+                entry.mapping_score = int(
+                    score
+                )
 
                 return
 
     # --------------------------------------------------------
-    # 5. Unknown → deterministic local canonical ID
+    # 6. LOCAL FALLBACK
     # --------------------------------------------------------
 
-    fallback = compact(
+    local_name = (
         entry.tvg_name
         or entry.name
+    ).strip()
+
+    entry.canonical_id = (
+        compact(local_name)
+        or "unknown"
     )
 
-    entry.canonical_id = fallback or "unknown"
     entry.canonical_name = (
-        entry.tvg_name
-        or entry.name
-        or fallback
-        or "Unknown"
+        local_name
+        or entry.canonical_id
     )
 
-    entry.mapping_method = "local"
-    entry.alias_score = 50
+    entry.mapping_method = (
+        "local"
+    )
+
+    entry.mapping_score = 50
 
 
 # ============================================================
@@ -691,32 +1167,43 @@ def map_channel(
 # ============================================================
 
 def resolve_logo(
-    entry: Entry,
-    db: IptvDatabase,
+    entry: M3UEntry,
+    db: IPTVOrgDatabase,
 ) -> str:
-    # Raw source always wins.
-    if entry.tvg_logo:
-        return entry.tvg_logo
 
-    if entry.canonical_id in db.logo_by_channel:
-        return db.logo_by_channel[
-            entry.canonical_id
-        ]
+    # Raw source logo always wins.
+    if entry.tvg_logo.strip():
+        return entry.tvg_logo.strip()
 
-    return ""
+    # Fallback to iptv-org.
+    return db.logo_by_channel.get(
+        entry.canonical_id,
+        "",
+    )
 
 
 # ============================================================
-# URL VALIDATION — NO HEALTH CHECK
+# STREAM URL VALIDATION
 # ============================================================
 
-def valid_stream_url(url: str) -> bool:
+def valid_stream_url(
+    url: str,
+) -> bool:
+
     try:
-        parsed = urlparse(url)
+        parsed = urlparse(
+            url.strip()
+        )
 
         return (
-            parsed.scheme in {"http", "https"}
-            and bool(parsed.hostname)
+            parsed.scheme
+            in {
+                "http",
+                "https",
+            }
+            and bool(
+                parsed.hostname
+            )
         )
 
     except Exception:
@@ -724,44 +1211,63 @@ def valid_stream_url(url: str) -> bool:
 
 
 # ============================================================
-# SOURCE SCORE
+# STREAM SELECTION
 # ============================================================
 
-def source_score(
-    entry: Entry,
+def stream_score(
+    entry: M3UEntry,
     config: dict,
 ) -> int:
-    priority = config.get(
+
+    source_priority = config.get(
         "source_priority",
         {},
+    ) or {}
+
+    # Higher score = preferred source.
+    priority = int(
+        source_priority.get(
+            entry.source,
+            999,
+        )
     )
 
-    # Higher source priority = higher score.
-    score = 1000 - int(
-        priority.get(entry.source, 999)
+    score = 10000 - (
+        priority * 100
     )
 
-    score += entry.alias_score
+    # Mapping confidence.
+    score += (
+        entry.mapping_score
+    )
 
-    # Prefer actual tvg-id over name-only match.
-    if entry.tvg_id:
+    # Exact tvg-id gets a bonus.
+    if entry.tvg_id.strip():
         score += 20
 
-    # Prefer source entries with logos.
-    if entry.tvg_logo:
+    # Raw logo bonus.
+    if entry.tvg_logo.strip():
         score += 5
 
-    # Avoid obvious bad labels.
-    lower = entry.name.lower()
+    # Avoid bad labels without performing
+    # network health checks.
+    lower_name = (
+        entry.name.lower()
+    )
 
-    for bad in config.get(
-        "avoid_labels",
-        [],
+    for bad_label in (
+        config.get(
+            "avoid_labels",
+            [],
+        )
+        or []
     ):
-        if bad.lower() in lower:
-            score -= 500
 
-    # Prefer HLS when candidates come from same source.
+        if bad_label.lower() in lower_name:
+            score -= 1000
+
+    # Slight preference for HLS within
+    # the same source.
     if ".m3u8" in entry.url.lower():
         score += 3
 
@@ -773,83 +1279,133 @@ def source_score(
 # ============================================================
 
 def deduplicate(
-    entries: list[Entry],
+    entries: list[M3UEntry],
     config: dict,
 ):
-    buckets: dict[str, list[Entry]] = {}
+    """
+    Exactly one stream per canonical channel.
+    """
+
+    buckets = {}
 
     for entry in entries:
-        key = entry.canonical_id
+
+        key = (
+            entry.canonical_id
+            or compact(entry.name)
+        )
 
         if not key:
-            key = compact(entry.name)
+            continue
 
-        buckets.setdefault(key, []).append(entry)
+        buckets.setdefault(
+            key,
+            [],
+        ).append(entry)
 
     winners = []
 
     for canonical_id, candidates in buckets.items():
+
         candidates = [
-            x for x in candidates
-            if valid_stream_url(x.url)
+            entry
+            for entry in candidates
+            if valid_stream_url(
+                entry.url
+            )
         ]
 
         if not candidates:
             continue
 
-        # Remove duplicate URL candidates.
-        unique = {}
+        # One URL only.
+        unique_by_url = {}
 
         for entry in candidates:
-            url_key = entry.url.strip()
 
-            if url_key not in unique:
-                unique[url_key] = entry
+            url = entry.url.strip()
 
-        candidates = list(unique.values())
+            if url not in unique_by_url:
+                unique_by_url[
+                    url
+                ] = entry
+
+        candidates = list(
+            unique_by_url.values()
+        )
 
         winner = max(
             candidates,
-            key=lambda x: source_score(
-                x,
-                config,
-            ),
+            key=lambda entry:
+                stream_score(
+                    entry,
+                    config,
+                ),
         )
 
-        winners.append(winner)
+        winners.append(
+            winner
+        )
 
     return winners
 
 
 # ============================================================
-# EXTINF REBUILD
+# EXTINF GENERATION
 # ============================================================
 
-def escape_attr(value: str) -> str:
+def escape_attribute(
+    value: str,
+) -> str:
+
     return (
         str(value)
-        .replace("&", "&amp;")
-        .replace('"', "&quot;")
+        .replace(
+            "&",
+            "&amp;",
+        )
+        .replace(
+            '"',
+            "&quot;",
+        )
     )
 
 
-def rebuild_extinf(
-    entry: Entry,
+def build_extinf(
+    entry: M3UEntry,
     logo: str,
 ) -> str:
-    attrs, _, _ = parse_extinf(entry.extinf)
 
-    attrs["tvg-id"] = entry.canonical_id
-    attrs["tvg-name"] = entry.canonical_name
+    attributes, _, _ = (
+        parse_extinf(
+            entry.extinf
+        )
+    )
+
+    attributes[
+        "tvg-id"
+    ] = entry.canonical_id
+
+    attributes[
+        "tvg-name"
+    ] = entry.canonical_name
+
+    attributes[
+        "group-title"
+    ] = entry.canonical_group
 
     if logo:
-        attrs["tvg-logo"] = logo
+        attributes[
+            "tvg-logo"
+        ] = logo
     else:
-        attrs.pop("tvg-logo", None)
+        attributes.pop(
+            "tvg-logo",
+            None,
+        )
 
-    attrs["group-title"] = entry.canonical_group
-
-    ordered = [
+    # Standard output order.
+    ordered_keys = [
         "tvg-id",
         "tvg-name",
         "tvg-logo",
@@ -858,33 +1414,48 @@ def rebuild_extinf(
 
     parts = []
 
-    for key in ordered:
-        if key in attrs and attrs[key]:
-            parts.append(
-                f'{key}="{escape_attr(attrs[key])}"'
-            )
+    for key in ordered_keys:
 
-    display_name = entry.canonical_name
+        value = attributes.get(
+            key,
+            "",
+        )
+
+        if value:
+            parts.append(
+                f'{key}="{escape_attribute(value)}"'
+            )
 
     return (
         "#EXTINF:-1 "
         + " ".join(parts)
         + ","
-        + display_name
+        + entry.canonical_name
     )
 
 
 # ============================================================
-# OUTPUT
+# WRITE PLAYLIST
 # ============================================================
 
 def write_playlist(
     path: Path,
     epg_urls: list[str],
-    entries: list[Entry],
-    db: IptvDatabase,
+    entries: list[M3UEntry],
+    db: IPTVOrgDatabase,
 ):
-    path.parent.mkdir(parents=True, exist_ok=True)
+    path.parent.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    epg_urls = list(
+        dict.fromkeys(
+            x.strip()
+            for x in epg_urls
+            if x.strip()
+        )
+    )
 
     header = "#EXTM3U"
 
@@ -892,7 +1463,7 @@ def write_playlist(
         header += (
             ' url-tvg="'
             + ",".join(
-                dict.fromkeys(epg_urls)
+                epg_urls
             )
             + '"'
         )
@@ -900,30 +1471,43 @@ def write_playlist(
     lines = [header]
 
     for entry in entries:
-        logo = resolve_logo(entry, db)
+
+        logo = resolve_logo(
+            entry,
+            db,
+        )
 
         lines.append(
-            rebuild_extinf(
+            build_extinf(
                 entry,
                 logo,
             )
         )
 
-        lines.extend(entry.metadata)
+        # Preserve playback metadata.
+        lines.extend(
+            entry.metadata
+        )
 
-        lines.append(entry.url)
+        lines.append(
+            entry.url.strip()
+        )
 
     path.write_text(
-        "\n".join(lines) + "\n",
+        "\n".join(lines)
+        + "\n",
         encoding="utf-8",
     )
 
 
 # ============================================================
-# SAFETY
+# SAFETY VALIDATION
 # ============================================================
 
-def count_channels(path: Path) -> int:
+def count_channels(
+    path: Path,
+) -> int:
+
     if not path.exists():
         return 0
 
@@ -933,35 +1517,115 @@ def count_channels(path: Path) -> int:
             encoding="utf-8",
             errors="ignore",
         ).splitlines()
-        if line.startswith("#EXTINF")
+        if line.startswith(
+            "#EXTINF"
+        )
     )
 
 
-def validate_result(path: Path):
-    count = count_channels(path)
+def validate_result(
+    output: Path,
+):
 
-    print(f"Generated channels: {count}")
+    new_count = count_channels(
+        output
+    )
 
-    if count < MIN_CHANNELS:
+    print(
+        f"Số channel tạo mới: {new_count}"
+    )
+
+    if new_count < MIN_CHANNELS:
+
         raise RuntimeError(
-            f"Playlist too small: {count} < {MIN_CHANNELS}"
+            "Playlist quá ít channel: "
+            f"{new_count} < {MIN_CHANNELS}"
         )
 
-    old_count = count_channels(FALLBACK_FILE)
+    old_count = count_channels(
+        FALLBACK_FILE
+    )
 
-    if old_count > 0:
-        ratio = count / old_count
+    if old_count <= 0:
+        return
 
-        print(
-            f"Previous: {old_count}, "
-            f"ratio: {ratio:.2%}"
+    ratio = (
+        new_count
+        / old_count
+    )
+
+    print(
+        "Playlist cũ: "
+        f"{old_count} | "
+        f"Tỷ lệ mới: "
+        f"{ratio:.2%}"
+    )
+
+    if ratio < MIN_RATIO:
+
+        raise RuntimeError(
+            "Playlist mới giảm bất thường: "
+            f"{ratio:.2%} < "
+            f"{MIN_RATIO:.2%}"
         )
 
-        if ratio < MIN_RATIO:
-            raise RuntimeError(
-                "Generated playlist dropped too much: "
-                f"{ratio:.2%} < {MIN_RATIO:.2%}"
+
+# ============================================================
+# SUMMARY
+# ============================================================
+
+def print_summary(
+    entries: list[M3UEntry],
+):
+
+    source_count = {}
+    mapping_count = {}
+
+    for entry in entries:
+
+        source_count[
+            entry.source
+        ] = (
+            source_count.get(
+                entry.source,
+                0,
             )
+            + 1
+        )
+
+        mapping_count[
+            entry.mapping_method
+        ] = (
+            mapping_count.get(
+                entry.mapping_method,
+                0,
+            )
+            + 1
+        )
+
+    print()
+    print(
+        "=== STREAM ĐƯỢC CHỌN ==="
+    )
+
+    for source, count in sorted(
+        source_count.items()
+    ):
+        print(
+            f"  {source}: {count}"
+        )
+
+    print()
+    print(
+        "=== PHƯƠNG THỨC MAPPING ==="
+    )
+
+    for method, count in sorted(
+        mapping_count.items()
+    ):
+        print(
+            f"  {method}: {count}"
+        )
 
 
 # ============================================================
@@ -969,29 +1633,65 @@ def validate_result(path: Path):
 # ============================================================
 
 def main():
-    print("=== IPTV M3U Optimizer V3 ===")
-    print("Health checks: DISABLED")
-    print("Selection: source priority + mapping")
+
+    print(
+        "========================================"
+    )
+    print(
+        " IPTV M3U OPTIMIZER V3.1"
+    )
+    print(
+        "========================================"
+    )
+    print(
+        "Health-check stream: TẮT"
+    )
+    print(
+        "Canonical database: IPTV-org API"
+    )
+    print(
+        "Deduplication: 1 channel = 1 stream"
+    )
     print()
 
     config = load_config()
 
-    print("Loading iptv-org metadata...")
+    # --------------------------------------------------------
+    # Load canonical metadata.
+    # --------------------------------------------------------
 
-    channels = cached_json(
-        IPTV_ORG_CHANNELS,
+    print(
+        "Đang tải metadata IPTV-org..."
+    )
+
+    channels = load_cached_json(
+        IPTV_ORG_CHANNELS_URL,
         "channels.json",
     )
 
-    logos = cached_json(
-        IPTV_ORG_LOGOS,
+    logos = load_cached_json(
+        IPTV_ORG_LOGOS_URL,
         "logos.json",
     )
 
-    db = IptvDatabase(
+    db = IPTVOrgDatabase(
         channels,
         logos,
     )
+
+    print(
+        f"  Channels database: "
+        f"{len(db.by_id)}"
+    )
+
+    print(
+        f"  Logo database: "
+        f"{len(db.logo_by_channel)}"
+    )
+
+    # --------------------------------------------------------
+    # Sources.
+    # --------------------------------------------------------
 
     sources = config.get(
         "sources",
@@ -999,52 +1699,69 @@ def main():
     )
 
     all_entries = []
-    epg_urls = []
+    all_epg_urls = []
+
+    # --------------------------------------------------------
+    # Fetch all five sources.
+    # --------------------------------------------------------
 
     for source, url in sources.items():
-        print(f"\nFetching: {source}")
-        print(url)
+
+        print()
+        print(
+            f"[{source}]"
+        )
 
         try:
-            text = fetch_text(url)
 
-            epg, entries = parse_m3u(
+            text = fetch_text(
+                url
+            )
+
+            (
+                epg_urls,
+                entries,
+            ) = parse_m3u(
                 text,
                 source,
             )
 
-            if epg:
-                epg_urls.extend(
-                    x.strip()
-                    for x in epg.split(",")
-                    if x.strip()
-                )
-
-            print(
-                f"  Parsed: {len(entries)}"
+            all_epg_urls.extend(
+                epg_urls
             )
 
-            before = len(entries)
+            print(
+                f"  Parsed: "
+                f"{len(entries)}"
+            )
+
+            original_count = len(
+                entries
+            )
 
             entries = [
-                x
-                for x in entries
+                entry
+                for entry in entries
                 if not is_excluded(
-                    x,
+                    entry,
                     config,
                 )
             ]
 
             print(
-                f"  After exclusion: "
+                "  Sau khi loại trừ: "
                 f"{len(entries)} "
-                f"(removed {before - len(entries)})"
+                f"(loại "
+                f"{original_count - len(entries)})"
             )
 
             for entry in entries:
-                entry.canonical_group = map_group(
-                    entry.group,
-                    config,
+
+                entry.canonical_group = (
+                    map_group(
+                        entry.group,
+                        config,
+                    )
                 )
 
                 map_channel(
@@ -1053,33 +1770,54 @@ def main():
                     db,
                 )
 
-            all_entries.extend(entries)
-
-        except Exception as exc:
-            print(
-                f"  WARNING: {source} failed: {exc}"
+            all_entries.extend(
+                entries
             )
 
+        except Exception as exc:
+
+            # One failed source should not
+            # automatically destroy the playlist.
+            print(
+                f"  CẢNH BÁO: "
+                f"Không đọc được {source}: "
+                f"{exc}"
+            )
+
+    # --------------------------------------------------------
+    # Ensure we have data.
+    # --------------------------------------------------------
+
     if not all_entries:
+
         raise RuntimeError(
-            "No streams were parsed from any source."
+            "Không đọc được stream nào "
+            "từ cả 5 nguồn."
         )
 
     print()
     print(
-        f"Total candidates: {len(all_entries)}"
+        f"Tổng stream đầu vào: "
+        f"{len(all_entries)}"
     )
+
+    # --------------------------------------------------------
+    # Deduplicate.
+    # --------------------------------------------------------
 
     winners = deduplicate(
         all_entries,
         config,
     )
 
-    # Sort by configured OTT-style group order.
+    # --------------------------------------------------------
+    # Sort by OTT-style group order.
+    # --------------------------------------------------------
+
     group_order = config.get(
         "group_order",
         [],
-    )
+    ) or {}
 
     group_index = {
         group: index
@@ -1088,70 +1826,65 @@ def main():
     }
 
     winners.sort(
-        key=lambda x: (
+        key=lambda entry: (
             group_index.get(
-                x.canonical_group,
+                entry.canonical_group,
                 999,
             ),
             normalize_text(
-                x.canonical_name
+                entry.canonical_name
             ),
         )
     )
 
+    print()
     print(
-        f"Final unique channels: "
+        f"Channel duy nhất sau dedup: "
         f"{len(winners)}"
     )
 
-    epg_urls = list(
-        dict.fromkeys(epg_urls)
-    )
+    # --------------------------------------------------------
+    # Write.
+    # --------------------------------------------------------
 
     write_playlist(
         OUTPUT_FILE,
-        epg_urls,
+        all_epg_urls,
         winners,
         db,
     )
+
+    # --------------------------------------------------------
+    # Safety validation.
+    # --------------------------------------------------------
 
     validate_result(
         OUTPUT_FILE
     )
 
-    # Small summary for Actions log only.
-    source_count = {}
-
-    for entry in winners:
-        source_count.setdefault(
-            entry.source,
-            0,
-        )
-        source_count[entry.source] += 1
-
-    print()
-    print("Selected streams by source:")
-
-    for source, count in sorted(
-        source_count.items(),
-        key=lambda x: x[0],
-    ):
-        print(
-            f"  {source}: {count}"
-        )
+    print_summary(
+        winners
+    )
 
     print()
     print(
-        f"Output: {OUTPUT_FILE}"
+        f"Đã tạo: {OUTPUT_FILE}"
+    )
+    print(
+        "Hoàn tất."
     )
 
 
 if __name__ == "__main__":
+
     try:
         main()
+
     except Exception as exc:
+
         print(
-            f"\nERROR: {exc}",
+            f"\nLỖI: {exc}",
             file=sys.stderr,
         )
+
         sys.exit(1)
