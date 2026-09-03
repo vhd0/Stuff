@@ -1,0 +1,254 @@
+# groups.yaml
+# ====================================================================
+# 1. GROUP ALIAS (tin tuong TUYET DOI khi nguon co trust_group_title=True)
+# Key da duoc chuan hoa: bo dau, chu thuong, chi giu chu/so (khong emoji,
+# khong khoang trang, khong dau gach). Xem group_match_key() trong
+# m3u/normalize.py.
+# ====================================================================
+group_alias:
+  vtv: "📺 VTV"
+  vtvcab: "📡 VTVCab"
+  htv: "📺 HTV"
+  htvc: "📡 HTVC"
+  sctv: "📡 SCTV"
+  diaphuong: "🏠 Địa phương"
+  thietyeu: "🏠 Địa phương"      # "Kenh thiet yeu" cua TV360/MyTV ~ dia phuong+VTV/HTV co ban
+  thethaoquocte: "⚽ Thể thao"
+  thethao: "⚽ Thể thao"
+  radio: "📻 Radio"
+  ukradio: "📻 Radio"
+  thieunhi: "👶 Thiếu nhi"
+  tvb: "🎭 Giải trí"
+  giaitri: "🎭 Giải trí"
+  amnhac: "🎵 Âm nhạc"
+  tintuc: "📰 Tin tức"
+  phim: "🎬 Phim"
+  giaoduc: "🎓 Giáo dục & Khám phá"
+  # Cac nhom "su kien" cua nhieu OTT khac nhau deu quy ve 1 nhom Su kien.
+  liveevents: "🎟️ Sự kiện"
+  sukientv360: "🎟️ Sự kiện"
+  sukienvtvprime: "🎟️ Sự kiện"
+  sukienfptplay: "🎟️ Sự kiện"
+  # LUU Y: "In The Box" DA BI GO KHOI danh sach nay (truoc day gan nham
+  # thanh "Su kien"). Kiem chung tren nguon TinhLaGi cho thay "📦 In The
+  # Box" thuc chat la 1 bundle linh tinh gom kenh PHIM/NHAC (Box Movie,
+  # Music Box, Woman, TVB...), khong phai su kien. De rieng ten nhom nay
+  # (va cac bundle mo ho tuong tu nhu "⭐ Kênh yêu thích", "🌐 Quốc Tế VIP",
+  # "🎬 Rạp Phim") RA KHOI group_alias, de OTT content classifier ben duoi
+  # tu phan loai dung theo TEN TUNG KENH thay vi theo bundle chung chung.
+  # LUU Y: "Quoc Te" / cac nhom quoc gia (Han Quoc/Trung Quoc/Thai Lan/
+  # Campuchia/Israel/UK...) CO CHU Y KHONG duoc liet ke o day (muc 8: khong
+  # co nhom "Quoc te" dau ra). Cac nhom nay se roi qua OTT secondary
+  # classifier ben duoi, phan loai theo NOI DUNG thay vi theo quoc gia.
+
+# ====================================================================
+# 2. OTT SECONDARY CONTENT CLASSIFIER (muc 7)
+# Dung khi: (a) nguon khong trust group-title, hoac (b) group-title khong
+# khop group_alias o tren (vd cac nhom quoc gia, "Quoc Te" chung chung).
+# Khop theo TU KHOA xuat hien trong TEN KENH DA CHUAN HOA (khong dau, chu
+# thuong). Kiem tra THEO THU TU, nhom dau tien khop duoc se duoc chon.
+# ====================================================================
+content_keywords:
+  "📰 Tin tức":
+    - "bbc news"
+    - "bbc world news"
+    - "cnn"
+    - "thoi su"
+    - "tin tuc"
+    - "al jazeera"
+    - "nhk world"
+    - "france 24"
+    - "dw news"
+    - "dw -"
+    - "cctv"
+    - "arirang"
+    - "kbs world"
+    - "cnbc"
+    - "bloomberg"
+    - "channel news asia"
+    - "tv5"
+  "⚽ Thể thao":
+    - "espn"
+    - "spotv"
+    - "sport"
+    - "the thao"
+    - "bong da"
+    - "fox sports"
+    - "golf"
+    - "f1"
+    - "champions league"
+    - "uefa"
+    - "cup c1"
+    - "ngoai hang anh"
+    - "premier league"
+  "👶 Thiếu nhi":
+    - "cartoon"
+    - "disney"
+    - "nick"
+    - "boomerang"
+    - "thieu nhi"
+    - "kid"
+  "🎬 Phim":
+    - "hbo"
+    - "cinemax"
+    - "cinema"
+    - "movie"
+    - "movies"
+    - "phim truyen"
+    - "phim"
+    - "on cine"
+    - "galaxy play"
+    - "hollywood classics"
+    - "box movie"
+  "🎓 Giáo dục & Khám phá":
+    - "national geographic"
+    - "nat geo"
+    - "discovery"
+    - "history"
+    - "animal planet"
+    - "giao duc"
+    - "khoa hoc"
+  "🎵 Âm nhạc":
+    - "mtv"
+    - "am nhac"
+    - "zing"
+    - "music"
+  "📻 Radio":
+    - "radio"
+    - "fm "
+  "🎭 Giải trí":
+    - "tvb"
+    - "giai tri"
+    - "variety"
+    - "drama"
+
+# Nhom mac dinh khi khong khop tu khoa nao o tren VA nguon co goi y
+# default_content_hint (vd EaSport -> "sports").
+default_content_hint_map:
+  sports: "⚽ Thể thao"
+
+# ====================================================================
+# 3. NHAN DIEN DIA PHUONG DOC LAP VOI GROUP-TITLE NGUON (muc 10)
+# Dung de: (a) BAT dung cac kenh dia phuong that ngay ca khi nguon KHONG
+# tin group-title hoac dat sai ten nhom (tranh roi vao "Khac"); (b) lam
+# can cu tham chieu neu can kiem tra nguoc mot kenh co thuc su la dia
+# phuong hay khong. Danh sach dua tren 63 tinh/thanh Viet Nam (khong dau,
+# chu thuong) + mot so id tvg-id kenh dia phuong da biet.
+# ====================================================================
+local_province_keywords:
+  - "an giang"
+  - "ba ria vung tau"
+  - "bac giang"
+  - "bac kan"
+  - "bac lieu"
+  - "bac ninh"
+  - "ben tre"
+  - "binh dinh"
+  - "binh duong"
+  - "binh phuoc"
+  - "binh thuan"
+  - "ca mau"
+  - "can tho"
+  - "cao bang"
+  - "da nang"
+  - "dak lak"
+  - "dak nong"
+  - "dien bien"
+  - "dong nai"
+  - "dong thap"
+  - "gia lai"
+  - "ha giang"
+  - "ha nam"
+  - "ha noi"
+  - "ha tinh"
+  - "hai duong"
+  - "hai phong"
+  - "hau giang"
+  - "hoa binh"
+  - "hung yen"
+  - "khanh hoa"
+  - "kien giang"
+  - "kon tum"
+  - "lai chau"
+  - "lam dong"
+  - "lang son"
+  - "lao cai"
+  - "long an"
+  - "nam dinh"
+  - "nghe an"
+  - "ninh binh"
+  - "ninh thuan"
+  - "phu tho"
+  - "phu yen"
+  - "quang binh"
+  - "quang nam"
+  - "quang ngai"
+  - "quang ninh"
+  - "quang tri"
+  - "soc trang"
+  - "son la"
+  - "tay ninh"
+  - "thai binh"
+  - "thai nguyen"
+  - "thanh hoa"
+  - "thua thien hue"
+  - "tien giang"
+  - "tra vinh"
+  - "tuyen quang"
+  - "vinh long"
+  - "vinh phuc"
+  - "yen bai"
+  - "hue"
+  - "sai gon"
+  - "tp hcm"
+  - "ho chi minh"
+
+local_province_ids:
+  - "angiang"
+  - "bacninh"
+  - "camau"
+  - "cantho"
+  - "caobang"
+  - "danang"
+  - "daklak"
+  - "dienbien"
+  - "dongnai"
+  - "dongthap"
+  - "gialai"
+  - "hanoi"
+  - "hatinh"
+  - "haiphong"
+  - "hue"
+  - "hungyen"
+  - "khanhhoa"
+  - "laichau"
+  - "lamdong"
+  - "langson"
+  - "laocai"
+  - "nghean"
+  - "ninhbinh"
+  - "ninhthuan"
+  - "phutho"
+  - "quangngai"
+  - "quangninh"
+  - "quangtri"
+  - "sonla"
+  - "tayninh"
+  - "thainguyen"
+  - "thanhhoa"
+  - "travinh"
+  - "tuyenquang"
+  - "vinhlong"
+
+# Ten thuong hieu kenh dia phuong KHONG chua ten tinh/thanh trong ten hien
+# thi (nen khong khop duoc local_province_keywords o tren), nhung van la
+# kenh dia phuong VN that su da biet.
+local_extra_keywords:
+  - "hitv"
+  - "youtv"
+  - "todaytv"
+  - "infotv"
+  - "vnews"
+  - "thvl"
+  - "th vinh long"
+

@@ -1,0 +1,59 @@
+# channels.yaml
+# Quy tac canonical cho tung kenh: bi danh (aliases), nhom phu them
+# (extra_groups - muc 11 MULTI-GROUP MEMBERSHIP), va nhan dien dac biet.
+#
+# Cau truc moi entry:
+#   <canonical_id>:
+#     name: "<Ten hien thi chuan>"
+#     aliases: [<cac bien the ten/tvg-id se duoc gop ve canonical_id nay>]
+#     extra_groups: [<nhom phu duoc them vao ben canh nhom chinh>]
+#
+# canonical_id la khoa noi bo (khong dau, khong khoang trang, chu thuong),
+# dung de gop cac bien the "VTV1"/"VTV 1"/"VTV1 HD"/"VTV1 FHD"/"VTV1 1080P"
+# ve CUNG 1 kenh (muc 5 CHANNEL IDENTITY).
+
+antv:
+  name: "ANTV"
+  aliases: ["antv", "antvhd", "an ninh tv", "an ninh"]
+  extra_groups: ["📰 Tin tức"]
+
+qpvn:
+  name: "QPVN"
+  aliases: ["qpvn", "qpvnhd", "quoc phong viet nam", "quoc phong"]
+  extra_groups: ["📰 Tin tức"]
+
+vtv7:
+  name: "VTV7"
+  aliases: ["vtv7", "vtv7hd"]
+  extra_groups: ["👶 Thiếu nhi", "🎓 Giáo dục & Khám phá"]
+
+vtv5:
+  name: "VTV5"
+  aliases: ["vtv5", "vtv5hd"]
+  extra_groups: []
+
+vtv6:
+  name: "VTV6"
+  aliases: ["vtv6", "vtv6hd"]
+  extra_groups: ["🎭 Giải trí"]
+
+# Vi du kenh the thao thuoc VTVCab van duoc gan them nhom The thao (muc 11).
+onsports:
+  name: "ON Sports"
+  aliases: ["on sports", "onsports", "on sport"]
+  extra_groups: ["⚽ Thể thao"]
+
+oncine:
+  name: "ON Cine"
+  aliases: ["on cine", "oncine", "on movie", "on movies"]
+  extra_groups: ["🎬 Phim"]
+
+hbo:
+  name: "HBO"
+  aliases: ["hbo", "hbohd"]
+  extra_groups: []
+
+cinemax:
+  name: "Cinemax"
+  aliases: ["cinemax", "cinemaxhd"]
+  extra_groups: []
