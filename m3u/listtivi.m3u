@@ -1,4 +1,4 @@
-#EXTM3U url-tvg="https://lichphatsong.io.vn/epg.xml,https://vnepg.site/epg.xml,https://epgshare01.online/epgshare01/epg_ripper_UK1.xml.gz,https://epgshare01.online/epgshare01/epg_ripper_AL1.xml.gz,https://epgshare01.online/epgshare01/epg_ripper_US2.xml.gz,https://epgshare01.online/epgshare01/epg_ripper_CA2.xml.gz,https://epgshare01.online/epgshare01/epg_ripper_FR1.xml.gz,https://epgshare01.online/epgshare01/epg_ripper_PT1.xml.gz,https://epgshare01.online/epgshare01/epg_ripper_MY1.xml.gz,https://epgshare01.online/epgshare01/epg_ripper_NZ1.xml.gz,https://epgshare01.online/epgshare01/epg_ripper_CZ1.xml.gz"
+#EXTM3U url-tvg="https://lichphatsong.io.vn/epg.xml,https://vnepg.site/epg.xml"
 #EXTINF:-1 tvg-id="VietnamToday.vn" tvg-name="Vietnam Today" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/vuminhthanh12/refs/heads/main/VietnamToday.jpg" group-title="VTV",Vietnam Today
 https://vips-livecdn.fptplay.net/live/media/vietnamtoday/live-hls-avc/vietnamtoday-avc1_4000000=10000-mp4a_131600=20000.m3u8
 #EXTINF:-1 tvg-id="vtv1" tvg-name="VTV1" tvg-logo="https://i.ytimg.com/vi/dGohEWXz7Sk/maxresdefault.jpg" group-title="VTV",VTV1
@@ -571,7 +571,7 @@ https://freem3u.xyz/api/live/play.m3u8?vid=176
 #KODIPROP:inputstream.adaptive.manifest_type=dash
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=https://tv.vietanhtv.top/sex/cleankey.php?id=tv360174&token=542c8ccb5d0f044c49305944576ab54b
-https://tv.vietanhtv.top/tv360/tv360.php?id=174&expires=1788554167&token=92bf49dfdbab219d614ec5228d9cd27a
+https://tv.vietanhtv.top/tv360/tv360.php?id=174&expires=1788555662&token=b54c530657ac08877e98dd413db3bacf
 #EXTINF:-1 tvg-id="ONGolf.vn" tvg-name="ON Golf" tvg-logo="https://img.lichphatsong.site/logo/on-golf.jpg" group-title="VTVcab",ON Golf
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://vmttv.dpdns.org/tv360/?id=vtvcab-23-golf-channel
@@ -602,14 +602,14 @@ https://vmttv.dpdns.org/tv360/?id=vtvcab-2-phim-viet-hd
 #KODIPROP:inputstream.adaptive.manifest_type=dash
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=https://tv.vietanhtv.top/sex/cleankey.php?id=tv360173&token=542c8ccb5d0f044c49305944576ab54b
-https://tv.vietanhtv.top/tv360/tv360.php?id=173&expires=1788554167&token=f57a7211b31af5f97b286104b6cdf7a1
+https://tv.vietanhtv.top/tv360/tv360.php?id=173&expires=1788555662&token=95c5d1b51f1a8b7705f4be7858df2baf
 #EXTINF:-1 tvg-id="ONSportsNews.vn" tvg-name="ON Sports News" tvg-logo="https://assets-vtvcab.gviet.vn/images/v2/channel/20220613/2022061306/Logo_ONSPORTSNEWS_150x904_1675158858.webp" group-title="VTVcab",ON Sports News
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=dash
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=https://tv.vietanhtv.top/sex/cleankey.php?id=tv360170&token=542c8ccb5d0f044c49305944576ab54b
-https://tv.vietanhtv.top/tv360/tv360.php?id=170&expires=1788554167&token=4e9da7bd6a231b1aeccc88cb2abb453b
+https://tv.vietanhtv.top/tv360/tv360.php?id=170&expires=1788555662&token=b16bcbce023bc551da3abc63a5c3fce2
 #EXTINF:-1 tvg-id="ONStyleTV.vn" tvg-name="ON Style TV" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/Logo/refs/heads/main/onstyle.png" group-title="VTVcab",ON Style TV
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://freem3u.xyz/api/live/play.m3u8?vid=184
@@ -734,22 +734,6 @@ https://live-hls-web-aje-gcp.thehlive.com/AJE/01.m3u8
 https://s2129134.cdn.mytvnet.vn/pkg20/live_dzones/ap.smil/manifest.mpd
 #EXTINF:-1 tvg-id="antv" tvg-name="ANTV" tvg-logo="https://img-zlr1.tv360.vn/image1/2020_09_23/1600822516608/b33963dc0df8_640_360.png" group-title="🌐| Thiết yếu",ANTV
 https://live.fptplay53.net/fnxhd2/anninhtv_vhls.smil/chunklist_b5000000.m3u8
-#EXTINF:-1 tvg-id="ArenaSport1.ba" tvg-name="Arena Sport 1" tvg-logo="https://livesport.io.vn/logo/sport/a1.png" group-title="ROMANIA SPORTS",Arena Sport 1
-https://livesport.io.vn/ok/apo.php?id=are1
-#EXTINF:-1 tvg-id="ArenaSport2.ba" tvg-name="Arena Sport 2" tvg-logo="https://livesport.io.vn/logo/sport/a2.png" group-title="ROMANIA SPORTS",Arena Sport 2
-https://livesport.io.vn/ok/apo.php?id=are2
-#EXTINF:-1 tvg-id="ArenaSport3.ba" tvg-name="Arena Sport 3" tvg-logo="https://livesport.io.vn/logo/sport/a3.png" group-title="ROMANIA SPORTS",Arena Sport 3
-https://livesport.io.vn/ok/apo.php?id=are3
-#EXTINF:-1 tvg-id="ArenaSport4.ba" tvg-name="Arena Sport 4" tvg-logo="https://livesport.io.vn/logo/sport/a4.png" group-title="ROMANIA SPORTS",Arena Sport 4
-https://livesport.io.vn/ok/apo.php?id=are4
-#EXTINF:-1 tvg-id="ArenaSport5.hr" tvg-name="Arena Sport 5" tvg-logo="https://livesport.io.vn/logo/sport/a5.png" group-title="ROMANIA SPORTS",Arena Sport 5
-https://livesport.io.vn/ok/apo.php?id=are5
-#EXTINF:-1 tvg-id="ArenaSport6.hr" tvg-name="Arena Sport 6" tvg-logo="https://livesport.io.vn/logo/sport/a6.png" group-title="ROMANIA SPORTS",Arena Sport 6
-https://livesport.io.vn/ok/apo.php?id=are6
-#EXTINF:-1 tvg-id="ArenaSport7.hr" tvg-name="Arena Sport 7" tvg-logo="https://livesport.io.vn/logo/sport/a7.png" group-title="ROMANIA SPORTS",Arena Sport 7
-https://livesport.io.vn/ok/apo.php?id=are7
-#EXTINF:-1 tvg-id="ArenaSport8.hr" tvg-name="Arena Sport 8" tvg-logo="https://livesport.io.vn/logo/sport/a8.png" group-title="ROMANIA SPORTS",Arena Sport 8
-https://livesport.io.vn/ok/apo.php?id=are8
 #EXTINF:-1 tvg-id="arirang" tvg-name="Arirang" tvg-logo="https://i.ytimg.com/vi/ZqVyukYe4YM/hq720.jpg" group-title="Quốc Tế",Arirang
 https://live.fptplay53.net/fnxhd1/airanghd_vhls.smil/chunklist_b5000000.m3u8
 #EXTINF:-1 tvg-id="asiafoodnetwork" tvg-name="Asia Food Network HD" tvg-logo="https://freem3u.xyz/static/images/global/afnhd.png" group-title="Quốc Tế",Asia Food Network HD
@@ -792,48 +776,6 @@ https://s7770.cdn.mytvnet.vn/pkg20/live_dzones/bbclifestyle.smil/manifest.mpd
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=c7ba46086dda345a929e29bf155e459c:d374b8f39904bf572689ea347ae86591
 https://s7771.cdn.mytvnet.vn/pkg20/live_dzones/bbcworldnews.smil/manifest.mpd
-#EXTINF:-1 tvg-id="beines" tvg-name="BEIN ES" tvg-logo="https://livesport.io.vn/logo/sport/bxtraes.png" group-title="US SPORTS",BEIN ES
-https://livesport.io.vn/ok/vip1.php?id=beines
-#EXTINF:-1 tvg-id="beinsport1" tvg-name="BEIN SPORT 1" tvg-logo="https://livesport.io.vn/logo/sport/be1.png" group-title="UAE SPORTS",BEIN SPORT 1
-https://livesport.io.vn/ok/live.php?id=b1
-#EXTINF:-1 tvg-id="beinsport2" tvg-name="BEIN SPORT 2" tvg-logo="https://livesport.io.vn/logo/sport/be2.png" group-title="UAE SPORTS",BEIN SPORT 2
-https://livesport.io.vn/ok/live.php?id=b2
-#EXTINF:-1 tvg-id="beinsport3" tvg-name="BEIN SPORT 3" tvg-logo="https://livesport.io.vn/logo/sport/be3.png" group-title="UAE SPORTS",BEIN SPORT 3
-https://livesport.io.vn/ok/live.php?id=b3
-#EXTINF:-1 tvg-id="beINSports1.qa" tvg-name="beIN Sports 1" tvg-logo="https://livesport.io.vn/logo/sport/befr1.png" group-title="FRANCE SPORTS",beIN Sports 1
-https://livesport.io.vn/ok/stalkvip.php?id=be1fr
-#EXTINF:-1 tvg-id="beinsports10max" tvg-name="BEIN SPORTS 10 MAX" tvg-logo="https://livesport.io.vn/logo/sport/m10.png" group-title="FRANCE SPORTS",BEIN SPORTS 10 MAX
-https://livesport.io.vn/ok/stalkvip.php?id=be10fr
-#EXTINF:-1 tvg-id="beINSports2.qa" tvg-name="beIN Sports 2" tvg-logo="https://livesport.io.vn/logo/sport/befr2.png" group-title="FRANCE SPORTS",beIN Sports 2
-https://livesport.io.vn/ok/stalkvip.php?id=be2fr
-#EXTINF:-1 tvg-id="beINSports3.qa" tvg-name="beIN Sports 3" tvg-logo="https://livesport.io.vn/logo/sport/befr3.png" group-title="FRANCE SPORTS",beIN Sports 3
-https://livesport.io.vn/ok/stalkvip.php?id=be3fr
-#EXTINF:-1 tvg-id="beinsports4max" tvg-name="BEIN SPORTS 4 MAX" tvg-logo="https://livesport.io.vn/logo/sport/m4.png" group-title="FRANCE SPORTS",BEIN SPORTS 4 MAX
-https://livesport.io.vn/ok/stalkvip.php?id=be4fr
-#EXTINF:-1 tvg-id="beinsports5max" tvg-name="BEIN SPORTS 5 MAX" tvg-logo="https://livesport.io.vn/logo/sport/m5.png" group-title="FRANCE SPORTS",BEIN SPORTS 5 MAX
-https://livesport.io.vn/ok/stalkvip.php?id=be5fr
-#EXTINF:-1 tvg-id="beinsports6max" tvg-name="BEIN SPORTS 6 MAX" tvg-logo="https://livesport.io.vn/logo/sport/m6.png" group-title="FRANCE SPORTS",BEIN SPORTS 6 MAX
-https://livesport.io.vn/ok/stalkvip.php?id=be6fr
-#EXTINF:-1 tvg-id="beinsports7max" tvg-name="BEIN SPORTS 7 MAX" tvg-logo="https://livesport.io.vn/logo/sport/m7.png" group-title="FRANCE SPORTS",BEIN SPORTS 7 MAX
-https://livesport.io.vn/ok/stalkvip.php?id=be7fr
-#EXTINF:-1 tvg-id="beinsports8max" tvg-name="BEIN SPORTS 8 MAX" tvg-logo="https://livesport.io.vn/logo/sport/m8.png" group-title="FRANCE SPORTS",BEIN SPORTS 8 MAX
-https://livesport.io.vn/ok/stalkvip.php?id=be8fr
-#EXTINF:-1 tvg-id="beinsports9max" tvg-name="BEIN SPORTS 9 MAX" tvg-logo="https://livesport.io.vn/logo/sport/m9.png" group-title="FRANCE SPORTS",BEIN SPORTS 9 MAX
-https://livesport.io.vn/ok/stalkvip.php?id=be9fr
-#EXTINF:-1 tvg-id="beinus" tvg-name="BEIN US" tvg-logo="https://livesport.io.vn/logo/sport/bxtra.png" group-title="US SPORTS",BEIN US
-https://livesport.io.vn/ok/vip1.php?id=beinus
-#EXTINF:-1 tvg-id="beinsport4" tvg-name="BEINSPORT 4" tvg-logo="https://livesport.io.vn/logo/sport/be4.png" group-title="UAE SPORTS",BEINSPORT 4
-https://livesport.io.vn/ok/live.php?id=b4
-#EXTINF:-1 tvg-id="beinsport5" tvg-name="BEINSPORT 5" tvg-logo="https://livesport.io.vn/logo/sport/be5.png" group-title="UAE SPORTS",BEINSPORT 5
-https://livesport.io.vn/ok/live.php?id=b5
-#EXTINF:-1 tvg-id="beinsport6" tvg-name="BEINSPORT 6" tvg-logo="https://livesport.io.vn/logo/sport/be6.png" group-title="UAE SPORTS",BEINSPORT 6
-https://livesport.io.vn/ok/live.php?id=b6
-#EXTINF:-1 tvg-id="beinsport7" tvg-name="BEINSPORT 7" tvg-logo="https://livesport.io.vn/logo/sport/be7.png" group-title="UAE SPORTS",BEINSPORT 7
-https://livesport.io.vn/ok/live.php?id=b7
-#EXTINF:-1 tvg-id="beinsport8" tvg-name="BEINSPORT 8" tvg-logo="https://livesport.io.vn/logo/sport/be8.png" group-title="UAE SPORTS",BEINSPORT 8
-https://livesport.io.vn/ok/live.php?id=b8
-#EXTINF:-1 tvg-id="beinsport9" tvg-name="BEINSPORT 9" tvg-logo="https://livesport.io.vn/logo/sport/be9.png" group-title="UAE SPORTS",BEINSPORT 9
-https://livesport.io.vn/ok/live.php?id=b9
 #EXTINF:-1 tvg-id="bloomberg" tvg-name="Bloomberg" tvg-logo="https://i.imgur.com/rxFZgIK.png" group-title="Quốc Tế",Bloomberg
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 #KODIPROP:inputstream.adaptive.manifest_type=mpd
@@ -970,8 +912,6 @@ https://s2129134.cdn.mytvnet.vn/pkg20/live_dzones/cn.smil/manifest.mpd
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=b1f0d759e914369db388b3b0dc815971:5678d317e17007a88a9b9539e4526512
 https://s2129134.cdn.mytvnet.vn/pkg20/live_dzones/boomerang.smil/manifest.mpd
-#EXTINF:-1 tvg-id="cbssportnetwork" tvg-name="CBS SPORT NETWORK" tvg-logo="https://livesport.io.vn/logo/seriea.png" group-title="LIVE FOOTBALL",CBS SPORT NETWORK
-https://livesport.io.vn/ok/vip1.php?id=cbssn
 #EXTINF:-1 tvg-id="CGTN.cn" tvg-name="CGTN" tvg-logo="https://i.ytimg.com/vi/twB_6GV5AM8/hq720.jpg" group-title="Quốc Tế",CGTN
 https://english-livebkali.cgtn.com/live/encgtn_0.m3u8
 #EXTINF:-1 tvg-id="CGTNDocumentary.cn" tvg-name="CGTN Documentary" tvg-logo="https://i.ytimg.com/vi/QbB9p0LDAyE/maxresdefault.jpg" group-title="Quốc Tế",CGTN Documentary
@@ -1005,32 +945,6 @@ https://s7771.cdn.mytvnet.vn/pkg20/live_dzones/cnn.smil/manifest.mpd
 #EXTINF:-1 tvg-id="DaVinci.de" tvg-name="Da Vinci" tvg-logo="https://images.fptplay53.net/media/channels/icon_channel_da-vinci-learning_165655659384.png" group-title="Quốc Tế",Da Vinci
 #EXTVLCOPT:http-user-agent=VThanhTivi
 https://live.fptplay53.net/fnxhd2/davincihd_vhls.smil/chunklist_b5000000.m3u8
-#EXTINF:-1 tvg-id="DAZN1.uk" tvg-name="DAZN 1" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-eleven-sports-1-pt-1500.png" group-title="PORTUGAL SPORTS",DAZN 1
-https://livesport.io.vn/ok/apo.php?id=ele11
-#EXTINF:-1 tvg-id="DAZN2.uk" tvg-name="DAZN 2" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-eleven-sports-2-pt-1501.png" group-title="PORTUGAL SPORTS",DAZN 2
-https://livesport.io.vn/ok/apo.php?id=ele2
-#EXTINF:-1 tvg-id="DAZN3.uk" tvg-name="DAZN 3" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-eleven-sports-3-pt-1502.png" group-title="PORTUGAL SPORTS",DAZN 3
-https://livesport.io.vn/ok/apo.php?id=ele3
-#EXTINF:-1 tvg-id="DAZN4.uk" tvg-name="DAZN 4" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-eleven-sports-4-pt-1557.png" group-title="PORTUGAL SPORTS",DAZN 4
-https://livesport.io.vn/ok/smart.php?id=ele4
-#EXTINF:-1 tvg-id="DAZN5.uk" tvg-name="DAZN 5" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-eleven-sports-5-pt-1558.png" group-title="PORTUGAL SPORTS",DAZN 5
-https://livesport.io.vn/ok/apo.php?id=ele5
-#EXTINF:-1 tvg-id="DigiSport1.hu" tvg-name="Digi Sport 1" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-ro-digi-sport-1-880.png" group-title="ROMANIA SPORTS",Digi Sport 1
-#EXTVLCOPT:http-referrer=https://canale-tv.net/
-#EXTVLCOPT:http-origin=https://canale-tv.net/
-https://kudos111.terranovax1.cfd/kuk1/usergendx472snx93kdgwqrnd.m3u8
-#EXTINF:-1 tvg-id="DigiSport2.hu" tvg-name="Digi Sport 2" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-ro-digi-sport-2-881.png" group-title="ROMANIA SPORTS",Digi Sport 2
-#EXTVLCOPT:http-referrer=https://canale-tv.net/
-#EXTVLCOPT:http-origin=https://canale-tv.net/
-https://kudos111.terranovax1.cfd/kuk2/usergendx0ul2J8tsDx9lgcddwqrnd.m3u8
-#EXTINF:-1 tvg-id="DigiSport3.hu" tvg-name="Digi Sport 3" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-ro-digi-sport-3-882.png" group-title="ROMANIA SPORTS",Digi Sport 3
-#EXTVLCOPT:http-referrer=https://canale-tv.net/
-#EXTVLCOPT:http-origin=https://canale-tv.net/
-https://pulse1.zalmora1.cfd/kuk3/usergendxt1v8klq6rnd.m3u8
-#EXTINF:-1 tvg-id="DigiSport4.ro" tvg-name="Digi Sport 4" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-ro-digi-sport-4-883.png" group-title="ROMANIA SPORTS",Digi Sport 4
-#EXTVLCOPT:http-referrer=https://canale-tv.net/
-#EXTVLCOPT:http-origin=https://canale-tv.net/
-https://pulse1.zalmora1.cfd/kuk4/usergendlg1ks0t2n.m3u8
 #EXTINF:-1 tvg-id="Discovery.de" tvg-name="Discovery" tvg-logo="https://s72140.cdn.mytvnet.vn/vimages/c7/7f/fc/c6/69/9b/c7fc6-pdiscoveryhd-channel-unkn.png" group-title="Quốc Tế",Discovery
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 #KODIPROP:inputstream.adaptive.manifest_type=mpd
@@ -1073,16 +987,6 @@ https://otte.live.fly.ww.aiv-cdn.net/pdx-nitro/live/clients/dash/enc/3b7qwiqzk3/
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=1f64a24b3950468497390155c4880000:68f788aced6c4ecb89108f22fe9ee087
 https://shoebinfo.qzz.io/plugx21/hot.php/STAR-SPORTS-1-SELECT-HD.mpd
-#EXTINF:-1 tvg-id="ESPN.au" tvg-name="ESPN" tvg-logo="https://livesport.io.vn/logo/sport/espn.png" group-title="US SPORTS",ESPN
-https://livesport.io.vn/ok/vip1.php?id=espn
-#EXTINF:-1 tvg-id="ESPNDeportes.us" tvg-name="ESPN Deportes" tvg-logo="https://livesport.io.vn/logo/laliga.png" group-title="LIVE FOOTBALL",ESPN Deportes
-https://livesport.io.vn/ok/vip1.php?id=espndeport
-#EXTINF:-1 tvg-id="espnnews" tvg-name="ESPN NEWS" tvg-logo="https://livesport.io.vn/logo/sport/espnews.png" group-title="US SPORTS",ESPN NEWS
-https://livesport.io.vn/ok/vip1.php?id=espnews
-#EXTINF:-1 tvg-id="ESPN2.au" tvg-name="ESPN2" tvg-logo="https://livesport.io.vn/logo/sport/espn2.png" group-title="US SPORTS",ESPN2
-https://livesport.io.vn/ok/vip1.php?id=espn2
-#EXTINF:-1 tvg-id="ESPNU.us" tvg-name="ESPNU" tvg-logo="https://livesport.io.vn/logo/sport/espnu.png" group-title="US SPORTS",ESPNU
-https://livesport.io.vn/ok/vip1.php?id=espnu
 #EXTINF:-1 tvg-id="Eurosport1.fr" tvg-name="Eurosport 1" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/3/37/Eurosport1hd.png" group-title="⚽| Thể thao quốc tế",Eurosport 1
 http://line.watchtivo-8k.com:80/play/live.php?mac=00:1A:79:3F:0C:96&stream=933004&extension=ts&play_token=jtuDUMdLno
 #EXTINF:-1 tvg-id="Eurosport2.fr" tvg-name="Eurosport 2" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/d/d5/Eurosport2hd.png" group-title="⚽| Thể thao quốc tế",Eurosport 2
@@ -1099,14 +1003,6 @@ http://line.watchtivo-8k.com:80/play/live.php?mac=00:1A:79:3F:0C:96&stream=10846
 #EXTINF:-1 tvg-id="ChannelFive.ge" tvg-name="Channel Five" tvg-logo="https://freem3u.xyz/static/images/global/tv5monde.png" group-title="Quốc Tế",Channel Five
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://liveh12.vtvprime.vn/hls/TV5/index.m3u8
-#EXTINF:-1 tvg-id="FoxDeportes.us" tvg-name="Fox Deportes" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-fox-deportes-62.png" group-title="US SPORTS",Fox Deportes
-https://livesport.io.vn/ok/smart.php?id=fsdeport
-#EXTINF:-1 tvg-id="FoxSoccerPlus.us" tvg-name="Fox Soccer Plus" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-fox-soccer-plus-56.png" group-title="US SPORTS",Fox Soccer Plus
-https://livesport.io.vn/ok/smart.php?id=fsplus
-#EXTINF:-1 tvg-id="FoxSports1.cl" tvg-name="Fox Sports 1" tvg-logo="https://livesport.io.vn/logo/sport/fs1.png" group-title="US SPORTS",Fox Sports 1
-https://livesport.io.vn/ok/vip1.php?id=fs1
-#EXTINF:-1 tvg-id="FoxSports2.ar" tvg-name="Fox Sports 2" tvg-logo="https://livesport.io.vn/logo/sport/fs2.png" group-title="US SPORTS",Fox Sports 2
-https://livesport.io.vn/ok/vip1.php?id=fs2
 #EXTINF:-1 tvg-id="France24.fr" tvg-name="France 24" tvg-logo="https://m.media-amazon.com/images/I/81oryzEMf-L.png" group-title="Quốc Tế",France 24
 https://live.france24.com/hls/live/2037218/F24_EN_HI_HLS/master_5000.m3u8
 #EXTINF:-1 tvg-id="HBO.br" tvg-name="HBO" tvg-logo="https://i.pinimg.com/originals/8b/02/00/8b020050690f955ccb306cdf51324aea.png" group-title="Quốc Tế",HBO
@@ -1163,18 +1059,6 @@ https://vnno-mb-2-tf-multi-playlist-zmp3.zmdcdn.me/KOY-wvc-pKE/zhls/playback-rea
 https://cdn3.skygo.mn/live/disk1/NHK_World_Premium/HLSv3-FTA/NHK_World_Premium.m3u8
 #EXTINF:-1 tvg-id="NHKWorldJapan.jp" tvg-name="NHK World-Japan" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/Logo/refs/heads/main/nhkworld.png" group-title="Quốc Tế",NHK World-Japan
 https://live.fptplay53.net/fnxhd2/nhkworld_vhls.smil/chunklist_b5000000.m3u8
-#EXTINF:-1 tvg-id="NovaSport1.cz" tvg-name="Nova Sport 1" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-nova-sport-1-563.png" group-title="CZECH SPORTS",Nova Sport 1
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=dash
-#KODIPROP:inputstream.adaptive.license_type=clearkey
-#KODIPROP:inputstream.adaptive.license_key=https://livesport.io.vn/ok/xxx.xml
-https://dash2.antik.sk/stream/nvidia_nova_sport1/playlist_cenc.mpd
-#EXTINF:-1 tvg-id="NovaSport2.cz" tvg-name="Nova Sport 2" tvg-logo="https://dash2.antik.sk/stream/nvidia_nova_sport3/playlist_cenc.mpd" group-title="CZECH SPORTS",Nova Sport 2
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=dash
-#KODIPROP:inputstream.adaptive.license_type=clearkey
-#KODIPROP:inputstream.adaptive.license_key=https://livesport.io.vn/ok/xxx.xml
-https://dash2.antik.sk/stream/nvidia_nova_sport2/playlist_cenc.mpd
 #EXTINF:-1 tvg-id="OutdoorChannel.us" tvg-name="Outdoor Channel" tvg-logo="https://images.fptplay53.net/media/channels/icon_channel_outdoor-channel_165649323545.png" group-title="Quốc Tế",Outdoor Channel
 #EXTVLCOPT:http-user-agent=VThanhTivi
 https://live.fptplay53.net/epzhd2/outdoorfhd_vhls.smil/chunklist_b5000000.m3u8
@@ -1184,29 +1068,6 @@ http://line.watchtivo-8k.com:80/play/live.php?mac=00:1A:79:3F:0C:96&stream=17291
 http://line.watchtivo-8k.com:80/play/live.php?mac=00:1A:79:3F:0C:96&stream=1729164&extension=ts&play_token=vFbihF9Rmr
 #EXTINF:-1 tvg-id="PolsatSport3.pl" tvg-name="Polsat Sport 3" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Polsat_Sport_3_2024.svg/250px-Polsat_Sport_3_2024.svg.png" group-title="⚽| Thể thao quốc tế",Polsat Sport 3
 http://line.watchtivo-8k.com:80/play/live.php?mac=00:1A:79:3F:0C:96&stream=1729168&extension=ts&play_token=ThvjYQPppG
-#EXTINF:-1 tvg-id="PremierSports1.ie" tvg-name="Premier Sports 1" tvg-logo="https://livesport.io.vn/logo/laliga.png" group-title="LIVE FOOTBALL",Premier Sports 1
-https://livesport.io.vn/ok/stalkvip.php?id=pre1
-#EXTINF:-1 tvg-id="premiersports1b" tvg-name="PREMIER SPORTS 1B" tvg-logo="https://livesport.io.vn/logo/laliga.png" group-title="LIVE FOOTBALL",PREMIER SPORTS 1B
-https://livesport.io.vn/ok/vip1.php?id=pre1
-#EXTINF:-1 tvg-id="PremierSports2.ie" tvg-name="Premier Sports 2" tvg-logo="https://livesport.io.vn/logo/laliga.png" group-title="LIVE FOOTBALL",Premier Sports 2
-https://livesport.io.vn/ok/stalkvip.php?id=pre2
-#EXTINF:-1 tvg-id="premiersports2b" tvg-name="PREMIER SPORTS 2B" tvg-logo="https://livesport.io.vn/logo/laliga.png" group-title="LIVE FOOTBALL",PREMIER SPORTS 2B
-https://livesport.io.vn/ok/vip1.php?id=pre2
-#EXTINF:-1 tvg-id="PrimaSport1.ro" tvg-name="Prima Sport 1" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-prima-sport-1-2769.png" group-title="ROMANIA SPORTS",Prima Sport 1
-#EXTVLCOPT:http-referrer=https://saruman1.tharen1.cfd/000/
-https://saruman1.tharen1.cfd/puk1/usergenrx0cir27aq.m3u8
-#EXTINF:-1 tvg-id="PrimaSport2.ro" tvg-name="Prima Sport 2" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-prima-sport-2-2770.png" group-title="ROMANIA SPORTS",Prima Sport 2
-#EXTVLCOPT:http-referrer=https://arwen1.panaka1.cfd/000/
-https://arwen1.panaka1.cfd/puk2/usergenrnd0clv03fyt.m3u8
-#EXTINF:-1 tvg-id="PrimaSport3.ro" tvg-name="Prima Sport 3" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-prima-sport-3-2771.png" group-title="ROMANIA SPORTS",Prima Sport 3
-#EXTVLCOPT:http-referrer=https://iron1.jarvisx1.cfd/000/
-https://iron1.jarvisx1.cfd/puk3/usergenrx4t0l8sybkr.m3u8
-#EXTINF:-1 tvg-id="PrimaSport4.ro" tvg-name="Prima Sport 4" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-prima-sport-4-2772.png" group-title="ROMANIA SPORTS",Prima Sport 4
-#EXTVLCOPT:http-referrer=https://canale-tv.com/
-https://galandriel1.thobias11.cfd/puk4/usergendx42x9qrnd.m3u8
-#EXTINF:-1 tvg-id="PrimaSport5.ro" tvg-name="Prima Sport 5" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-prima-tv-2761.png" group-title="ROMANIA SPORTS",Prima Sport 5
-#EXTVLCOPT:http-referrer=https://canale-tv.com/
-https://galandriel1.thobias11.cfd/puk5/usergen0grnd3y8.m3u8
 #EXTINF:-1 tvg-id="qpvn" tvg-name="QPVN" tvg-logo="https://i.ytimg.com/vi/sFLUmdwp0Z8/maxresdefault.jpg" group-title="🌐| Thiết yếu",QPVN
 https://live.fptplay53.net/fnxhd2/quocphongvnhd_vhls.smil/chunklist_b5000000.m3u8
 #EXTINF:-1 tvg-id="radiodj" tvg-name="Radio DJ" tvg-logo="https://proxy.zeno.fm/content/stations/agxzfnplbm8tc3RhdHNyMgsSCkF1dGhDbGllbnQYgICQ2ciKiAoMCxIOU3RhdGlvblByb2ZpbGUYgIDQidjS_wkMogEEemVubw/image/" group-title="📻| Radio",Radio DJ
@@ -1215,90 +1076,10 @@ https://stream.zeno.fm/ehbutdfccm0uv
 https://stream.zeno.fm/a2dbs2tq1p8uv
 #EXTINF:-1 tvg-id="radiophatgiao" tvg-name="Radio Phật Giáo" tvg-logo="https://proxy.zeno.fm/content/stations/agxzfnplbm8tc3RhdHNyMgsSCkF1dGhDbGllbnQYgICQ2ciKiAoMCxIOU3RhdGlvblByb2ZpbGUYgIDQiavcsgsMogEEemVubw/image/" group-title="📻| Radio",Radio Phật Giáo
 https://stream.zeno.fm/8456uy0bcm0uv
-#EXTINF:-1 tvg-id="sky7nz" tvg-name="SKY 7 NZ" tvg-logo="https://livesport.io.vn/logo/epl.png" group-title="LIVE FOOTBALL",SKY 7 NZ
-https://livesport.io.vn/ok/stalkvip.php?id=sky7nz
-#EXTINF:-1 tvg-id="sky8nz" tvg-name="SKY 8 NZ" tvg-logo="https://livesport.io.vn/logo/epl.png" group-title="LIVE FOOTBALL",SKY 8 NZ
-https://livesport.io.vn/ok/stalkvip.php?id=sky8nz
-#EXTINF:-1 tvg-id="skyepl" tvg-name="SKY EPL" tvg-logo="https://livesport.io.vn/logo/epl.png" group-title="LIVE FOOTBALL",SKY EPL
-https://livesport.io.vn/ok/vip1.php?id=skyepl
-#EXTINF:-1 tvg-id="skymainevent" tvg-name="SKY MAIN EVENT" tvg-logo="https://livesport.io.vn/logo/epl.png" group-title="LIVE FOOTBALL",SKY MAIN EVENT
-https://livesport.io.vn/ok/stalkvip.php?id=skymain
-#EXTINF:-1 tvg-id="SkySportBundesliga1.de" tvg-name="Sky Sport Bundesliga 1" tvg-logo="https://livesport.io.vn/logo/bun.png" group-title="LIVE FOOTBALL",Sky Sport Bundesliga 1
-https://livesport.io.vn/ok/apo.php?id=bun1
 #EXTINF:-1 tvg-id="SkySportF1.de" tvg-name="Sky Sport F1" tvg-logo="https://r2.thesportsdb.com/images/media/channel/logo/p5csyn1620551587.png" group-title="THỂ THAO QUỐC TẾ",Sky Sport F1
 http://line.watchtivo-8k.com:80/play/live.php?mac=00:1A:79:3F:0C:96&stream=1149423&extension=ts&play_token=1jkVQWGCqc
 #EXTINF:-1 tvg-id="SkySportTennis.de" tvg-name="Sky Sport Tennis" tvg-logo="https://e0.365dm.com/24/01/2048x1152/skysports-sky-sports-tennis_6437040.jpg" group-title="THỂ THAO QUỐC TẾ",Sky Sport Tennis
 http://line.watchtivo-8k.com:80/play/live.php?mac=00:1A:79:3F:0C:96&stream=1149433&extension=ts&play_token=Y1kv3yxPS8
-#EXTINF:-1 tvg-id="SkySports1.mx" tvg-name="Sky Sports 1" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-nz-sky-sport-1-458.png" group-title="NEWZEALAND SPORTS",Sky Sports 1
-https://livesport.io.vn/ok/smart.php?id=sky1
-#EXTINF:-1 tvg-id="SkySports2.mx" tvg-name="Sky Sports 2" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-nz-sky-sport-2-459.png" group-title="NEWZEALAND SPORTS",Sky Sports 2
-https://livesport.io.vn/ok/smart.php?id=sky2
-#EXTINF:-1 tvg-id="SkySports3.mx" tvg-name="Sky Sports 3" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-nz-sky-sport-3-460.png" group-title="NEWZEALAND SPORTS",Sky Sports 3
-https://livesport.io.vn/ok/smart.php?id=sky3
-#EXTINF:-1 tvg-id="skysports4" tvg-name="SKY SPORTS 4" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-sky-sport-4-461.png" group-title="NEWZEALAND SPORTS",SKY SPORTS 4
-https://livesport.io.vn/ok/smart.php?id=sky4
-#EXTINF:-1 tvg-id="skysports5" tvg-name="SKY SPORTS 5" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-sky-sport-5-nz-1823.png" group-title="NEWZEALAND SPORTS",SKY SPORTS 5
-https://livesport.io.vn/ok/smart.php?id=sky5
-#EXTINF:-1 tvg-id="SkySports6.mx" tvg-name="Sky Sports 6" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-sky-sport-6-nz-1824.png" group-title="NEWZEALAND SPORTS",Sky Sports 6
-https://livesport.io.vn/ok/smart.php?id=sky6
-#EXTINF:-1 tvg-id="skysports7" tvg-name="SKY SPORTS 7" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-sky-sport-7-nz-1825.png" group-title="NEWZEALAND SPORTS",SKY SPORTS 7
-https://livesport.io.vn/ok/smart.php?id=sky7
-#EXTINF:-1 tvg-id="SkySports8.mx" tvg-name="Sky Sports 8" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-sky-sport-8-nz-1826.png" group-title="NEWZEALAND SPORTS",Sky Sports 8
-https://livesport.io.vn/ok/smart.php?id=sky8
-#EXTINF:-1 tvg-id="SkySports9.mx" tvg-name="Sky Sports 9" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-sky-sport-9-nz-1827.png" group-title="NEWZEALAND SPORTS",Sky Sports 9
-https://livesport.io.vn/ok/smart.php?id=sky9
-#EXTINF:-1 tvg-id="skysportsepl" tvg-name="SKY SPORTS EPL" tvg-logo="https://livesport.io.vn/logo/sport/sepl.png" group-title="UK SPORTS",SKY SPORTS EPL
-https://livesport.io.vn/ok/vip1.php?id=skyepl
-#EXTINF:-1 tvg-id="SkySportsF1.ie" tvg-name="Sky Sports F1" tvg-logo="https://livesport.io.vn/logo/sport/sf1.png" group-title="UK SPORTS",Sky Sports F1
-https://livesport.io.vn/ok/vip1.php?id=skyf1
-#EXTINF:-1 tvg-id="SkySportsFootball.ie" tvg-name="Sky Sports Football" tvg-logo="https://livesport.io.vn/logo/sport/sfoot.png" group-title="UK SPORTS",Sky Sports Football
-https://livesport.io.vn/ok/vip1.php?id=skyfoot
-#EXTINF:-1 tvg-id="SkySportsGolf.ie" tvg-name="Sky Sports Golf" tvg-logo="https://livesport.io.vn/logo/sport/sgolf.png" group-title="UK SPORTS",Sky Sports Golf
-https://livesport.io.vn/ok/vip1.php?id=skygolf
-#EXTINF:-1 tvg-id="SkySportsMainEvent.ie" tvg-name="Sky Sports Main Event" tvg-logo="https://livesport.io.vn/logo/sport/smain.png" group-title="UK SPORTS",Sky Sports Main Event
-https://livesport.io.vn/ok/vip1.php?id=skymain
-#EXTINF:-1 tvg-id="SkySportsMix.uk" tvg-name="Sky Sports Mix" tvg-logo="https://livesport.io.vn/logo/sport/smix.png" group-title="UK SPORTS",Sky Sports Mix
-https://livesport.io.vn/ok/vip1.php?id=skymix
-#EXTINF:-1 tvg-id="SkySportsNews.ie" tvg-name="Sky Sports News" tvg-logo="https://livesport.io.vn/logo/sport/snews.png" group-title="UK SPORTS",Sky Sports News
-https://livesport.io.vn/ok/vip1.php?id=skynews
-#EXTINF:-1 tvg-id="SkySportsNFL.uk" tvg-name="Sky Sports NFL" tvg-logo="https://livesport.io.vn/logo/sport/saction.png" group-title="UK SPORTS",Sky Sports NFL
-https://livesport.io.vn/ok/stalkvip.php?id=skyaction
-#EXTINF:-1 tvg-id="SportTV1.pt" tvg-name="Sport TV1" tvg-logo="https://livesport.io.vn/logo/sport/spo1.png" group-title="PORTUGAL SPORTS",Sport TV1
-https://livesport.io.vn/ok/apo.php?id=spo1
-#EXTINF:-1 tvg-id="SportTV2.pt" tvg-name="Sport TV2" tvg-logo="https://livesport.io.vn/logo/sport/spo2.png" group-title="PORTUGAL SPORTS",Sport TV2
-https://livesport.io.vn/ok/apo.php?id=spo2
-#EXTINF:-1 tvg-id="SportTV3.pt" tvg-name="Sport TV3" tvg-logo="https://livesport.io.vn/logo/sport/spo3.png" group-title="PORTUGAL SPORTS",Sport TV3
-https://livesport.io.vn/ok/apo.php?id=spo3
-#EXTINF:-1 tvg-id="SportTV4.pt" tvg-name="Sport TV4" tvg-logo="https://livesport.io.vn/logo/sport/spo4.png" group-title="PORTUGAL SPORTS",Sport TV4
-https://livesport.io.vn/ok/apo.php?id=spo4
-#EXTINF:-1 tvg-id="SportTV5.pt" tvg-name="Sport TV5" tvg-logo="https://livesport.io.vn/logo/sport/spo5.png" group-title="PORTUGAL SPORTS",Sport TV5
-https://livesport.io.vn/ok/apo.php?id=spo5
-#EXTINF:-1 tvg-id="Sport1.cz" tvg-name="Sport1" tvg-logo="https://livesport.io.vn/logo/sport/novas1.png" group-title="CZECH SPORTS",Sport1
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=dash
-#KODIPROP:inputstream.adaptive.license_type=clearkey
-#KODIPROP:inputstream.adaptive.license_key=https://livesport.io.vn/ok/xxx.xml
-https://dash2.antik.sk/stream/nvidia_sport_1/playlist_cenc.mpd
-#EXTINF:-1 tvg-id="Sport2.cz" tvg-name="Sport2" tvg-logo="https://livesport.io.vn/logo/sport/novas2.png" group-title="CZECH SPORTS",Sport2
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=dash
-#KODIPROP:inputstream.adaptive.license_type=clearkey
-#KODIPROP:inputstream.adaptive.license_key=https://livesport.io.vn/ok/xxx.xml
-https://dash2.antik.sk/stream/nvidia_sport2/playlist_cenc.mpd
-#EXTINF:-1 tvg-id="Sportsnet360.ca" tvg-name="Sportsnet 360" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-sportsnet-360-201.png" group-title="CANADA SPORTS",Sportsnet 360
-https://livesport.io.vn/ok/vip1.php?id=sn360
-#EXTINF:-1 tvg-id="sportsneteast" tvg-name="SPORTSNET EAST" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-sportsnet-east-197.png" group-title="CANADA SPORTS",SPORTSNET EAST
-https://livesport.io.vn/ok/vip1.php?id=sne
-#EXTINF:-1 tvg-id="SportsnetOne.ca" tvg-name="Sportsnet One" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-sportsnet-one-200.png" group-title="CANADA SPORTS",Sportsnet One
-https://livesport.io.vn/ok/vip1.php?id=sn1
-#EXTINF:-1 tvg-id="sportsnetontario" tvg-name="SPORTSNET ONTARIO" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-sportsnet-ontario-203.png" group-title="CANADA SPORTS",SPORTSNET ONTARIO
-https://livesport.io.vn/ok/vip1.php?id=sno
-#EXTINF:-1 tvg-id="sportsnetpacific" tvg-name="SPORTSNET PACIFIC" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-sportsnet-pacific-198.png" group-title="CANADA SPORTS",SPORTSNET PACIFIC
-https://livesport.io.vn/ok/vip1.php?id=snp
-#EXTINF:-1 tvg-id="sportsnetwest" tvg-name="SPORTSNET WEST" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-sportsnet-west-199.png" group-title="CANADA SPORTS",SPORTSNET WEST
-https://livesport.io.vn/ok/vip1.php?id=snwe
-#EXTINF:-1 tvg-id="SportsnetWorld.ca" tvg-name="Sportsnet World" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-sportsnet-world-202.png" group-title="CANADA SPORTS",Sportsnet World
-https://livesport.io.vn/ok/vip1.php?id=snw
 #EXTINF:-1 tvg-id="sukien1" tvg-name="Sự Kiện 1" tvg-logo="https://images.fptplay53.net/media/home_event/OTT_ECS/2026/09/02/omega-european-masters-2026---slide-thumb_1788330223078.jpg" group-title="Sự Kiện FPT PLAY",Sự Kiện 1
 https://vips-livecdn.fptplay.net/live/media/su-kien-01/hls_avc_v6/index.m3u8
 #EXTINF:-1 tvg-id="sukien8" tvg-name="Sự Kiện 8" tvg-logo="https://images.fptplay53.net/media/home_event/OTT_ECS/2026/09/03/03_1788373649460.jpg" group-title="Sự Kiện FPT PLAY",Sự Kiện 8
@@ -1387,36 +1168,18 @@ https://livevlisctcdnw.seenow.vn/livesnv2/ONSPORT8/manifest.mpd
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=https://tv.vietanhtv.top/sex/key.php?id=a7c942778e874d43be92b8d0a0cd11b4:6d54358306571658ffdb952c6560688b
 https://livevlisctcdnw.seenow.vn/livesnv2/ONSPORT9/manifest.mpd
-#EXTINF:-1 tvg-id="SuperSport1.al" tvg-name="SuperSport 1" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-super-sport-1-691.png" group-title="ALBANIA SPORTS",SuperSport 1
-https://livesport.io.vn/ok/stalkvip.php?id=ss1
-#EXTINF:-1 tvg-id="SuperSport2.al" tvg-name="SuperSport 2" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-super-sport-2-692.png" group-title="ALBANIA SPORTS",SuperSport 2
-https://livesport.io.vn/ok/stalkvip.php?id=ss2
-#EXTINF:-1 tvg-id="SuperSport3.al" tvg-name="SuperSport 3" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-super-sport-3-693.png" group-title="ALBANIA SPORTS",SuperSport 3
-https://livesport.io.vn/ok/stalkvip.php?id=ss3
-#EXTINF:-1 tvg-id="SuperSport4.al" tvg-name="SuperSport 4" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-super-sport-4-694.png" group-title="ALBANIA SPORTS",SuperSport 4
-https://livesport.io.vn/ok/stalkvip.php?id=ss4
-#EXTINF:-1 tvg-id="SuperSport5.al" tvg-name="SuperSport 5" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-super-sport-5-695.png" group-title="ALBANIA SPORTS",SuperSport 5
-https://livesport.io.vn/ok/stalkvip.php?id=ss5
 #EXTINF:-1 tvg-id="TelevisionLocaleduCholetais.fr" tvg-name="Television Locale du Choletais" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/TLC_Logo.svg/1280px-TLC_Logo.svg.png" group-title="Quốc Tế",Television Locale du Choletais
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 #KODIPROP:inputstream.adaptive.manifest_type=mpd
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=b6908629732639ada4814a6208296d9c:7ca9bf03623f77b5e2f16df0b53f274d
 https://s129135.cdn.mytvnet.vn/pkg20/live_dzones/tlc.smil/manifest.mpd
-#EXTINF:-1 tvg-id="TNTSports1.uk" tvg-name="TNT Sports 1" tvg-logo="https://livesport.io.vn/logo/sport/tn1.png" group-title="UK SPORTS",TNT Sports 1
-https://livesport.io.vn/ok/vip1.php?id=tnt1
 #EXTINF:-1 tvg-id="tntsports14mbpsfor4g" tvg-name="TNT Sports 1 4Mbps for 4G" tvg-logo="https://media.info/l/o/1/1539.1690027797.png" group-title="THỂ THAO QUỐC TẾ",TNT Sports 1 4Mbps for 4G
 http://line.watchtivo-8k.com:80/play/live.php?mac=00:1A:79:3F:0C:96&stream=894977&extension=ts&play_token=W2HvDO5iES
-#EXTINF:-1 tvg-id="TNTSports2.br" tvg-name="TNT Sports 2" tvg-logo="https://livesport.io.vn/logo/sport/tn2.png" group-title="UK SPORTS",TNT Sports 2
-https://livesport.io.vn/ok/vip1.php?id=tnt2
 #EXTINF:-1 tvg-id="tntsports24mbpsfor4g" tvg-name="TNT Sports 2 4Mbps for 4G" tvg-logo="https://media.info/l/o/1/1540.1690027877.png" group-title="THỂ THAO QUỐC TẾ",TNT Sports 2 4Mbps for 4G
 http://line.watchtivo-8k.com:80/play/live.php?mac=00:1A:79:3F:0C:96&stream=1091517&extension=ts&play_token=zKzxFKTNmb
-#EXTINF:-1 tvg-id="TNTSports3.br" tvg-name="TNT Sports 3" tvg-logo="https://livesport.io.vn/logo/sport/tn3.png" group-title="UK SPORTS",TNT Sports 3
-https://livesport.io.vn/ok/vip1.php?id=tnt3
 #EXTINF:-1 tvg-id="tntsports34mbpsfor4g" tvg-name="TNT Sports 3 4Mbps for 4G" tvg-logo="https://media.info/l/o/5/5712.1690027954.png" group-title="THỂ THAO QUỐC TẾ",TNT Sports 3 4Mbps for 4G
 http://line.watchtivo-8k.com:80/play/live.php?mac=00:1A:79:3F:0C:96&stream=894979&extension=ts&play_token=RLLwKaJKqY
-#EXTINF:-1 tvg-id="TNTSports4.br" tvg-name="TNT Sports 4" tvg-logo="https://livesport.io.vn/logo/sport/tn4.png" group-title="UK SPORTS",TNT Sports 4
-https://livesport.io.vn/ok/vip1.php?id=tnt4
 #EXTINF:-1 tvg-id="tntsports44mbpsfor4g" tvg-name="TNT Sports 4 4Mbps for 4G" tvg-logo="https://media.info/l/o/1/1491.1690027975.png" group-title="THỂ THAO QUỐC TẾ",TNT Sports 4 4Mbps for 4G
 http://line.watchtivo-8k.com:80/play/live.php?mac=00:1A:79:3F:0C:96&stream=894980&extension=ts&play_token=4ofwEIdTU4
 #EXTINF:-1 tvg-id="travelliving" tvg-name="Travel Living Channel" tvg-logo="https://freem3u.xyz/static/images/global/tlc.png" group-title="Quốc Tế",Travel Living Channel
@@ -1425,26 +1188,8 @@ http://line.watchtivo-8k.com:80/play/live.php?mac=00:1A:79:3F:0C:96&stream=89498
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=b6908629732639ada4814a6208296d9c:7ca9bf03623f77b5e2f16df0b53f274d
 https://s129135.cdn.mytvnet.vn/pkg20/live_dzones/tlc.smil/manifest.mpd
-#EXTINF:-1 tvg-id="TringSport1.al" tvg-name="Tring Sport 1" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-tring-sport-1-686.png" group-title="ALBANIA SPORTS",Tring Sport 1
-https://livesport.io.vn/ok/stalkvip.php?id=tr1
-#EXTINF:-1 tvg-id="TringSport2.al" tvg-name="Tring Sport 2" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-tring-sport-2-687.png" group-title="ALBANIA SPORTS",Tring Sport 2
-https://livesport.io.vn/ok/stalkvip.php?id=tr2
-#EXTINF:-1 tvg-id="TringSport3.al" tvg-name="Tring Sport 3" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-tring-sport-3-688.png" group-title="ALBANIA SPORTS",Tring Sport 3
-https://livesport.io.vn/ok/stalkvip.php?id=tr3
-#EXTINF:-1 tvg-id="TringSport4.al" tvg-name="Tring Sport 4" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-tring-sport-4-689.png" group-title="ALBANIA SPORTS",Tring Sport 4
-https://livesport.io.vn/ok/stalkvip.php?id=tr4
 #EXTINF:-1 tvg-id="TRTWorld.tr" tvg-name="TRT World" tvg-logo="https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/425e1955860511.59ae62ac642ba.png" group-title="Quốc Tế",TRT World
 https://tv-trtworld.medya.trt.com.tr/master_1080.m3u8
-#EXTINF:-1 tvg-id="TSN1.ca" tvg-name="TSN1" tvg-logo="https://livesport.io.vn/logo/sport/tsn1.png" group-title="CANADA SPORTS",TSN1
-https://livesport.io.vn/ok/vip1.php?id=tsn1
-#EXTINF:-1 tvg-id="TSN2.ca" tvg-name="TSN2" tvg-logo="https://livesport.io.vn/logo/sport/tsn2.png" group-title="CANADA SPORTS",TSN2
-https://livesport.io.vn/ok/vip1.php?id=tsn2
-#EXTINF:-1 tvg-id="TSN3.ca" tvg-name="TSN3" tvg-logo="https://livesport.io.vn/logo/sport/tsn3.png" group-title="CANADA SPORTS",TSN3
-https://livesport.io.vn/ok/vip1.php?id=tsn3
-#EXTINF:-1 tvg-id="TSN4.ca" tvg-name="TSN4" tvg-logo="https://livesport.io.vn/logo/sport/tsn4.png" group-title="CANADA SPORTS",TSN4
-https://livesport.io.vn/ok/vip1.php?id=tsn4
-#EXTINF:-1 tvg-id="TSN5.ca" tvg-name="TSN5" tvg-logo="https://livesport.io.vn/logo/sport/tsn5.png" group-title="CANADA SPORTS",TSN5
-https://livesport.io.vn/ok/vip1.php?id=tsn5
 #EXTINF:-1 tvg-id="tv3601" tvg-name="TV360+1" tvg-logo="https://img-zlr1.tv360.vn/image1/2026/04/15/22/1776266760359/ba1ca843cd06_480_270.png" group-title="Sự Kiện TV360",TV360+1
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 #KODIPROP:inputstream.adaptive.manifest_type=mpd
@@ -1536,19 +1281,9 @@ https://freem3u.xyz/api/live/play.m3u8?vid=9852
 https://amg01868-amg01868c3-tvbanywhere-us-4491.playouts.now.amagi.tv/playlist1080p.m3u8
 #EXTINF:-1 tvg-id="tycsportargentina" tvg-name="Tyc Sport Argentina" tvg-logo="https://television.com.ar/wp-content/uploads/2024/01/276279.jpg" group-title="⚽| Thể thao quốc tế",Tyc Sport Argentina
 http://line.ciao-ott.net:80/play/live.php?mac=00:1A:79:C8:7B:30&stream=1090606&extension=ts&play_token=UU20nTSWow
-#EXTINF:-1 tvg-id="unite8sport1" tvg-name="UNITE8 SPORT 1" tvg-logo="https://livesport.io.vn/logo/seriea.png" group-title="LIVE FOOTBALL",UNITE8 SPORT 1
-https://livesport.io.vn/ok/stalkvip.php?id=uni1
-#EXTINF:-1 tvg-id="unite8sport1b" tvg-name="UNITE8 SPORT 1B" tvg-logo="https://livesport.io.vn/logo/seriea.png" group-title="LIVE FOOTBALL",UNITE8 SPORT 1B
-https://livesport.io.vn/ok/vip1.php?id=uni1
-#EXTINF:-1 tvg-id="unite8sport2" tvg-name="UNITE8 SPORT 2" tvg-logo="https://livesport.io.vn/logo/bun.png" group-title="LIVE FOOTBALL",UNITE8 SPORT 2
-https://livesport.io.vn/ok/stalkvip.php?id=uni2
-#EXTINF:-1 tvg-id="unite8sport2b" tvg-name="UNITE8 SPORT 2B" tvg-logo="https://livesport.io.vn/logo/bun.png" group-title="LIVE FOOTBALL",UNITE8 SPORT 2B
-https://livesport.io.vn/ok/vip1.php?id=uni2
-#EXTINF:-1 tvg-id="update03360409" tvg-name="UPDATE 03:36⏱04/09" tvg-logo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5oGX8rfISQE2e82j_6uBF0mvjnvwYDhWOCApBQWQ3tQ&amp;s=10" group-title="UPDATE 03:36⏱04/09",UPDATE 03:36⏱04/09
+#EXTINF:-1 tvg-id="update04010409" tvg-name="UPDATE 04:01⏱04/09" tvg-logo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5oGX8rfISQE2e82j_6uBF0mvjnvwYDhWOCApBQWQ3tQ&amp;s=10" group-title="UPDATE 04:01⏱04/09",UPDATE 04:01⏱04/09
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://tv.vietanhtv.top/1.mp4
-#EXTINF:-1 tvg-id="USANetwork.us" tvg-name="USA Network" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-usa-network-74.png" group-title="US SPORTS",USA Network
-https://livesport.io.vn/ok/vip1.php?id=usa
 #EXTINF:-1 tvg-id="vovenglish247" tvg-name="VOV ENGLISH 24/7" tvg-logo="https://i.imgur.com/OgdY02B.png" group-title="📻 VOV",VOV ENGLISH 24/7
 https://str.vov.gov.vn/vovlive/vov247vov5English.sdp_aac/playlist.m3u8
 #EXTINF:-1 tvg-id="vovgiaothongduyenhai" tvg-name="VOV GIAO THÔNG DUYÊN HẢI" tvg-logo="https://i.postimg.cc/t43J2yhN/Duyenhai.png" group-title="📻 VOV",VOV GIAO THÔNG DUYÊN HẢI
