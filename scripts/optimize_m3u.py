@@ -1,22 +1,31 @@
 #!/usr/bin/env python3
 """
-M3U Optimizer v2 - entry point. Chay tu repo root:
+M3U Optimizer v3 - entry point. Chay tu repo root:
 
     python3 scripts/optimize_m3u.py
 
-Kien truc va thu tu buoc tuan thu dung guidelines.txt:
+Xem DESIGN_PHILOSOPHY.md o repo root de biet day du triet ly thiet ke va
+ly do cac quyet dinh quan trong (dac biet: TAI SAO BO HEALTHCHECK, TAI SAO
+BO PRIMARY/BACKUP).
 
-    SOURCE GROUP TITLE (trusted)
-          -> CANONICAL GROUP NORMALIZATION
-          -> OTT-STYLE CONTENT CLASSIFICATION (secondary)
-          -> CHANNEL IDENTITY / NAME NORMALIZATION
-          -> STREAM HEALTH + PRIMARY/BACKUP
+Thu tu xu ly:
+
+    FETCH (gia lap OTT app that, retry)
+      -> HARD FILTER (nguoi lon/ca do/info-card/VOD-tap le)
+      -> CHANNEL IDENTITY / NAME NORMALIZATION
+      -> GROUPING (source group-title trusted -> guard dia phuong ->
+         tvg-id brand fallback -> OTT content classifier)
+      -> DEDUP STREAM (khong healthcheck, khong primary/backup)
+      -> LOGO (source priority, iptv-org fallback)
+      -> GHI OUTPUT + QUALITY GATE + build_stats.json
 """
 
 import os
 import re
 import sys
+import time
 import urllib.request
+import urllib.error
 
 # Cho phep `import m3u` khi script duoc chay tu repo root bang duong dan
 # tuong doi "scripts/optimize_m3u.py" (repo root chua nam san trong sys.path).
@@ -28,8 +37,7 @@ from m3u import config
 from m3u.channel_registry import ChannelRegistry
 from m3u.grouping import GroupResolver
 from m3u.parser import parse_source
-from m3u.normalize import clean_display_name, remove_accents, identity_key
-from m3u.healthcheck import healthcheck_candidates
+from m3u.normalize import clean_display_name, remove_accents, identity_key, group_match_key
 from m3u.logo import choose_logo
 from m3u.iptvorg import load_iptvorg_logo_fallback
 from m3u.epg import fetch_and_validate_epg
@@ -37,9 +45,28 @@ from m3u.quality_gate import validate_output
 from m3u.stats import write_build_stats
 
 
-def fetch_source_text(url, timeout=20):
-    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-    return urllib.request.urlopen(req, timeout=timeout).read().decode("utf-8-sig", errors="replace")
+def fetch_source_text(url):
+    """Gia lap 1 trinh OTT app THAT (User-Agent Android + retry + timeout
+    dai hon) thay vi 1 request trinh duyet don gian - tranh timeout/bi tu
+    choi nhu truong hop nguon EaSport truoc day. Retry voi backoff tang
+    dan neu that bai (mang chap chon, CDN cham...)."""
+    last_error = None
+    for attempt in range(1, config.FETCH_RETRIES + 1):
+        try:
+            req = urllib.request.Request(url, headers={
+                "User-Agent": config.FETCH_USER_AGENT,
+                "Accept": "*/*",
+                "Connection": "keep-alive",
+            })
+            return urllib.request.urlopen(req, timeout=config.FETCH_TIMEOUT) \
+                .read().decode("utf-8-sig", errors="replace")
+        except Exception as e:
+            last_error = e
+            if attempt < config.FETCH_RETRIES:
+                print(f"    (lan {attempt}/{config.FETCH_RETRIES} that bai: {e}, "
+                      f"thu lai sau {config.FETCH_RETRY_BACKOFF}s...)")
+                time.sleep(config.FETCH_RETRY_BACKOFF)
+    raise last_error
 
 
 def is_blocked_entry(clean_name, tvg_id, url):
@@ -49,6 +76,16 @@ def is_blocked_entry(clean_name, tvg_id, url):
     if any(domain in url for domain in config.BLOCKED_DOMAINS):
         return True
     return False
+
+
+def is_blocked_stream_brand_group(group_raw):
+    """Chan theo TEN THUONG HIEU web lau bong da/ca do CU THE da biet (vd
+    "Socolive"), KHAC voi is_blocked_entry() la chan theo tu khoa CHUNG.
+    Day la danh sach thuong hieu RIENG BIET, khong phai tu chung chung nen
+    khong vi pham nguyen tac loc bao thu (khong loai "sport"/"live" chung
+    chung, chi loai dung 1 thuong hieu cu the da xac minh)."""
+    key = group_match_key(group_raw)
+    return any(brand in key for brand in config.BLOCKED_STREAM_BRAND_GROUPS)
 
 
 # Dau hieu VOD/phim bo-tap le RO RANG (co tag cu the). Khop theo TU DA
@@ -66,10 +103,6 @@ _VOD_EPISODE_RE = re.compile(
 )
 
 # Dau hieu "day la 1 CHANNEL" (bundle/thuong hieu da biet, hau to kenh...).
-# Neu mot muc KHONG co tvg-id VA KHONG khop bat ky dau hieu nao o day, kha
-# nang cao day la 1 TUA PHIM RIENG LE bi lan vao danh sach (muc 14 - vi du
-# thuc te: "Tử Chiến Trên Không" khong co tvg-id, khong co tag tap/nam/
-# vietsub, nhung ro rang la 1 phim le chu khong phai kenh).
 _CHANNEL_LIKE_RE = re.compile(
     r'\b(kenh|channel|tv|box|cine|360|htvc|sctv|vtv|htv|rap chieu|'
     r'phim tong hop|onsports|oncine)\b'
@@ -84,14 +117,11 @@ def is_vod_episode_entry(raw_name, tvg_id="", group_raw=""):
 
     2 dieu kien (bat ky dieu kien nao dung deu bi loai):
       1. Co tag ro rang (Tap/Phan/Episode/nam phat hanh/Vietsub/Thuyet
-         minh) - AP DUNG CHO MOI NGUON, vi day la dau hieu manh, khong phu
-         thuoc ngu canh nhom.
+         minh) - AP DUNG CHO MOI NGUON.
       2. Group-title GOC cua nguon goi y day la 1 bucket PHIM (vd "Rạp
          Phim") VA muc nay KHONG co tvg-id VA ten KHONG khop dau hieu "la 1
-         channel" nao. CHI ap dung dieu kien nay khi group goi y "phim", de
-         tranh bat nham cac kenh khong lien quan (vd kenh dia phuong nhu
-         "Sơn La", "Cần Thơ 1" cung thuong khong co tvg-id nhung KHONG nam
-         trong bucket phim nao ca).
+         channel" nao. CHI ap dung khi group goi y "phim", tranh bat nham
+         kenh dia phuong khong co tvg-id (vd "Sơn La", "Cần Thơ 1").
     """
     name_l = remove_accents(raw_name)
     if _VOD_EPISODE_RE.search(name_l):
@@ -107,10 +137,8 @@ def is_vod_episode_entry(raw_name, tvg_id="", group_raw=""):
 
 
 # Cac muc "info/tu quang cao" cua chinh nha cung cap nguon (vd TinhLaGi co
-# cac "kenh" nhu "Địa Chỉ IP Của Bạn", "Cập Nhật", "Chào Khách Lạ..." tro
-# thang toi 1 FILE ANH TINH (logo.jpg) thay vi 1 stream that. Loc theo dung
-# dau hieu nay (duoi file anh), KHONG can doan tu khoa - vung chac hon va
-# tu dong bat duoc ca cac nguon khac lam tuong tu trong tuong lai.
+# cac "kenh" nhu "Địa Chỉ IP Của Bạn", "Cập Nhật"... tro thang toi 1 FILE
+# ANH TINH thay vi 1 stream that.
 _IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".svg")
 
 
@@ -120,9 +148,8 @@ def is_non_stream_url(url):
 
 
 def extract_quality_score(raw_name, url):
-    """Diem chat luong dung lam TIE-BREAKER phu (muc 15: source priority
-    quan trong hon resolution theo mac dinh). Lay so lon nhat tim duoc
-    trong ten goc/URL khop voi cac muc do phan giai pho bien."""
+    """Diem chat luong dung lam TIE-BREAKER phu khi sap xep thu tu URL
+    thay the (source priority quan trong hon resolution theo mac dinh)."""
     haystack = f"{raw_name} {url}".lower()
     best = 0
     for token, score in (("2160", 2160), ("4k", 2160), ("1440", 1440),
@@ -137,7 +164,6 @@ def main():
     resolver = GroupResolver()
 
     canonical_channels = {}   # canonical_id -> {id, name, tvg_id, groups:set, candidates:[]}
-    unique_urls = {}          # url -> {"tags":..., "is_kodiprop":...}
     source_item_counts = {}
     source_errors = {}
     filtered_counts = {}      # ly do -> so luong
@@ -145,11 +171,12 @@ def main():
     print("=== Dang tai va phan tich cac nguon ===")
     for idx, source in enumerate(config.SOURCES):
         name = source["name"]
+        print(f"[{name}] dang tai ({source['url']})...")
         try:
             text = fetch_source_text(source["url"])
             raw_entries = parse_source(source["format"], text)
         except Exception as e:
-            print(f"[{name}] Loi tai/parse nguon: {e}")
+            print(f"[{name}] LOI TAI/PARSE sau {config.FETCH_RETRIES} lan thu: {e}")
             source_errors[name] = str(e)
             source_item_counts[name] = 0
             continue
@@ -168,23 +195,25 @@ def main():
                 )
                 continue
 
-            # --- KENH INFO/TU QUANG CAO cua nha cung cap nguon (URL tro
-            # toi 1 file anh tinh thay vi stream that, vd "logo.jpg"). ---
+            if is_blocked_stream_brand_group(entry["group_raw"]):
+                filtered_counts["blocked_stream_brand_group"] = (
+                    filtered_counts.get("blocked_stream_brand_group", 0) + 1
+                )
+                continue
+
             if is_non_stream_url(entry["url"]):
                 filtered_counts["non_stream_url_filtered"] = (
                     filtered_counts.get("non_stream_url_filtered", 0) + 1
                 )
                 continue
 
-            # --- VOD/PHIM BO-TAP LE (muc 14): chi giu CHANNEL PHIM tuyen
-            # tinh, loai bo cac muc thuc chat la 1 tap/bo/tua phim rieng le. ---
             if is_vod_episode_entry(entry["raw_name"], entry["tvg_id"], entry["group_raw"]):
                 filtered_counts["vod_episode_filtered"] = (
                     filtered_counts.get("vod_episode_filtered", 0) + 1
                 )
                 continue
 
-            # --- CHANNEL IDENTITY (muc 5) ---
+            # --- CHANNEL IDENTITY ---
             reg_id, reg_name, extra_groups = registry.resolve(
                 clean_name, entry["tvg_id"], entry["tvg_name"]
             )
@@ -195,7 +224,7 @@ def main():
                 canonical_name = clean_name
                 extra_groups = []
 
-            # --- GROUPING (muc 6, 7, 9) ---
+            # --- GROUPING ---
             if registry.is_special_whitelisted(canonical_id):
                 primary_group = config.SPECIAL_GROUP
             else:
@@ -208,8 +237,7 @@ def main():
             groups_for_entry = {primary_group}
             for g in extra_groups:
                 # An toan tuyet doi: KHONG channel nao khac ANTV/QPVN duoc
-                # phep lot vao SPECIAL_GROUP (muc 9), du channels.yaml co
-                # khai bao sai.
+                # phep lot vao SPECIAL_GROUP, du channels.yaml co khai bao sai.
                 if g == config.SPECIAL_GROUP and canonical_id not in config.SPECIAL_GROUP_WHITELIST:
                     continue
                 groups_for_entry.add(g)
@@ -225,40 +253,26 @@ def main():
                 channel["tvg_id"] = entry["tvg_id"]
             channel["groups"] |= groups_for_entry
 
-            candidate = {
+            channel["candidates"].append({
                 "url": entry["url"],
                 "tags": entry["tags"],
-                "is_kodiprop": entry["is_kodiprop"],
                 "logo": entry["logo"],
                 "source_priority": idx,
                 "source_name": name,
                 "quality_score": extract_quality_score(entry["raw_name"], entry["url"]),
-            }
-            channel["candidates"].append(candidate)
-
-            unique_urls.setdefault(entry["url"], {
-                "tags": entry["tags"],
-                "is_kodiprop": entry["is_kodiprop"],
             })
 
-    print(f"=== Tong {len(canonical_channels)} kenh canonical, "
-          f"{len(unique_urls)} URL duy nhat can healthcheck ===")
+    print(f"=== Tong {len(canonical_channels)} kenh canonical ===")
 
-    # --- STREAM HEALTH (muc 16, 17) ---
-    print("Dang healthcheck (GET/Range, song song)...")
-    health_results = healthcheck_candidates(unique_urls)
-    healthy_count = sum(1 for v in health_results.values() if v == "healthy")
-    dead_count = sum(1 for v in health_results.values() if v == "dead")
-    skipped_count = sum(1 for v in health_results.values() if v == "skipped")
-    print(f"  healthy={healthy_count} dead={dead_count} kodiprop_skipped={skipped_count}")
-
-    # --- LOGO FALLBACK (muc 18) ---
+    # --- LOGO FALLBACK (source priority truoc, iptv-org fallback cuoi) ---
     iptvorg_logos = load_iptvorg_logo_fallback()
 
-    # --- CHON STREAM (muc 15) + LOGO (muc 18) cho tung kenh canonical ---
-    primary_count = 0
-    backup_count = 0
+    # --- DEDUP STREAM (KHONG healthcheck, KHONG primary/backup - xem
+    # DESIGN_PHILOSOPHY.md). Chi loai URL trung nhau, sap theo source
+    # priority + quality lam tie-breaker, giu toi da ALT_STREAM_SOFT_CAP
+    # ban thay the de chong phinh to bat thuong. ---
     khac_channel_list = []
+    total_alt_streams = 0
 
     for cid, channel in canonical_channels.items():
         seen_urls = set()
@@ -267,18 +281,11 @@ def main():
             if c["url"] in seen_urls:
                 continue
             seen_urls.add(c["url"])
-            status = health_results.get(c["url"], "dead")
-            if status in ("healthy", "skipped"):
-                deduped.append(c)
+            deduped.append(c)
 
         deduped.sort(key=lambda c: (c["source_priority"], -c["quality_score"]))
-        selected = deduped[: config.MAX_STREAMS_PER_CHANNEL]
-        channel["selected_streams"] = selected
-
-        if selected:
-            primary_count += 1
-        if len(selected) > 1:
-            backup_count += 1
+        channel["streams"] = deduped[: config.ALT_STREAM_SOFT_CAP]
+        total_alt_streams += len(channel["streams"])
 
         logo_candidates = [c["logo"] for c in
                             sorted(channel["candidates"], key=lambda c: c["source_priority"])]
@@ -290,13 +297,13 @@ def main():
                 "sources": sorted({c["source_name"] for c in channel["candidates"]}),
             })
 
-    # --- GHI OUTPUT (muc 19) - ghi ra buffer truoc, chi flush neu qua
-    # duoc quality gate (muc 20). ---
+    # --- GHI OUTPUT - ghi ra buffer truoc, chi flush neu qua duoc quality
+    # gate. ---
     group_to_channels = {g: [] for g in config.FINAL_GROUP_ORDER}
     special_ids_used = set()
 
     for cid, channel in canonical_channels.items():
-        if not channel.get("selected_streams"):
+        if not channel.get("streams"):
             continue
         for g in channel["groups"]:
             if g not in group_to_channels:
@@ -320,10 +327,12 @@ def main():
         for channel in channels_in_group:
             id_attr = f' tvg-id="{channel["tvg_id"]}"' if channel["tvg_id"] else ""
             logo_attr = f' tvg-logo="{channel["logo"]}"' if channel.get("logo") else ""
-            for i, stream in enumerate(channel["selected_streams"]):
-                label = channel["name"] if i == 0 else f'{channel["name"]} [Dự phòng]'
+            # KHONG con nhan "[Dự phòng]" - moi stream duoc ghi voi CUNG 1
+            # ten kenh (quy uoc M3U pho bien: player tu chuyen doi giua cac
+            # ban ghi trung ten khi 1 nguon bi loi).
+            for stream in channel["streams"]:
                 lines.append(
-                    f'#EXTINF:-1{id_attr}{logo_attr} group-title="{group}",{label}'
+                    f'#EXTINF:-1{id_attr}{logo_attr} group-title="{group}",{channel["name"]}'
                 )
                 for tag in stream["tags"]:
                     lines.append(tag)
@@ -334,7 +343,7 @@ def main():
 
     ok, gate_reasons = validate_output(
         output_text,
-        channel_count=sum(1 for c in canonical_channels.values() if c.get("selected_streams")),
+        channel_count=sum(1 for c in canonical_channels.values() if c.get("streams")),
         groups_used=set(group_to_channels.keys()),
         special_group_channel_ids=special_ids_used,
     )
@@ -357,14 +366,9 @@ def main():
         "filtered_counts": filtered_counts,
         "canonical_channel_count": len(canonical_channels),
         "channel_count_with_stream": sum(
-            1 for c in canonical_channels.values() if c.get("selected_streams")
+            1 for c in canonical_channels.values() if c.get("streams")
         ),
-        "unique_urls_checked": len(unique_urls),
-        "healthy_count": healthy_count,
-        "dead_count": dead_count,
-        "kodiprop_skipped_count": skipped_count,
-        "primary_count": primary_count,
-        "backup_count": backup_count,
+        "total_alt_streams": total_alt_streams,
         "channels_per_group": {g: len(v) for g, v in group_to_channels.items()},
         "khac_channel_list": khac_channel_list,
         "epg_status": epg_status,
