@@ -8,25 +8,22 @@ on:
   workflow_dispatch:
 
   schedule:
-    # Chạy mỗi 1 giờ
     - cron: "17 * * * *"
 
-permissions:
-  contents: write
 
 concurrency:
   group: m3u-update
   cancel-in-progress: true
 
 
+permissions:
+  contents: write
+
+
 jobs:
 
-  # ==========================================================
-  # BUILD PLAYLIST
-  # ==========================================================
+  update-list:
 
-  build:
-    name: Build and publish M3U
     runs-on: ubuntu-latest
 
     steps:
@@ -35,10 +32,9 @@ jobs:
       # Checkout main repository
       # ------------------------------------------------------
 
-      - name: Checkout main repository
+      - name: Checkout source repository
         uses: actions/checkout@v6
-        with:
-          fetch-depth: 1
+
 
       # ------------------------------------------------------
       # Python
@@ -51,8 +47,22 @@ jobs:
           cache: pip
           cache-dependency-path: m3u/requirements.txt
 
+
       # ------------------------------------------------------
-      # Dependencies
+      # Cache iptv-org metadata
+      # ------------------------------------------------------
+
+      - name: Cache IPTV metadata
+        uses: actions/cache@v4
+        with:
+          path: .cache/iptv
+          key: iptv-meta-${{ runner.os }}-${{ hashFiles('m3u/channel_aliases.yml') }}
+          restore-keys: |
+            iptv-meta-${{ runner.os }}-
+
+
+      # ------------------------------------------------------
+      # Install
       # ------------------------------------------------------
 
       - name: Install dependencies
@@ -60,89 +70,47 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r m3u/requirements.txt
 
+
       # ------------------------------------------------------
       # Build
       # ------------------------------------------------------
 
-      - name: Build M3U
+      - name: Build optimized M3U
         env:
           PYTHONPATH: .
-          PYTHONUNBUFFERED: "1"
+          META_CACHE_TTL: "86400"
+          MIN_CHANNELS: "100"
+          MIN_RATIO: "0.70"
         run: |
           python scripts/optimize_m3u.py
 
+
       # ------------------------------------------------------
-      # Validate result
+      # Copy only fallback into main repo
       # ------------------------------------------------------
 
-      - name: Validate playlist
-        shell: bash
+      - name: Update fallback playlist
         run: |
-          set -e
-
-          if [ ! -s listtivi.m3u ]; then
-            echo "ERROR: listtivi.m3u is empty."
-            exit 1
-          fi
-
-          if ! grep -q '^#EXTM3U' listtivi.m3u; then
-            echo "ERROR: Invalid M3U header."
-            exit 1
-          fi
-
-          CHANNEL_COUNT=$(grep -c '^#EXTINF' listtivi.m3u || true)
-
-          echo "======================================"
-          echo "Generated channels: $CHANNEL_COUNT"
-          echo "======================================"
-
-          # Không publish nếu playlist tụt quá thấp.
-          #
-          # Điều chỉnh con số này nếu cần.
-          MIN_CHANNELS=100
-
-          if [ "$CHANNEL_COUNT" -lt "$MIN_CHANNELS" ]; then
-            echo "ERROR: Channel count below safety limit."
-            echo "Refusing to publish."
-            exit 1
-          fi
-
-      # ------------------------------------------------------
-      # Check whether there is an existing backup
-      # ------------------------------------------------------
-
-      - name: Prepare main fallback
-        shell: bash
-        run: |
-          set -e
-
           mkdir -p m3u
-
-          # Backup/fallback của playlist.
-          #
-          # Chỉ file này được phép commit vào main.
           cp listtivi.m3u m3u/listtivi.m3u
 
+
       # ------------------------------------------------------
-      # Commit fallback to main repository
+      # Commit fallback only
       # ------------------------------------------------------
 
-      - name: Update main fallback
-        shell: bash
+      - name: Commit fallback playlist
         run: |
-          set -e
-
-          git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
 
           git add m3u/listtivi.m3u
 
-          if git diff --cached --quiet; then
-            echo "Fallback playlist has no changes."
-          else
-            git commit -m "Update M3U fallback playlist"
-            git push
-          fi
+          git diff --cached --quiet || \
+            git commit -m "Auto update fallback M3U"
+
+          git push || true
+
 
       # ------------------------------------------------------
       # Checkout GitHub Pages repository
@@ -154,102 +122,45 @@ jobs:
           repository: vhd0/vhd0.github.io
           token: ${{ secrets.PAGES_DEPLOY_TOKEN }}
           path: pages-repo
-          fetch-depth: 1
+
 
       # ------------------------------------------------------
-      # Backup current Pages playlist
+      # Copy playlist
       # ------------------------------------------------------
 
-      - name: Backup current Pages playlist
-        shell: bash
+      - name: Copy final playlist to Pages
         run: |
-          set -e
-
-          mkdir -p /tmp/pages-backup
-
-          if [ -f pages-repo/IPTV/listtivi.m3u ]; then
-            cp \
-              pages-repo/IPTV/listtivi.m3u \
-              /tmp/pages-backup/listtivi.m3u
-
-            echo "Existing Pages playlist backed up."
-          else
-            echo "No existing Pages playlist."
-          fi
-
-      # ------------------------------------------------------
-      # Install new playlist
-      # ------------------------------------------------------
-
-      - name: Copy new playlist
-        shell: bash
-        run: |
-          set -e
-
           mkdir -p pages-repo/IPTV
+          cp listtivi.m3u pages-repo/IPTV/listtivi.m3u
 
-          cp \
-            listtivi.m3u \
-            pages-repo/IPTV/listtivi.m3u
-
-      # ------------------------------------------------------
-      # Final validation inside Pages repository
-      # ------------------------------------------------------
-
-      - name: Validate Pages playlist
-        shell: bash
-        working-directory: pages-repo
-        run: |
-          set -e
-
-          test -s IPTV/listtivi.m3u
-
-          grep -q '^#EXTM3U' IPTV/listtivi.m3u
-
-          CHANNEL_COUNT=$(grep -c '^#EXTINF' IPTV/listtivi.m3u || true)
-
-          echo "Pages channels: $CHANNEL_COUNT"
-
-          if [ "$CHANNEL_COUNT" -lt 100 ]; then
-            echo "ERROR: Pages playlist validation failed."
-            exit 1
-          fi
 
       # ------------------------------------------------------
       # Commit and push Pages
       # ------------------------------------------------------
 
       - name: Commit and push Pages repository
-        shell: bash
         working-directory: pages-repo
         run: |
-          set -e
-
-          git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
 
           git add IPTV/listtivi.m3u
 
           if git diff --cached --quiet; then
-            echo "No changes to publish."
+            echo "No playlist changes."
             exit 0
           fi
 
-          git commit \
-            -m "Auto update listtivi.m3u $(date -u '+%Y-%m-%d %H:%M UTC')"
-
+          git commit -m "Auto update listtivi.m3u"
           git push
 
+
       # ------------------------------------------------------
-      # Cleanup
+      # Cleanup generated files
       # ------------------------------------------------------
 
-      - name: Cleanup temporary files
+      - name: Cleanup
         if: always()
-        shell: bash
         run: |
-          rm -rf pages-repo
           rm -f listtivi.m3u
-          rm -f stream_report.json
-
-          echo "Temporary build files removed."
+          rm -rf pages-repo
