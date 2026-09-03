@@ -6,7 +6,7 @@ extra_groups (muc 11 MULTI-GROUP MEMBERSHIP).
 import yaml
 
 from . import config
-from .normalize import remove_accents, collapse
+from .normalize import remove_accents, collapse, normalize_tvg_id
 
 
 class ChannelRegistry:
@@ -42,8 +42,14 @@ class ChannelRegistry:
     def resolve(self, clean_name, tvg_id="", tvg_name=""):
         """Tra ve (canonical_id, canonical_name, extra_groups) neu khop
         entry da khai bao trong channels.yaml, nguoc lai tra ve
-        (None, None, [])."""
-        for candidate in (tvg_id, tvg_name, clean_name):
+        (None, None, []).
+
+        tvg_id duoc CHUAN HOA (normalize_tvg_id) truoc khi so khop, giong
+        het cach identity_key() lam - dam bao 1 kenh khop channels.yaml
+        theo dung 1 cach nhat quan bat ke nguon dat tvg-id kieu gi (vd
+        "antv" khop ca "antvhd" lan "antv.vn@hd")."""
+        candidates = (normalize_tvg_id(tvg_id), tvg_name, clean_name)
+        for candidate in candidates:
             key = collapse(remove_accents(candidate))
             if key and key in self.alias_to_canonical:
                 cid = self.alias_to_canonical[key]

@@ -56,14 +56,46 @@ def collapse(s):
     return s.replace(" ", "")
 
 
+# Hau to chat luong/domain hay bi cac nguon gan khac nhau vao CUNG 1
+# tvg-id thuc te, khien 2 bien the cua CUNG 1 kenh bi coi la khac nhau neu
+# so sanh tvg-id THO (vi du: "vtv1hd" vs "vtv1.vn@hd" deu la VTV1, nhung
+# khac nhau hoan toan neu khong chuan hoa).
+_TVG_ID_QUALITY_SUFFIX_RE = re.compile(r'(hd|fhd|uhd|4k|sd|1080p|720p)$')
+_TVG_ID_DOMAIN_SUFFIX_RE = re.compile(r'\.(vn|com|net|org|tv)$')
+
+
+def normalize_tvg_id(tvg_id):
+    """Chuan hoa tvg-id ve 1 dang DUY NHAT bat ke nguon dinh dang khac
+    nhau nhu the nao, dung lam khoa gop kenh (muc 5 CHANNEL IDENTITY).
+
+    Vi du: "vtv1hd" va "vtv1.vn@hd" deu chuan hoa ve "vtv1":
+      "vtv1.vn@hd" -> bo phan sau "@" -> "vtv1.vn"
+                    -> bo hau to domain ".vn" -> "vtv1"
+      "vtv1hd"      -> khong co "@"/domain -> bo hau to chat luong "hd" -> "vtv1"
+    """
+    if not tvg_id:
+        return ""
+    t = tvg_id.strip().lower()
+    t = t.split("@")[0]  # bo phan chat luong sau dau "@" (vd "@hd", "@sd")
+    t = _TVG_ID_DOMAIN_SUFFIX_RE.sub('', t)  # bo hau to domain (".vn", ".com"...)
+    t = _TVG_ID_QUALITY_SUFFIX_RE.sub('', t)  # bo hau to chat luong dinh lien ("hd", "fhd"...)
+    return t
+
+
 def identity_key(clean_name, tvg_id="", tvg_name=""):
     """Khoa dinh danh dung de gop cac bien the ve CUNG 1 kenh (muc 5), khi
-    chua tra duoc qua channels.yaml aliases. Uu tien tvg-id/tvg-name (it bi
-    bien dang boi hau to chat luong hon ten hien thi), fallback ve ten da
-    chuan hoa (da bo nhan ky thuat) + collapse khoang trang."""
-    for candidate in (tvg_id, tvg_name):
-        if candidate:
-            return collapse(remove_accents(candidate))
+    chua tra duoc qua channels.yaml aliases. Uu tien tvg-id da CHUAN HOA
+    (xem normalize_tvg_id), sau do tvg-name, cuoi cung moi fallback ve ten
+    da chuan hoa (da bo nhan ky thuat) + collapse khoang trang.
+
+    tvg-id LUON duoc chuan hoa truoc khi dung lam khoa, vi cac nguon khac
+    nhau dat tvg-id theo quy uoc khac nhau cho CUNG 1 kenh (vd "vtv1hd" vs
+    "vtv1.vn@hd" - neu khong chuan hoa se bi coi la 2 kenh khac nhau)."""
+    norm_tvg_id = normalize_tvg_id(tvg_id)
+    if norm_tvg_id:
+        return norm_tvg_id
+    if tvg_name:
+        return collapse(remove_accents(tvg_name))
     return collapse(remove_accents(clean_name)) or "unknown"
 
 
