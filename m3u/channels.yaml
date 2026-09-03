@@ -57,3 +57,46 @@ cinemax:
   name: "Cinemax"
   aliases: ["cinemax", "cinemaxhd"]
   extra_groups: []
+
+# ====================================================================
+# CAC KENH CO 2 KIEU TEN HOAN TOAN KHAC NHAU GIUA CAC NGUON (khong the tu
+# dong gop bang ten hay tvg-id, vi khac nhau ve tu ngu/thu tu tu, KHONG
+# phai chi khac dau/hoa-thuong). Phai khai bao THU CONG tai day. Neu phat
+# hien them truong hop tuong tu (kenh dia phuong khac), them entry theo
+# cung mau nay - xem vi du An Giang duoi day (nguon 1 dat ten "ATV1 - Báo
+# và PTTH An Giang", nguon 2 dat ten "An Giang TV1" cho CUNG 1 kenh).
+# ====================================================================
+angiang1:
+  name: "An Giang 1"
+  aliases: ["angiang1", "angiangtv1", "atv1 bao va ptth an giang", "an giang tv1"]
+  extra_groups: []
+
+angiang2:
+  name: "An Giang 2"
+  aliases: ["angiang2", "angiangtv2", "atv2 bao va ptth an giang", "an giang tv2"]
+  extra_groups: []
+
+angiang3:
+  name: "An Giang 3"
+  aliases: ["angiang3", "angiangtv3", "atv3 bao va ptth an giang", "an giang tv3"]
+  extra_groups: []
+
+cantho1:
+  name: "Cần Thơ 1"
+  aliases: ["cantho1", "canthotv", "can tho tv1", "can tho 1 bao va ptth thanh pho can tho"]
+  extra_groups: []
+
+cantho2:
+  name: "Cần Thơ 2"
+  aliases: ["cantho2", "canthotv2", "can tho tv 2", "can tho 2 bao va ptth thanh pho can tho"]
+  extra_groups: []
+
+cantho3:
+  name: "Cần Thơ 3"
+  aliases: ["cantho3", "canthotv3", "can tho tv3", "can tho 3 bao va ptth thanh pho can tho"]
+  extra_groups: []
+
+camau:
+  name: "Cà Mau"
+  aliases: ["camau", "camautv", "ctv bao va ptth ca mau", "ca mau tv"]
+  extra_groups: []

@@ -84,19 +84,29 @@ def normalize_tvg_id(tvg_id):
 
 def identity_key(clean_name, tvg_id="", tvg_name=""):
     """Khoa dinh danh dung de gop cac bien the ve CUNG 1 kenh (muc 5), khi
-    chua tra duoc qua channels.yaml aliases. Uu tien tvg-id da CHUAN HOA
-    (xem normalize_tvg_id), sau do tvg-name, cuoi cung moi fallback ve ten
-    da chuan hoa (da bo nhan ky thuat) + collapse khoang trang.
+    chua tra duoc qua channels.yaml aliases.
 
-    tvg-id LUON duoc chuan hoa truoc khi dung lam khoa, vi cac nguon khac
-    nhau dat tvg-id theo quy uoc khac nhau cho CUNG 1 kenh (vd "vtv1hd" vs
-    "vtv1.vn@hd" - neu khong chuan hoa se bi coi la 2 kenh khac nhau)."""
+    UU TIEN TEN DA CHUAN HOA (bo dau + collapse khoang trang) LAM KHOA
+    CHINH, tvg-id/tvg-name chi la DU PHONG khi ten rong. Ly do: cac nguon
+    khac nhau dat tvg-id theo QUY UOC HOAN TOAN KHAC NHAU cho CUNG 1 kenh
+    thuc te - vi du thuc te da gap: "vtv5taynambo.vn@hd" vs "vtv5hdtnb" deu
+    la VTV5 Tay Nam Bo nhung khong co quy tac chuan hoa chung nao doi
+    duoc 2 kieu nay ve giong nhau. Nguoc lai, TEN HIEN THI cho CUNG 1 kenh
+    hau nhu luon giong nhau giua cac nguon (chi khac dau/hoa-thuong/nhan ky
+    thuat - da duoc clean_display_name() + remove_accents() xu ly), nen
+    dang tin cay hon lam khoa gop kenh.
+
+    Vi du: "VTV5 Tay Nam Bo" va "VTV5 Tây Nam Bộ" (tvg-id hoan toan khac
+    nhau) deu chuan hoa ve cung 1 khoa "vtv5taynambo" nho buoc nay."""
+    name_key = collapse(remove_accents(clean_name))
+    if name_key:
+        return name_key
     norm_tvg_id = normalize_tvg_id(tvg_id)
     if norm_tvg_id:
         return norm_tvg_id
     if tvg_name:
         return collapse(remove_accents(tvg_name))
-    return collapse(remove_accents(clean_name)) or "unknown"
+    return "unknown"
 
 
 def group_match_key(s):
