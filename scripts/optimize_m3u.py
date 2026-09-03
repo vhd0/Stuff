@@ -15,7 +15,8 @@ Thu tu xu ly:
       -> CHANNEL IDENTITY / NAME NORMALIZATION
       -> GROUPING (source group-title trusted -> guard dia phuong ->
          tvg-id brand fallback -> OTT content classifier)
-      -> DEDUP STREAM (khong healthcheck, khong primary/backup)
+      -> CHON 1 URL/KENH (khong healthcheck, khong primary/backup,
+         khong con hien thi lap lai nhieu dong trung ten)
       -> LOGO (source priority, iptv-org fallback)
       -> GHI OUTPUT + QUALITY GATE + build_stats.json
 """
@@ -267,12 +268,12 @@ def main():
     # --- LOGO FALLBACK (source priority truoc, iptv-org fallback cuoi) ---
     iptvorg_logos = load_iptvorg_logo_fallback()
 
-    # --- DEDUP STREAM (KHONG healthcheck, KHONG primary/backup - xem
-    # DESIGN_PHILOSOPHY.md). Chi loai URL trung nhau, sap theo source
-    # priority + quality lam tie-breaker, giu toi da ALT_STREAM_SOFT_CAP
-    # ban thay the de chong phinh to bat thuong. ---
+    # --- CHON DUNG 1 URL/KENH (KHONG healthcheck, KHONG primary/backup,
+    # KHONG con nhieu dong trung ten - xem DESIGN_PHILOSOPHY.md). Dedup URL
+    # trung nhau, sap theo (source priority, quality) roi CHI LAY BAN GHI
+    # DAU TIEN (config.STREAMS_PER_CHANNEL = 1). ---
     khac_channel_list = []
-    total_alt_streams = 0
+    total_output_channels = 0
 
     for cid, channel in canonical_channels.items():
         seen_urls = set()
@@ -284,8 +285,9 @@ def main():
             deduped.append(c)
 
         deduped.sort(key=lambda c: (c["source_priority"], -c["quality_score"]))
-        channel["streams"] = deduped[: config.ALT_STREAM_SOFT_CAP]
-        total_alt_streams += len(channel["streams"])
+        channel["streams"] = deduped[: config.STREAMS_PER_CHANNEL]
+        if channel["streams"]:
+            total_output_channels += 1
 
         logo_candidates = [c["logo"] for c in
                             sorted(channel["candidates"], key=lambda c: c["source_priority"])]
@@ -327,17 +329,18 @@ def main():
         for channel in channels_in_group:
             id_attr = f' tvg-id="{channel["tvg_id"]}"' if channel["tvg_id"] else ""
             logo_attr = f' tvg-logo="{channel["logo"]}"' if channel.get("logo") else ""
-            # KHONG con nhan "[Dự phòng]" - moi stream duoc ghi voi CUNG 1
-            # ten kenh (quy uoc M3U pho bien: player tu chuyen doi giua cac
-            # ban ghi trung ten khi 1 nguon bi loi).
-            for stream in channel["streams"]:
-                lines.append(
-                    f'#EXTINF:-1{id_attr}{logo_attr} group-title="{group}",{channel["name"]}'
-                )
-                for tag in stream["tags"]:
-                    lines.append(tag)
-                lines.append(stream["url"])
-                total_channel_entries += 1
+            # MOI KENH CHI GHI DUNG 1 DONG #EXTINF (config.STREAMS_PER_CHANNEL
+            # = 1) - tranh 1 kenh hien thi lap lai nhieu lan trong playlist.
+            if not channel["streams"]:
+                continue
+            stream = channel["streams"][0]
+            lines.append(
+                f'#EXTINF:-1{id_attr}{logo_attr} group-title="{group}",{channel["name"]}'
+            )
+            for tag in stream["tags"]:
+                lines.append(tag)
+            lines.append(stream["url"])
+            total_channel_entries += 1
 
     output_text = "\n".join(lines) + "\n"
 
@@ -368,7 +371,7 @@ def main():
         "channel_count_with_stream": sum(
             1 for c in canonical_channels.values() if c.get("streams")
         ),
-        "total_alt_streams": total_alt_streams,
+        "total_output_channels": total_output_channels,
         "channels_per_group": {g: len(v) for g, v in group_to_channels.items()},
         "khac_channel_list": khac_channel_list,
         "epg_status": epg_status,
