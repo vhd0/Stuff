@@ -6,10 +6,9 @@ do day du):
   - BO HAN healthcheck (qua cham, khong thuc te vi nhieu CDN VN chan/tra
     ket qua sai khi bi goi tu IP GitHub Actions - xem muc "TAI SAO BO
     HEALTHCHECK" trong DESIGN_PHILOSOPHY.md).
-  - BO co che primary/backup: khong con gioi han/nhan nhan "[Dự phòng]"
-    nua, chi dedup URL trung nhau va giu toi da ALT_STREAM_SOFT_CAP ban
-    ghi thay the (chi de chong phinh to bat thuong, KHONG phai phan tang
-    chat luong).
+  - BO co che primary/backup VA bo luon danh sach nhieu URL thay the
+    hien thi trung ten: MOI KENH CHI GIU DUNG 1 URL (uu tien cao nhat) de
+    tranh 1 kenh bi hien thi lap lai nhieu lan trong playlist.
   - Them lai nguon vietanhtv (xac nhan la nguon m3u hop le, KHONG phai noi
     dung nguoi lon - ten duong dan "/sex/" chi la ngau nhien).
   - Fetch nguon "gia lap OTT app that" (header + retry) de tranh timeout
@@ -32,8 +31,8 @@ OUTPUT_M3U_PATH = "listtivi.m3u"
 # ====================================================================
 # 1. NGUON DAU VAO
 # Thu tu trong danh sach = SOURCE PRIORITY (index nho hon = uu tien cao
-# hon) dung cho: chon logo (m3u/logo.py), sap xep thu tu URL thay the
-# (ALT_STREAM_SOFT_CAP).
+# hon) dung cho: chon logo (m3u/logo.py), va chon 1 URL duy nhat/kenh
+# (m3u/config.py -> STREAMS_PER_CHANNEL).
 # ====================================================================
 SOURCES = [
     {
@@ -142,12 +141,13 @@ FETCH_RETRY_BACKOFF = 3     # giay, tang dan giua cac lan retry
 FETCH_USER_AGENT = "Dalvik/2.1.0 (Linux; U; Android 11; SM-G975F Build/RP1A.200720.012)"
 
 # ====================================================================
-# 5. STREAM - KHONG CON PRIMARY/BACKUP (xem DESIGN_PHILOSOPHY.md). Chi
-# dedup URL trung nhau, sap theo source priority, giu toi da
-# ALT_STREAM_SOFT_CAP ban de tranh phinh qua muc neu 1 kenh xuat hien o
-# qua nhieu nguon (KHONG phai phan tang chinh/phu).
+# 5. STREAM - MOI KENH CHI GIU DUNG 1 URL (khong con danh sach thay the
+# nhieu dong trung ten - da gay hien thi lap lai kenh nhieu lan trong
+# playlist). Dedup URL trung nhau, sap theo (source priority, quality)
+# roi CHI LAY 1 BAN GHI DAU TIEN. Khong con khai niem primary/backup (xem
+# DESIGN_PHILOSOPHY.md) VA khong con nhieu dong thay the nua.
 # ====================================================================
-ALT_STREAM_SOFT_CAP = 6
+STREAMS_PER_CHANNEL = 1
 
 # ====================================================================
 # 6. QUALITY GATE
