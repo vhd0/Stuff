@@ -3,26 +3,40 @@
 
 """
 IPTV M3U Optimizer
-==================
+------------------
 
-Mục tiêu:
-- Canonical mapping độc lập với iptv-org.
-- Canonicalize TRƯỚC khi dedupe.
-- Một canonical channel chỉ xuất hiện 1 lần.
-- Một channel chỉ giữ 1 stream URL.
-- Giữ nguyên playback directives:
-    #KODIPROP
-    #EXTVLCOPT
-    #EXTHTTP
-    #EXT-X-*
-    và các dòng metadata liên quan.
-- Gom group về taxonomy thống nhất.
-- Loại radio/FM/VOV toàn cục.
-- Loại UPDATE HH:MM... bằng regex.
-- Không health-check stream.
-- Logo từ nguồn ưu tiên trước; logo fallback nếu được cung cấp.
-- EPG được gom từ các nguồn.
-- Không phụ thuộc iptv-org để xác định identity.
+Nguồn M3U được fetch TRỰC TIẾP từ URL.
+Không sử dụng m3u/raw/*.m3u.
+
+Pipeline:
+
+    remote sources
+        -> fetch
+        -> parse
+        -> filter
+        -> canonical identity
+        -> deduplicate
+        -> classify group
+        -> render
+        -> m3u/listtivi.m3u
+
+Canonical mapping KHÔNG phụ thuộc iptv-org.
+
+Đặc biệt:
+    VTV1
+    VTV1 HD
+    vtv1hd
+    VTV1.vn@HD
+    VTV1 HD.vn
+    ...
+
+có thể được đưa về cùng canonical ID:
+    vtv1
+
+Sau đó mới deduplicate.
+
+Điều này rất quan trọng:
+    canonicalize BEFORE dedupe
 """
 
 from __future__ import annotations
@@ -31,25 +45,58 @@ import argparse
 import hashlib
 import re
 import sys
+import time
 import unicodedata
+
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Tuple
 
-try:
-    import yaml
-except ImportError:
-    print("ERROR: PyYAML is required.")
-    print("Install with: pip install pyyaml")
-    sys.exit(1)
+import requests
+import yaml
 
 
 # ============================================================
 # CONFIG
 # ============================================================
 
-DEFAULT_MAPPING = "m3u/canonical_channels.yml"
+DEFAULT_OUTPUT = Path("m3u/listtivi.m3u")
+DEFAULT_MAPPING = Path("m3u/canonical_channels.yml")
+
+# ------------------------------------------------------------
+# Remote M3U sources
+# ------------------------------------------------------------
+
+SOURCE_URLS = {
+    "vmttv": (
+        "https://raw.githubusercontent.com/"
+        "vuminhthanh12/vuminhthanh12/refs/heads/main/vmttv"
+    ),
+
+    "vietanhtv": (
+        "https://tv.vietanhtv.top/sex/"
+    ),
+
+    "dltivi": (
+        "https://raw.githubusercontent.com/"
+        "DinhLap96/ListTivi/refs/heads/main/ListTiVi/dltivi_v2.ndl"
+    ),
+
+    "iptv-org": (
+        "https://raw.githubusercontent.com/"
+        "iptv-org/iptv/refs/heads/master/streams/vn.m3u"
+    ),
+
+    "easport": (
+        "https://livesport.s.gy/easport"
+    ),
+}
+
+
+# ------------------------------------------------------------
+# Source priority
+# ------------------------------------------------------------
 
 SOURCE_PRIORITY = {
     "vmttv": 500,
@@ -57,98 +104,150 @@ SOURCE_PRIORITY = {
     "dltivi": 300,
     "iptv-org": 200,
     "easport": 100,
-    "unknown": 0,
 }
 
+
+# ============================================================
+# USER AGENTS
+# ============================================================
+
+# Dalvik-style Android UA requested by user.
+DALVIK_UA = (
+    "Dalvik/2.1.0 (Linux; U; Android 10; K) "
+)
+
+# Some servers accept the Dalvik UA only when basic Android/browser
+# headers are also present.
+COMMON_HEADERS = {
+    "Accept": "*/*",
+    "Connection": "keep-alive",
+    "Accept-Encoding": "gzip, deflate",
+}
+
+
+def build_headers(source: str) -> Dict[str, str]:
+    """
+    Build HTTP headers for each source.
+
+    Easport explicitly requires Dalvik.
+    For consistency and compatibility, remote M3U sources also use
+    an Android/Dalvik-like identity.
+    """
+
+    headers = dict(COMMON_HEADERS)
+
+    headers["User-Agent"] = DALVIK_UA
+
+    if source == "easport":
+        headers.update(
+            {
+                "User-Agent": DALVIK_UA,
+                "Accept": "*/*",
+                "Referer": "https://livesport.s.gy/",
+                "Origin": "https://livesport.s.gy",
+            }
+        )
+
+    return headers
+
+
+# ============================================================
+# FINAL GROUPS
+# ============================================================
 
 FINAL_GROUPS = {
     "VTV": "📺 VTV",
     "HTV": "📺 HTV",
     "SCTV": "📺 SCTV",
-    "Thiet yeu": "📡 Thiết yếu",
-    "Dia phuong": "🏠 Địa phương",
-    "VTVCab": "📺 VTVCab",
+    "THIET_YEU": "📡 Thiết yếu",
+    "DIA_PHUONG": "🏠 Địa phương",
+    "VTVCAB": "📺 VTVCab",
     "HTVC": "📺 HTVC",
-    "The thao": "🏆 Thể thao",
-    "Phim": "🎬 Phim",
-    "Thieu nhi": "👧 Thiếu nhi",
-    "Am nhac": "🎵 Âm nhạc",
-    "Tin tuc": "📰 Tin tức",
-    "Quoc te": "🌍 Quốc tế",
-    "Khac": "📦 Khác",
+    "THE_THAO": "🏆 Thể thao",
+    "PHIM": "🎬 Phim",
+    "THIEU_NHI": "👧 Thiếu nhi",
+    "AM_NHAC": "🎵 Âm nhạc",
+    "TIN_TUC": "📰 Tin tức",
+    "QUOC_TE": "🌍 Quốc tế",
+    "KHAC": "📦 Khác",
 }
 
 
 # ============================================================
-# EXCLUSION RULES
+# FILTER RULES
 # ============================================================
-
-GLOBAL_RADIO_RE = re.compile(
-    r"""
-    \b
-    (
-        radio
-        | fm
-        | vov
-        | vov1
-        | vov2
-        | vov3
-        | vov4
-        | vov5
-        | vov6
-        | vovgt
-        | vovgiao
-        | vovgiaothong
-    )
-    \b
-    """,
-    re.IGNORECASE | re.VERBOSE,
-)
 
 UPDATE_GROUP_RE = re.compile(
     r"^\s*update\s+\d{1,2}:\d{2}\b.*$",
     re.IGNORECASE,
 )
 
-VM_TTV_EXCLUDED_GROUPS = {
+
+# Global radio/FM/VOV filter.
+RADIO_RE = re.compile(
+    r"""
+    (
+        \bradio\b
+        |\bfm\b
+        |\bam\b
+        |\bvov\b
+        |\bvov[0-9a-z]*\b
+        |radio\s*\d*
+        |phat\s*thanh
+        |phát\s*thanh
+    )
+    """,
+    re.IGNORECASE | re.VERBOSE,
+)
+
+
+# ------------------------------------------------------------
+# vmttv groups
+# ------------------------------------------------------------
+
+VMTTV_EXCLUDED_GROUPS = {
     "live events",
     "radio",
     "uk radio",
     "israel",
     "hàn quốc",
-    "han quoc",
     "trung quốc",
-    "trung quoc",
     "thái lan",
-    "thai lan",
     "cola tv",
     "pháo hoa tv",
-    "phao hoa tv",
 }
+
+
+# ------------------------------------------------------------
+# vietanhtv groups
+# ------------------------------------------------------------
 
 VIETANHTV_EXCLUDED_GROUPS = {
     "update",
     "dự phòng",
-    "du phong",
     "fpt",
     "sự kiện 360",
-    "su kien 360",
     "rạp phim",
-    "rap phim",
     "radio",
     "socolive",
 }
+
+
+# ------------------------------------------------------------
+# dltivi groups
+# ------------------------------------------------------------
 
 DLTIVI_EXCLUDED_GROUPS = {
     "vov",
 }
 
+
+# ------------------------------------------------------------
+# easport groups
+# ------------------------------------------------------------
+
 EASPORT_EXCLUDED_GROUPS = {
     "info",
-}
-
-EXCLUDED_CHANNEL_NAMES = {
-    "vsbet",
 }
 
 
@@ -156,90 +255,110 @@ EXCLUDED_CHANNEL_NAMES = {
 # NORMALIZATION
 # ============================================================
 
-VIETNAMESE_REPLACEMENTS = {
-    "đ": "d",
-    "Đ": "D",
-}
-
-
 def strip_accents(value: str) -> str:
-    value = value.translate(str.maketrans(VIETNAMESE_REPLACEMENTS))
-
     value = unicodedata.normalize("NFD", value)
-
     return "".join(
-        ch
-        for ch in value
-        if unicodedata.category(ch) != "Mn"
+        c for c in value
+        if unicodedata.category(c) != "Mn"
     )
 
 
 def normalize_text(value: str) -> str:
     """
-    Chuẩn hóa:
-        VTV1.vn@HD
-        VTV 1 HD
-        vtv1-hd
-        VTV1_HD
+    Normalize text for matching only.
 
-    thành dạng tương đương để matching.
+    This does NOT change display name.
     """
 
     if not value:
         return ""
 
-    value = unicodedata.normalize("NFKC", str(value))
-
-    value = value.strip().lower()
+    value = value.replace("_", " ")
+    value = value.replace("-", " ")
+    value = value.replace(".", " ")
+    value = value.replace("@", " ")
+    value = value.replace("/", " ")
+    value = value.replace("|", " ")
 
     value = strip_accents(value)
 
-    # Các separator phổ biến
-    value = re.sub(r"[@._:/\\|+]+", " ", value)
+    value = value.lower()
 
-    value = re.sub(r"[-]+", " ", value)
-
-    # HTML entities / dấu thừa
-    value = value.replace("&amp;", " and ")
-
-    # Chỉ giữ chữ/số/khoảng trắng
-    value = re.sub(r"[^a-z0-9\s]", " ", value)
-
-    # Gom khoảng trắng
     value = re.sub(r"\s+", " ", value)
 
     return value.strip()
 
 
 def compact(value: str) -> str:
-    """
-    VTV1.vn@HD -> vtv1hd
-    VTV 1 HD   -> vtv1hd
-    """
-
     return re.sub(
-        r"[^a-z0-9]",
+        r"[^a-z0-9]+",
         "",
         normalize_text(value),
     )
 
 
-def clean_display_name(value: str) -> str:
+def clean_display_name(name: str) -> str:
     """
-    Chỉ dùng để chuẩn hóa nhẹ tên hiển thị.
-    Không phá metadata gốc nếu không cần.
+    Clean channel display name without destroying useful metadata.
     """
 
-    if not value:
+    if not name:
         return ""
 
-    value = re.sub(r"\s+", " ", value.strip())
+    name = name.strip()
 
-    return value
+    # Remove repeated spaces.
+    name = re.sub(r"\s+", " ", name)
+
+    return name
 
 
 # ============================================================
-# M3U PARSER
+# M3U ENTRY
+# ============================================================
+
+@dataclass
+class M3UEntry:
+    source: str
+
+    extinf: str
+    url: str
+
+    extra_lines: List[str] = field(default_factory=list)
+
+    duration: str = "-1"
+    original_name: str = ""
+
+    tvg_id: str = ""
+    tvg_name: str = ""
+    tvg_logo: str = ""
+    group_title: str = ""
+
+    canonical_id: str = ""
+
+    canonical_score: int = 0
+
+    # Metadata copied from canonical mapping.
+    canonical_name: str = ""
+    canonical_group: str = ""
+    epg_id: str = ""
+
+    # Internal scoring.
+    source_score: int = 0
+
+    @property
+    def identity_text(self) -> str:
+        return " ".join(
+            [
+                self.tvg_id,
+                self.tvg_name,
+                self.original_name,
+            ]
+        ).strip()
+
+
+# ============================================================
+# EXTINF PARSER
 # ============================================================
 
 ATTR_RE = re.compile(
@@ -247,208 +366,102 @@ ATTR_RE = re.compile(
 )
 
 
-def parse_extinf(line: str) -> Tuple[Dict[str, str], str]:
+def parse_extinf(line: str) -> Dict[str, str]:
+    attrs = {}
+
+    for match in ATTR_RE.finditer(line):
+        attrs[match.group(1).lower()] = match.group(2)
+
+    return attrs
+
+
+def parse_display_name(line: str) -> str:
     """
-    Parse:
-
-    #EXTINF:-1 tvg-id="..." tvg-name="..." group-title="...",Name
-
-    Trả về:
-        attrs, title
-    """
-
-    if not line.startswith("#EXTINF:"):
-        return {}, ""
-
-    try:
-        metadata, title = line.split(",", 1)
-    except ValueError:
-        metadata = line
-        title = ""
-
-    attrs = {
-        key.lower(): value
-        for key, value in ATTR_RE.findall(metadata)
-    }
-
-    return attrs, title.strip()
-
-
-def replace_extinf_attr(
-    line: str,
-    attr_name: str,
-    value: str,
-) -> str:
-
-    pattern = re.compile(
-        rf'({re.escape(attr_name)}=")[^"]*(")',
-        re.IGNORECASE,
-    )
-
-    if pattern.search(line):
-        return pattern.sub(
-            lambda m: f'{m.group(1)}{value}{m.group(2)}',
-            line,
-            count=1,
-        )
-
-    return line
-
-
-def get_url_from_block(lines: List[str]) -> Optional[str]:
-    """
-    URL thường là dòng cuối của block.
-    Bỏ qua comment/directive.
+    Extract text after the final comma in EXTINF.
     """
 
-    for line in reversed(lines):
-        line = line.strip()
+    if "," not in line:
+        return ""
 
-        if not line:
-            continue
-
-        if line.startswith("#"):
-            continue
-
-        return line
-
-    return None
-
-
-@dataclass
-class M3UEntry:
-    source: str
-    extinf: str
-    attrs: Dict[str, str]
-    title: str
-    url: str
-    extra_lines: List[str] = field(default_factory=list)
-
-    canonical_id: Optional[str] = None
-    canonical_score: int = 0
-
-    source_group: str = ""
-    final_group: str = "Khac"
-
-    logo: str = ""
-    epg_id: str = ""
-
-    index: int = 0
-
-    @property
-    def tvg_id(self) -> str:
-        return self.attrs.get("tvg-id", "")
-
-    @property
-    def tvg_name(self) -> str:
-        return self.attrs.get("tvg-name", "")
-
-    @property
-    def group_title(self) -> str:
-        return self.attrs.get("group-title", "")
-
-    @property
-    def display_name(self) -> str:
-        return self.title or self.tvg_name or self.tvg_id
+    return line.split(",", 1)[1].strip()
 
 
 def parse_m3u(
     text: str,
     source: str,
-) -> Tuple[List[M3UEntry], List[str]]:
+) -> List[M3UEntry]:
 
     lines = text.splitlines()
 
     entries: List[M3UEntry] = []
-    epg_urls: List[str] = []
 
     current_extinf: Optional[str] = None
-    current_attrs: Dict[str, str] = {}
-    current_title = ""
     current_extra: List[str] = []
-    entry_index = 0
 
-    for raw in lines:
+    for raw_line in lines:
 
-        line = raw.rstrip("\r\n")
+        line = raw_line.strip()
 
-        if not line.strip():
+        if not line:
             continue
 
-        stripped = line.strip()
+        if line.startswith("#EXTINF:"):
 
-        # ----------------------------------------------------
-        # Header / EPG
-        # ----------------------------------------------------
-
-        if stripped.startswith("#EXTM3U"):
-            for key, value in ATTR_RE.findall(stripped):
-                if key.lower() == "url-tvg" and value:
-                    epg_urls.extend(
-                        x.strip()
-                        for x in value.split(",")
-                        if x.strip()
-                    )
-
-            continue
-
-        # ----------------------------------------------------
-        # EXTINF
-        # ----------------------------------------------------
-
-        if stripped.startswith("#EXTINF:"):
-
-            # Flush malformed previous block
-            if current_extinf is not None:
-
-                old_url = get_url_from_block(current_extra)
-
-                if old_url:
-                    entries.append(
-                        M3UEntry(
-                            source=source,
-                            extinf=current_extinf,
-                            attrs=current_attrs,
-                            title=current_title,
-                            url=old_url,
-                            extra_lines=current_extra,
-                            index=entry_index,
-                        )
-                    )
-                    entry_index += 1
-
-            current_extinf = stripped
-            current_attrs, current_title = parse_extinf(stripped)
+            # Reset previous incomplete block.
+            current_extinf = line
             current_extra = []
 
             continue
 
-        # ----------------------------------------------------
-        # Entry body
-        # ----------------------------------------------------
+        if current_extinf is None:
+            continue
 
-        if current_extinf is not None:
-            current_extra.append(line)
+        # URL line.
+        if not line.startswith("#"):
 
-    # Flush final
-    if current_extinf is not None:
+            attrs = parse_extinf(current_extinf)
 
-        url = get_url_from_block(current_extra)
+            duration = "-1"
 
-        if url:
-            entries.append(
-                M3UEntry(
-                    source=source,
-                    extinf=current_extinf,
-                    attrs=current_attrs,
-                    title=current_title,
-                    url=url,
-                    extra_lines=current_extra,
-                    index=entry_index,
-                )
+            if ":" in current_extinf:
+                duration_part = current_extinf[
+                    len("#EXTINF:"):
+                    current_extinf.find(",")
+                ]
+
+                duration = duration_part.strip()
+
+            name = parse_display_name(current_extinf)
+
+            entry = M3UEntry(
+                source=source,
+                extinf=current_extinf,
+                url=line,
+                extra_lines=list(current_extra),
+                duration=duration,
+                original_name=name,
+                tvg_id=attrs.get("tvg-id", ""),
+                tvg_name=attrs.get("tvg-name", ""),
+                tvg_logo=attrs.get("tvg-logo", ""),
+                group_title=attrs.get("group-title", ""),
+                source_score=SOURCE_PRIORITY.get(
+                    source,
+                    0,
+                ),
             )
 
-    return entries, epg_urls
+            entries.append(entry)
+
+            current_extinf = None
+            current_extra = []
+
+            continue
+
+        # Preserve #KODIPROP / #EXTVLCOPT /
+        # #EXTHTTP / #EXT-X-* etc.
+        current_extra.append(line)
+
+    return entries
 
 
 # ============================================================
@@ -457,93 +470,139 @@ def parse_m3u(
 
 class CanonicalResolver:
 
-    def __init__(self, mapping: Dict):
-        self.mapping = mapping or {}
+    def __init__(self, mapping_path: Path):
 
-        self.exact: Dict[str, str] = {}
-        self.compact_index: Dict[str, str] = {}
+        self.mapping_path = mapping_path
+
+        self.channels: Dict[str, dict] = {}
+
+        self.alias_exact: Dict[str, str] = {}
+        self.alias_compact: Dict[str, str] = {}
 
         self.ambiguous_exact = set()
         self.ambiguous_compact = set()
 
-        self._build_index()
+        self.load()
 
-    def _register(
-        self,
-        index: Dict[str, str],
-        ambiguous: set,
-        key: str,
-        canonical_id: str,
-    ):
+    # --------------------------------------------------------
+    # Load YAML
+    # --------------------------------------------------------
 
-        if not key:
-            return
+    def load(self) -> None:
 
-        old = index.get(key)
+        if not self.mapping_path.exists():
 
-        if old is None:
-            index[key] = canonical_id
-            return
+            raise FileNotFoundError(
+                f"Canonical mapping not found: "
+                f"{self.mapping_path}"
+            )
 
-        if old != canonical_id:
-            ambiguous.add(key)
+        with self.mapping_path.open(
+            "r",
+            encoding="utf-8",
+        ) as f:
 
-    def _build_index(self):
+            data = yaml.safe_load(f) or {}
 
-        for canonical_id, data in self.mapping.items():
+        if isinstance(data, dict) and "channels" in data:
+            data = data["channels"]
 
-            if not isinstance(data, dict):
-                continue
+        if not isinstance(data, dict):
+            raise ValueError(
+                "canonical_channels.yml must contain "
+                "a mapping/dictionary."
+            )
 
-            aliases = set()
+        for canonical_id, raw in data.items():
 
-            aliases.add(canonical_id)
+            if not isinstance(raw, dict):
+                raw = {}
 
-            name = data.get("name")
+            canonical_id = str(canonical_id).strip()
 
-            if name:
-                aliases.add(str(name))
+            self.channels[canonical_id] = raw
 
-            for alias in data.get("aliases", []) or []:
-                if alias:
-                    aliases.add(str(alias))
+            aliases = raw.get("aliases", [])
+
+            if isinstance(aliases, str):
+                aliases = [aliases]
+
+            aliases = list(aliases)
+
+            # Canonical ID itself is always an alias.
+            aliases.append(canonical_id)
+
+            # Optional canonical name.
+            canonical_name = raw.get("name")
+
+            if canonical_name:
+                aliases.append(str(canonical_name))
 
             for alias in aliases:
 
-                normalized = normalize_text(alias)
-                compacted = compact(alias)
-
-                self._register(
-                    self.exact,
-                    self.ambiguous_exact,
-                    normalized,
+                self._register_alias(
+                    str(alias),
                     canonical_id,
                 )
 
-                self._register(
-                    self.compact_index,
-                    self.ambiguous_compact,
-                    compacted,
-                    canonical_id,
-                )
+    # --------------------------------------------------------
+    # Alias registration
+    # --------------------------------------------------------
+
+    def _register_alias(
+        self,
+        alias: str,
+        canonical_id: str,
+    ):
+
+        exact = normalize_text(alias)
+        short = compact(alias)
+
+        if not exact:
+            return
+
+        old = self.alias_exact.get(exact)
+
+        if old is not None and old != canonical_id:
+
+            self.ambiguous_exact.add(exact)
+
+        else:
+
+            if exact not in self.ambiguous_exact:
+                self.alias_exact[exact] = canonical_id
+
+        if short:
+
+            old = self.alias_compact.get(short)
+
+            if old is not None and old != canonical_id:
+
+                self.ambiguous_compact.add(short)
+
+            else:
+
+                if short not in self.ambiguous_compact:
+                    self.alias_compact[short] = canonical_id
+
+    # --------------------------------------------------------
+    # Resolve
+    # --------------------------------------------------------
 
     def resolve(
         self,
-        tvg_id: str = "",
-        tvg_name: str = "",
-        title: str = "",
+        entry: M3UEntry,
     ) -> Tuple[Optional[str], int]:
 
         candidates = [
-            tvg_id,
-            tvg_name,
-            title,
+            entry.tvg_id,
+            entry.tvg_name,
+            entry.original_name,
         ]
 
-        # ====================================================
-        # PASS 1
-        # Exact normalized alias
-        # ====================================================
+        # ----------------------------------------------------
+        # 1. Exact normalized alias
+        # ----------------------------------------------------
 
         for value in candidates:
 
@@ -555,15 +614,15 @@ class CanonicalResolver:
             if key in self.ambiguous_exact:
                 continue
 
-            canonical = self.exact.get(key)
+            canonical_id = self.alias_exact.get(key)
 
-            if canonical:
-                return canonical, 100
+            if canonical_id:
 
-        # ====================================================
-        # PASS 2
-        # Compact alias
-        # ====================================================
+                return canonical_id, 100
+
+        # ----------------------------------------------------
+        # 2. Compact alias
+        # ----------------------------------------------------
 
         for value in candidates:
 
@@ -575,186 +634,228 @@ class CanonicalResolver:
             if key in self.ambiguous_compact:
                 continue
 
-            canonical = self.compact_index.get(key)
+            canonical_id = self.alias_compact.get(key)
 
-            if canonical:
-                return canonical, 95
+            if canonical_id:
 
-        # ====================================================
-        # PASS 3
-        # Controlled network pattern
-        # ====================================================
+                return canonical_id, 90
 
-        for value in candidates:
+        # ----------------------------------------------------
+        # 3. Controlled family matching
+        #
+        # This is intentionally conservative.
+        # Do not blindly convert arbitrary names.
+        # ----------------------------------------------------
+
+        family = self._detect_known_family(
+            candidates
+        )
+
+        if family:
+
+            canonical_id = family
+
+            if canonical_id in self.channels:
+                return canonical_id, 70
+
+        return None, 0
+
+    # --------------------------------------------------------
+    # Controlled VTV / HTV / SCTV patterns
+    # --------------------------------------------------------
+
+    def _detect_known_family(
+        self,
+        values: Iterable[str],
+    ) -> Optional[str]:
+
+        for value in values:
 
             key = compact(value)
 
             if not key:
                 continue
 
-            match = re.fullmatch(
-                r"(vtv|htv|sctv)(\d{1,2})(?:hd)?",
+            # VTV1 / VTV2 / VTV3 / VTV4...
+            m = re.fullmatch(
+                r"vtv(\d+)(?:hd)?",
                 key,
             )
 
-            if match:
+            if m:
+                candidate = f"vtv{m.group(1)}"
 
-                candidate = (
-                    match.group(1)
-                    + match.group(2)
-                )
+                if candidate in self.channels:
+                    return candidate
 
-                if candidate in self.mapping:
-                    return candidate, 90
+            # HTV7 / HTV9...
+            m = re.fullmatch(
+                r"htv(\d+)(?:hd)?",
+                key,
+            )
 
-        return None, 0
+            if m:
+                candidate = f"htv{m.group(1)}"
 
+                if candidate in self.channels:
+                    return candidate
 
-# ============================================================
-# LOCAL CANONICAL ID
-# ============================================================
+            # SCTV1 / SCTV2...
+            m = re.fullmatch(
+                r"sctv(\d+)(?:hd)?",
+                key,
+            )
 
-def make_local_id(
-    name: str,
-    group: str = "",
-) -> str:
+            if m:
+                candidate = f"sctv{m.group(1)}"
 
-    identity = (
-        compact(name)
-        + "|"
-        + compact(group)
-    )
+                if candidate in self.channels:
+                    return candidate
 
-    digest = hashlib.sha1(
-        identity.encode("utf-8")
-    ).hexdigest()[:12]
+        return None
 
-    return f"local_{digest}"
+    # --------------------------------------------------------
+    # Mapping data
+    # --------------------------------------------------------
+
+    def get(self, canonical_id: str) -> dict:
+
+        return self.channels.get(
+            canonical_id,
+            {},
+        )
 
 
 # ============================================================
 # FILTERING
 # ============================================================
 
-def is_radio_like(entry: M3UEntry) -> bool:
+def normalized_group(group: str) -> str:
+    return normalize_text(group)
 
-    values = [
-        entry.tvg_id,
-        entry.tvg_name,
-        entry.title,
-        entry.group_title,
-    ]
 
-    combined = " ".join(
-        x for x in values if x
+VMTTV_EXCLUDED = {
+    normalized_group(x)
+    for x in VMTTV_EXCLUDED_GROUPS
+}
+
+VIETANHTV_EXCLUDED = {
+    normalized_group(x)
+    for x in VIETANHTV_EXCLUDED_GROUPS
+}
+
+DLTIVI_EXCLUDED = {
+    normalized_group(x)
+    for x in DLTIVI_EXCLUDED_GROUPS
+}
+
+EASPORT_EXCLUDED = {
+    normalized_group(x)
+    for x in EASPORT_EXCLUDED_GROUPS
+}
+
+
+def is_update_group(group: str) -> bool:
+
+    return bool(
+        UPDATE_GROUP_RE.match(group or "")
+    )
+
+
+def is_global_radio(entry: M3UEntry) -> bool:
+
+    text = " ".join(
+        [
+            entry.group_title,
+            entry.tvg_id,
+            entry.tvg_name,
+            entry.original_name,
+        ]
     )
 
     return bool(
-        GLOBAL_RADIO_RE.search(combined)
+        RADIO_RE.search(text)
     )
 
 
 def group_is_excluded(
-    source: str,
-    group: str,
+    entry: M3UEntry,
 ) -> bool:
 
-    normalized = normalize_text(group)
+    group = normalized_group(
+        entry.group_title
+    )
 
-    if not normalized:
-        return False
-
-    # UPDATE 12:30..., UPDATE 8:00...
-    if UPDATE_GROUP_RE.match(group):
+    if is_update_group(group):
         return True
 
-    if source == "vmttv":
-        return normalized in {
-            normalize_text(x)
-            for x in VM_TTV_EXCLUDED_GROUPS
-        }
-
-    if source == "vietanhtv":
-        return normalized in {
-            normalize_text(x)
-            for x in VIETANHTV_EXCLUDED_GROUPS
-        }
-
-    if source == "dltivi":
-        return normalized in {
-            normalize_text(x)
-            for x in DLTIVI_EXCLUDED_GROUPS
-        }
-
-    if source == "easport":
-        return normalized in {
-            normalize_text(x)
-            for x in EASPORT_EXCLUDED_GROUPS
-        }
-
-    return False
-
-
-def is_excluded(entry: M3UEntry) -> bool:
-
-    if not entry.url:
+    if is_global_radio(entry):
         return True
 
-    if group_is_excluded(
-        entry.source,
-        entry.group_title,
-    ):
-        return True
+    if entry.source == "vmttv":
+        if group in VMTTV_EXCLUDED:
+            return True
 
-    if is_radio_like(entry):
-        return True
+    elif entry.source == "vietanhtv":
+        if group in VIETANHTV_EXCLUDED:
+            return True
 
-    for value in (
-        entry.tvg_id,
-        entry.tvg_name,
-        entry.title,
-    ):
+    elif entry.source == "dltivi":
+        if group in DLTIVI_EXCLUDED:
+            return True
 
-        if compact(value) in {
-            compact(x)
-            for x in EXCLUDED_CHANNEL_NAMES
-        }:
+    elif entry.source == "easport":
+        if group in EASPORT_EXCLUDED:
             return True
 
     return False
 
 
+def is_vsbet(entry: M3UEntry) -> bool:
+
+    text = " ".join(
+        [
+            entry.tvg_id,
+            entry.tvg_name,
+            entry.original_name,
+        ]
+    )
+
+    return compact("vsbet") in compact(text)
+
+
+def should_remove(entry: M3UEntry) -> bool:
+
+    if group_is_excluded(entry):
+        return True
+
+    if is_vsbet(entry):
+        return True
+
+    return False
+
+
 # ============================================================
-# GROUP CLASSIFICATION
+# GROUP CLASSIFIER
 # ============================================================
 
 def classify_group(
     entry: M3UEntry,
-    mapping_data: Optional[Dict],
+    mapping: dict,
 ) -> str:
 
-    """
-    Ưu tiên canonical mapping.
+    # Mapping has highest priority.
+    mapped_group = mapping.get("group")
 
-    Nếu mapping không có:
-        phân loại từ tên/group.
-
-    Internal group name KHÔNG có emoji.
-    """
-
-    if mapping_data:
-
-        mapped_group = mapping_data.get("group")
-
-        if mapped_group:
-            return str(mapped_group)
+    if mapped_group:
+        return str(mapped_group)
 
     text = normalize_text(
         " ".join(
             [
                 entry.group_title,
-                entry.title,
                 entry.tvg_name,
+                entry.original_name,
             ]
         )
     )
@@ -762,357 +863,552 @@ def classify_group(
     compact_text = compact(text)
 
     # --------------------------------------------------------
-    # Network groups
+    # VTV
     # --------------------------------------------------------
 
-    if re.search(r"\bvtv\b", text):
-        return "VTV"
+    if (
+        re.search(r"\bvtv\s*\d+\b", text)
+        or compact_text.startswith("vtv")
+    ):
+        return FINAL_GROUPS["VTV"]
 
-    if re.search(r"\bhtv\b", text):
-        return "HTV"
+    # --------------------------------------------------------
+    # HTV
+    # --------------------------------------------------------
 
-    if re.search(r"\bsctv\b", text):
-        return "SCTV"
+    if (
+        re.search(r"\bhtv\s*\d+\b", text)
+        or compact_text.startswith("htv")
+    ):
+        return FINAL_GROUPS["HTV"]
 
-    if "vtvcab" in compact_text:
-        return "VTVCab"
+    # --------------------------------------------------------
+    # SCTV
+    # --------------------------------------------------------
 
-    if "htvc" in compact_text:
-        return "HTVC"
+    if (
+        re.search(r"\bsctv\s*\d+\b", text)
+        or compact_text.startswith("sctv")
+    ):
+        return FINAL_GROUPS["SCTV"]
 
     # --------------------------------------------------------
     # Essential
     # --------------------------------------------------------
 
     if any(
-        keyword in compact_text
-        for keyword in (
+        x in text
+        for x in [
             "qpvn",
-            "quocphong",
+            "quoc phong",
             "antv",
-            "anninh",
-        )
+            "an ninh",
+        ]
     ):
-        return "Thiet yeu"
+        return FINAL_GROUPS["THIET_YEU"]
 
     # --------------------------------------------------------
     # Local
     # --------------------------------------------------------
 
-    if any(
-        keyword in compact_text
-        for keyword in (
-            "hanoitv",
-            "hanoitelevision",
-            "tinh",
-            "dia phuong",
-            "local",
-        )
+    local_keywords = [
+        "hanoi tv",
+        "ha noi tv",
+        "hanoitv",
+        "thanh pho",
+        "tp hcm",
+        "hai phong",
+        "da nang",
+        "can tho",
+        "quang ninh",
+        "hai duong",
+        "bac ninh",
+        "nam dinh",
+        "thai nguyen",
+        "nghe an",
+        "ha tinh",
+        "quang binh",
+        "quang tri",
+        "thua thien hue",
+        "binh dinh",
+        "khanh hoa",
+        "dak lak",
+        "lam dong",
+        "dong nai",
+        "binh duong",
+        "ba ria",
+        "vung tau",
+        "tay ninh",
+        "long an",
+        "tien giang",
+        "ben tre",
+        "vinh long",
+        "dong thap",
+        "an giang",
+        "kien giang",
+        "ca mau",
+        "soc trang",
+        "bac lieu",
+        "tra vinh",
+    ]
+
+    if any(x in text for x in local_keywords):
+        return FINAL_GROUPS["DIA_PHUONG"]
+
+    # --------------------------------------------------------
+    # VTVCab
+    # --------------------------------------------------------
+
+    if (
+        "vtvcab" in compact_text
+        or "vtv cab" in text
     ):
-        return "Dia phuong"
+        return FINAL_GROUPS["VTVCAB"]
+
+    # --------------------------------------------------------
+    # HTVC
+    # --------------------------------------------------------
+
+    if "htvc" in compact_text:
+        return FINAL_GROUPS["HTVC"]
 
     # --------------------------------------------------------
     # Sports
+    #
+    # All variants become one final group:
+    #   Thể thao
+    #   Thể thao quốc tế
+    #   Portugal Sports
+    #   UK Sports
+    #   Spain Sports
+    #   ...
     # --------------------------------------------------------
 
-    if any(
-        keyword in compact_text
-        for keyword in (
-            "thethao",
-            "sport",
-            "sports",
-            "bongda",
-            "football",
-            "soccer",
-            "tennis",
-            "basketball",
-            "racing",
-        )
-    ):
-        return "The thao"
+    sports_keywords = [
+        "the thao",
+        "sport",
+        "sports",
+        "football",
+        "soccer",
+        "basketball",
+        "tennis",
+        "volleyball",
+        "boxing",
+        "wrestling",
+        "golf",
+        "racing",
+        "motogp",
+        "formula 1",
+        "f1",
+        "ufc",
+        "nba",
+        "nfl",
+        "nhl",
+        "mlb",
+    ]
+
+    if any(x in text for x in sports_keywords):
+        return FINAL_GROUPS["THE_THAO"]
 
     # --------------------------------------------------------
     # Movies
+    #
+    # TVB / In The Box are treated as content signals,
+    # not automatically preserved as source groups.
     # --------------------------------------------------------
 
-    if any(
-        keyword in compact_text
-        for keyword in (
-            "phim",
-            "movie",
-            "movies",
-            "cinema",
-            "film",
-            "filmhd",
-        )
-    ):
-        return "Phim"
+    movie_keywords = [
+        "phim",
+        "movie",
+        "movies",
+        "cinema",
+        "film",
+        "tvb",
+        "in the box",
+        "inthebox",
+    ]
+
+    if any(x in text for x in movie_keywords):
+        return FINAL_GROUPS["PHIM"]
 
     # --------------------------------------------------------
     # Kids
     # --------------------------------------------------------
 
-    if any(
-        keyword in compact_text
-        for keyword in (
-            "thieunhi",
-            "kids",
-            "kid",
-            "cartoon",
-            "children",
-        )
-    ):
-        return "Thieu nhi"
+    kids_keywords = [
+        "thieu nhi",
+        "kids",
+        "kid",
+        "children",
+        "cartoon",
+        "animation",
+        "baby",
+    ]
+
+    if any(x in text for x in kids_keywords):
+        return FINAL_GROUPS["THIEU_NHI"]
 
     # --------------------------------------------------------
     # Music
     # --------------------------------------------------------
 
-    if any(
-        keyword in compact_text
-        for keyword in (
-            "amnhac",
-            "music",
-            "mtv",
-        )
-    ):
-        return "Am nhac"
+    music_keywords = [
+        "am nhac",
+        "music",
+        "mtv",
+        "karaoke",
+    ]
+
+    if any(x in text for x in music_keywords):
+        return FINAL_GROUPS["AM_NHAC"]
 
     # --------------------------------------------------------
     # News
     # --------------------------------------------------------
 
-    if any(
-        keyword in compact_text
-        for keyword in (
-            "tintuc",
-            "news",
-            "newsroom",
-        )
-    ):
-        return "Tin tuc"
+    news_keywords = [
+        "tin tuc",
+        "news",
+        "newsasia",
+        "bbc news",
+        "cnn",
+        "al jazeera",
+        "bloomberg",
+    ]
+
+    if any(x in text for x in news_keywords):
+        return FINAL_GROUPS["TIN_TUC"]
 
     # --------------------------------------------------------
     # International
     # --------------------------------------------------------
 
-    if any(
-        keyword in compact_text
-        for keyword in (
-            "quocte",
-            "international",
-            "internationaltv",
-            "world",
-        )
-    ):
-        return "Quoc te"
+    international_keywords = [
+        "quoc te",
+        "international",
+        "world",
+        "korea",
+        "japan",
+        "china",
+        "thai",
+        "uk",
+        "usa",
+        "france",
+        "germany",
+        "italy",
+        "spain",
+        "portugal",
+    ]
 
-    return "Khac"
+    if any(x in text for x in international_keywords):
+        return FINAL_GROUPS["QUOC_TE"]
+
+    return FINAL_GROUPS["KHAC"]
 
 
 # ============================================================
-# CANONICALIZE
+# CANONICAL ENRICHMENT
 # ============================================================
 
-def canonicalize_entry(
+def apply_canonical(
     entry: M3UEntry,
     resolver: CanonicalResolver,
-) -> M3UEntry:
+) -> None:
 
-    canonical_id, score = resolver.resolve(
-        tvg_id=entry.tvg_id,
-        tvg_name=entry.tvg_name,
-        title=entry.title,
-    )
+    canonical_id, score = resolver.resolve(entry)
 
-    if canonical_id is None:
+    if canonical_id:
 
-        canonical_id = make_local_id(
-            entry.display_name,
-            entry.group_title,
+        entry.canonical_id = canonical_id
+        entry.canonical_score = score
+
+        mapping = resolver.get(
+            canonical_id
         )
 
-        score = 0
+        entry.canonical_name = str(
+            mapping.get("name", "")
+        ).strip()
 
-    entry.canonical_id = canonical_id
-    entry.canonical_score = score
+        entry.canonical_group = str(
+            mapping.get("group", "")
+        ).strip()
 
-    return entry
+        entry.epg_id = str(
+            mapping.get("epg_id", "")
+        ).strip()
+
+        return
+
+    # --------------------------------------------------------
+    # Unknown channel
+    #
+    # We still need deterministic identity so that duplicates
+    # within sources can be removed.
+    # --------------------------------------------------------
+
+    identity = compact(
+        entry.tvg_id
+        or entry.tvg_name
+        or entry.original_name
+    )
+
+    if not identity:
+        identity = compact(entry.url)
+
+    digest = hashlib.sha1(
+        identity.encode("utf-8")
+    ).hexdigest()[:12]
+
+    entry.canonical_id = f"local-{digest}"
+    entry.canonical_score = 10
 
 
 # ============================================================
-# WINNER SELECTION
+# URL NORMALIZATION
 # ============================================================
 
-def winner_score(entry: M3UEntry) -> int:
+def normalize_url(url: str) -> str:
+
+    url = url.strip()
+
+    # Remove accidental whitespace.
+    url = re.sub(r"\s+", "", url)
+
+    return url
+
+
+def url_key(url: str) -> str:
+
+    return normalize_url(url).lower()
+
+
+# ============================================================
+# ENTRY SCORING
+# ============================================================
+
+def metadata_bonus(entry: M3UEntry) -> int:
 
     score = 0
 
-    # Canonical match là yếu tố mạnh nhất
-    score += entry.canonical_score * 100
+    if entry.tvg_logo:
+        score += 5
 
-    # Source priority
-    score += SOURCE_PRIORITY.get(
-        entry.source,
-        SOURCE_PRIORITY["unknown"],
-    )
-
-    # Metadata bonuses
     if entry.tvg_id:
-        score += 15
+        score += 5
 
     if entry.tvg_name:
-        score += 15
+        score += 5
 
-    if entry.logo:
-        score += 20
+    if entry.group_title:
+        score += 2
 
-    if entry.epg_id:
-        score += 10
-
-    # Ưu tiên URL có vẻ hoàn chỉnh
-    if entry.url.startswith(("http://", "https://")):
-        score += 10
+    if entry.extra_lines:
+        score += 3
 
     return score
 
 
-def deduplicate(
-    entries: Iterable[M3UEntry],
-) -> Tuple[List[M3UEntry], List[Tuple[M3UEntry, M3UEntry]]]:
-
-    winners: Dict[str, M3UEntry] = {}
-
-    dropped: List[Tuple[M3UEntry, M3UEntry]] = []
-
-    for entry in entries:
-
-        if not entry.canonical_id:
-            continue
-
-        cid = entry.canonical_id
-
-        old = winners.get(cid)
-
-        if old is None:
-
-            winners[cid] = entry
-
-            continue
-
-        if winner_score(entry) > winner_score(old):
-
-            winners[cid] = entry
-            dropped.append((entry, old))
-
-        else:
-
-            dropped.append((old, entry))
-
-    return list(winners.values()), dropped
-
-
-# ============================================================
-# LOGO
-# ============================================================
-
-def apply_logo(
-    entry: M3UEntry,
-    mapping_data: Optional[Dict],
-):
+def winner_score(entry: M3UEntry) -> int:
 
     """
-    Thứ tự:
-        1. logo trong source
-        2. logo trong canonical mapping
+    Score used to select ONE stream per canonical channel.
+
+    Canonical identity confidence comes first.
+
+    Then source priority.
+
+    Then metadata completeness.
     """
 
-    source_logo = (
-        entry.attrs.get("tvg-logo")
-        or entry.attrs.get("logo")
-        or ""
-    ).strip()
-
-    mapping_logo = ""
-
-    if mapping_data:
-        mapping_logo = str(
-            mapping_data.get("logo", "")
-        ).strip()
-
-    logo = source_logo or mapping_logo
-
-    if logo:
-        entry.logo = logo
-
-        entry.extinf = replace_extinf_attr(
-            entry.extinf,
-            "tvg-logo",
-            logo,
-        )
-
-
-# ============================================================
-# EPG
-# ============================================================
-
-def apply_epg(
-    entry: M3UEntry,
-    mapping_data: Optional[Dict],
-):
-
-    if not mapping_data:
-        return
-
-    epg_id = mapping_data.get("epg_id")
-
-    if not epg_id:
-        return
-
-    epg_id = str(epg_id).strip()
-
-    if not epg_id:
-        return
-
-    entry.epg_id = epg_id
-
-    entry.extinf = replace_extinf_attr(
-        entry.extinf,
-        "tvg-id",
-        epg_id,
+    return (
+        entry.canonical_score * 1000
+        + entry.source_score
+        + metadata_bonus(entry)
     )
 
 
 # ============================================================
-# OUTPUT EXTINF
+# DEDUPLICATION
 # ============================================================
 
-def build_output_extinf(
-    entry: M3UEntry,
+def deduplicate(
+    entries: List[M3UEntry],
+) -> Tuple[List[M3UEntry], Dict[str, List[M3UEntry]]]:
+
+    grouped: Dict[
+        str,
+        List[M3UEntry]
+    ] = defaultdict(list)
+
+    for entry in entries:
+
+        grouped[
+            entry.canonical_id
+        ].append(entry)
+
+    winners: List[M3UEntry] = []
+
+    for canonical_id, candidates in grouped.items():
+
+        # ----------------------------------------------------
+        # First eliminate identical URLs.
+        # ----------------------------------------------------
+
+        unique_by_url = {}
+
+        for entry in candidates:
+
+            key = url_key(entry.url)
+
+            if not key:
+                continue
+
+            old = unique_by_url.get(key)
+
+            if old is None:
+                unique_by_url[key] = entry
+                continue
+
+            if winner_score(entry) > winner_score(old):
+                unique_by_url[key] = entry
+
+        candidates = list(
+            unique_by_url.values()
+        )
+
+        if not candidates:
+            continue
+
+        # ----------------------------------------------------
+        # Select ONE URL for ONE canonical channel.
+        # ----------------------------------------------------
+
+        candidates.sort(
+            key=winner_score,
+            reverse=True,
+        )
+
+        winners.append(
+            candidates[0]
+        )
+
+    return winners, grouped
+
+
+# ============================================================
+# EXTINF ATTRIBUTES
+# ============================================================
+
+def replace_extinf_attr(
+    line: str,
+    attr: str,
+    value: str,
 ) -> str:
+
+    pattern = re.compile(
+        rf'({re.escape(attr)}=")[^"]*(")',
+        re.IGNORECASE,
+    )
+
+    if pattern.search(line):
+
+        return pattern.sub(
+            lambda m: (
+                m.group(1)
+                + value
+                + m.group(2)
+            ),
+            line,
+            count=1,
+        )
+
+    return line
+
+
+def remove_extinf_attr(
+    line: str,
+    attr: str,
+) -> str:
+
+    pattern = re.compile(
+        rf'\s+{re.escape(attr)}="[^"]*"',
+        re.IGNORECASE,
+    )
+
+    return pattern.sub(
+        "",
+        line,
+        count=1,
+    )
+
+
+# ============================================================
+# APPLY OUTPUT METADATA
+# ============================================================
+
+def prepare_output_entry(
+    entry: M3UEntry,
+    resolver: CanonicalResolver,
+) -> None:
+
+    mapping = resolver.get(
+        entry.canonical_id
+    )
+
+    # --------------------------------------------------------
+    # Name
+    # --------------------------------------------------------
+
+    display_name = (
+        entry.canonical_name
+        or entry.tvg_name
+        or entry.original_name
+        or entry.tvg_id
+        or entry.canonical_id
+    )
+
+    display_name = clean_display_name(
+        display_name
+    )
+
+    # --------------------------------------------------------
+    # Group
+    # --------------------------------------------------------
+
+    final_group = classify_group(
+        entry,
+        mapping,
+    )
+
+    entry.canonical_group = final_group
+
+    # --------------------------------------------------------
+    # EPG
+    # --------------------------------------------------------
+
+    epg_id = (
+        entry.epg_id
+        or mapping.get("epg_id")
+        or entry.tvg_id
+    )
+
+    # --------------------------------------------------------
+    # Rebuild EXTINF
+    # --------------------------------------------------------
 
     line = entry.extinf
 
-    # --------------------------------------------------------
-    # Canonical tvg-id
-    # --------------------------------------------------------
+    line = replace_extinf_attr(
+        line,
+        "tvg-id",
+        str(epg_id or ""),
+    )
 
-    if entry.canonical_id:
-
-        # Không dùng local ID để thay EPG tvg-id nếu
-        # entry đã có một tvg-id hữu ích.
-        #
-        # Identity nội bộ vẫn là canonical_id.
-        # tvg-id trên output giữ giá trị EPG/source.
-        pass
-
-    # --------------------------------------------------------
-    # Final group
-    # --------------------------------------------------------
-
-    final_group = FINAL_GROUPS.get(
-        entry.final_group,
-        FINAL_GROUPS["Khac"],
+    line = replace_extinf_attr(
+        line,
+        "tvg-name",
+        display_name,
     )
 
     line = replace_extinf_attr(
@@ -1122,599 +1418,721 @@ def build_output_extinf(
     )
 
     # --------------------------------------------------------
-    # Logo
+    # Logo priority:
+    #
+    # 1. Raw source logo
+    # 2. Canonical mapping logo
     # --------------------------------------------------------
 
-    if entry.logo:
+    logo = (
+        entry.tvg_logo
+        or str(mapping.get("logo", "")).strip()
+    )
+
+    if logo:
 
         line = replace_extinf_attr(
             line,
             "tvg-logo",
-            entry.logo,
+            logo,
         )
 
-    return line
+    # --------------------------------------------------------
+    # Replace display name after comma.
+    # --------------------------------------------------------
+
+    if "," in line:
+
+        prefix = line.split(",", 1)[0]
+
+        line = (
+            prefix
+            + ","
+            + display_name
+        )
+
+    entry.extinf = line
 
 
 # ============================================================
-# SORTING
+# FETCH
 # ============================================================
 
-def natural_tokens(value: str):
+class FetchError(RuntimeError):
+    pass
 
-    value = normalize_text(value)
 
-    parts = re.split(
-        r"(\d+)",
-        value,
+def fetch_source(
+    session: requests.Session,
+    source: str,
+    url: str,
+    retries: int = 3,
+    timeout: Tuple[int, int] = (15, 45),
+) -> str:
+
+    headers = build_headers(source)
+
+    last_error: Optional[Exception] = None
+
+    for attempt in range(1, retries + 1):
+
+        try:
+
+            print(
+                f"[FETCH] {source}: {url}"
+            )
+
+            response = session.get(
+                url,
+                headers=headers,
+                timeout=timeout,
+                allow_redirects=True,
+            )
+
+            response.raise_for_status()
+
+            content = response.content
+
+            if not content:
+                raise FetchError(
+                    f"{source}: empty response"
+                )
+
+            # UTF-8 first.
+            try:
+                text = content.decode(
+                    "utf-8-sig"
+                )
+            except UnicodeDecodeError:
+                text = content.decode(
+                    "utf-8",
+                    errors="replace",
+                )
+
+            if "#EXTINF" not in text.upper():
+
+                # Some servers return an HTML error page.
+                preview = text[:300].replace(
+                    "\n",
+                    " ",
+                )
+
+                raise FetchError(
+                    f"{source}: response does not "
+                    f"look like M3U: {preview}"
+                )
+
+            print(
+                f"[OK] {source}: "
+                f"{len(text):,} bytes"
+            )
+
+            return text
+
+        except Exception as exc:
+
+            last_error = exc
+
+            print(
+                f"[WARN] {source} attempt "
+                f"{attempt}/{retries} failed: "
+                f"{exc}",
+                file=sys.stderr,
+            )
+
+            if attempt < retries:
+
+                time.sleep(
+                    min(2 ** attempt, 8)
+                )
+
+    raise FetchError(
+        f"Unable to fetch {source}: "
+        f"{last_error}"
     )
 
-    result = []
 
-    for part in parts:
+# ============================================================
+# EPG HEADER
+# ============================================================
 
-        if part.isdigit():
-            result.append((0, int(part)))
-        else:
-            result.append((1, part))
+def build_header() -> str:
 
-    return result
-
-
-def sort_key(entry: M3UEntry):
-
-    group_order = [
-        "VTV",
-        "HTV",
-        "SCTV",
-        "Thiet yeu",
-        "Dia phuong",
-        "VTVCab",
-        "HTVC",
-        "The thao",
-        "Phim",
-        "Thieu nhi",
-        "Am nhac",
-        "Tin tuc",
-        "Quoc te",
-        "Khac",
-    ]
-
-    try:
-        group_index = group_order.index(
-            entry.final_group
-        )
-    except ValueError:
-        group_index = len(group_order)
+    # Keep a stable EPG source.
+    #
+    # Individual tvg-id values are preserved from canonical
+    # mapping / raw source.
+    #
+    # This can be changed later without touching the pipeline.
 
     return (
-        group_index,
-        natural_tokens(entry.display_name),
-        normalize_text(entry.canonical_id or ""),
+        '#EXTM3U '
+        'url-tvg="https://lichphatsong.io.vn/epg.xml"'
     )
 
 
 # ============================================================
-# M3U WRITER
+# RENDER
 # ============================================================
 
 def render_m3u(
     entries: List[M3UEntry],
-    epg_urls: List[str],
 ) -> str:
 
-    unique_epg = []
-
-    seen_epg = set()
-
-    for url in epg_urls:
-
-        url = url.strip()
-
-        if not url:
-            continue
-
-        if url in seen_epg:
-            continue
-
-        seen_epg.add(url)
-        unique_epg.append(url)
-
-    if unique_epg:
-
-        header = (
-            "#EXTM3U "
-            + "url-tvg=\""
-            + ",".join(unique_epg)
-            + "\""
-        )
-
-    else:
-        header = "#EXTM3U"
-
-    output = [header]
-
-    for entry in sorted(
-        entries,
-        key=sort_key,
-    ):
-
-        output.append(
-            build_output_extinf(entry)
-        )
-
-        # ----------------------------------------------------
-        # Preserve directives / metadata
-        # ----------------------------------------------------
-
-        for line in entry.extra_lines:
-
-            stripped = line.strip()
-
-            if not stripped:
-                continue
-
-            # URL đã được ghi riêng
-            if stripped == entry.url.strip():
-                continue
-
-            # Giữ nguyên toàn bộ directive
-            if stripped.startswith("#"):
-                output.append(line)
-
-        output.append(entry.url)
-
-    return "\n".join(output) + "\n"
-
-
-# ============================================================
-# LOAD MAPPING
-# ============================================================
-
-def load_mapping(
-    path: Path,
-) -> Dict:
-
-    if not path.exists():
-
-        print(
-            f"WARNING: canonical mapping not found: {path}"
-        )
-
-        return {}
-
-    with path.open(
-        "r",
-        encoding="utf-8",
-    ) as f:
-
-        data = yaml.safe_load(f) or {}
-
-    channels = data.get(
-        "channels",
-        data,
-    )
-
-    if not isinstance(channels, dict):
-        raise ValueError(
-            "canonical mapping must contain "
-            "'channels:' mapping"
-        )
-
-    return channels
-
-
-# ============================================================
-# PROCESS
-# ============================================================
-
-def process(
-    source_files: List[Tuple[str, Path]],
-    mapping_path: Path,
-) -> Tuple[List[M3UEntry], List[str]]:
-
-    mapping = load_mapping(mapping_path)
-
-    resolver = CanonicalResolver(mapping)
-
-    all_entries: List[M3UEntry] = []
-    all_epg: List[str] = []
-
-    stats = Counter()
-
-    # --------------------------------------------------------
-    # Parse sources
-    # --------------------------------------------------------
-
-    for source, path in source_files:
-
-        if not path.exists():
-
-            print(
-                f"WARNING: source file not found: {path}"
-            )
-
-            continue
-
-        print(
-            f"[LOAD] {source}: {path}"
-        )
-
-        text = path.read_text(
-            encoding="utf-8",
-            errors="replace",
-        )
-
-        entries, epg_urls = parse_m3u(
-            text,
-            source,
-        )
-
-        all_epg.extend(epg_urls)
-
-        print(
-            f"       entries={len(entries)} "
-            f"epg={len(epg_urls)}"
-        )
-
-        for entry in entries:
-
-            stats[f"{source}:parsed"] += 1
-
-            # ------------------------------------------------
-            # Filtering BEFORE canonicalization
-            # ------------------------------------------------
-
-            if is_excluded(entry):
-
-                stats[f"{source}:excluded"] += 1
-
-                continue
-
-            # ------------------------------------------------
-            # Canonicalization
-            # ------------------------------------------------
-
-            canonicalize_entry(
-                entry,
-                resolver,
-            )
-
-            mapping_data = mapping.get(
-                entry.canonical_id,
-                {},
-            )
-
-            if not isinstance(
-                mapping_data,
-                dict,
-            ):
-                mapping_data = {}
-
-            # ------------------------------------------------
-            # Logo / EPG
-            # ------------------------------------------------
-
-            apply_logo(
-                entry,
-                mapping_data,
-            )
-
-            apply_epg(
-                entry,
-                mapping_data,
-            )
-
-            # ------------------------------------------------
-            # Group classification
-            # ------------------------------------------------
-
-            entry.source_group = (
-                entry.group_title
-            )
-
-            entry.final_group = classify_group(
-                entry,
-                mapping_data,
-            )
-
-            all_entries.append(entry)
-
-            stats[f"{source}:accepted"] += 1
-
-    print()
-    print(
-        f"[TOTAL] accepted before dedupe: "
-        f"{len(all_entries)}"
-    )
-
-    # --------------------------------------------------------
-    # CRITICAL:
-    # canonicalize completed BEFORE this point.
-    # --------------------------------------------------------
-
-    final_entries, dropped = deduplicate(
-        all_entries
-    )
-
-    print(
-        f"[TOTAL] after canonical dedupe: "
-        f"{len(final_entries)}"
-    )
-
-    print(
-        f"[TOTAL] duplicates removed: "
-        f"{len(dropped)}"
-    )
-
-    # --------------------------------------------------------
-    # Group stats
-    # --------------------------------------------------------
-
-    group_counts = Counter(
-        entry.final_group
-        for entry in final_entries
-    )
-
-    print()
-    print("[GROUPS]")
-
-    for group, count in group_counts.most_common():
-
-        label = FINAL_GROUPS.get(
-            group,
-            group,
-        )
-
-        print(
-            f"  {label}: {count}"
-        )
-
-    # --------------------------------------------------------
-    # Duplicate safety check
-    # --------------------------------------------------------
-
-    canonical_ids = [
-        entry.canonical_id
-        for entry in final_entries
-        if entry.canonical_id
+    lines = [
+        build_header()
     ]
 
-    duplicate_ids = [
-        cid
-        for cid, count in Counter(
-            canonical_ids
-        ).items()
+    for entry in entries:
+
+        lines.append(
+            entry.extinf
+        )
+
+        # Preserve all playback directives:
+        #
+        # #KODIPROP
+        # #EXTVLCOPT
+        # #EXTHTTP
+        # #EXT-X-*
+        # etc.
+        #
+        for extra in entry.extra_lines:
+
+            lines.append(extra)
+
+        lines.append(
+            entry.url
+        )
+
+    return "\n".join(lines) + "\n"
+
+
+# ============================================================
+# SORT
+# ============================================================
+
+GROUP_ORDER = {
+    FINAL_GROUPS["VTV"]: 10,
+    FINAL_GROUPS["HTV"]: 20,
+    FINAL_GROUPS["SCTV"]: 30,
+    FINAL_GROUPS["THIET_YEU"]: 40,
+    FINAL_GROUPS["DIA_PHUONG"]: 50,
+    FINAL_GROUPS["VTVCAB"]: 60,
+    FINAL_GROUPS["HTVC"]: 70,
+    FINAL_GROUPS["THE_THAO"]: 80,
+    FINAL_GROUPS["PHIM"]: 90,
+    FINAL_GROUPS["THIEU_NHI"]: 100,
+    FINAL_GROUPS["AM_NHAC"]: 110,
+    FINAL_GROUPS["TIN_TUC"]: 120,
+    FINAL_GROUPS["QUOC_TE"]: 130,
+    FINAL_GROUPS["KHAC"]: 900,
+}
+
+
+def natural_key(value: str):
+
+    return [
+        int(part)
+        if part.isdigit()
+        else part.lower()
+        for part in re.split(
+            r"(\d+)",
+            value,
+        )
+    ]
+
+
+def sort_entries(
+    entries: List[M3UEntry],
+) -> List[M3UEntry]:
+
+    return sorted(
+        entries,
+        key=lambda e: (
+            GROUP_ORDER.get(
+                e.canonical_group,
+                999,
+            ),
+            natural_key(
+                e.canonical_name
+                or e.tvg_name
+                or e.original_name
+            ),
+            e.canonical_id,
+        ),
+    )
+
+
+# ============================================================
+# VALIDATION
+# ============================================================
+
+def validate_output(
+    entries: List[M3UEntry],
+) -> None:
+
+    if not entries:
+        raise RuntimeError(
+            "Optimizer produced ZERO channels. "
+            "Refusing to overwrite output."
+        )
+
+    ids = [
+        e.canonical_id
+        for e in entries
+    ]
+
+    duplicates = [
+        item
+        for item, count in Counter(ids).items()
         if count > 1
     ]
 
-    if duplicate_ids:
-
-        print()
-        print(
-            "ERROR: canonical duplicate detected:"
-        )
-
-        for cid in duplicate_ids:
-            print(
-                f"  {cid}"
-            )
+    if duplicates:
 
         raise RuntimeError(
-            "Canonical dedupe invariant failed."
+            "Canonical deduplication failed. "
+            f"Duplicate IDs: {duplicates[:20]}"
         )
 
-    # --------------------------------------------------------
-    # URL duplicate check
-    # --------------------------------------------------------
-
     urls = [
-        entry.url.strip()
-        for entry in final_entries
-        if entry.url.strip()
+        url_key(e.url)
+        for e in entries
     ]
 
     duplicate_urls = [
-        url
-        for url, count in Counter(urls).items()
-        if count > 1
+        item
+        for item, count in Counter(urls).items()
+        if item and count > 1
     ]
 
     if duplicate_urls:
 
-        print()
-        print(
-            "WARNING: duplicate URLs detected:"
+        raise RuntimeError(
+            "Duplicate stream URLs detected: "
+            f"{duplicate_urls[:10]}"
         )
 
-        for url in duplicate_urls[:20]:
-            print(
-                f"  {url}"
+
+# ============================================================
+# STATISTICS
+# ============================================================
+
+def print_statistics(
+    raw_counts: Dict[str, int],
+    after_filter: Dict[str, int],
+    entries: List[M3UEntry],
+    grouped: Dict[str, List[M3UEntry]],
+) -> None:
+
+    print()
+    print("=" * 60)
+    print("OPTIMIZE M3U STATISTICS")
+    print("=" * 60)
+
+    print()
+    print("Remote source entries:")
+
+    for source in SOURCE_URLS:
+
+        print(
+            f"  {source:12s}: "
+            f"{raw_counts.get(source, 0):5d}"
+        )
+
+    print()
+    print("After filtering:")
+
+    for source in SOURCE_URLS:
+
+        print(
+            f"  {source:12s}: "
+            f"{after_filter.get(source, 0):5d}"
+        )
+
+    print()
+    print(
+        f"Canonical groups: {len(grouped):,}"
+    )
+
+    print(
+        f"Final channels:   {len(entries):,}"
+    )
+
+    print()
+    print("Final groups:")
+
+    group_counts = Counter(
+        e.canonical_group
+        for e in entries
+    )
+
+    for group, count in sorted(
+        group_counts.items(),
+        key=lambda x: (
+            GROUP_ORDER.get(x[0], 999),
+            x[0],
+        ),
+    ):
+
+        print(
+            f"  {group:20s}: {count:4d}"
+        )
+
+    print("=" * 60)
+    print()
+
+
+# ============================================================
+# MAIN PIPELINE
+# ============================================================
+
+def optimize(
+    mapping_path: Path,
+    output_path: Path,
+) -> None:
+
+    print("=" * 60)
+    print("IPTV M3U OPTIMIZER")
+    print("=" * 60)
+
+    print()
+    print("Sources are REMOTE URLs.")
+    print("No m3u/raw/*.m3u files are used.")
+    print()
+
+    resolver = CanonicalResolver(
+        mapping_path
+    )
+
+    print(
+        f"[OK] Loaded canonical mapping: "
+        f"{mapping_path}"
+    )
+
+    print(
+        f"[OK] Canonical channels: "
+        f"{len(resolver.channels):,}"
+    )
+
+    # --------------------------------------------------------
+    # HTTP session
+    # --------------------------------------------------------
+
+    session = requests.Session()
+
+    # Connection pool / HTTP behavior.
+    adapter = requests.adapters.HTTPAdapter(
+        pool_connections=10,
+        pool_maxsize=10,
+        max_retries=0,
+    )
+
+    session.mount(
+        "http://",
+        adapter,
+    )
+
+    session.mount(
+        "https://",
+        adapter,
+    )
+
+    # --------------------------------------------------------
+    # Fetch + parse
+    # --------------------------------------------------------
+
+    all_entries: List[M3UEntry] = []
+
+    raw_counts: Dict[str, int] = {}
+    after_filter: Dict[str, int] = {}
+
+    for source, url in SOURCE_URLS.items():
+
+        try:
+
+            text = fetch_source(
+                session,
+                source,
+                url,
             )
 
-        # Không fail chỉ vì hai canonical channel
-        # dùng chung URL. Tuy nhiên trong output hiện tại
-        # mỗi canonical channel vẫn chỉ có một URL.
+            entries = parse_m3u(
+                text,
+                source,
+            )
 
-    return final_entries, all_epg
+            raw_counts[source] = len(
+                entries
+            )
+
+            print(
+                f"[PARSE] {source}: "
+                f"{len(entries):,} entries"
+            )
+
+            kept = []
+
+            for entry in entries:
+
+                if should_remove(entry):
+                    continue
+
+                kept.append(entry)
+
+            after_filter[source] = len(
+                kept
+            )
+
+            print(
+                f"[FILTER] {source}: "
+                f"{len(entries):,} -> "
+                f"{len(kept):,}"
+            )
+
+            all_entries.extend(
+                kept
+            )
+
+        except Exception as exc:
+
+            # A failed source should not silently produce an
+            # empty playlist. We log it and continue so other
+            # sources can still be processed.
+            #
+            # Final validation protects against bad output.
+
+            print(
+                f"[ERROR] {source}: {exc}",
+                file=sys.stderr,
+            )
+
+            raw_counts[source] = 0
+            after_filter[source] = 0
+
+    # --------------------------------------------------------
+    # Safety: require at least one source
+    # --------------------------------------------------------
+
+    if not all_entries:
+
+        raise RuntimeError(
+            "All remote sources failed or were empty."
+        )
+
+    print()
+    print(
+        f"[TOTAL] Entries after filtering: "
+        f"{len(all_entries):,}"
+    )
+
+    # --------------------------------------------------------
+    # Canonicalize BEFORE deduplication
+    # --------------------------------------------------------
+
+    print()
+    print(
+        "[CANONICAL] Resolving channel identities..."
+    )
+
+    for entry in all_entries:
+
+        apply_canonical(
+            entry,
+            resolver,
+        )
+
+    # --------------------------------------------------------
+    # Diagnostic: common canonical collisions
+    # --------------------------------------------------------
+
+    canonical_sources = defaultdict(set)
+
+    for entry in all_entries:
+
+        canonical_sources[
+            entry.canonical_id
+        ].add(entry.source)
+
+    collisions = {
+        cid: sources
+        for cid, sources
+        in canonical_sources.items()
+        if len(sources) > 1
+    }
+
+    print(
+        f"[CANONICAL] "
+        f"{len(collisions):,} channels "
+        f"have multiple source candidates."
+    )
+
+    # --------------------------------------------------------
+    # Deduplicate
+    # --------------------------------------------------------
+
+    print()
+    print(
+        "[DEDUPE] Selecting ONE stream "
+        "per canonical channel..."
+    )
+
+    final_entries, grouped = deduplicate(
+        all_entries
+    )
+
+    # --------------------------------------------------------
+    # Prepare output metadata
+    # --------------------------------------------------------
+
+    for entry in final_entries:
+
+        prepare_output_entry(
+            entry,
+            resolver,
+        )
+
+    # --------------------------------------------------------
+    # Sort
+    # --------------------------------------------------------
+
+    final_entries = sort_entries(
+        final_entries
+    )
+
+    # --------------------------------------------------------
+    # Validate
+    # --------------------------------------------------------
+
+    validate_output(
+        final_entries
+    )
+
+    # --------------------------------------------------------
+    # Statistics
+    # --------------------------------------------------------
+
+    print_statistics(
+        raw_counts,
+        after_filter,
+        final_entries,
+        grouped,
+    )
+
+    # --------------------------------------------------------
+    # Render
+    # --------------------------------------------------------
+
+    output_text = render_m3u(
+        final_entries
+    )
+
+    # --------------------------------------------------------
+    # Atomic write
+    # --------------------------------------------------------
+
+    output_path.parent.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    tmp_path = output_path.with_suffix(
+        output_path.suffix + ".tmp"
+    )
+
+    tmp_path.write_text(
+        output_text,
+        encoding="utf-8",
+    )
+
+    tmp_path.replace(
+        output_path
+    )
+
+    print(
+        f"[OK] Output written: "
+        f"{output_path}"
+    )
+
+    print(
+        f"[OK] Final unique channels: "
+        f"{len(final_entries):,}"
+    )
 
 
 # ============================================================
 # CLI
 # ============================================================
 
-def parse_source_argument(
-    value: str,
-) -> Tuple[str, Path]:
-
-    """
-    source=path
-    """
-
-    if "=" not in value:
-
-        raise argparse.ArgumentTypeError(
-            "Source must use source=path"
-        )
-
-    source, path = value.split(
-        "=",
-        1,
-    )
-
-    source = source.strip().lower()
-    path = path.strip()
-
-    if not source or not path:
-
-        raise argparse.ArgumentTypeError(
-            "Invalid source=path"
-        )
-
-    return source, Path(path)
-
-
-def main() -> int:
+def parse_args():
 
     parser = argparse.ArgumentParser(
         description=(
-            "Optimize and canonicalize IPTV M3U "
-            "without depending on iptv-org identity."
+            "Fetch remote IPTV M3U sources, "
+            "canonicalize, deduplicate and "
+            "generate final playlist."
         )
     )
 
     parser.add_argument(
         "--mapping",
-        default=DEFAULT_MAPPING,
+        default=str(DEFAULT_MAPPING),
         help=(
-            "Canonical mapping YAML "
-            "(default: m3u/canonical_channels.yml)"
-        ),
-    )
-
-    parser.add_argument(
-        "--source",
-        action="append",
-        required=True,
-        type=parse_source_argument,
-        help=(
-            "Input source in source=path format. "
-            "Can be repeated."
+            "Canonical mapping YAML. "
+            f"Default: {DEFAULT_MAPPING}"
         ),
     )
 
     parser.add_argument(
         "--output",
-        required=True,
-        help="Output M3U path",
+        default=str(DEFAULT_OUTPUT),
+        help=(
+            "Output M3U path. "
+            f"Default: {DEFAULT_OUTPUT}"
+        ),
     )
 
-    args = parser.parse_args()
+    return parser.parse_args()
 
-    mapping_path = Path(
-        args.mapping
-    )
 
-    output_path = Path(
-        args.output
-    )
+def main() -> int:
 
-    print("=" * 70)
-    print(" IPTV M3U OPTIMIZER")
-    print("=" * 70)
-    print(
-        "Canonical mapping:",
-        mapping_path,
-    )
-    print(
-        "Output:",
-        output_path,
-    )
-    print()
+    args = parse_args()
 
     try:
 
-        entries, epg_urls = process(
-            source_files=args.source,
-            mapping_path=mapping_path,
+        optimize(
+            mapping_path=Path(
+                args.mapping
+            ),
+            output_path=Path(
+                args.output
+            ),
         )
-
-        # ----------------------------------------------------
-        # Safety
-        # ----------------------------------------------------
-
-        if not entries:
-
-            raise RuntimeError(
-                "Build produced ZERO channels. "
-                "Output file will not be written."
-            )
-
-        # ----------------------------------------------------
-        # Render
-        # ----------------------------------------------------
-
-        output = render_m3u(
-            entries,
-            epg_urls,
-        )
-
-        output_path.parent.mkdir(
-            parents=True,
-            exist_ok=True,
-        )
-
-        # Atomic-ish write
-        temp_path = output_path.with_suffix(
-            output_path.suffix + ".tmp"
-        )
-
-        temp_path.write_text(
-            output,
-            encoding="utf-8",
-            newline="\n",
-        )
-
-        temp_path.replace(
-            output_path
-        )
-
-        print()
-        print("=" * 70)
-        print(
-            f"SUCCESS: {len(entries)} channels"
-        )
-        print(
-            f"Written: {output_path}"
-        )
-        print("=" * 70)
 
         return 0
 
+    except KeyboardInterrupt:
+
+        print(
+            "\n[ABORTED] Interrupted.",
+            file=sys.stderr,
+        )
+
+        return 130
+
     except Exception as exc:
 
-        print()
-        print("=" * 70)
-        print("BUILD FAILED")
-        print("=" * 70)
         print(
-            f"{type(exc).__name__}: {exc}"
+            f"\n[FATAL] {exc}",
+            file=sys.stderr,
         )
-
-        # Tuyệt đối không xóa fallback cũ.
-        # Output temp nếu có sẽ bị xóa.
-        temp_path = output_path.with_suffix(
-            output_path.suffix + ".tmp"
-        )
-
-        try:
-            if temp_path.exists():
-                temp_path.unlink()
-        except Exception:
-            pass
 
         return 1
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    raise SystemExit(
+        main()
+    )
