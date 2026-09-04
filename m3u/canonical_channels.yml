@@ -1,0 +1,218 @@
+version: 1
+
+channels:
+
+  vtv1:
+    name: VTV1
+    group: VTV
+    aliases:
+      - vtv1
+      - vtv1hd
+      - vtv 1
+      - vtv 1 hd
+      - vtv1 hd
+      - vtv1.vn@hd
+      - vtv1.vn
+      - vtv1hdt
+      - vtv1hd_vn
+
+  vtv2:
+    name: VTV2
+    group: VTV
+    aliases:
+      - vtv2
+      - vtv2hd
+      - vtv 2
+      - vtv 2 hd
+      - vtv2 hd
+      - vtv2.vn@hd
+      - vtv2.vn
+      - vtv2hdt
+
+  vtv3:
+    name: VTV3
+    group: VTV
+    aliases:
+      - vtv3
+      - vtv3hd
+      - vtv 3
+      - vtv 3 hd
+      - vtv3 hd
+      - vtv3.vn@hd
+      - vtv3.vn
+
+  vtv4:
+    name: VTV4
+    group: VTV
+    aliases:
+      - vtv4
+      - vtv4hd
+      - vtv 4
+      - vtv 4 hd
+      - vtv4 hd
+      - vtv4.vn@hd
+
+  vtv5:
+    name: VTV5
+    group: VTV
+    aliases:
+      - vtv5
+      - vtv5hd
+      - vtv 5
+      - vtv 5 hd
+      - vtv5 hd
+      - vtv5.vn@hd
+
+  vtv6:
+    name: VTV6
+    group: VTV
+    aliases:
+      - vtv6
+      - vtv6hd
+      - vtv 6
+      - vtv 6 hd
+
+  vtv7:
+    name: VTV7
+    group: VTV
+    aliases:
+      - vtv7
+      - vtv7hd
+      - vtv 7
+      - vtv 7 hd
+
+  vtv8:
+    name: VTV8
+    group: VTV
+    aliases:
+      - vtv8
+      - vtv8hd
+      - vtv 8
+      - vtv 8 hd
+      - vtv8.vn@hd
+
+  vtv9:
+    name: VTV9
+    group: VTV
+    aliases:
+      - vtv9
+      - vtv9hd
+      - vtv 9
+      - vtv 9 hd
+      - vtv9.vn@hd
+
+  htv1:
+    name: HTV1
+    group: HTV
+    aliases:
+      - htv1
+      - htv1hd
+      - htv 1
+      - htv 1 hd
+
+  htv2:
+    name: HTV2
+    group: HTV
+    aliases:
+      - htv2
+      - htv2hd
+      - htv 2
+      - htv 2 hd
+      - htv2 hd
+
+  htv3:
+    name: HTV3
+    group: HTV
+    aliases:
+      - htv3
+      - htv3hd
+      - htv 3
+      - htv 3 hd
+
+  htv7:
+    name: HTV7
+    group: HTV
+    aliases:
+      - htv7
+      - htv7hd
+      - htv 7
+      - htv 7 hd
+
+  htv9:
+    name: HTV9
+    group: HTV
+    aliases:
+      - htv9
+      - htv9hd
+      - htv 9
+      - htv 9 hd
+
+  qpvnhd:
+    name: QPVN
+    group: Thiet yeu
+    aliases:
+      - qpvn
+      - qpvn hd
+      - qpvnhd
+      - quoc phong viet nam
+      - kenh quoc phong viet nam
+
+  antv:
+    name: ANTV
+    group: Thiet yeu
+    aliases:
+      - antv
+      - antv hd
+      - an ninh tv
+      - truyen hinh cong an nhan dan
+
+  hanoitv1:
+    name: HanoiTV1
+    group: Dia phuong
+    aliases:
+      - hanoitv1
+      - hanoi tv1
+      - hanoi tv
+      - hanoi television
+      - htv1_hanoi
+
+  hanoitv2:
+    name: HanoiTV2
+    group: Dia phuong
+    aliases:
+      - hanoitv2
+      - hanoi tv2
+
+  sctv1:
+    name: SCTV1
+    group: SCTV
+    aliases:
+      - sctv1
+      - sctv1hd
+      - sctv 1
+      - sctv 1 hd
+
+  sctv2:
+    name: SCTV2
+    group: SCTV
+    aliases:
+      - sctv2
+      - sctv2hd
+      - sctv 2
+      - sctv 2 hd
+
+  vtvcab1:
+    name: VTVCab1
+    group: VTVCab
+    aliases:
+      - vtvcab1
+      - vtvcab 1
+      - vtvcab1hd
+
+  vtvcab2:
+    name: VTVCab2
+    group: VTVCab
+    aliases:
+      - vtvcab2
+      - vtvcab 2
+      - vtvcab2hd
