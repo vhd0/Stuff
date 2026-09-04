@@ -7,9 +7,6 @@ on:
     types:
       - update_m3u
 
-  schedule:
-    - cron: "17 * * * *"
-
 concurrency:
   group: m3u-update
   cancel-in-progress: true
