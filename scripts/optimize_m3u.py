@@ -1293,7 +1293,58 @@ def deduplicate(
             candidates[0]
         )
 
-    return winners, grouped
+    # ----------------------------------------------------------
+    # Second pass: resolve URL collisions ACROSS DIFFERENT canonical
+    # channels.
+    #
+    # This is NOT the same bug as duplicate URLs within one canonical
+    # group (already handled above). This happens when the RAW SOURCE
+    # itself lists two differently-named channels (different tvg-id /
+    # different display name -> different canonical_id) pointing at the
+    # EXACT SAME stream URL - e.g. a copy-paste mistake upstream, or a
+    # shared relay/placeholder endpoint reused for multiple channel
+    # labels. Each canonical group picks it as its own "best" candidate
+    # independently, so the literal URL ends up duplicated across two
+    # different channels in the final list.
+    #
+    # We do NOT want this (a data-quality quirk, not a dedup algorithm
+    # failure) to crash the entire build via validate_output(). Instead:
+    # keep the highest-scoring claim, drop the channel(s) whose ONLY
+    # candidate stream duplicates another channel's URL, and log it so
+    # it can be reviewed / fixed at the source mapping level later.
+    # ----------------------------------------------------------
+
+    best_by_url: Dict[str, M3UEntry] = {}
+
+    for entry in winners:
+
+        key = url_key(entry.url)
+
+        if not key:
+            continue
+
+        current = best_by_url.get(key)
+
+        if current is None or winner_score(entry) > winner_score(current):
+            best_by_url[key] = entry
+
+    resolved_winners = [
+        entry
+        for entry in winners
+        if best_by_url.get(url_key(entry.url)) is entry
+    ]
+
+    dropped = len(winners) - len(resolved_winners)
+
+    if dropped:
+
+        print(
+            f"[DEDUPE] Cross-channel URL collision: dropped "
+            f"{dropped} channel(s) whose only stream duplicated "
+            f"another channel's URL (kept the higher-scoring one)."
+        )
+
+    return resolved_winners, grouped
 
 
 # ============================================================
