@@ -1,395 +1,69 @@
-# ============================================================
-# IPTV M3U V3.1
-# Mapping / Alias / Source Priority
-# ============================================================
-
-
-# ============================================================
-# SOURCE PRIORITY
-# Số càng nhỏ = ưu tiên càng cao
-# ============================================================
-
-source_priority:
-  vmttv: 10
-  vietanhtv: 20
-  dltivi: 30
-  iptv-org: 40
-  easport: 50
-
-
-# ============================================================
-# RAW SOURCES
-# ============================================================
-
-sources:
-
-  vmttv: "https://raw.githubusercontent.com/vuminhthanh12/vuminhthanh12/refs/heads/main/vmttv"
-
-  vietanhtv: "https://tv.vietanhtv.top/sex/"
-
-  dltivi: "https://raw.githubusercontent.com/DinhLap96/ListTivi/refs/heads/main/ListTiVi/dltivi_v2.ndl"
-
-  iptv-org: "https://raw.githubusercontent.com/iptv-org/iptv/refs/heads/master/streams/vn.m3u"
-
-  easport: "https://livesport.s.gy/easport"
-
-
-# ============================================================
-# GROUP ORDER
-# ============================================================
-
-group_order:
-
-  - "Tin tức"
-  - "VTV"
-  - "HTV"
-  - "Hà Nội"
-  - "Địa phương"
-  - "Giải trí"
-  - "Phim"
-  - "Thiếu nhi"
-  - "Âm nhạc"
-  - "Thể thao"
-  - "K+"
-  - "SCTV"
-  - "VTVcab"
-  - "ON"
-  - "Quốc tế"
-  - "Radio"
-  - "Khác"
-
-
-# ============================================================
-# GROUP ALIAS
-# ============================================================
-
-groups:
-
-  Tin tức:
-    aliases:
-      - "Tin tức"
-      - "Tin Tức"
-      - "Tin tức - Thời sự"
-      - "Tin tức thời sự"
-      - "Thời sự"
-      - "News"
-      - "News TV"
-
-  VTV:
-    aliases:
-      - "VTV"
-      - "VTV HD"
-      - "Đài Truyền hình Việt Nam"
-      - "Đài truyền hình Việt Nam"
-      - "Vietnam Television"
-
-  HTV:
-    aliases:
-      - "HTV"
-      - "HTV HD"
-      - "Đài Truyền hình Thành phố Hồ Chí Minh"
-      - "Đài truyền hình Thành phố Hồ Chí Minh"
-      - "Hồ Chí Minh"
-      - "Ho Chi Minh"
-
-  Hà Nội:
-    aliases:
-      - "Hà Nội"
-      - "Hanoi"
-      - "HanoiTV"
-      - "Hanoi TV"
-      - "Đài Hà Nội"
-      - "Đài Phát thanh - Truyền hình Hà Nội"
-      - "Ha Noi"
-
-  Địa phương:
-    aliases:
-      - "Địa phương"
-      - "Địa Phương"
-      - "Địa phương HD"
-      - "Local"
-      - "Local TV"
-      - "Provincial"
-      - "Tỉnh"
-      - "Thành phố"
-
-  Giải trí:
-    aliases:
-      - "Giải trí"
-      - "Giai tri"
-      - "Entertainment"
-      - "Entertainment TV"
-
-  Phim:
-    aliases:
-      - "Phim"
-      - "Phim truyện"
-      - "Movies"
-      - "Movie"
-      - "Cinema"
-
-  Thiếu nhi:
-    aliases:
-      - "Thiếu nhi"
-      - "Thiếu Nhi"
-      - "Thieu nhi"
-      - "Kids"
-      - "Children"
-
-  Âm nhạc:
-    aliases:
-      - "Âm nhạc"
-      - "Âm Nhạc"
-      - "Am nhac"
-      - "Music"
-      - "Music TV"
-
-  Thể thao:
-    aliases:
-      - "Thể thao"
-      - "Thể Thao"
-      - "The thao"
-      - "Sports"
-      - "Sport"
-      - "Sports TV"
-
-  K+:
-    aliases:
-      - "K+"
-      - "Kplus"
-      - "K Plus"
-      - "K Plus HD"
-
-  SCTV:
-    aliases:
-      - "SCTV"
-      - "SCTV HD"
-
-  VTVcab:
-    aliases:
-      - "VTVcab"
-      - "VTVCab"
-      - "VTV Cab"
-      - "VTVcab HD"
-
-  ON:
-    aliases:
-      - "ON"
-      - "ON TV"
-      - "ONTV"
-      - "ON Television"
-
-
-# ============================================================
-# CHANNEL ALIAS / EXCEPTION
-#
-# Không cần khai báo toàn bộ channel.
-# IPTV-org channels.json sẽ tự làm database chính.
-#
-# Phần này chỉ dùng cho các tên đặc biệt / khác biệt
-# giữa các nguồn.
-# ============================================================
-
 channels:
 
-  vtv1:
+  # ----------------------------------------------------------
+  # Các alias đặc biệt nếu source không dùng đúng tvg-id
+  # Canonical ID nên là ID THỰC của iptv-org nếu biết.
+  # ----------------------------------------------------------
+
+  VTV1.vn@HD:
     name: "VTV1"
     aliases:
-      - "VTV1"
       - "VTV 1"
       - "VTV1 HD"
-      - "VTV1HD"
-    ids:
-      - "VTV1.vn@HD"
+      - "VTV 1 HD"
 
-  vtv2:
+  VTV2.vn@HD:
     name: "VTV2"
     aliases:
-      - "VTV2"
       - "VTV 2"
       - "VTV2 HD"
-      - "VTV2HD"
-    ids:
-      - "VTV2.vn@HD"
+      - "VTV 2 HD"
 
-  vtv3:
+  VTV3.vn@HD:
     name: "VTV3"
     aliases:
-      - "VTV3"
       - "VTV 3"
       - "VTV3 HD"
-      - "VTV3HD"
-    ids:
-      - "VTV3.vn@HD"
+      - "VTV 3 HD"
 
-  vtv4:
+  VTV4.vn@HD:
     name: "VTV4"
     aliases:
-      - "VTV4"
       - "VTV 4"
       - "VTV4 HD"
-      - "VTV4HD"
-    ids:
-      - "VTV4.vn@HD"
 
-  vtv5:
+  VTV5.vn@HD:
     name: "VTV5"
     aliases:
-      - "VTV5"
       - "VTV 5"
       - "VTV5 HD"
-      - "VTV5HD"
-    ids:
-      - "VTV5.vn@HD"
 
-  vtv5tnb:
-    name: "VTV5 Tây Nam Bộ"
-    aliases:
-      - "VTV5 Tây Nam Bộ"
-      - "VTV5 Tay Nam Bo"
-      - "VTV5 TNB"
-      - "VTV5TNB"
-
-  vtv5tn:
-    name: "VTV5 Tây Nguyên"
-    aliases:
-      - "VTV5 Tây Nguyên"
-      - "VTV5 Tay Nguyen"
-      - "VTV5 TN"
-      - "VTV5TN"
-
-  vtv7:
+  VTV7.vn@HD:
     name: "VTV7"
     aliases:
-      - "VTV7"
       - "VTV 7"
       - "VTV7 HD"
-      - "VTV7HD"
-    ids:
-      - "VTV7.vn@HD"
 
-  vtv8:
+  VTV8.vn@HD:
     name: "VTV8"
     aliases:
-      - "VTV8"
       - "VTV 8"
       - "VTV8 HD"
-      - "VTV8HD"
-    ids:
-      - "VTV8.vn@HD"
 
-  vtv9:
+  VTV9.vn@HD:
     name: "VTV9"
     aliases:
-      - "VTV9"
       - "VTV 9"
       - "VTV9 HD"
-      - "VTV9HD"
-    ids:
-      - "VTV9.vn@HD"
 
-  antv:
-    name: "ANTV"
-    aliases:
-      - "ANTV"
-      - "An Ninh TV"
-      - "An Ninh Truyền hình"
-      - "An Ninh Truyen Hinh"
-      - "Truyền hình Công an Nhân dân"
-
-  qpvn:
+  QPVN.vn@HD:
     name: "QPVN"
     aliases:
-      - "QPVN"
-      - "QPVN HD"
-      - "QPVNHD"
-      - "QP VN"
-      - "Quốc phòng Việt Nam"
-      - "Quoc phong Viet Nam"
-      - "Quốc phòng"
-      - "Quoc phong"
+      - "Quốc Phòng Việt Nam"
+      - "Quoc Phong Viet Nam"
 
-  tvbvietnam:
-    name: "TVB Việt Nam"
+  ANTV.vn@HD:
+    name: "ANTV"
     aliases:
-      - "TVB Việt Nam"
-      - "TVB VIỆT NAM"
-      - "TVB Vietnam"
-      - "TVB VN"
-
-  onmovies:
-    name: "ON Movies"
-    aliases:
-      - "ON Movies"
-      - "ON Movies HD"
-      - "ONMovies"
-
-  onkids:
-    name: "ON Kids"
-    aliases:
-      - "ON Kids"
-      - "ON Kids HD"
-      - "ONKids"
-
-  onlife:
-    name: "ON Life"
-    aliases:
-      - "ON Life"
-      - "ON Life HD"
-      - "ONLife"
-
-  onviedrama:
-    name: "ON Vie Drama"
-    aliases:
-      - "ON Vie Drama"
-      - "ON Vie DRAMAS"
-      - "ON VieDrama"
-      - "ONVieDrama"
-
-
-# ============================================================
-# EXCLUSIONS
-# ============================================================
-
-exclude:
-
-  groups:
-
-    vmttv:
-      - "live events"
-      - "radio"
-      - "uk radio"
-      - "israel"
-      - "hàn quốc"
-      - "trung quốc"
-      - "thái lan"
-      - "cola tv"
-      - "pháo hoa tv"
-
-    vietanhtv:
-      - "update"
-      - "dự phòng"
-      - "fpt"
-      - "sự kiện 360"
-      - "rạp phim"
-      - "radio"
-      - "socolive"
-
-    easport:
-      - "info"
-
-  channels:
-
-    iptv-org:
-      - "vsbet"
-      - "VSBet HD"
-
-
-# ============================================================
-# BAD LABELS
-# Không health-check, chỉ tránh chọn các entry rõ ràng
-# có nhãn không mong muốn.
-# ============================================================
-
-avoid_labels:
-  - "[Offline]"
+      - "An Ninh TV"
+      - "An Ninh Television"
