@@ -222,6 +222,29 @@ VMTTV_BLOCKED_TOKENS = {
 # ============================================================
 
 def strip_accents(value: str) -> str:
+    """
+    BUG DA SUA:
+
+    Chu "Đ"/"đ" (U+0110/U+0111) la 1 CHU CAI RIENG BIET trong bang chu
+    cai tieng Viet, KHONG phai "D" ghep dau nhu a/à/á... Python's
+    unicodedata.normalize("NFD", ...) KHONG the tach duoc chu nay ra
+    thanh "D" + dau (vi no khong co compatibility decomposition), nen
+    "Đà Nẵng" truoc day bi strip thanh "đa nang" (con nguyen chu "đ")
+    thay vi "da nang" nhu mong doi.
+
+    Hau qua thuc te: TAT CA cac tinh/thanh bat dau bang "Đ" (Đà Nẵng,
+    Đồng Nai, Đồng Tháp, Điện Biên, Đắk Lắk, Đắk Nông...) VA moi cum tu
+    "Đài PTTH" deu KHONG khop duoc voi local_keywords (viet bang "d"
+    thuong), khien hang loat kenh dia phuong that bi roi nham vao
+    "📦 Khac". Day la nguyen nhan goc gay ra phan lon loi phan loai dia
+    phuong sai trong ban build truoc.
+
+    Fix: thay "Đ"/"đ" -> "D"/"d" TRUOC khi chay NFD, vi day la 2 ky tu
+    DUY NHAT trong bang chu cai tieng Viet co van de nay (moi nguyen am
+    co dau khac deu duoc NFD tach dung).
+    """
+    value = value.replace("Đ", "D").replace("đ", "d")
+
     value = unicodedata.normalize("NFD", value)
 
     return "".join(
@@ -1109,6 +1132,72 @@ def is_vsbet(
     )
 
 
+# ------------------------------------------------------------
+# GAMBLING BRAND FILTER
+#
+# Da xac minh thuc te: 35 kenh "BLV <biet danh>" (BLV Coca, BLV Pepsi,
+# BLV Rồng Đỏ...) lot vao "📦 Khac" khong bi loc. Day la dac trung web
+# lau bong da/ca do da biet tai VN: hang tram URL trung 1 tran dau, chi
+# khac nhau bang biet danh binh luan vien gia. group_is_excluded()
+# truoc day KHONG bat duoc vi group-title cua cac kenh nay da bi "phang"
+# ve "📦 Khac" (khong con giu ten nhom goc "Socolive"/"Cola TV" nua), nen
+# phai loc theo TEN KENH + DOMAIN cu the da xac minh, khong phu thuoc
+# group-title.
+# ------------------------------------------------------------
+
+GAMBLING_BRAND_NAME_RE = re.compile(
+    r"^\s*blv\b",
+    re.IGNORECASE,
+)
+
+# Domain/logo cu the DA XAC MINH gan voi cac kenh BLV nay (khong phai tu
+# khoa chung chung nhu "sport"/"live" - chi chan dung brand da biet).
+GAMBLING_BRAND_DOMAINS = (
+    "msdht.app",
+    "phaohoa.live",
+    "phaohoa1.live",
+)
+GAMBLING_BRAND_LOGO_MARKERS = (
+    "colatv_logo",
+    "phaohoa1.live",
+)
+
+
+def is_gambling_brand(
+    entry: M3UEntry,
+) -> bool:
+
+    name = normalize_text(
+        entry.original_name
+        or entry.tvg_name
+    )
+
+    if GAMBLING_BRAND_NAME_RE.match(
+        name
+    ):
+        return True
+
+    url_lower = (entry.url or "").lower()
+
+    if any(
+        domain in url_lower
+        for domain in GAMBLING_BRAND_DOMAINS
+    ):
+        return True
+
+    logo_lower = (
+        entry.tvg_logo or ""
+    ).lower()
+
+    if any(
+        marker in logo_lower
+        for marker in GAMBLING_BRAND_LOGO_MARKERS
+    ):
+        return True
+
+    return False
+
+
 def should_remove(
     entry: M3UEntry,
 ) -> bool:
@@ -1116,6 +1205,7 @@ def should_remove(
     return (
         group_is_excluded(entry)
         or is_vsbet(entry)
+        or is_gambling_brand(entry)
     )
 
 
@@ -1144,6 +1234,9 @@ def filter_reason(
 
     if is_vsbet(entry):
         return "VSBET"
+
+    if is_gambling_brand(entry):
+        return "GAMBLING_BRAND"
 
     if (
         entry.source == "vmttv"
@@ -1632,6 +1725,8 @@ def classify_group(
     # ========================================================
 
     local_keywords = (
+        # BO SUNG DAY DU 63 TINH/THANH (danh sach cu thieu ~20 tinh,
+        # dac biet la cac tinh mien nui phia Bac va vai tinh mien Tay).
         "hanoi tv",
         "ha noi tv",
         "hanoitv",
@@ -1649,6 +1744,7 @@ def classify_group(
         "quang tri",
         "thua thien hue",
         "hue tv",
+        "hue",
         "binh dinh",
         "khanh hoa",
         "dak lak",
@@ -1675,6 +1771,31 @@ def classify_group(
         "kon tum",
         "dak nong",
         "ninh thuan",
+        # --- Bo sung moi ---
+        "son la",
+        "dien bien",
+        "lai chau",
+        "lao cai",
+        "yen bai",
+        "ha giang",
+        "cao bang",
+        "bac kan",
+        "tuyen quang",
+        "thai binh",
+        "hung yen",
+        "lang son",
+        "ninh binh",
+        "hoa binh",
+        "vinh phuc",
+        "bac giang",
+        "quang ngai",
+        "phu tho",
+        "quang nam",
+        "binh phuoc",
+        "sai gon",
+        "tp hcm",
+        "ho chi minh",
+        "dai ptth",  # tien to dinh danh dai dia phuong pho bien
     )
 
     if any(
