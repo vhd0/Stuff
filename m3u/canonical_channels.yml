@@ -1,577 +1,1234 @@
-version: 1
-
-groups:
-  VTV: "📺 VTV"
-  HTV: "📺 HTV"
-  SCTV: "📺 SCTV"
-  VTVCAB: "📡 VTVCab"
-  HTVC: "📡 HTVC"
-  THIET_YEU: "⭐ Thiết yếu"
-  DIA_PHUONG: "🏙️ Địa phương"
+# ============================================================
+# CANONICAL CHANNEL MAP
+# ============================================================
+#
+# group:
+#   VTV
+#   HTV
+#   SCTV
+#   VTVCAB
+#   HTVC
+#   THIET_YEU
+#   DIA_PHUONG
+#   SU_KIEN
+#   ...
+#
+# Priority groups are hard-locked by optimize_m3u.py.
+#
+# VTVCab + ON are intentionally unified:
+#     group: VTVCAB
+#
+# Do NOT create:
+#     VTVCAB_ON
+# ============================================================
 
 channels:
 
+  # ==========================================================
+  # VTV
+  # ==========================================================
+
   vtv1:
-    name: "VTV1"
-    provider: "VTV"
-    group: "VTV"
+    name: VTV1
+    provider: VTV
+    group: VTV
     aliases:
-      - "VTV1"
-      - "VTV1 HD"
-      - "VTV1HD"
-      - "VTV1.vn@HD"
-      - "VTV 1"
+      - VTV1
+      - VTV 1
+      - VTV1 HD
+      - VTV 1 HD
+      - VTV1.vn
+      - VTV1.vn@HD
+      - VTV1HD
 
   vtv2:
-    name: "VTV2"
-    provider: "VTV"
-    group: "VTV"
+    name: VTV2
+    provider: VTV
+    group: VTV
     aliases:
-      - "VTV2"
-      - "VTV2 HD"
-      - "VTV2HD"
-      - "VTV2.vn@HD"
-      - "VTV 2"
+      - VTV2
+      - VTV 2
+      - VTV2 HD
+      - VTV 2 HD
+      - VTV2.vn
+      - VTV2.vn@HD
+      - VTV2HD
 
   vtv3:
-    name: "VTV3"
-    provider: "VTV"
-    group: "VTV"
+    name: VTV3
+    provider: VTV
+    group: VTV
     aliases:
-      - "VTV3"
-      - "VTV3 HD"
-      - "VTV3HD"
-      - "VTV3.vn@HD"
-      - "VTV 3"
+      - VTV3
+      - VTV 3
+      - VTV3 HD
+      - VTV 3 HD
+      - VTV3.vn
+      - VTV3.vn@HD
+      - VTV3HD
 
   vtv4:
-    name: "VTV4"
-    provider: "VTV"
-    group: "VTV"
+    name: VTV4
+    provider: VTV
+    group: VTV
     aliases:
-      - "VTV4"
-      - "VTV4 HD"
-      - "VTV4HD"
-      - "VTV4.vn@HD"
-      - "VTV 4"
+      - VTV4
+      - VTV 4
+      - VTV4 HD
+      - VTV 4 HD
+      - VTV4.vn
+      - VTV4.vn@HD
+      - VTV4HD
 
   vtv5:
-    name: "VTV5"
-    provider: "VTV"
-    group: "VTV"
+    name: VTV5
+    provider: VTV
+    group: VTV
     aliases:
-      - "VTV5"
-      - "VTV5 HD"
-      - "VTV5HD"
-      - "VTV5.vn@HD"
-      - "VTV 5"
+      - VTV5
+      - VTV 5
+      - VTV5 HD
+      - VTV 5 HD
+      - VTV5.vn
+      - VTV5.vn@HD
+      - VTV5HD
 
   vtv5tnb:
-    name: "VTV5 Tây Nam Bộ"
-    provider: "VTV"
-    group: "VTV"
+    name: VTV5 Tây Nam Bộ
+    provider: VTV
+    group: VTV
     aliases:
-      - "VTV5 Tây Nam Bộ"
-      - "VTV5 Tay Nam Bo"
-      - "VTV5 TNB"
-      - "VTV5TNB"
-      - "VTV5 TNB HD"
+      - VTV5 Tây Nam Bộ
+      - VTV5 Tay Nam Bo
+      - VTV5 TNB
+      - VTV5TNB
+      - VTV5 TNB HD
+      - VTV5TNB HD
 
   vtv5tn:
-    name: "VTV5 Tây Nguyên"
-    provider: "VTV"
-    group: "VTV"
+    name: VTV5 Tây Nguyên
+    provider: VTV
+    group: VTV
     aliases:
-      - "VTV5 Tây Nguyên"
-      - "VTV5 Tay Nguyen"
-      - "VTV5 TN"
-      - "VTV5TN"
-      - "VTV5 Tây Nguyên HD"
+      - VTV5 Tây Nguyên
+      - VTV5 Tay Nguyen
+      - VTV5 TN
+      - VTV5TN
+      - VTV5 TN HD
+      - VTV5TN HD
 
   vtv6:
-    name: "VTV6"
-    provider: "VTV"
-    group: "VTV"
+    name: VTV6
+    provider: VTV
+    group: VTV
     aliases:
-      - "VTV6"
-      - "VTV6 HD"
-      - "VTV6HD"
-      - "VTV6.vn@HD"
-      - "VTV 6"
+      - VTV6
+      - VTV 6
+      - VTV6 HD
+      - VTV 6 HD
+      - VTV6.vn
+      - VTV6.vn@HD
+      - VTV6HD
 
   vtv7:
-    name: "VTV7"
-    provider: "VTV"
-    group: "VTV"
+    name: VTV7
+    provider: VTV
+    group: VTV
     aliases:
-      - "VTV7"
-      - "VTV7 HD"
-      - "VTV7HD"
-      - "VTV7.vn@HD"
-      - "VTV 7"
+      - VTV7
+      - VTV 7
+      - VTV7 HD
+      - VTV 7 HD
+      - VTV7.vn
+      - VTV7.vn@HD
+      - VTV7HD
 
   vtv8:
-    name: "VTV8"
-    provider: "VTV"
-    group: "VTV"
+    name: VTV8
+    provider: VTV
+    group: VTV
     aliases:
-      - "VTV8"
-      - "VTV8 HD"
-      - "VTV8HD"
-      - "VTV8.vn@HD"
-      - "VTV 8"
+      - VTV8
+      - VTV 8
+      - VTV8 HD
+      - VTV 8 HD
+      - VTV8.vn
+      - VTV8.vn@HD
+      - VTV8HD
 
   vtv9:
-    name: "VTV9"
-    provider: "VTV"
-    group: "VTV"
+    name: VTV9
+    provider: VTV
+    group: VTV
     aliases:
-      - "VTV9"
-      - "VTV9 HD"
-      - "VTV9HD"
-      - "VTV9.vn@HD"
-      - "VTV 9"
+      - VTV9
+      - VTV 9
+      - VTV9 HD
+      - VTV 9 HD
+      - VTV9.vn
+      - VTV9.vn@HD
+      - VTV9HD
+
+
+  # ==========================================================
+  # HTV
+  # ==========================================================
 
   htv1:
-    name: "HTV1"
-    provider: "HTV"
-    group: "HTV"
-    aliases: ["HTV1", "HTV1 HD", "HTV1HD", "HTV 1"]
+    name: HTV1
+    provider: HTV
+    group: HTV
+    aliases:
+      - HTV1
+      - HTV 1
+      - HTV1 HD
+      - HTV 1 HD
+      - HTV1.vn
+      - HTV1HD
 
   htv2:
-    name: "HTV2"
-    provider: "HTV"
-    group: "HTV"
-    aliases: ["HTV2", "HTV2 HD", "HTV2HD", "HTV 2", "HTV2 Vie Channel"]
+    name: HTV2
+    provider: HTV
+    group: HTV
+    aliases:
+      - HTV2
+      - HTV 2
+      - HTV2 HD
+      - HTV 2 HD
+      - HTV2.vn
+      - HTV2HD
+      - Vie Channel
 
   htv3:
-    name: "HTV3"
-    provider: "HTV"
-    group: "HTV"
-    aliases: ["HTV3", "HTV3 HD", "HTV3HD", "HTV 3"]
+    name: HTV3
+    provider: HTV
+    group: HTV
+    aliases:
+      - HTV3
+      - HTV 3
+      - HTV3 HD
+      - HTV 3 HD
+      - HTV3.vn
+      - HTV3HD
 
   htv7:
-    name: "HTV7"
-    provider: "HTV"
-    group: "HTV"
-    aliases: ["HTV7", "HTV7 HD", "HTV7HD", "HTV 7"]
+    name: HTV7
+    provider: HTV
+    group: HTV
+    aliases:
+      - HTV7
+      - HTV 7
+      - HTV7 HD
+      - HTV 7 HD
+      - HTV7.vn
+      - HTV7HD
 
   htv9:
-    name: "HTV9"
-    provider: "HTV"
-    group: "HTV"
-    aliases: ["HTV9", "HTV9 HD", "HTV9HD", "HTV 9"]
+    name: HTV9
+    provider: HTV
+    group: HTV
+    aliases:
+      - HTV9
+      - HTV 9
+      - HTV9 HD
+      - HTV 9 HD
+      - HTV9.vn
+      - HTV9HD
+
+
+  # ==========================================================
+  # SCTV
+  # ==========================================================
 
   sctv1:
-    name: "SCTV1"
-    provider: "SCTV"
-    group: "SCTV"
-    aliases: ["SCTV1", "SCTV1 HD", "SCTV1HD", "SCTV 1"]
+    name: SCTV1
+    provider: SCTV
+    group: SCTV
+    aliases:
+      - SCTV1
+      - SCTV 1
+      - SCTV1 HD
+      - SCTV 1 HD
+      - SCTV1.vn
+      - SCTV1HD
 
   sctv2:
-    name: "SCTV2"
-    provider: "SCTV"
-    group: "SCTV"
-    aliases: ["SCTV2", "SCTV2 HD", "SCTV2HD", "SCTV 2"]
-
-  on_sports:
-    name: "ON Sports"
-    provider: "VTVCAB"
-    group: "VTVCAB"
-    vtvcab_number: 3
+    name: SCTV2
+    provider: SCTV
+    group: SCTV
     aliases:
-      - "ON Sports"
-      - "ON Sports HD"
-      - "On Sports"
-      - "ON SPORT"
-      - "VTVcab 3"
-      - "VTVcab3"
-      - "VTVCab 3"
-      - "VTVCAB3"
+      - SCTV2
+      - SCTV 2
+      - SCTV2 HD
+      - SCTV 2 HD
+      - SCTV2.vn
+      - SCTV2HD
 
-  on_sports_plus:
-    name: "ON Sports+"
-    provider: "VTVCAB"
-    group: "VTVCAB"
-    vtvcab_number: 6
+  sctv3:
+    name: SCTV3
+    provider: SCTV
+    group: SCTV
     aliases:
-      - "ON Sports+"
-      - "ON Sports +"
-      - "ON Sports Plus"
-      - "ON Sports+ HD"
-      - "On Sports+"
-      - "VTVcab 6"
-      - "VTVcab6"
-      - "VTVCab 6"
-      - "VTVCAB6"
+      - SCTV3
+      - SCTV 3
+      - SCTV3 HD
+      - SCTV 3 HD
+      - SCTV3HD
 
-  on_football:
-    name: "ON Football"
-    provider: "VTVCAB"
-    group: "VTVCAB"
-    vtvcab_number: 16
+  sctv4:
+    name: SCTV4
+    provider: SCTV
+    group: SCTV
     aliases:
-      - "ON Football"
-      - "ON Football HD"
-      - "On Football"
-      - "VTVcab 16"
-      - "VTVcab16"
-      - "VTVCab 16"
-      - "VTVCAB16"
+      - SCTV4
+      - SCTV 4
+      - SCTV4 HD
+      - SCTV 4 HD
+      - SCTV4HD
 
-  on_sports_news:
-    name: "ON Sports News"
-    provider: "VTVCAB"
-    group: "VTVCAB"
-    vtvcab_number: 18
+  sctv5:
+    name: SCTV5
+    provider: SCTV
+    group: SCTV
     aliases:
-      - "ON Sports News"
-      - "ON Sports News HD"
-      - "On Sports News"
-      - "VTVcab 18"
-      - "VTVcab18"
-      - "VTVCab 18"
-      - "VTVCAB18"
+      - SCTV5
+      - SCTV 5
+      - SCTV5 HD
+      - SCTV 5 HD
+      - SCTV5HD
 
-  on_golf:
-    name: "ON Golf"
-    provider: "VTVCAB"
-    group: "VTVCAB"
-    vtvcab_number: 23
+  sctv6:
+    name: SCTV6
+    provider: SCTV
+    group: SCTV
     aliases:
-      - "ON Golf"
-      - "ON Golf HD"
-      - "On Golf"
-      - "VTVcab 23"
-      - "VTVcab23"
-      - "VTVCab 23"
-      - "VTVCAB23"
+      - SCTV6
+      - SCTV 6
+      - SCTV6 HD
+      - SCTV 6 HD
+      - SCTV6HD
 
-  on_phim_viet:
-    name: "ON Phim Việt"
-    provider: "VTVCAB"
-    group: "VTVCAB"
+  sctv7:
+    name: SCTV7
+    provider: SCTV
+    group: SCTV
     aliases:
-      - "ON Phim Việt"
-      - "ON Phim Viet"
-      - "ON Phim Viet HD"
+      - SCTV7
+      - SCTV 7
+      - SCTV7 HD
+      - SCTV 7 HD
+      - SCTV7HD
 
-  on_movies:
-    name: "ON Movies"
-    provider: "VTVCAB"
-    group: "VTVCAB"
+  sctv8:
+    name: SCTV8
+    provider: SCTV
+    group: SCTV
     aliases:
-      - "ON Movies"
-      - "ON Movies HD"
-      - "On Movies"
-      - "ON Movie"
+      - SCTV8
+      - SCTV 8
+      - SCTV8 HD
+      - SCTV 8 HD
+      - SCTV8HD
 
-  on_cine:
-    name: "ON Cine"
-    provider: "VTVCAB"
-    group: "VTVCAB"
+  sctv9:
+    name: SCTV9
+    provider: SCTV
+    group: SCTV
     aliases:
-      - "ON Cine"
-      - "ON Cine HD"
-      - "On Cine"
-      - "ON CINE"
+      - SCTV9
+      - SCTV 9
+      - SCTV9 HD
+      - SCTV 9 HD
+      - SCTV9HD
 
-  on_vie_giai_tri:
-    name: "ON Vie Giải Trí"
-    provider: "VTVCAB"
-    group: "VTVCAB"
+
+  # ==========================================================
+  # THIẾT YẾU
+  # ==========================================================
+
+  qpvn:
+    name: QPVN
+    provider: QPVN
+    group: THIET_YEU
     aliases:
-      - "ON Vie Giải Trí"
-      - "ON Vie Giai Tri"
-      - "ON Vie Entertainment"
-
-  on_vie_dramas:
-    name: "ON Vie Dramas"
-    provider: "VTVCAB"
-    group: "VTVCAB"
-    aliases:
-      - "ON Vie Dramas"
-      - "ON Vie Drama"
-      - "ON Vie Dramas HD"
-
-  on_echannel:
-    name: "ON Echannel"
-    provider: "VTVCAB"
-    group: "VTVCAB"
-    aliases:
-      - "ON Echannel"
-      - "ON E Channel"
-      - "ON Echannel HD"
-      - "ON E Channel HD"
-
-  on_style:
-    name: "ON Style"
-    provider: "VTVCAB"
-    group: "VTVCAB"
-    aliases:
-      - "ON Style"
-      - "ON Style TV"
-      - "ON Style HD"
-      - "ON Style TV HD"
-
-  on_kids:
-    name: "ON Kids"
-    provider: "VTVCAB"
-    group: "VTVCAB"
-    aliases:
-      - "ON Kids"
-      - "ON Kids HD"
-      - "On Kids"
-
-  on_bibi:
-    name: "ON BiBi"
-    provider: "VTVCAB"
-    group: "VTVCAB"
-    aliases:
-      - "ON BiBi"
-      - "ON BIBI"
-      - "ON Bibi"
-      - "ON BiBi HD"
-
-  on_info:
-    name: "ON Info TV"
-    provider: "VTVCAB"
-    group: "VTVCAB"
-    aliases:
-      - "ON Info TV"
-      - "ON InfoTV"
-      - "ON Info TV HD"
-
-  on_o2tv:
-    name: "ON O2TV"
-    provider: "VTVCAB"
-    group: "VTVCAB"
-    aliases:
-      - "ON O2TV"
-      - "ON O2 TV"
-      - "ON O2TV HD"
-
-  on_life:
-    name: "ON Life"
-    provider: "VTVCAB"
-    group: "VTVCAB"
-    aliases:
-      - "ON Life"
-      - "ON Life HD"
-
-  on_music:
-    name: "ON Music"
-    provider: "VTVCAB"
-    group: "VTVCAB"
-    aliases:
-      - "ON Music"
-      - "ON Music HD"
-      - "On Music"
-
-  on_vfamily:
-    name: "ON VFamily"
-    provider: "VTVCAB"
-    group: "VTVCAB"
-    aliases:
-      - "ON VFamily"
-      - "ON V Family"
-      - "ON VFamily HD"
-
-  on_trending:
-    name: "ON Trending"
-    provider: "VTVCAB"
-    group: "VTVCAB"
-    aliases:
-      - "ON Trending"
-      - "ON Trending HD"
-
-  on_homeshopping:
-    name: "ON Homeshopping"
-    provider: "VTVCAB"
-    group: "VTVCAB"
-    aliases:
-      - "ON Homeshopping"
-      - "ON Home Shopping"
-
-  vtvcab1:
-    name: "VTVCab 1"
-    provider: "VTVCAB"
-    group: "VTVCAB"
-    vtvcab_number: 1
-    aliases: ["VTVCab 1", "VTVCAB1", "VTVcab1"]
-
-  vtvcab2:
-    name: "VTVCab 2"
-    provider: "VTVCAB"
-    group: "VTVCAB"
-    vtvcab_number: 2
-    aliases: ["VTVCab 2", "VTVCAB2", "VTVcab2"]
-
-  vtvcab4:
-    name: "VTVCab 4"
-    provider: "VTVCAB"
-    group: "VTVCAB"
-    vtvcab_number: 4
-    aliases: ["VTVCab 4", "VTVCAB4", "VTVcab4"]
-
-  vtvcab5:
-    name: "VTVCab 5"
-    provider: "VTVCAB"
-    group: "VTVCAB"
-    vtvcab_number: 5
-    aliases: ["VTVCab 5", "VTVCAB5", "VTVcab5"]
-
-  vtvcab7:
-    name: "VTVCab 7"
-    provider: "VTVCAB"
-    group: "VTVCAB"
-    vtvcab_number: 7
-    aliases: ["VTVCab 7", "VTVCAB7", "VTVcab7"]
-
-  vtvcab8:
-    name: "VTVCab 8"
-    provider: "VTVCAB"
-    group: "VTVCAB"
-    vtvcab_number: 8
-    aliases: ["VTVCab 8", "VTVCAB8", "VTVcab8"]
-
-  vtvcab9:
-    name: "VTVCab 9"
-    provider: "VTVCAB"
-    group: "VTVCAB"
-    vtvcab_number: 9
-    aliases: ["VTVCab 9", "VTVCAB9", "VTVcab9"]
-
-  vtvcab10:
-    name: "VTVCab 10"
-    provider: "VTVCAB"
-    group: "VTVCAB"
-    vtvcab_number: 10
-    aliases: ["VTVCab 10", "VTVCAB10", "VTVcab10"]
-
-  vtvcab11:
-    name: "VTVCab 11"
-    provider: "VTVCAB"
-    group: "VTVCAB"
-    vtvcab_number: 11
-    aliases: ["VTVCab 11", "VTVCAB11", "VTVcab11"]
-
-  vtvcab12:
-    name: "VTVCab 12"
-    provider: "VTVCAB"
-    group: "VTVCAB"
-    vtvcab_number: 12
-    aliases: ["VTVCab 12", "VTVCAB12", "VTVcab12"]
-
-  vtvcab13:
-    name: "VTVCab 13"
-    provider: "VTVCAB"
-    group: "VTVCAB"
-    vtvcab_number: 13
-    aliases: ["VTVCab 13", "VTVCAB13", "VTVcab13"]
-
-  vtvcab14:
-    name: "VTVCab 14"
-    provider: "VTVCAB"
-    group: "VTVCAB"
-    vtvcab_number: 14
-    aliases: ["VTVCab 14", "VTVCAB14", "VTVcab14"]
-
-  vtvcab15:
-    name: "VTVCab 15"
-    provider: "VTVCAB"
-    group: "VTVCAB"
-    vtvcab_number: 15
-    aliases: ["VTVCab 15", "VTVCAB15", "VTVcab15"]
-
-  vtvcab17:
-    name: "VTVCab 17"
-    provider: "VTVCAB"
-    group: "VTVCAB"
-    vtvcab_number: 17
-    aliases: ["VTVCab 17", "VTVCAB17", "VTVcab17"]
-
-  vtvcab19:
-    name: "VTVCab 19"
-    provider: "VTVCAB"
-    group: "VTVCAB"
-    vtvcab_number: 19
-    aliases: ["VTVCab 19", "VTVCAB19", "VTVcab19"]
-
-  vtvcab20:
-    name: "VTVCab 20"
-    provider: "VTVCAB"
-    group: "VTVCAB"
-    vtvcab_number: 20
-    aliases: ["VTVCab 20", "VTVCAB20", "VTVcab20"]
-
-  htvc:
-    name: "HTVC"
-    provider: "HTVC"
-    group: "HTVC"
-    aliases: ["HTVC"]
-
-  htvc_thuan_viet:
-    name: "HTVC Thuần Việt"
-    provider: "HTVC"
-    group: "HTVC"
-    aliases: ["HTVC Thuần Việt", "HTVC Thuan Viet", "HTVC Thuan Viet HD"]
-
-  htvc_gia_dinh:
-    name: "HTVC Gia Đình"
-    provider: "HTVC"
-    group: "HTVC"
-    aliases: ["HTVC Gia Đình", "HTVC Gia Dinh", "HTVC Gia Dinh HD"]
-
-  htvc_phim:
-    name: "HTVC Phim"
-    provider: "HTVC"
-    group: "HTVC"
-    aliases: ["HTVC Phim", "HTVC Phim HD"]
-
-  qpvnhd:
-    name: "QPVN"
-    provider: "QPVN"
-    group: "THIET_YEU"
-    aliases:
-      - "QPVN"
-      - "QPVN HD"
-      - "QPVNHD"
-      - "QPVN.vn@HD"
-      - "Quốc phòng Việt Nam"
-      - "Quoc phong Viet Nam"
+      - QPVN
+      - QPVN HD
+      - Quốc phòng Việt Nam
+      - Quoc phong Viet Nam
+      - QP VN
 
   antv:
-    name: "ANTV"
-    provider: "ANTV"
-    group: "THIET_YEU"
+    name: ANTV
+    provider: ANTV
+    group: THIET_YEU
     aliases:
-      - "ANTV"
-      - "ANTV HD"
-      - "ANTVHD"
-      - "ANTV.vn@HD"
-      - "An Ninh TV"
+      - ANTV
+      - ANTV HD
+      - An Ninh TV
+      - Truyền hình Công an Nhân dân
+      - Truyen hinh Cong an Nhan dan
+
+
+  # ==========================================================
+  # ĐỊA PHƯƠNG
+  #
+  # tvg-id variants are intentionally included as aliases.
+  # Different tvg-id values therefore resolve to ONE
+  # canonical identity.
+  # ==========================================================
 
   hanoitv1:
-    name: "HanoiTV1"
-    provider: "HanoiTV"
-    group: "DIA_PHUONG"
+    name: Hà Nội 1
+    provider: HanoiTV
+    group: DIA_PHUONG
     aliases:
-      - "HanoiTV1"
-      - "Hanoi TV1"
-      - "HanoiTV 1"
-      - "HANOITV1"
-      - "Hà Nội 1"
-      - "Ha Noi 1"
+      - HanoiTV1
+      - Hanoi TV1
+      - HanoiTV 1
+      - Hanoi TV 1
+      - Hà Nội 1
+      - Ha Noi 1
+      - Hà Nội 1 HD
+      - Ha Noi 1 HD
+      - HanoiTV1 HD
+      - HANOITV1
 
   hanoitv2:
-    name: "HanoiTV2"
-    provider: "HanoiTV"
-    group: "DIA_PHUONG"
+    name: Hà Nội 2
+    provider: HanoiTV
+    group: DIA_PHUONG
     aliases:
-      - "HanoiTV2"
-      - "Hanoi TV2"
-      - "HanoiTV 2"
-      - "HANOITV2"
-      - "Hà Nội 2"
-      - "Ha Noi 2"
+      - HanoiTV2
+      - Hanoi TV2
+      - HanoiTV 2
+      - Hanoi TV 2
+      - Hà Nội 2
+      - Ha Noi 2
+      - Hà Nội 2 HD
+      - Ha Noi 2 HD
+      - HanoiTV2 HD
+      - HANOITV2
+
+  htvct:
+    name: Truyền hình Cần Thơ
+    provider: Địa phương
+    group: DIA_PHUONG
+    aliases:
+      - Can Tho TV
+      - Cần Thơ TV
+      - Cần Thơ
+      - Can Tho
+      - THTPCT
+      - THTP Cần Thơ
+
+  haiphongtv:
+    name: Hải Phòng
+    provider: Địa phương
+    group: DIA_PHUONG
+    aliases:
+      - Hai Phong TV
+      - Hải Phòng TV
+      - Hải Phòng
+      - Hai Phong
+      - THP
+
+  quangninhtv:
+    name: Quảng Ninh
+    provider: Địa phương
+    group: DIA_PHUONG
+    aliases:
+      - Quang Ninh TV
+      - Quảng Ninh TV
+      - Quảng Ninh
+      - Quang Ninh
+      - QTV
+
+  danangtv:
+    name: Đà Nẵng
+    provider: Địa phương
+    group: DIA_PHUONG
+    aliases:
+      - Da Nang TV
+      - Đà Nẵng TV
+      - Đà Nẵng
+      - Da Nang
+      - DRT
+
+  hue:
+    name: Huế
+    provider: Địa phương
+    group: DIA_PHUONG
+    aliases:
+      - Hue TV
+      - Huế TV
+      - Huế
+      - Hue
+      - TRT
+
+  phuyentv:
+    name: Phú Yên
+    provider: Địa phương
+    group: DIA_PHUONG
+    aliases:
+      - Phu Yen TV
+      - Phú Yên TV
+      - Phú Yên
+      - Phu Yen
+      - PTV
+
+  khanhoa:
+    name: Khánh Hòa
+    provider: Địa phương
+    group: DIA_PHUONG
+    aliases:
+      - Khanh Hoa TV
+      - Khánh Hòa TV
+      - Khánh Hòa
+      - Khanh Hoa
+      - KTV
+
+  binhdinhtv:
+    name: Bình Định
+    provider: Địa phương
+    group: DIA_PHUONG
+    aliases:
+      - Binh Dinh TV
+      - Bình Định TV
+      - Bình Định
+      - Binh Dinh
+      - BTV
+
+  daklak:
+    name: Đắk Lắk
+    provider: Địa phương
+    group: DIA_PHUONG
+    aliases:
+      - Dak Lak TV
+      - Đắk Lắk TV
+      - Đắk Lắk
+      - Dak Lak
+      - DRT Đắk Lắk
+
+  gialai:
+    name: Gia Lai
+    provider: Địa phương
+    group: DIA_PHUONG
+    aliases:
+      - Gia Lai TV
+      - Gia Lai
+      - GTV
+
+  lamdong:
+    name: Lâm Đồng
+    provider: Địa phương
+    group: DIA_PHUONG
+    aliases:
+      - Lam Dong TV
+      - Lâm Đồng TV
+      - Lâm Đồng
+      - Lam Dong
+      - LTV
+
+  dongnai:
+    name: Đồng Nai
+    provider: Địa phương
+    group: DIA_PHUONG
+    aliases:
+      - Dong Nai TV
+      - Đồng Nai TV
+      - Đồng Nai
+      - Dong Nai
+      - DNRTV
+
+  binhduong:
+    name: Bình Dương
+    provider: Địa phương
+    group: DIA_PHUONG
+    aliases:
+      - Binh Duong TV
+      - Bình Dương TV
+      - Bình Dương
+      - Binh Duong
+      - BTV Bình Dương
+
+  tayninh:
+    name: Tây Ninh
+    provider: Địa phương
+    group: DIA_PHUONG
+    aliases:
+      - Tay Ninh TV
+      - Tây Ninh TV
+      - Tây Ninh
+      - Tay Ninh
+      - TTV
+
+  longan:
+    name: Long An
+    provider: Địa phương
+    group: DIA_PHUONG
+    aliases:
+      - Long An TV
+      - Long An
+      - LA34
+
+  tiengiang:
+    name: Tiền Giang
+    provider: Địa phương
+    group: DIA_PHUONG
+    aliases:
+      - Tien Giang TV
+      - Tiền Giang TV
+      - Tiền Giang
+      - Tien Giang
+      - THTG
+
+  bentre:
+    name: Bến Tre
+    provider: Địa phương
+    group: DIA_PHUONG
+    aliases:
+      - Ben Tre TV
+      - Bến Tre TV
+      - Bến Tre
+      - Ben Tre
+      - THBT
+
+  vinhlong:
+    name: Vĩnh Long
+    provider: Địa phương
+    group: DIA_PHUONG
+    aliases:
+      - Vinh Long TV
+      - Vĩnh Long TV
+      - Vĩnh Long
+      - Vinh Long
+      - THVL
+
+  dongthap:
+    name: Đồng Tháp
+    provider: Địa phương
+    group: DIA_PHUONG
+    aliases:
+      - Dong Thap TV
+      - Đồng Tháp TV
+      - Đồng Tháp
+      - Dong Thap
+      - THDT
+
+  angiang:
+    name: An Giang
+    provider: Địa phương
+    group: DIA_PHUONG
+    aliases:
+      - An Giang TV
+      - An Giang
+      - ATV
+
+  kiengiang:
+    name: Kiên Giang
+    provider: Địa phương
+    group: DIA_PHUONG
+    aliases:
+      - Kien Giang TV
+      - Kiên Giang TV
+      - Kiên Giang
+      - Kien Giang
+      - KGTV
+
+  cantho:
+    name: Cần Thơ
+    provider: Địa phương
+    group: DIA_PHUONG
+    aliases:
+      - Can Tho
+      - Cần Thơ
+      - Can Tho TV
+      - Cần Thơ TV
+
+  camau:
+    name: Cà Mau
+    provider: Địa phương
+    group: DIA_PHUONG
+    aliases:
+      - Ca Mau TV
+      - Cà Mau TV
+      - Cà Mau
+      - Ca Mau
+      - CTV
+
+  baclieu:
+    name: Bạc Liêu
+    provider: Địa phương
+    group: DIA_PHUONG
+    aliases:
+      - Bac Lieu TV
+      - Bạc Liêu TV
+      - Bạc Liêu
+      - Bac Lieu
+      - BTV Bạc Liêu
+
+  soctrang:
+    name: Sóc Trăng
+    provider: Địa phương
+    group: DIA_PHUONG
+    aliases:
+      - Soc Trang TV
+      - Sóc Trăng TV
+      - Sóc Trăng
+      - Soc Trang
+      - STV
+
+  travinh:
+    name: Trà Vinh
+    provider: Địa phương
+    group: DIA_PHUONG
+    aliases:
+      - Tra Vinh TV
+      - Trà Vinh TV
+      - Trà Vinh
+      - Tra Vinh
+      - THTV
+
+
+  # ==========================================================
+  # VTVCAB / ON
+  #
+  # ALL ON CHANNELS ARE VTVCAB.
+  #
+  # There is intentionally NO VTVCAB_ON group.
+  # ==========================================================
+
+  on_sports:
+    name: ON Sports
+    provider: VTVCAB
+    group: VTVCAB
+    aliases:
+      - ON Sports
+      - ON Sports HD
+      - ON SPORT
+      - VTVcab 3
+      - VTVcab 3 HD
+      - VTV Cab 3
+      - VTVcab3
+    vtvcab_number: 3
+
+  on_sports_plus:
+    name: ON Sports+
+    provider: VTVCAB
+    group: VTVCAB
+    aliases:
+      - ON Sports+
+      - ON Sports + 
+      - ON Sports Plus
+      - ON Sport+
+      - ON Sport Plus
+      - ON Sports+ HD
+      - VTVcab 6
+      - VTVcab 6 HD
+      - VTV Cab 6
+      - VTVcab6
+    vtvcab_number: 6
+
+  on_football:
+    name: ON Football
+    provider: VTVCAB
+    group: VTVCAB
+    aliases:
+      - ON Football
+      - ON Football HD
+      - ON Football HD
+      - VTVcab 16
+      - VTVcab 16 HD
+      - VTV Cab 16
+      - VTVcab16
+    vtvcab_number: 16
+
+  on_sports_news:
+    name: ON Sports News
+    provider: VTVCAB
+    group: VTVCAB
+    aliases:
+      - ON Sports News
+      - ON Sports News HD
+      - ON Sport News
+      - VTVcab 18
+      - VTVcab 18 HD
+      - VTV Cab 18
+      - VTVcab18
+    vtvcab_number: 18
+
+  on_golf:
+    name: ON Golf
+    provider: VTVCAB
+    group: VTVCAB
+    aliases:
+      - ON Golf
+      - ON Golf HD
+      - VTVcab 23
+      - VTVcab 23 HD
+      - VTV Cab 23
+      - VTVcab23
+    vtvcab_number: 23
+
+  on_phim_viet:
+    name: ON Phim Việt
+    provider: VTVCAB
+    group: VTVCAB
+    aliases:
+      - ON Phim Việt
+      - ON Phim Viet
+      - ON Phim Việt HD
+      - ON Phim Viet HD
+      - VTVcab 19
+      - VTVcab 19 HD
+      - VTV Cab 19
+      - VTVcab19
+    vtvcab_number: 19
+
+  on_movies:
+    name: ON Movies
+    provider: VTVCAB
+    group: VTVCAB
+    aliases:
+      - ON Movies
+      - ON Movies HD
+      - ON Movie
+      - VTVcab Movies
+
+  on_cine:
+    name: ON Cine
+    provider: VTVCAB
+    group: VTVCAB
+    aliases:
+      - ON Cine
+      - ON Cine HD
+      - ON CINÉ
+      - VTVcab Cine
+
+  on_vie_giai_tri:
+    name: ON Vie Giải Trí
+    provider: VTVCAB
+    group: VTVCAB
+    aliases:
+      - ON Vie Giải Trí
+      - ON Vie Giai Tri
+      - ON Vie Giải Trí HD
+      - ON Vie Giai Tri HD
+
+  on_vie_dramas:
+    name: ON Vie Dramas
+    provider: VTVCAB
+    group: VTVCAB
+    aliases:
+      - ON Vie Dramas
+      - ON Vie Dramas HD
+      - ON Vie Drama
+
+  on_echannel:
+    name: ON Echannel
+    provider: VTVCAB
+    group: VTVCAB
+    aliases:
+      - ON Echannel
+      - ON E Channel
+      - ON Echannel HD
+      - ON E Channel HD
+      - E Channel
+
+  on_style:
+    name: ON Style
+    provider: VTVCAB
+    group: VTVCAB
+    aliases:
+      - ON Style
+      - ON Style TV
+      - ON Style TV HD
+      - ON Style HD
+
+  on_kids:
+    name: ON Kids
+    provider: VTVCAB
+    group: VTVCAB
+    aliases:
+      - ON Kids
+      - ON Kids HD
+      - ON Kid
+      - VTVcab Kids
+
+  on_bibi:
+    name: ON BiBi
+    provider: VTVCAB
+    group: VTVCAB
+    aliases:
+      - ON BiBi
+      - ON Bibi
+      - ON BIBI
+      - ON BiBi HD
+      - ON Bibi HD
+
+  on_info_tv:
+    name: ON Info TV
+    provider: VTVCAB
+    group: VTVCAB
+    aliases:
+      - ON Info TV
+      - ON InfoTV
+      - ON Info TV HD
+      - Info TV
+
+  on_o2tv:
+    name: ON O2TV
+    provider: VTVCAB
+    group: VTVCAB
+    aliases:
+      - ON O2TV
+      - ON O2 TV
+      - ON O2TV HD
+      - O2TV
+
+  on_life:
+    name: ON Life
+    provider: VTVCAB
+    group: VTVCAB
+    aliases:
+      - ON Life
+      - ON Life HD
+
+  on_music:
+    name: ON Music
+    provider: VTVCAB
+    group: VTVCAB
+    aliases:
+      - ON Music
+      - ON Music HD
+      - ON MUSIC
+
+  on_vfamily:
+    name: ON VFamily
+    provider: VTVCAB
+    group: VTVCAB
+    aliases:
+      - ON VFamily
+      - ON V Family
+      - ON VFamily HD
+      - ON V Family HD
+
+  on_trending:
+    name: ON Trending
+    provider: VTVCAB
+    group: VTVCAB
+    aliases:
+      - ON Trending
+      - ON Trending HD
+
+  on_homeshopping:
+    name: ON Homeshopping
+    provider: VTVCAB
+    group: VTVCAB
+    aliases:
+      - ON Homeshopping
+      - ON Home Shopping
+      - ON Homeshopping HD
+
+
+  # ==========================================================
+  # COMMON VTVCAB NUMBERED CHANNELS
+  #
+  # Only numbers with known/explicit aliases are defined here.
+  # Number is secondary identity; canonical_id remains stable.
+  # ==========================================================
+
+  vtvcab1:
+    name: VTVcab 1
+    provider: VTVCAB
+    group: VTVCAB
+    aliases:
+      - VTVcab 1
+      - VTVcab1
+      - VTV Cab 1
+      - VTVcab 1 HD
+    vtvcab_number: 1
+
+  vtvcab2:
+    name: VTVcab 2
+    provider: VTVCAB
+    group: VTVCAB
+    aliases:
+      - VTVcab 2
+      - VTVcab2
+      - VTV Cab 2
+      - VTVcab 2 HD
+    vtvcab_number: 2
+
+  vtvcab4:
+    name: VTVcab 4
+    provider: VTVCAB
+    group: VTVCAB
+    aliases:
+      - VTVcab 4
+      - VTVcab4
+      - VTV Cab 4
+      - VTVcab 4 HD
+    vtvcab_number: 4
+
+  vtvcab5:
+    name: VTVcab 5
+    provider: VTVCAB
+    group: VTVCAB
+    aliases:
+      - VTVcab 5
+      - VTVcab5
+      - VTV Cab 5
+      - VTVcab 5 HD
+    vtvcab_number: 5
+
+  vtvcab7:
+    name: VTVcab 7
+    provider: VTVCAB
+    group: VTVCAB
+    aliases:
+      - VTVcab 7
+      - VTVcab7
+      - VTV Cab 7
+      - VTVcab 7 HD
+    vtvcab_number: 7
+
+  vtvcab8:
+    name: VTVcab 8
+    provider: VTVCAB
+    group: VTVCAB
+    aliases:
+      - VTVcab 8
+      - VTVcab8
+      - VTV Cab 8
+      - VTVcab 8 HD
+    vtvcab_number: 8
+
+  vtvcab9:
+    name: VTVcab 9
+    provider: VTVCAB
+    group: VTVCAB
+    aliases:
+      - VTVcab 9
+      - VTVcab9
+      - VTV Cab 9
+      - VTVcab 9 HD
+    vtvcab_number: 9
+
+  vtvcab10:
+    name: VTVcab 10
+    provider: VTVCAB
+    group: VTVCAB
+    aliases:
+      - VTVcab 10
+      - VTVcab10
+      - VTV Cab 10
+      - VTVcab 10 HD
+    vtvcab_number: 10
+
+  vtvcab11:
+    name: VTVcab 11
+    provider: VTVCAB
+    group: VTVCAB
+    aliases:
+      - VTVcab 11
+      - VTVcab11
+      - VTV Cab 11
+      - VTVcab 11 HD
+    vtvcab_number: 11
+
+  vtvcab12:
+    name: VTVcab 12
+    provider: VTVCAB
+    group: VTVCAB
+    aliases:
+      - VTVcab 12
+      - VTVcab12
+      - VTV Cab 12
+      - VTVcab 12 HD
+    vtvcab_number: 12
+
+  vtvcab13:
+    name: VTVcab 13
+    provider: VTVCAB
+    group: VTVCAB
+    aliases:
+      - VTVcab 13
+      - VTVcab13
+      - VTV Cab 13
+      - VTVcab 13 HD
+    vtvcab_number: 13
+
+  vtvcab14:
+    name: VTVcab 14
+    provider: VTVCAB
+    group: VTVCAB
+    aliases:
+      - VTVcab 14
+      - VTVcab14
+      - VTV Cab 14
+      - VTVcab 14 HD
+    vtvcab_number: 14
+
+  vtvcab15:
+    name: VTVcab 15
+    provider: VTVCAB
+    group: VTVCAB
+    aliases:
+      - VTVcab 15
+      - VTVcab15
+      - VTV Cab 15
+      - VTVcab 15 HD
+    vtvcab_number: 15
+
+  vtvcab17:
+    name: VTVcab 17
+    provider: VTVCAB
+    group: VTVCAB
+    aliases:
+      - VTVcab 17
+      - VTVcab17
+      - VTV Cab 17
+      - VTVcab 17 HD
+    vtvcab_number: 17
+
+  vtvcab20:
+    name: VTVcab 20
+    provider: VTVCAB
+    group: VTVCAB
+    aliases:
+      - VTVcab 20
+      - VTVcab20
+      - VTV Cab 20
+      - VTVcab 20 HD
+    vtvcab_number: 20
+
+
+  # ==========================================================
+  # HTVC
+  # ==========================================================
+
+  htvc:
+    name: HTVC
+    provider: HTVC
+    group: HTVC
+    aliases:
+      - HTVC
+      - HTVC HD
+
+  htvc_thuan_viet:
+    name: HTVC Thuần Việt
+    provider: HTVC
+    group: HTVC
+    aliases:
+      - HTVC Thuần Việt
+      - HTVC Thuan Viet
+      - HTVC Thuần Việt HD
+
+  htvc_gia_dinh:
+    name: HTVC Gia Đình
+    provider: HTVC
+    group: HTVC
+    aliases:
+      - HTVC Gia Đình
+      - HTVC Gia Dinh
+      - HTVC Gia Đình HD
+
+  htvc_phim:
+    name: HTVC Phim
+    provider: HTVC
+    group: HTVC
+    aliases:
+      - HTVC Phim
+      - HTVC Phim HD
+
+  htvc_phu_nu:
+    name: HTVC Phụ Nữ
+    provider: HTVC
+    group: HTVC
+    aliases:
+      - HTVC Phụ Nữ
+      - HTVC Phu Nu
+      - HTVC Phụ Nữ HD
+
+
+  # ==========================================================
+  # SỰ KIỆN
+  #
+  # These are NOT priority groups.
+  # They are only used when the channel isn't already locked
+  # to VTV / HTV / SCTV / VTVCab / HTVC / Essential / Local.
+  # ==========================================================
+
+  tv360_su_kien:
+    name: TV360 Sự kiện
+    provider: TV360
+    group: SU_KIEN
+    aliases:
+      - TV360 Sự kiện
+      - TV360 Su Kien
+      - TV360 Event
+      - TV360 Events
+      - TV360 Sự Kiện
+      - TV360 LIVE EVENT
+      - TV360 Live Event
+
+  fpt_su_kien:
+    name: FPT Sự kiện
+    provider: FPT
+    group: SU_KIEN
+    aliases:
+      - FPT Sự kiện
+      - FPT Su Kien
+      - FPT Play Sự kiện
+      - FPT Play Su Kien
+      - FPT Event
+      - FPT Events
+      - FPT Sự Kiện
+
+  vtvprime:
+    name: VTVPrime
+    provider: VTVPrime
+    group: SU_KIEN
+    aliases:
+      - VTVPrime
+      - VTV Prime
+      - VTVPrime HD
+      - VTV Prime HD
+
+
+  # ==========================================================
+  # OPTIONAL COMMON CONTENT CHANNELS
+  # ==========================================================
+
+  tvb:
+    name: TVB
+    provider: TVB
+    group: QUOC_TE
+    aliases:
+      - TVB
+      - TVB HD
+
+  bbc:
+    name: BBC
+    provider: BBC
+    group: QUOC_TE
+    aliases:
+      - BBC
+      - BBC HD
+
+  cnn:
+    name: CNN
+    provider: CNN
+    group: QUOC_TE
+    aliases:
+      - CNN
+      - CNN HD
+
+  bloomberg:
+    name: Bloomberg
+    provider: Bloomberg
+    group: QUOC_TE
+    aliases:
+      - Bloomberg
+      - Bloomberg HD
