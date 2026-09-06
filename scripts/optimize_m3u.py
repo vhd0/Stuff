@@ -1503,6 +1503,22 @@ def is_event_channel(
     ):
         return True
 
+    # BO SUNG: "Sự Kiện N" / "Event N" TRAN (khong can tien to TV360/
+    # FPT truoc no) - vi du thuc te: FPT tu dat ten cac kenh su kien
+    # thoi vu (World Cup, Pickleball...) don gian la "Sự Kiện 1", "Event
+    # 1", "Event 2"... ma khong co tu "FPT"/"TV360" nao trong ten. Dung
+    # regex co ranh gioi tu de tranh khop nham vao tu khac (vd "eventide"
+    # neu co).
+    if re.search(r"\bsu kien\b", text) or re.search(r"\bevent\b", text):
+        return True
+
+    # BO SUNG: tvg-logo tro toi thu muc "home_event" cua FPT Play - day
+    # la dau hieu KY THUAT (khong phai tu khoa doan) cho biet day chac
+    # chan la 1 luong su kien cua FPT, du ten kenh khong chua tu
+    # "event"/"sự kiện" nao ca.
+    if "home_event" in (entry.tvg_logo or "").lower():
+        return True
+
     return False
 
 
@@ -1703,17 +1719,25 @@ def classify_group(
 
     # ========================================================
     # 3. THIẾT YẾU
+    #
+    # BUG DA SUA: essential_patterns truoc day dung substring THO
+    # (pattern in text), khien "NgheAnTV" (Nghe+An+TV noi lien, khong
+    # dau cach) va "NinhThuanTV" (...Thu-an-TV) bi bat NHAM vi chua
+    # chuoi con "antv" o giua ten (Nghe-[antv], Thu-[antv]) - hoan toan
+    # KHONG lien quan gi den kenh ANTV (An Ninh TV) that. Fix: dung
+    # regex CO RANH GIOI TU (\b...\b) de chi khop dung tu "antv" doc
+    # lap, khong khop khi no la 1 phan cua tu dai hon.
     # ========================================================
 
     essential_patterns = (
-        "qpvn",
-        "quoc phong",
-        "antv",
-        "an ninh",
+        r"\bqpvn\b",
+        r"\bquoc phong\b",
+        r"\bantv\b",
+        r"\ban ninh\b",
     )
 
     if any(
-        pattern in text
+        re.search(pattern, text)
         for pattern in essential_patterns
     ):
         return FINAL_GROUPS[
