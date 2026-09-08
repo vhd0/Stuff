@@ -3,7 +3,7 @@
 https://vips-livecdn.fptplay.net/live/media/vtv1/live247-hls-avc/vtv1-avc1_5600000=10000-mp4a_131600=20000.m3u8
 #EXTINF:-1 tvg-id="vtv2hd" group-title="📺 VTV" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/Logo/refs/heads/main/VTV2_ident2026.jpg" tvg-name="VTV2",VTV2
 https://vips-livecdn.fptplay.net/live/media/vtv2/live247-hls-avc/vtv2-avc1_5600000=10000-mp4a_131600=20000.m3u8
-#EXTINF:-1 tvg-id="vtv3hd" group-title="📺 VTV" tvg-logo="https://i.ytimg.com/vi/4jr8Y13NSME/maxresdefault.jpg" catchup="default" catchup-days="2" catchup-source="http://sv.cvtv.xyz:3000/mytvod.m3u8?id=211&time=${start}&offset=${duration} tvg-name="VTV3",VTV3
+#EXTINF:-1 tvg-id="vtv3hd" group-title="📺 VTV" tvg-logo="1" tvg-name="VTV3",VTV3
 https://vips-livecdn.fptplay.net/live/media/vtv3/live247-hls-avc/vtv3-avc1_5600000=10000-mp4a_131600=20000.m3u8
 #EXTINF:-1 tvg-id="vtv4hd" group-title="📺 VTV" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/Logo/refs/heads/main/VTV4.jpg" catchup="append" catchup-days="2" catchup="default" catchup-days="2" catchup-source="http://sv.cvtv.xyz:3000/mytvod.m3u8?id=378&time=${start}&offset=${duration} tvg-name="VTV4",VTV4
 https://vips-livecdn.fptplay.net/live/media/vtv4/live247-hls-avc/vtv4-avc1_5600000=10000-mp4a_131600=20000.m3u8
@@ -124,7 +124,7 @@ https://freem3u.xyz/api/live/play.m3u8?vid=182
 #KODIPROP:inputstream.adaptive.manifest_type=dash
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=https://tv.vietanhtv.top/sex/cleankey.php?id=tv360174&token=e2c5f85016b8c376822a1899c7c22bef
-https://tv.vietanhtv.top/tv360/tv360.php?id=174&expires=1788932134&token=c783d1e41502fa6e1446a89158a7f467
+https://tv.vietanhtv.top/tv360/tv360.php?id=174&expires=1788935730&token=fb59ccb388143c1b99e0101a257925ec
 #EXTINF:-1 tvg-id="ongolf" group-title="📡 VTVCab" tvg-logo="https://img.lichphatsong.site/logo/on-golf.jpg" tvg-name="ON Golf",ON Golf
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://vmttv.dpdns.org/tv360/?id=vtvcab-23-golf-channel
@@ -155,21 +155,21 @@ https://vmttv.dpdns.org/tv360/?id=vtvcab-2-phim-viet-hd
 #KODIPROP:inputstream.adaptive.manifest_type=dash
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=https://tv.vietanhtv.top/sex/cleankey.php?id=tv360173&token=e2c5f85016b8c376822a1899c7c22bef
-https://tv.vietanhtv.top/tv360/tv360.php?id=173&expires=1788932134&token=b0e638a3704a84ad0ee284a317acac4d
+https://tv.vietanhtv.top/tv360/tv360.php?id=173&expires=1788935730&token=b7218fbd196f7f54f13ffe97e35e2113
 #EXTINF:-1 tvg-id="onsportsnews" group-title="📡 VTVCab" tvg-logo="https://assets-vtvcab.gviet.vn/images/v2/channel/20220613/2022061306/Logo_ONSPORTSNEWS_150x904_1675158858.webp" tvg-name="ON Sports News",ON Sports News
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=dash
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=https://tv.vietanhtv.top/sex/cleankey.php?id=tv360170&token=e2c5f85016b8c376822a1899c7c22bef
-https://tv.vietanhtv.top/tv360/tv360.php?id=170&expires=1788932134&token=fe9bf864466756dd4de3cc50b1b3f788
+https://tv.vietanhtv.top/tv360/tv360.php?id=170&expires=1788935730&token=528a79e40ac54121f1d4197060f7f659
 #EXTINF:-1 tvg-id="onsportsplus" group-title="📡 VTVCab" tvg-logo="https://assets-vtvcab.gviet.vn/images/hq/posters/onsportscongmoi1.jpg" tvg-name="ON Sports+",ON Sports+
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=dash
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=https://tv.vietanhtv.top/sex/cleankey.php?id=tv360183&token=e2c5f85016b8c376822a1899c7c22bef
-https://tv.vietanhtv.top/tv360/tv360.php?id=183&expires=1788932134&token=ce8dbdf6ed69944dde9a3f951591d49b
+https://tv.vietanhtv.top/tv360/tv360.php?id=183&expires=1788935730&token=e40bb8141d7d476c66c8c60fa2a45641
 #EXTINF:-1 tvg-id="onstyle" group-title="📡 VTVCab" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/Logo/refs/heads/main/onstyle.png" catchup="append" catchup-days="2" catchup-source="https://api.vthanhtivi.pw/v1/dvr/vieon/vtvcab12-style-tv/${start}/${offset}" tvg-name="ON Style",ON Style
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://freem3u.xyz/api/live/play.m3u8?vid=184
@@ -437,8 +437,6 @@ https://live.fptplay53.net/epzhd2/dongthap01_vhls.smil/chunklist_b5000000.m3u8
 https://liveh34.vtvprime.vn/hls/DONGTHAPTV/index.m3u8
 #EXTINF:-1 tvg-id="TienGiangTV.vn@SD" tvg-name="Đồng Tháp TV2 (540p)" group-title="🏙️ Địa phương",Đồng Tháp TV2 (540p)
 https://618b88f69e53b.streamlock.net/THDT2/thdttv2/chunklist.m3u8
-#EXTINF:-1 group-title="🎟️ Sự kiện" tvg-logo="https://images.fptplay53.net/media/home_event/OTT_ECS/2026/09/08/ban-tin-the-thao-24-slide-thumb_1788834259285.jpg" tvg-id="" tvg-name="Sự Kiện 1",Sự Kiện 1
-https://vips-livecdn.fptplay.net/live/media/su-kien-01/hls_avc_v6/index.m3u8
 #EXTINF:-1 group-title="🎟️ Sự kiện" tvg-logo="https://img-zlr1.tv360.vn/image1/2025/09/17/17/175810574912/a5f8181388ab_640_360.png" tvg-id="" tvg-name="TV360 Promo",TV360 Promo
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://freem3u.xyz/api/live/play.m3u8?vid=9904
