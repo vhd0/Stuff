@@ -15,6 +15,10 @@ Pipeline:
         -> event classifier
         -> content classifier
         -> render
+        -> m3u/listtivi.m3u
+
+IMPORTANT:
+    canonicalize BEFORE dedupe.
 
 Priority groups are HARD LOCKED:
     VTV
@@ -25,8 +29,25 @@ Priority groups are HARD LOCKED:
     Thiết yếu
     Địa phương
 
-Important:
-    canonicalize BEFORE dedupe.
+If a channel belongs to one of these groups, content classification
+MUST NOT move it to another group.
+
+Examples:
+    ON Football      -> 📡 VTVCab
+    ON Sports+       -> 📡 VTVCab
+    ON Sports News   -> 📡 VTVCab
+    ON Movies        -> 📡 VTVCab
+    ON Kids          -> 📡 VTVCab
+    ON Music         -> 📡 VTVCab
+
+Event group:
+    TV360 Sự kiện    -> 🎟️ Sự kiện
+    FPT Sự kiện      -> 🎟️ Sự kiện
+    VTVPrime         -> 🎟️ Sự kiện
+
+Filtering:
+    vmttv LIVE EVENTS -> removed
+    vmttv COLA TV SV2 -> removed
 """
 
 
@@ -72,7 +93,6 @@ SOURCE_URLS = {
     "easport": "https://livesport.s.gy/easport",
 }
 
-
 SOURCE_PRIORITY = {
     "vmttv": 500,
     "vietanhtv": 400,
@@ -81,19 +101,26 @@ SOURCE_PRIORITY = {
     "easport": 100,
 }
 
-
 DALVIK_UA = "Dalvik/2.1.0 (Linux; U; Android 10; K)"
 
-# EaSport:
-# Không dùng browser UA làm phương án ưu tiên.
-# Ưu tiên UA thường gặp ở Android OTT / IPTV / media player.
+# BO SUNG: EaSport (livesport.s.gy) la link rut gon, mot so backend loai
+# nay CHI tra ve du lieu that (thay vi trang landing/quang cao) khi nhan
+# dien dung UA cua 1 app OTT/IPTV Android/GoogleTV that. UA Dalvik don
+# thuan (dung chung cho cac nguon khac) co the khong du - thu LAN LUOT
+# nhieu UA thuc te pho bien nhat trong cac app IPTV Android/GoogleTV:
+#   1. okhttp - thu vien HTTP goi nhat cua da so app Android/IPTV (Kodi,
+#      TiviMate, IPTV Smarters... deu build tren OkHttp).
+#   2. ExoPlayer - trinh phat media chuan cua Android/ExoPlayer, thuong
+#      xuat hien trong User-Agent cua cac app xem TV truc tuyen.
+#   3. Android TV / Google TV trinh duyet that (khi app dung WebView).
+#   4. Dalvik UA cu (giu lam phuong an cuoi).
 EASPORT_UA_CANDIDATES = (
     "okhttp/4.9.3",
-    "okhttp/4.12.0",
     "ExoPlayerLib/2.18.1 (Linux;Android 12) ExoPlayerLib/2.18.1",
-    "Dalvik/2.1.0 (Linux; U; Android 10; K)",
+    "Mozilla/5.0 (Linux; Android 12; Android TV; Build/RTKS1.220523.001) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 TV Safari/537.36",
+    DALVIK_UA,
 )
-
 
 COMMON_HEADERS = {
     "Accept": "*/*",
@@ -107,6 +134,7 @@ COMMON_HEADERS = {
 # ============================================================
 
 FINAL_GROUPS = {
+    # Priority groups
     "VTV": "📺 VTV",
     "HTV": "📺 HTV",
     "SCTV": "📺 SCTV",
@@ -115,6 +143,7 @@ FINAL_GROUPS = {
     "THIET_YEU": "⭐ Thiết yếu",
     "DIA_PHUONG": "🏙️ Địa phương",
 
+    # Non-priority content groups
     "SU_KIEN": "🎟️ Sự kiện",
     "THE_THAO": "🏆 Thể thao",
     "PHIM": "🎬 Phim",
@@ -146,7 +175,6 @@ UPDATE_GROUP_RE = re.compile(
     re.IGNORECASE,
 )
 
-
 RADIO_RE = re.compile(
     r"""
     (
@@ -156,12 +184,18 @@ RADIO_RE = re.compile(
         |\bvov\b
         |\bvov[0-9a-z]*\b
         |phat\s*thanh
+        |phát\s*thanh
     )
     """,
     re.IGNORECASE | re.VERBOSE,
 )
 
 
+# Exact/normalized group exclusions.
+#
+# IMPORTANT:
+# "cola tv sv2" is intentionally separate from "cola tv".
+# LIVE EVENTS is also handled by content-level filtering below.
 VMTTV_EXCLUDED_GROUPS = {
     "live events",
     "radio",
@@ -175,7 +209,6 @@ VMTTV_EXCLUDED_GROUPS = {
     "pháo hoa tv",
 }
 
-
 VIETANHTV_EXCLUDED_GROUPS = {
     "update",
     "dự phòng",
@@ -186,14 +219,20 @@ VIETANHTV_EXCLUDED_GROUPS = {
     "socolive",
 }
 
-
 DLTIVI_EXCLUDED_GROUPS = {
     "vov",
 }
 
-
 EASPORT_EXCLUDED_GROUPS = {
     "info",
+}
+
+
+# These are blocked specifically because vmttv may occasionally
+# expose a bad/mislabelled group/name.
+VMTTV_BLOCKED_TOKENS = {
+    "liveevents",
+    "colatvsv2",
 }
 
 
@@ -203,21 +242,29 @@ EASPORT_EXCLUDED_GROUPS = {
 
 def strip_accents(value: str) -> str:
     """
-    Normalize Vietnamese accents.
+    BUG DA SUA:
 
-    Đ/đ must be replaced BEFORE NFD because they are not
-    decomposed by unicodedata.normalize().
+    Chu "Đ"/"đ" (U+0110/U+0111) la 1 CHU CAI RIENG BIET trong bang chu
+    cai tieng Viet, KHONG phai "D" ghep dau nhu a/à/á... Python's
+    unicodedata.normalize("NFD", ...) KHONG the tach duoc chu nay ra
+    thanh "D" + dau (vi no khong co compatibility decomposition), nen
+    "Đà Nẵng" truoc day bi strip thanh "đa nang" (con nguyen chu "đ")
+    thay vi "da nang" nhu mong doi.
+
+    Hau qua thuc te: TAT CA cac tinh/thanh bat dau bang "Đ" (Đà Nẵng,
+    Đồng Nai, Đồng Tháp, Điện Biên, Đắk Lắk, Đắk Nông...) VA moi cum tu
+    "Đài PTTH" deu KHONG khop duoc voi local_keywords (viet bang "d"
+    thuong), khien hang loat kenh dia phuong that bi roi nham vao
+    "📦 Khac". Day la nguyen nhan goc gay ra phan lon loi phan loai dia
+    phuong sai trong ban build truoc.
+
+    Fix: thay "Đ"/"đ" -> "D"/"d" TRUOC khi chay NFD, vi day la 2 ky tu
+    DUY NHAT trong bang chu cai tieng Viet co van de nay (moi nguyen am
+    co dau khac deu duoc NFD tach dung).
     """
-
-    if not value:
-        return ""
-
     value = value.replace("Đ", "D").replace("đ", "d")
 
-    value = unicodedata.normalize(
-        "NFD",
-        value,
-    )
+    value = unicodedata.normalize("NFD", value)
 
     return "".join(
         c
@@ -228,10 +275,11 @@ def strip_accents(value: str) -> str:
 
 def normalize_text(value: str) -> str:
     """
-    Matching normalization.
+    Matching normalization only.
 
-    Quality tokens such as HD, SD, 720p, 1080p and .vn
-    are removed.
+    Does NOT collapse regional VTV channels:
+        VTV5 Tây Nam Bộ != VTV5
+        VTV5 Tây Nguyên != VTV5
     """
 
     if not value:
@@ -249,29 +297,31 @@ def normalize_text(value: str) -> str:
     value = strip_accents(value)
     value = value.lower()
 
-    value = re.sub(
-        r"\s+",
-        " ",
-        value,
-    )
+    value = re.sub(r"\s+", " ", value)
 
+    # Remove quality suffixes only as standalone tokens.
+    #
+    # BUG DA SUA (1): danh sach cu thieu "480p" (va vai do phan giai
+    # khac) khien so "48" tu "(480p)" bi LOT vao ket qua
+    # detect_province_number() nhu la "so kenh" gia.
+    #
+    # BUG DA SUA (2): hau to domain ".vn" xuat hien RAT PHO BIEN trong
+    # tvg-id kieu nguon dltivi/iptv-org (vd "SCTV6.vn@SD",
+    # "AnNinhTV.vn@HD") nhung KHONG duoc loai bo, khien chuoi da nen con
+    # dinh them "vn" o cuoi (vd "sctv6vn" thay vi "sctv6"), lam
+    # detect_known_family() (dung re.fullmatch, doi hoi khop CHINH XAC
+    # toan bo chuoi) va so khop alias compact deu THAT BAI mot cach am
+    # tham. Coi "vn" nhu 1 quality-token de loai bo, cung 1 cho voi
+    # hd/sd/1080p... - don gian hon la them 1 buoc xu ly rieng.
     value = re.sub(
-        r"\b("
-        r"uhd|fhd|fullhd|hd|sd|vn|"
-        r"2k|4k|8k|"
-        r"240p|360p|480p|576p|720p|"
-        r"1080p|1440p|2160p"
-        r")\b",
+        r"\b(uhd|fhd|fullhd|hd|sd|vn|2k|4k|8k|"
+        r"240p|360p|480p|576p|720p|1080p|1440p|2160p)\b",
         " ",
         value,
         flags=re.IGNORECASE,
     )
 
-    return re.sub(
-        r"\s+",
-        " ",
-        value,
-    ).strip()
+    return re.sub(r"\s+", " ", value).strip()
 
 
 def compact(value: str) -> str:
@@ -283,379 +333,86 @@ def compact(value: str) -> str:
 
 
 # ============================================================
-# LOCAL PROVINCE IDENTITY
+# LOCAL PROVINCE + NUMBER (general fallback merge)
+#
+# VAN DE TONG QUAT: nhieu nguon dat ten kenh dia phuong theo 2 QUY UOC
+# HOAN TOAN KHAC NHAU cho CUNG 1 kenh thuc te, vi du:
+#   "AnGiangTV1.vn@SD"        (tvg-id kieu nguon A)
+#   "angiang1" / "ATV1 - Báo và PTTH An Giang"  (tvg-id/ten kieu nguon B)
+# Ca 2 deu la "An Giang 1" nhung KHONG CO alias chung nao ket noi
+# chung lai neu chi dua vao so khop ten/tvg-id nguyen van - phai lam
+# rieng tung tinh thi khong bao gio het (co ~63 tinh, moi tinh 1-5 kenh).
+#
+# GIAI PHAP TONG QUAT: trich xuat TEN TINH + SO KENH tu chuoi da nen
+# (compact - da bo dau, khong phan biet hoa/thuong, khong con khoang
+# trang) lam 1 KHOA GOP DUNG CHUNG cho ca 2 quy uoc dat ten, BAT KE
+# chung noi lien hay co dau cach. Khoa nay duoc dung 2 lan:
+#   1. Lap 1 LAN khi nap canonical_channels.yml: voi MOI alias da khai
+#      bao san (vd "angiang1", "ATV1 - Báo và PTTH An Giang"), neu trich
+#      duoc khoa "angiang1" -> ghi nho no TRO VE DUNG canonical_id da co
+#      (vd "angiang1"). Nho vay, khi gap 1 kenh KHONG khop alias nao ca
+#      (vd "AnGiangTV1.vn@SD") nhung trich ra CUNG khoa "angiang1", no
+#      se duoc gop THANG vao canonical da co - khong con la 1 kenh rieng.
+#   2. Neu khoa chua tung xuat hien o buoc 1 (tinh do CHUA duoc khai bao
+#      trong YAML), tao 1 canonical_id TAM ("local_auto_<khoa>") ngay
+#      luc chay, dam bao it nhat cac bien the CUNG 1 khoa nay tu gop lai
+#      VOI NHAU (du chua co ten hien thi "dep" trong YAML).
 # ============================================================
 
 LOCAL_PROVINCE_SLUGS = (
-    "angiang",
-    "bacgiang",
-    "backan",
-    "baclieu",
-    "bacninh",
-    "bariavungtau",
-    "bentre",
-    "binhdinh",
-    "binhduong",
-    "binhphuoc",
-    "binhthuan",
-    "camau",
-    "cantho",
-    "caobang",
-    "danang",
-    "daklak",
-    "daknong",
-    "dienbien",
-    "dongnai",
-    "dongthap",
-    "gialai",
-    "hagiang",
-    "hanam",
-    "hanoi",
-    "hatinh",
-    "haiduong",
-    "haiphong",
-    "hoabinh",
-    "hungyen",
-    "khanhhoa",
-    "kiengiang",
-    "kontum",
-    "laichau",
-    "lamdong",
-    "langson",
-    "laocai",
-    "namdinh",
-    "nghean",
-    "ninhbinh",
-    "ninhthuan",
-    "phutho",
-    "phuyen",
-    "quangbinh",
-    "quangnam",
-    "quangngai",
-    "quangninh",
-    "quangtri",
-    "soctrang",
-    "sonla",
-    "tayninh",
-    "thaibinh",
-    "thainguyen",
-    "thanhhoa",
-    "tiengiang",
-    "travinh",
-    "tuyenquang",
-    "vinhlong",
-    "vinhphuc",
-    "yenbai",
-    "hue",
+    "angiang", "bacgiang", "backan", "baclieu", "bacninh",
+    "bariavungtau", "bentre", "binhdinh", "binhduong", "binhphuoc",
+    "binhthuan", "camau", "cantho", "caobang", "danang", "daklak",
+    "daknong", "dienbien", "dongnai", "dongthap", "gialai", "hagiang",
+    "hanam", "hanoi", "hatinh", "haiduong", "haiphong", "hoabinh",
+    "hungyen", "khanhhoa", "kiengiang", "kontum", "laichau", "lamdong",
+    "langson", "laocai", "namdinh", "nghean", "ninhbinh", "ninhthuan",
+    "phutho", "phuyen", "quangbinh", "quangnam", "quangngai",
+    "quangninh", "quangtri", "soctrang", "sonla", "tayninh",
+    "thaibinh", "thainguyen", "thanhhoa", "tiengiang",
+    "travinh", "tuyenquang", "vinhlong", "vinhphuc", "yenbai", "hue",
 )
 
+_NUMBER_RE = re.compile(r"\d{1,2}")
 
+# Toi uu: gop toan bo slug thanh 1 regex alternation, quet 1 LAN thay vi
+# lap tuan tu qua tung slug (60 lan "in" check moi entry truoc day).
+# Sap xep slug DAI truoc de tranh khop nham 1 phan cua slug dai hon (vd
+# neu co 2 slug long nhau) - hien khong con truong hop nao nhu vay sau
+# khi bo "thuathienhue" du thua, nhung giu thu tu nay de an toan neu bo
+# sung slug moi sau nay.
 _PROVINCE_SLUG_RE = re.compile(
     "|".join(
-        sorted(
-            LOCAL_PROVINCE_SLUGS,
-            key=len,
-            reverse=True,
-        )
+        sorted(LOCAL_PROVINCE_SLUGS, key=len, reverse=True)
     )
 )
 
 
-# Acronyms thường dùng cho đài địa phương.
-# Chỉ dùng khi tvg-id đã xác định được tỉnh,
-# tránh false-positive kiểu "NgheAnTV".
-LOCAL_STATION_PREFIXES = (
-    "atv",
-    "bctv",
-    "bgiangtv",
-    "btv",
-    "dantoc",
-    "dhtv",
-    "dltv",
-    "drt",
-    "dtv",
-    "hanoi",
-    "htv",
-    "hue",
-    "ktv",
-    "lbtv",
-    "laocaitv",
-    "ntv",
-    "ptth",
-    "qbtv",
-    "qntv",
-    "qptv",
-    "qtv",
-    "stp",
-    "tn1",
-    "tn",
-    "tntv",
-    "thbt",
-    "thdt",
-    "tth",
-    "tvtv",
-    "ybtv",
-)
-
-
-def _find_province(value: str) -> Optional[str]:
-    """
-    Find province slug in ONE value.
-
-    This intentionally does not merge all fields first.
-    """
-
-    key = compact(value)
-
-    if not key:
-        return None
-
-    match = _PROVINCE_SLUG_RE.search(key)
-
-    if match:
-        return match.group(0)
-
-    return None
-
-
-def _explicit_local_number(
-    value: str,
-    province: str,
-) -> Optional[int]:
-    """
-    Detect an explicit local channel number.
-
-    Examples:
-        thainguyen1
-        thainguyen2
-        TN1
-        TN 1
-        ATV1
-        AnGiangTV1
-
-    Do NOT scan arbitrary digits.
-    """
-
-    if not value:
-        return None
-
-    normalized = normalize_text(value)
-    key = compact(value)
-
-    if not key:
-        return None
-
-    # --------------------------------------------------------
-    # Province slug + number
-    # --------------------------------------------------------
-
-    match = re.fullmatch(
-        rf"{re.escape(province)}(\d{{1,2}})",
-        key,
-    )
-
-    if match:
-        return int(match.group(1))
-
-    # --------------------------------------------------------
-    # Province + TV + number
-    #
-    # angiangtv1
-    # angiangtv2
-    # --------------------------------------------------------
-
-    match = re.fullmatch(
-        rf"{re.escape(province)}tv(\d{{1,2}})",
-        key,
-    )
-
-    if match:
-        return int(match.group(1))
-
-    # --------------------------------------------------------
-    # Explicit station acronym + number.
-    #
-    # Only if the number appears directly after a known
-    # local station prefix.
-    # --------------------------------------------------------
-
-    for prefix in LOCAL_STATION_PREFIXES:
-
-        match = re.fullmatch(
-            rf"{re.escape(prefix)}(\d{{1,2}})",
-            key,
-        )
-
-        if match:
-            return int(match.group(1))
-
-    # --------------------------------------------------------
-    # Name forms:
-    #
-    # TN1 HD
-    # TN 1 HD
-    # ATV1 - Báo...
-    # An Giang TV1
-    # --------------------------------------------------------
-
-    patterns = (
-        r"\b(?:tn|atv|btv|drt|dtv|ntv|ptth|qbtv|"
-        r"qntv|qptv|qtv|tntv|thbt|thdt|tth|"
-        r"angiangtv|hue tv)\s*"
-        r"(\d{1,2})\b",
-
-        rf"\b{re.escape(province)}\s*"
-        r"(?:tv\s*)?(\d{1,2})\b",
-    )
-
-    for pattern in patterns:
-
-        match = re.search(
-            pattern,
-            normalized,
-            flags=re.IGNORECASE,
-        )
-
-        if match:
-            return int(match.group(1))
-
-    return None
-
-
-def detect_local_identity(
-    tvg_id: str = "",
-    tvg_name: str = "",
-    original_name: str = "",
-) -> Optional[str]:
-    """
-    Return stable local identity:
-
-        thainguyen1
-        thainguyen2
-        angiang1
-        danang1
-
-    Important rules:
-
-    1. Province is determined from tvg-id first.
-    2. Explicit number is searched in tvg-id/name.
-    3. If tvg-id is exactly province slug, primary channel = 1.
-    4. URL is NEVER inspected.
-    """
-
-    values = (
-        tvg_id,
-        tvg_name,
-        original_name,
-    )
-
-    province = None
-
-    # --------------------------------------------------------
-    # Province from tvg-id has highest confidence.
-    # --------------------------------------------------------
-
-    if tvg_id:
-
-        tvg_key = compact(tvg_id)
-
-        if tvg_key in LOCAL_PROVINCE_SLUGS:
-            province = tvg_key
-
-    # --------------------------------------------------------
-    # Otherwise find province in fields in priority order.
-    # --------------------------------------------------------
-
-    if not province:
-
-        for value in values:
-
-            found = _find_province(value)
-
-            if found:
-                province = found
-                break
-
-    if not province:
-        return None
-
-    # --------------------------------------------------------
-    # Explicit number.
-    # --------------------------------------------------------
-
-    for value in values:
-
-        number = _explicit_local_number(
-            value,
-            province,
-        )
-
-        if number is not None:
-
-            if 1 <= number <= 99:
-
-                return (
-                    f"{province}{number}"
-                )
-
-    # --------------------------------------------------------
-    # Very important:
-    #
-    # tvg-id exactly equals province slug means this is normally
-    # the primary/main local channel.
-    #
-    # Example:
-    #   tvg-id="thainguyen"
-    #   TN - Báo và PTTH Thái Nguyên
-    #
-    # -> thainguyen1
-    # --------------------------------------------------------
-
-    if tvg_id:
-
-        tvg_key = compact(tvg_id)
-
-        if tvg_key == province:
-            return f"{province}1"
-
-    return None
-
-
-# Backward-compatible helper.
-# Kept so external code importing this function will not break.
 def detect_province_number(
-    texts: Iterable[str],
+    texts,
 ) -> Optional[str]:
 
-    values = [
-        str(x)
-        for x in texts
-        if x
-    ]
+    combined = compact(
+        " ".join(t for t in texts if t)
+    )
 
-    if not values:
+    if not combined:
         return None
 
-    # Do not combine arbitrary fields and scan random digits.
-    # Try each value independently.
-    for value in values:
+    slug_match = _PROVINCE_SLUG_RE.search(combined)
 
-        identity = detect_local_identity(
-            tvg_id=value,
-            tvg_name="",
-            original_name="",
-        )
+    if slug_match:
 
-        if identity:
-            return identity
+        number_match = _NUMBER_RE.search(combined)
+
+        return slug_match.group(0) + (
+            number_match.group(0) if number_match else ""
+            )
 
     return None
 
 
-def clean_display_name(
-    name: str,
-) -> str:
-
+def clean_display_name(name: str) -> str:
     if not name:
         return ""
 
@@ -672,14 +429,10 @@ def clean_display_name(
 
 @dataclass
 class M3UEntry:
-
     source: str
     extinf: str
     url: str
-
-    extra_lines: List[str] = field(
-        default_factory=list
-    )
+    extra_lines: List[str] = field(default_factory=list)
 
     duration: str = "-1"
     original_name: str = ""
@@ -701,7 +454,6 @@ class M3UEntry:
 
     @property
     def identity_text(self) -> str:
-
         return " ".join(
             [
                 self.tvg_id,
@@ -720,27 +472,18 @@ ATTR_RE = re.compile(
 )
 
 
-def parse_extinf(
-    line: str,
-) -> Dict[str, str]:
-
+def parse_extinf(line: str) -> Dict[str, str]:
     return {
         m.group(1).lower(): m.group(2)
         for m in ATTR_RE.finditer(line)
     }
 
 
-def parse_display_name(
-    line: str,
-) -> str:
-
+def parse_display_name(line: str) -> str:
     if "," not in line:
         return ""
 
-    return line.split(
-        ",",
-        1,
-    )[1].strip()
+    return line.split(",", 1)[1].strip()
 
 
 def parse_m3u(
@@ -761,10 +504,8 @@ def parse_m3u(
             continue
 
         if line.startswith("#EXTINF:"):
-
             current_extinf = line
             current_extra = []
-
             continue
 
         if current_extinf is None:
@@ -776,37 +517,27 @@ def parse_m3u(
                 current_extinf
             )
 
-            comma_pos = (
-                current_extinf.find(",")
-            )
+            comma_pos = current_extinf.find(",")
 
             duration = "-1"
 
             if comma_pos >= 0:
 
-                duration_part = (
-                    current_extinf[
-                        len("#EXTINF:"):comma_pos
-                    ]
-                )
+                duration_part = current_extinf[
+                    len("#EXTINF:"):comma_pos
+                ]
 
-                duration = (
-                    duration_part.strip()
-                )
+                duration = duration_part.strip()
 
             entries.append(
                 M3UEntry(
                     source=source,
                     extinf=current_extinf,
                     url=line,
-                    extra_lines=list(
-                        current_extra
-                    ),
+                    extra_lines=list(current_extra),
                     duration=duration,
-                    original_name=(
-                        parse_display_name(
-                            current_extinf
-                        )
+                    original_name=parse_display_name(
+                        current_extinf
                     ),
                     tvg_id=attrs.get(
                         "tvg-id",
@@ -824,11 +555,9 @@ def parse_m3u(
                         "group-title",
                         "",
                     ),
-                    source_score=(
-                        SOURCE_PRIORITY.get(
-                            source,
-                            0,
-                        )
+                    source_score=SOURCE_PRIORITY.get(
+                        source,
+                        0,
                     ),
                 )
             )
@@ -838,6 +567,7 @@ def parse_m3u(
 
             continue
 
+        # Preserve playback directives.
         current_extra.append(line)
 
     return entries
@@ -853,20 +583,12 @@ class CanonicalResolver:
         self,
         mapping_path: Path,
     ):
-
         self.mapping_path = mapping_path
 
         self.channels: Dict[str, dict] = {}
 
-        self.alias_exact: Dict[
-            str,
-            str,
-        ] = {}
-
-        self.alias_compact: Dict[
-            str,
-            str,
-        ] = {}
+        self.alias_exact: Dict[str, str] = {}
+        self.alias_compact: Dict[str, str] = {}
 
         self.ambiguous_exact = set()
         self.ambiguous_compact = set()
@@ -876,15 +598,11 @@ class CanonicalResolver:
             str,
         ] = {}
 
-        self.province_number_index: Dict[
-            str,
-            str,
-        ] = {}
-
-        self.local_auto_index: Dict[
-            str,
-            str,
-        ] = {}
+        # Xem detect_province_number() o tren: index nay gop cac kenh
+        # dia phuong theo khoa "ten_tinh+so_kenh", giai quyet TONG QUAT
+        # van de 1 kenh co 2 quy uoc dat ten khac nhau tu 2 nguon.
+        self.province_number_index: Dict[str, str] = {}
+        self.local_auto_index: Dict[str, str] = {}
 
         self.load()
 
@@ -895,7 +613,6 @@ class CanonicalResolver:
     def load(self) -> None:
 
         if not self.mapping_path.exists():
-
             raise FileNotFoundError(
                 "Canonical mapping not found: "
                 f"{self.mapping_path}"
@@ -912,23 +629,19 @@ class CanonicalResolver:
             data = data["channels"]
 
         if not isinstance(data, dict):
-
             raise ValueError(
                 "canonical_channels.yml must contain "
                 "a 'channels' mapping."
             )
 
-        for raw_canonical_id, raw in data.items():
-
-            canonical_id = str(
-                raw_canonical_id
-            ).strip()
-
-            if not canonical_id:
-                continue
+        for canonical_id, raw in data.items():
 
             if not isinstance(raw, dict):
                 raw = {}
+
+            canonical_id = str(
+                canonical_id
+            ).strip()
 
             self.channels[
                 canonical_id
@@ -943,7 +656,9 @@ class CanonicalResolver:
                 aliases,
                 str,
             ):
-                aliases = [aliases]
+                aliases = [
+                    aliases
+                ]
 
             aliases = list(aliases)
 
@@ -952,13 +667,11 @@ class CanonicalResolver:
             )
 
             if raw.get("name"):
-
                 aliases.append(
-                    str(
-                        raw["name"]
-                    )
+                    str(raw["name"])
                 )
 
+            # Optional provider names.
             provider_names = raw.get(
                 "provider_names",
                 [],
@@ -1012,56 +725,18 @@ class CanonicalResolver:
         canonical_id: str,
     ) -> None:
 
-        if not alias:
-            return
-
         exact = normalize_text(alias)
         short = compact(alias)
 
-        # ----------------------------------------------------
-        # NEW LOCAL INDEX
-        #
-        # This is the critical part.
-        #
-        # If YAML contains:
-        #
-        #   thainguyen
-        #   TN1
-        #   TN - Báo...
-        #
-        # all can produce:
-        #
-        #   thainguyen1
-        #
-        # and point to the same canonical_id.
-        # ----------------------------------------------------
+        province_key = detect_province_number([alias])
 
-        local_key = detect_local_identity(
-            tvg_id=alias,
-            tvg_name=alias,
-            original_name=alias,
-        )
-
-        if local_key:
-
-            old_local = (
-                self.province_number_index.get(
-                    local_key
-                )
-            )
-
-            if (
-                old_local is None
-                or old_local == canonical_id
-            ):
-
-                self.province_number_index[
-                    local_key
-                ] = canonical_id
-
-        # ----------------------------------------------------
-        # Exact alias.
-        # ----------------------------------------------------
+        if (
+            province_key
+            and province_key not in self.province_number_index
+        ):
+            self.province_number_index[
+                province_key
+            ] = canonical_id
 
         if exact:
 
@@ -1078,23 +753,11 @@ class CanonicalResolver:
                     exact
                 )
 
-                self.alias_exact.pop(
-                    exact,
-                    None,
-                )
-
-            elif (
-                exact
-                not in self.ambiguous_exact
-            ):
+            elif exact not in self.ambiguous_exact:
 
                 self.alias_exact[
                     exact
                 ] = canonical_id
-
-        # ----------------------------------------------------
-        # Compact alias.
-        # ----------------------------------------------------
 
         if short:
 
@@ -1111,15 +774,7 @@ class CanonicalResolver:
                     short
                 )
 
-                self.alias_compact.pop(
-                    short,
-                    None,
-                )
-
-            elif (
-                short
-                not in self.ambiguous_compact
-            ):
+            elif short not in self.ambiguous_compact:
 
                 self.alias_compact[
                     short
@@ -1169,7 +824,6 @@ class CanonicalResolver:
         )
 
         if match:
-
             return int(
                 match.group(1)
             )
@@ -1187,11 +841,14 @@ class CanonicalResolver:
 
         for value in values:
 
-            key = compact(value)
+            key = compact(
+                value
+            )
 
             if not key:
                 continue
 
+            # VTV1 ... VTV9 etc.
             match = re.fullmatch(
                 r"vtv(\d+)(?:hd)?",
                 key,
@@ -1206,6 +863,7 @@ class CanonicalResolver:
                 if candidate in self.channels:
                     return candidate
 
+            # HTV1 ...
             match = re.fullmatch(
                 r"htv(\d+)(?:hd)?",
                 key,
@@ -1220,6 +878,7 @@ class CanonicalResolver:
                 if candidate in self.channels:
                     return candidate
 
+            # SCTV1 ...
             match = re.fullmatch(
                 r"sctv(\d+)(?:hd)?",
                 key,
@@ -1273,7 +932,7 @@ class CanonicalResolver:
         )
 
         # ----------------------------------------------------
-        # 1. Exact alias.
+        # 1. Exact normalized alias
         # ----------------------------------------------------
 
         for (
@@ -1282,7 +941,9 @@ class CanonicalResolver:
             score,
         ) in candidates:
 
-            key = normalize_text(value)
+            key = normalize_text(
+                value
+            )
 
             if (
                 not key
@@ -1303,7 +964,7 @@ class CanonicalResolver:
                 )
 
         # ----------------------------------------------------
-        # 2. Compact alias.
+        # 2. Compact alias
         # ----------------------------------------------------
 
         for (
@@ -1312,7 +973,9 @@ class CanonicalResolver:
             score,
         ) in candidates:
 
-            key = compact(value)
+            key = compact(
+                value
+            )
 
             if (
                 not key
@@ -1333,7 +996,7 @@ class CanonicalResolver:
                 )
 
         # ----------------------------------------------------
-        # 3. VTVCab number.
+        # 3. VTVCab channel number
         # ----------------------------------------------------
 
         for (
@@ -1370,7 +1033,7 @@ class CanonicalResolver:
                 )
 
         # ----------------------------------------------------
-        # 4. Known family.
+        # 4. Conservative numbered family
         # ----------------------------------------------------
 
         family = (
@@ -1389,65 +1052,44 @@ class CanonicalResolver:
             )
 
         # ----------------------------------------------------
-        # 5. LOCAL IDENTITY
+        # 5. Local province + number (general fallback merge)
         #
-        # This now runs on fields independently.
-        #
-        # Example:
-        #
-        # tvg-id="thainguyen"
-        # name="TN1 HD | TH Thái Nguyên"
-        #
-        # -> thainguyen1
-        #
-        # tvg-id="thainguyen"
-        # name="TN - Báo và PTTH Thái Nguyên"
-        #
-        # -> thainguyen1
+        # Xem detect_province_number() o dau file. Buoc nay CHI chay
+        # khi 4 buoc tren khong khop gi ca - danh cho dung truong hop
+        # kenh dia phuong dat ten theo quy uoc "la" (vd tvg-id kieu
+        # "AnGiangTV1.vn@SD") ma YAML chua co alias truc tiep nao khop.
         # ----------------------------------------------------
 
-        local_key = detect_local_identity(
-            tvg_id=entry.tvg_id,
-            tvg_name=entry.tvg_name,
-            original_name=entry.original_name,
+        province_key = detect_province_number(
+            value for _, value, _ in candidates
         )
 
-        if local_key:
+        if province_key:
 
-            existing = (
-                self.province_number_index.get(
-                    local_key
-                )
+            existing = self.province_number_index.get(
+                province_key
             )
 
             if existing:
 
                 return (
                     existing,
-                    75,
-                    f"local_identity:{local_key}",
+                    65,
+                    f"province_number:{province_key}",
                 )
 
-            auto_id = (
-                self.local_auto_index.get(
-                    local_key
-                )
+            auto_id = self.local_auto_index.get(
+                province_key
             )
 
             if not auto_id:
-
-                auto_id = (
-                    f"local_auto_{local_key}"
-                )
-
-                self.local_auto_index[
-                    local_key
-                ] = auto_id
+                auto_id = f"local_auto_{province_key}"
+                self.local_auto_index[province_key] = auto_id
 
             return (
                 auto_id,
-                65,
-                f"local_identity_auto:{local_key}",
+                60,
+                f"province_number_auto:{province_key}",
             )
 
         return (
@@ -1479,7 +1121,9 @@ def normalized_group(
     group: str,
 ) -> str:
 
-    return normalize_text(group)
+    return normalize_text(
+        group
+    )
 
 
 VMTTV_EXCLUDED = {
@@ -1487,18 +1131,15 @@ VMTTV_EXCLUDED = {
     for x in VMTTV_EXCLUDED_GROUPS
 }
 
-
 VIETANHTV_EXCLUDED = {
     normalized_group(x)
     for x in VIETANHTV_EXCLUDED_GROUPS
 }
 
-
 DLTIVI_EXCLUDED = {
     normalized_group(x)
     for x in DLTIVI_EXCLUDED_GROUPS
 }
-
 
 EASPORT_EXCLUDED = {
     normalized_group(x)
@@ -1567,18 +1208,42 @@ def is_vmttv_blocked_content(
         entry
     )
 
-    compact_text = compact(text)
+    compact_text = compact(
+        text
+    )
+
+    # --------------------------------------------------------
+    # Explicit group: LIVE EVENTS
+    # --------------------------------------------------------
 
     if group == "live events":
+
         return "LIVE EVENTS"
 
-    if "liveevents" in compact_text:
+    # Handle variations:
+    # LIVE-EVENTS
+    # LIVE_EVENTS
+    # LIVE EVENTS HD
+    if (
+        "liveevents" in compact_text
+    ):
+
         return "LIVE EVENTS"
 
-    if group == "cola tv sv2":
+    # --------------------------------------------------------
+    # Explicit group/name: COLA TV SV2
+    # --------------------------------------------------------
+
+    if (
+        group == "cola tv sv2"
+    ):
+
         return "COLA TV SV2"
 
-    if "colatvsv2" in compact_text:
+    if (
+        "colatvsv2" in compact_text
+    ):
+
         return "COLA TV SV2"
 
     return None
@@ -1598,7 +1263,13 @@ def group_is_excluded(
     if is_global_radio(entry):
         return True
 
-    if is_vmttv_blocked_content(entry):
+    vmttv_blocked = (
+        is_vmttv_blocked_content(
+            entry
+        )
+    )
+
+    if vmttv_blocked:
         return True
 
     excluded = {
@@ -1626,22 +1297,36 @@ def is_vsbet(
         ]
     )
 
-    return "vsbet" in compact(text)
+    return (
+        "vsbet" in compact(text)
+    )
 
+
+# ------------------------------------------------------------
+# GAMBLING BRAND FILTER
+#
+# Da xac minh thuc te: 35 kenh "BLV <biet danh>" (BLV Coca, BLV Pepsi,
+# BLV Rồng Đỏ...) lot vao "📦 Khac" khong bi loc. Day la dac trung web
+# lau bong da/ca do da biet tai VN: hang tram URL trung 1 tran dau, chi
+# khac nhau bang biet danh binh luan vien gia. group_is_excluded()
+# truoc day KHONG bat duoc vi group-title cua cac kenh nay da bi "phang"
+# ve "📦 Khac" (khong con giu ten nhom goc "Socolive"/"Cola TV" nua), nen
+# phai loc theo TEN KENH + DOMAIN cu the da xac minh, khong phu thuoc
+# group-title.
+# ------------------------------------------------------------
 
 GAMBLING_BRAND_NAME_RE = re.compile(
     r"^\s*blv\b",
     re.IGNORECASE,
 )
 
-
+# Domain/logo cu the DA XAC MINH gan voi cac kenh BLV nay (khong phai tu
+# khoa chung chung nhu "sport"/"live" - chi chan dung brand da biet).
 GAMBLING_BRAND_DOMAINS = (
     "msdht.app",
     "phaohoa.live",
     "phaohoa1.live",
 )
-
-
 GAMBLING_BRAND_LOGO_MARKERS = (
     "colatv_logo",
     "phaohoa1.live",
@@ -1657,12 +1342,12 @@ def is_gambling_brand(
         or entry.tvg_name
     )
 
-    if GAMBLING_BRAND_NAME_RE.match(name):
+    if GAMBLING_BRAND_NAME_RE.match(
+        name
+    ):
         return True
 
-    url_lower = (
-        entry.url or ""
-    ).lower()
+    url_lower = (entry.url or "").lower()
 
     if any(
         domain in url_lower
@@ -1694,6 +1379,62 @@ def should_remove(
     )
 
 
+def filter_reason(
+    entry: M3UEntry,
+) -> str:
+
+    blocked = (
+        is_vmttv_blocked_content(
+            entry
+        )
+    )
+
+    if blocked:
+        return blocked
+
+    group = normalized_group(
+        entry.group_title
+    )
+
+    if is_update_group(group):
+        return "UPDATE"
+
+    if is_global_radio(entry):
+        return "RADIO"
+
+    if is_vsbet(entry):
+        return "VSBET"
+
+    if is_gambling_brand(entry):
+        return "GAMBLING_BRAND"
+
+    if (
+        entry.source == "vmttv"
+        and group in VMTTV_EXCLUDED
+    ):
+        return entry.group_title or "VMTTV_EXCLUDED"
+
+    if (
+        entry.source == "vietanhtv"
+        and group in VIETANHTV_EXCLUDED
+    ):
+        return entry.group_title or "VIETANHTV_EXCLUDED"
+
+    if (
+        entry.source == "dltivi"
+        and group in DLTIVI_EXCLUDED
+    ):
+        return entry.group_title or "DLTIVI_EXCLUDED"
+
+    if (
+        entry.source == "easport"
+        and group in EASPORT_EXCLUDED
+    ):
+        return entry.group_title or "EASPORT_EXCLUDED"
+
+    return "FILTERED"
+
+
 # ============================================================
 # CANONICAL APPLY
 # ============================================================
@@ -1711,7 +1452,10 @@ def apply_canonical(
 
     if canonical_id:
 
-        entry.canonical_id = canonical_id
+        entry.canonical_id = (
+            canonical_id
+        )
+
         entry.canonical_score = score
         entry.canonical_reason = reason
 
@@ -1742,9 +1486,16 @@ def apply_canonical(
 
         return
 
-    # Unknown:
-    # deterministic identity from channel metadata,
-    # never URL-first.
+    # --------------------------------------------------------
+    # Unknown channel:
+    # deterministic local identity.
+    #
+    # NOTE:
+    # We intentionally do NOT use URL as the first identity.
+    # Name/tvg-id is preferred because several channels can
+    # legitimately share a relay URL.
+    # --------------------------------------------------------
+
     identity = compact(
         entry.tvg_id
         or entry.tvg_name
@@ -1802,8 +1553,11 @@ def priority_group_from_mapping(
         )
     ).strip()
 
-    if group_key in PRIORITY_GROUPS:
+    # --------------------------------------------------------
+    # HARD LOCK
+    # --------------------------------------------------------
 
+    if group_key in PRIORITY_GROUPS:
         return FINAL_GROUPS[
             group_key
         ]
@@ -1838,6 +1592,7 @@ EVENT_PATTERNS = (
     "fpt event",
     "fpt events",
     "vtvprime",
+    "vtv prime",
 )
 
 
@@ -1846,7 +1601,13 @@ def is_event_channel(
     mapping: dict,
 ) -> bool:
 
-    if priority_group_from_mapping(mapping):
+    # --------------------------------------------------------
+    # Priority group ALWAYS wins.
+    # --------------------------------------------------------
+
+    if priority_group_from_mapping(
+        mapping
+    ):
         return False
 
     text = normalize_text(
@@ -1873,8 +1634,11 @@ def is_event_channel(
         )
     )
 
-    compact_text = compact(text)
+    compact_text = compact(
+        text
+    )
 
+    # Explicit canonical YAML event group.
     mapped_group = str(
         mapping.get(
             "group",
@@ -1885,9 +1649,14 @@ def is_event_channel(
     if mapped_group == "SU_KIEN":
         return True
 
-    if "vtvprime" in compact_text:
+    # VTVPrime.
+    if (
+        "vtvprime" in compact_text
+        or "vtv prime" in text
+    ):
         return True
 
+    # TV360 event.
     if (
         "tv360 su kien" in text
         or "tv360 event" in text
@@ -1895,6 +1664,7 @@ def is_event_channel(
     ):
         return True
 
+    # FPT event.
     if (
         "fpt su kien" in text
         or "fpt play su kien" in text
@@ -1903,21 +1673,20 @@ def is_event_channel(
     ):
         return True
 
-    if re.search(
-        r"\bsu kien\b",
-        text,
-    ):
+    # BO SUNG: "Sự Kiện N" / "Event N" TRAN (khong can tien to TV360/
+    # FPT truoc no) - vi du thuc te: FPT tu dat ten cac kenh su kien
+    # thoi vu (World Cup, Pickleball...) don gian la "Sự Kiện 1", "Event
+    # 1", "Event 2"... ma khong co tu "FPT"/"TV360" nao trong ten. Dung
+    # regex co ranh gioi tu de tranh khop nham vao tu khac (vd "eventide"
+    # neu co).
+    if re.search(r"\bsu kien\b", text) or re.search(r"\bevent\b", text):
         return True
 
-    if re.search(
-        r"\bevent\b",
-        text,
-    ):
-        return True
-
-    if "home_event" in (
-        entry.tvg_logo or ""
-    ).lower():
+    # BO SUNG: tvg-logo tro toi thu muc "home_event" cua FPT Play - day
+    # la dau hieu KY THUAT (khong phai tu khoa doan) cho biet day chac
+    # chan la 1 luong su kien cua FPT, du ten kenh khong chua tu
+    # "event"/"sự kiện" nao ca.
+    if "home_event" in (entry.tvg_logo or "").lower():
         return True
 
     return False
@@ -1932,19 +1701,26 @@ def classify_group(
     mapping: dict,
 ) -> str:
 
-    # --------------------------------------------------------
-    # 1. HARD LOCK.
-    # --------------------------------------------------------
+    # ========================================================
+    # 1. PRIORITY GROUP LOCK
+    #
+    # THIS MUST BE THE FIRST DECISION.
+    # ========================================================
 
-    locked = priority_group_from_mapping(
-        mapping
+    locked = (
+        priority_group_from_mapping(
+            mapping
+        )
     )
 
     if locked:
         return locked
 
     # --------------------------------------------------------
-    # 2. Provider lock.
+    # Provider-level lock.
+    #
+    # Useful when a mapping explicitly declares provider
+    # but group metadata is missing.
     # --------------------------------------------------------
 
     provider = mapping_provider(
@@ -1952,38 +1728,33 @@ def classify_group(
     )
 
     if provider == "vtvcab":
-        return FINAL_GROUPS["VTVCAB"]
+        return FINAL_GROUPS[
+            "VTVCAB"
+        ]
 
     if provider == "htvc":
-        return FINAL_GROUPS["HTVC"]
+        return FINAL_GROUPS[
+            "HTVC"
+        ]
 
     if provider == "sctv":
-        return FINAL_GROUPS["SCTV"]
+        return FINAL_GROUPS[
+            "SCTV"
+        ]
 
     if provider == "vtv":
-        return FINAL_GROUPS["VTV"]
+        return FINAL_GROUPS[
+            "VTV"
+        ]
 
     if provider == "htv":
-        return FINAL_GROUPS["HTV"]
+        return FINAL_GROUPS[
+            "HTV"
+        ]
 
-    # --------------------------------------------------------
-    # 3. LOCAL IDENTITY.
-    #
-    # This is intentionally before content classification.
-    # --------------------------------------------------------
-
-    local_identity = detect_local_identity(
-        tvg_id=entry.tvg_id,
-        tvg_name=entry.tvg_name,
-        original_name=entry.original_name,
-    )
-
-    if local_identity:
-        return FINAL_GROUPS["DIA_PHUONG"]
-
-    # --------------------------------------------------------
-    # 4. Text.
-    # --------------------------------------------------------
+    # ========================================================
+    # 2. CONTROLLED FALLBACK RECOGNITION
+    # ========================================================
 
     text = normalize_text(
         " ".join(
@@ -1996,17 +1767,31 @@ def classify_group(
         )
     )
 
-    compact_text = compact(text)
+    compact_text = compact(
+        text
+    )
 
     # --------------------------------------------------------
     # VTV
+    #
+    # Supports:
+    #   VTV1
+    #   VTV 1
+    #   VTV1 HD
+    #   VTV5 Tây Nguyên
+    #   VTV5 Tây Nam Bộ
+    #
+    # Mapping should provide canonical IDs for known channels,
+    # but fallback still protects the group.
     # --------------------------------------------------------
 
     if re.search(
         r"\bvtv\s*\d+\b",
         text,
     ):
-        return FINAL_GROUPS["VTV"]
+        return FINAL_GROUPS[
+            "VTV"
+        ]
 
     # --------------------------------------------------------
     # HTV
@@ -2016,38 +1801,59 @@ def classify_group(
         r"\bhtv\s*\d+\b",
         text,
     ):
-        return FINAL_GROUPS["HTV"]
+        return FINAL_GROUPS[
+            "HTV"
+        ]
 
     # --------------------------------------------------------
     # SCTV
+    #
+    # FIX:
+    # SCTV is a priority group and must never fall to KHAC.
     # --------------------------------------------------------
 
     if re.search(
         r"\bsctv\s*\d+\b",
         text,
     ):
-        return FINAL_GROUPS["SCTV"]
+        return FINAL_GROUPS[
+            "SCTV"
+        ]
 
     if re.search(
         r"\bsctv\b",
         text,
     ):
-        return FINAL_GROUPS["SCTV"]
+        return FINAL_GROUPS[
+            "SCTV"
+        ]
 
     # --------------------------------------------------------
     # HTVC
     # --------------------------------------------------------
 
-    if "htvc" in compact_text:
-        return FINAL_GROUPS["HTVC"]
+    if (
+        "htvc" in compact_text
+    ):
+        return FINAL_GROUPS[
+            "HTVC"
+        ]
 
     # --------------------------------------------------------
-    # VTVCab / ON.
+    # VTVCab / ON
+    #
+    # Do NOT classify ON channels by content.
+    # They must remain under VTVCab.
     # --------------------------------------------------------
 
-    if "vtvcab" in compact_text:
-        return FINAL_GROUPS["VTVCAB"]
+    if (
+        "vtvcab" in compact_text
+    ):
+        return FINAL_GROUPS[
+            "VTVCAB"
+        ]
 
+    # Known ON channel names.
     on_patterns = (
         "on football",
         "on sports+",
@@ -2077,11 +1883,21 @@ def classify_group(
         pattern in text
         for pattern in on_patterns
     ):
-        return FINAL_GROUPS["VTVCAB"]
+        return FINAL_GROUPS[
+            "VTVCAB"
+        ]
 
-    # --------------------------------------------------------
-    # THIẾT YẾU
-    # --------------------------------------------------------
+    # ========================================================
+    # 3. THIẾT YẾU
+    #
+    # BUG DA SUA: essential_patterns truoc day dung substring THO
+    # (pattern in text), khien "NgheAnTV" (Nghe+An+TV noi lien, khong
+    # dau cach) va "NinhThuanTV" (...Thu-an-TV) bi bat NHAM vi chua
+    # chuoi con "antv" o giua ten (Nghe-[antv], Thu-[antv]) - hoan toan
+    # KHONG lien quan gi den kenh ANTV (An Ninh TV) that. Fix: dung
+    # regex CO RANH GIOI TU (\b...\b) de chi khop dung tu "antv" doc
+    # lap, khong khop khi no la 1 phan cua tu dai hon.
+    # ========================================================
 
     essential_patterns = (
         r"\bqpvn\b",
@@ -2091,22 +1907,20 @@ def classify_group(
     )
 
     if any(
-        re.search(
-            pattern,
-            text,
-        )
+        re.search(pattern, text)
         for pattern in essential_patterns
     ):
-        return FINAL_GROUPS["THIET_YEU"]
+        return FINAL_GROUPS[
+            "THIET_YEU"
+        ]
 
-    # --------------------------------------------------------
-    # FALLBACK LOCAL TEXT.
-    #
-    # Kept for cases where province identity cannot be built
-    # but the text clearly says a local province.
-    # --------------------------------------------------------
+    # ========================================================
+    # 4. ĐỊA PHƯƠNG
+    # ========================================================
 
     local_keywords = (
+        # BO SUNG DAY DU 63 TINH/THANH (danh sach cu thieu ~20 tinh,
+        # dac biet la cac tinh mien nui phia Bac va vai tinh mien Tay).
         "hanoi tv",
         "ha noi tv",
         "hanoitv",
@@ -2151,6 +1965,7 @@ def classify_group(
         "kon tum",
         "dak nong",
         "ninh thuan",
+        # --- Bo sung moi ---
         "son la",
         "dien bien",
         "lai chau",
@@ -2174,28 +1989,32 @@ def classify_group(
         "sai gon",
         "tp hcm",
         "ho chi minh",
-        "dai ptth",
+        "dai ptth",  # tien to dinh danh dai dia phuong pho bien
     )
 
     if any(
         keyword in text
         for keyword in local_keywords
     ):
-        return FINAL_GROUPS["DIA_PHUONG"]
+        return FINAL_GROUPS[
+            "DIA_PHUONG"
+        ]
 
-    # --------------------------------------------------------
-    # EVENT
-    # --------------------------------------------------------
+    # ========================================================
+    # 5. SỰ KIỆN
+    # ========================================================
 
     if is_event_channel(
         entry,
         mapping,
     ):
-        return FINAL_GROUPS["SU_KIEN"]
+        return FINAL_GROUPS[
+            "SU_KIEN"
+        ]
 
-    # --------------------------------------------------------
-    # SPORTS
-    # --------------------------------------------------------
+    # ========================================================
+    # 6. CONTENT CLASSIFICATION
+    # ========================================================
 
     sports_keywords = (
         "the thao",
@@ -2224,11 +2043,9 @@ def classify_group(
         keyword in text
         for keyword in sports_keywords
     ):
-        return FINAL_GROUPS["THE_THAO"]
-
-    # --------------------------------------------------------
-    # MOVIES
-    # --------------------------------------------------------
+        return FINAL_GROUPS[
+            "THE_THAO"
+        ]
 
     movie_keywords = (
         "phim",
@@ -2245,11 +2062,9 @@ def classify_group(
         keyword in text
         for keyword in movie_keywords
     ):
-        return FINAL_GROUPS["PHIM"]
-
-    # --------------------------------------------------------
-    # KIDS
-    # --------------------------------------------------------
+        return FINAL_GROUPS[
+            "PHIM"
+        ]
 
     kids_keywords = (
         "thieu nhi",
@@ -2265,11 +2080,9 @@ def classify_group(
         keyword in text
         for keyword in kids_keywords
     ):
-        return FINAL_GROUPS["THIEU_NHI"]
-
-    # --------------------------------------------------------
-    # MUSIC
-    # --------------------------------------------------------
+        return FINAL_GROUPS[
+            "THIEU_NHI"
+        ]
 
     music_keywords = (
         "am nhac",
@@ -2282,11 +2095,9 @@ def classify_group(
         keyword in text
         for keyword in music_keywords
     ):
-        return FINAL_GROUPS["AM_NHAC"]
-
-    # --------------------------------------------------------
-    # NEWS
-    # --------------------------------------------------------
+        return FINAL_GROUPS[
+            "AM_NHAC"
+        ]
 
     news_keywords = (
         "tin tuc",
@@ -2302,11 +2113,9 @@ def classify_group(
         keyword in text
         for keyword in news_keywords
     ):
-        return FINAL_GROUPS["TIN_TUC"]
-
-    # --------------------------------------------------------
-    # INTERNATIONAL
-    # --------------------------------------------------------
+        return FINAL_GROUPS[
+            "TIN_TUC"
+        ]
 
     international_keywords = (
         "quoc te",
@@ -2329,9 +2138,13 @@ def classify_group(
         keyword in text
         for keyword in international_keywords
     ):
-        return FINAL_GROUPS["QUOC_TE"]
+        return FINAL_GROUPS[
+            "QUOC_TE"
+        ]
 
-    return FINAL_GROUPS["KHAC"]
+    return FINAL_GROUPS[
+        "KHAC"
+    ]
 
 
 # ============================================================
@@ -2419,6 +2232,11 @@ def deduplicate(
 
     for candidates in grouped.values():
 
+        # ----------------------------------------------------
+        # Same canonical ID + same URL:
+        # keep best metadata/source.
+        # ----------------------------------------------------
+
         unique_by_url: Dict[
             str,
             M3UEntry,
@@ -2454,6 +2272,10 @@ def deduplicate(
         if not candidates:
             continue
 
+        # ----------------------------------------------------
+        # ONE best stream for ONE canonical channel.
+        # ----------------------------------------------------
+
         candidates.sort(
             key=winner_score,
             reverse=True,
@@ -2462,6 +2284,15 @@ def deduplicate(
         winners.append(
             candidates[0]
         )
+
+    # --------------------------------------------------------
+    # IMPORTANT:
+    #
+    # We deliberately DO NOT globally remove duplicate URLs.
+    #
+    # Two different canonical channels may legitimately point
+    # to the same relay/stream.
+    # --------------------------------------------------------
 
     return (
         winners,
@@ -2510,6 +2341,23 @@ def upsert_extinf_attr(
     )
 
 
+def remove_extinf_attr(
+    line: str,
+    attr: str,
+) -> str:
+
+    pattern = re.compile(
+        rf'\s+{re.escape(attr)}="[^"]*"',
+        re.IGNORECASE,
+    )
+
+    return pattern.sub(
+        "",
+        line,
+        count=1,
+    )
+
+
 # ============================================================
 # OUTPUT METADATA
 # ============================================================
@@ -2531,21 +2379,53 @@ def prepare_output_entry(
         or entry.canonical_id
     )
 
-    final_group = classify_group(
-        entry,
-        mapping,
+    # --------------------------------------------------------
+    # HARD PRIORITY GROUP LOCK.
+    # --------------------------------------------------------
+
+    locked_group = (
+        priority_group_from_mapping(
+            mapping
+        )
     )
 
-    entry.canonical_group = final_group
+    if locked_group:
+
+        final_group = locked_group
+
+        print(
+            "[GROUP LOCK] "
+            f"{display_name} "
+            f"-> {final_group}"
+        )
+
+        github_notice(
+            "GROUP LOCK",
+            (
+                f"{display_name} "
+                f"-> {final_group}"
+            ),
+        )
+
+    else:
+
+        final_group = classify_group(
+            entry,
+            mapping,
+        )
+
+    entry.canonical_group = (
+        final_group
+    )
+
+    # --------------------------------------------------------
+    # EPG ID:
+    # explicit mapping EPG -> source tvg-id.
+    # --------------------------------------------------------
 
     epg_id = (
         entry.epg_id
-        or str(
-            mapping.get(
-                "epg_id",
-                "",
-            )
-        ).strip()
+        or mapping.get("epg_id")
         or entry.tvg_id
     )
 
@@ -2564,7 +2444,9 @@ def prepare_output_entry(
     line = upsert_extinf_attr(
         line,
         "tvg-id",
-        str(epg_id or ""),
+        str(
+            epg_id or ""
+        ),
     )
 
     line = upsert_extinf_attr(
@@ -2587,6 +2469,7 @@ def prepare_output_entry(
             logo,
         )
 
+    # Make display name after comma canonical.
     if "," in line:
 
         prefix = line.split(
@@ -2601,6 +2484,68 @@ def prepare_output_entry(
         )
 
     entry.extinf = line
+
+
+# ============================================================
+# GITHUB ACTIONS LOGGING
+# ============================================================
+
+def github_notice(
+    title: str,
+    message: str,
+) -> None:
+
+    # GitHub Actions understands these annotations.
+    print(
+        "::notice title="
+        + str(title).replace(
+            "\n",
+            " ",
+        )
+        + "::"
+        + str(message).replace(
+            "\n",
+            " ",
+        )
+    )
+
+
+def github_warning(
+    title: str,
+    message: str,
+) -> None:
+
+    print(
+        "::warning title="
+        + str(title).replace(
+            "\n",
+            " ",
+        )
+        + "::"
+        + str(message).replace(
+            "\n",
+            " ",
+        )
+    )
+
+
+def github_error(
+    title: str,
+    message: str,
+) -> None:
+
+    print(
+        "::error title="
+        + str(title).replace(
+            "\n",
+            " ",
+        )
+        + "::"
+        + str(message).replace(
+            "\n",
+            " ",
+        )
+    )
 
 
 # ============================================================
@@ -2628,101 +2573,20 @@ def build_headers(
 
         headers.update(
             {
-                "Accept": (
-                    "application/vnd.apple.mpegurl,"
-                    "application/x-mpegURL,"
-                    "audio/mpegurl,"
-                    "*/*"
+                "User-Agent": (
+                    user_agent or DALVIK_UA
                 ),
+                "Accept": "*/*",
                 "Referer": (
                     "https://livesport.s.gy/"
                 ),
                 "Origin": (
                     "https://livesport.s.gy"
                 ),
-                "Cache-Control": "no-cache",
-                "Pragma": "no-cache",
             }
         )
 
     return headers
-
-
-def response_looks_like_m3u(
-    text: str,
-) -> bool:
-
-    if not text:
-        return False
-
-    upper = text.upper()
-
-    # Normal playlist.
-    if "#EXTM3U" in upper:
-        return True
-
-    # Một số endpoint trả playlist thiếu dòng EXT-M3U
-    # nhưng vẫn có EXTINF.
-    if "#EXTINF" in upper:
-        return True
-
-    return False
-
-
-def response_looks_like_html(
-    text: str,
-) -> bool:
-
-    if not text:
-        return False
-
-    head = text[:4096].lower()
-
-    html_markers = (
-        "<!doctype html",
-        "<html",
-        "<head",
-        "<body",
-        "<script",
-        "cloudflare",
-        "access denied",
-        "just a moment",
-    )
-
-    return any(
-        marker in head
-        for marker in html_markers
-    )
-
-
-def response_looks_like_mp4(
-    content: bytes,
-    content_type: str,
-    text: str,
-) -> bool:
-
-    ctype = (
-        content_type or ""
-    ).lower()
-
-    if "video/mp4" in ctype:
-        return True
-
-    if content.startswith(
-        b"\x00\x00\x00"
-    ) and b"ftyp" in content[:32]:
-        return True
-
-    text_head = (
-        text[:100].lower()
-        if text
-        else ""
-    )
-
-    if "video/mp4" in text_head:
-        return True
-
-    return False
 
 
 def fetch_source(
@@ -2740,9 +2604,11 @@ def fetch_source(
         Exception
     ] = None
 
+    # BO SUNG: doi voi EaSport, thu LAN LUOT tung UA trong
+    # EASPORT_UA_CANDIDATES qua moi lan retry (thay vi dung co dinh 1 UA
+    # Dalvik nhu truoc - co the day la ly do khien EaSport chua fetch
+    # duoc). Dam bao retries du lon de thu HET danh sach UA candidate.
     if source == "easport":
-
-        # Thử ít nhất toàn bộ UA candidates.
         retries = max(
             retries,
             len(EASPORT_UA_CANDIDATES),
@@ -2755,33 +2621,33 @@ def fetch_source(
 
         if source == "easport":
 
-            ua = (
-                EASPORT_UA_CANDIDATES[
-                    (attempt - 1)
-                    % len(
-                        EASPORT_UA_CANDIDATES
-                    )
-                ]
+            ua = EASPORT_UA_CANDIDATES[
+                (attempt - 1)
+                % len(EASPORT_UA_CANDIDATES)
+            ]
+
+            headers = build_headers(
+                source,
+                user_agent=ua,
             )
 
         else:
 
-            ua = DALVIK_UA
-
-        headers = build_headers(
-            source,
-            user_agent=ua,
-        )
-
-        # ----------------------------------------------------
-        # Concise log only.
-        # ----------------------------------------------------
-
-        print(
-            f"FETCH {source}"
-        )
+            headers = build_headers(
+                source
+            )
 
         try:
+
+            print(
+                f"[FETCH] {source}: "
+                f"{url}"
+                + (
+                    f" (UA={headers['User-Agent']})"
+                    if source == "easport"
+                    else ""
+                )
+            )
 
             response = session.get(
                 url,
@@ -2797,6 +2663,7 @@ def fetch_source(
             if not content:
 
                 raise FetchError(
+                    f"{source}: "
                     "empty response"
                 )
 
@@ -2813,50 +2680,29 @@ def fetch_source(
                     errors="replace",
                 )
 
-            content_type = (
-                response.headers.get(
-                    "Content-Type",
-                    "",
+            if (
+                "#EXTINF"
+                not in text.upper()
+            ):
+
+                preview = (
+                    text[:300]
+                    .replace(
+                        "\n",
+                        " ",
+                    )
                 )
+
+                raise FetchError(
+                    f"{source}: "
+                    "response does not look "
+                    f"like M3U: {preview}"
+                )
+
+            print(
+                f"[OK] {source}: "
+                f"{len(text):,} bytes"
             )
-
-            # ------------------------------------------------
-            # Reject MP4 landing/media response.
-            # ------------------------------------------------
-
-            if response_looks_like_mp4(
-                content,
-                content_type,
-                text,
-            ):
-
-                raise FetchError(
-                    "server returned MP4 "
-                    "instead of M3U"
-                )
-
-            # ------------------------------------------------
-            # Reject HTML/landing page.
-            # ------------------------------------------------
-
-            if response_looks_like_html(text):
-
-                raise FetchError(
-                    "server returned HTML "
-                    "instead of M3U"
-                )
-
-            # ------------------------------------------------
-            # Validate playlist.
-            # ------------------------------------------------
-
-            if not response_looks_like_m3u(
-                text
-            ):
-
-                raise FetchError(
-                    "response is not M3U"
-                )
 
             return text
 
@@ -2864,12 +2710,28 @@ def fetch_source(
 
             last_error = exc
 
+            print(
+                f"[WARN] {source} attempt "
+                f"{attempt}/{retries} failed: "
+                f"{exc}",
+                file=sys.stderr,
+            )
+
+            github_warning(
+                "Source fetch failed",
+                (
+                    f"{source} "
+                    f"attempt {attempt}/"
+                    f"{retries}: {exc}"
+                ),
+            )
+
             if attempt < retries:
 
                 time.sleep(
                     min(
                         2 ** attempt,
-                        6,
+                        8,
                     )
                 )
 
@@ -2924,6 +2786,7 @@ def render_m3u(
 # ============================================================
 
 GROUP_ORDER = {
+    # Priority groups
     FINAL_GROUPS["VTV"]: 10,
     FINAL_GROUPS["HTV"]: 20,
     FINAL_GROUPS["SCTV"]: 30,
@@ -2932,6 +2795,7 @@ GROUP_ORDER = {
     FINAL_GROUPS["THIET_YEU"]: 60,
     FINAL_GROUPS["DIA_PHUONG"]: 70,
 
+    # Other groups
     FINAL_GROUPS["SU_KIEN"]: 80,
     FINAL_GROUPS["THE_THAO"]: 90,
     FINAL_GROUPS["PHIM"]: 100,
@@ -2943,8 +2807,9 @@ GROUP_ORDER = {
 }
 
 
-def natural_key(value: str):
-
+def natural_key(
+    value: str,
+):
     return [
         (
             int(part)
@@ -3009,52 +2874,249 @@ def validate_output(
 
     if duplicates:
 
+        github_error(
+            "Duplicate canonical IDs",
+            str(
+                duplicates[:20]
+            ),
+        )
+
         raise RuntimeError(
             "Canonical deduplication "
             "failed. Duplicate IDs: "
             f"{duplicates[:20]}"
         )
 
+    urls = [
+        url_key(e.url)
+        for e in entries
+    ]
+
+    duplicate_urls = [
+        item
+        for item, count
+        in Counter(urls).items()
+        if item and count > 1
+    ]
+
+    # Same URL across different canonical
+    # channels is allowed.
+    if duplicate_urls:
+
+        print(
+            "[WARN] "
+            f"{len(duplicate_urls)} "
+            "stream URL(s) are shared "
+            "by multiple canonical "
+            "channels."
+        )
+
+        github_warning(
+            "Shared stream URLs",
+            (
+                f"{len(duplicate_urls)} "
+                "URL(s) are shared by "
+                "different canonical "
+                "channels."
+            ),
+        )
+
 
 # ============================================================
-# CONCISE LOG HELPERS
+# DIAGNOSTICS
 # ============================================================
 
-def display_name_for_log(
-    entry: M3UEntry,
-) -> str:
-
-    return clean_display_name(
-        entry.canonical_name
-        or entry.original_name
-        or entry.tvg_name
-        or entry.tvg_id
-        or entry.canonical_id
-    )
-
-
-def log_canonical(
-    entry: M3UEntry,
+def print_canonical_diagnostic(
+    entries: List[M3UEntry],
+    limit: int = 50,
 ) -> None:
 
+    print()
     print(
-        "CANONICAL "
-        f"{display_name_for_log(entry)} "
-        "-> "
-        f"{entry.canonical_id}"
+        "[CANONICAL] "
+        "Sample resolution:"
     )
 
+    for entry in entries[:limit]:
 
-def log_final(
-    entry: M3UEntry,
+        display = (
+            entry.original_name
+            or entry.tvg_name
+            or entry.tvg_id
+        )
+
+        print(
+            f"  {display} "
+            f"-> {entry.canonical_id} "
+            f"-> {entry.canonical_group} "
+            f"score={entry.canonical_score} "
+            f"reason={entry.canonical_reason} "
+            f"source={entry.source}"
+        )
+
+
+def print_statistics(
+    raw_counts: Dict[str, int],
+    after_filter: Dict[str, int],
+    entries: List[M3UEntry],
+    grouped: Dict[
+        str,
+        List[M3UEntry],
+    ],
+    removed_counts: Dict[
+        str,
+        Counter,
+    ],
 ) -> None:
 
+    print()
+    print("=" * 70)
     print(
-        "FINAL "
-        f"{entry.canonical_id} "
-        "-> "
-        f"{entry.canonical_group}"
+        "OPTIMIZE M3U STATISTICS"
     )
+    print("=" * 70)
+
+    print()
+    print(
+        "Remote source entries:"
+    )
+
+    for source in SOURCE_URLS:
+
+        print(
+            f"  {source:12s}: "
+            f"{raw_counts.get(source, 0):5d}"
+        )
+
+    print()
+    print(
+        "After filtering:"
+    )
+
+    for source in SOURCE_URLS:
+
+        print(
+            f"  {source:12s}: "
+            f"{after_filter.get(source, 0):5d}"
+        )
+
+    print()
+    print(
+        "Removed by reason:"
+    )
+
+    total_removed = 0
+
+    for source in SOURCE_URLS:
+
+        counter = removed_counts.get(
+            source,
+            Counter(),
+        )
+
+        source_total = sum(
+            counter.values()
+        )
+
+        total_removed += (
+            source_total
+        )
+
+        if source_total == 0:
+
+            print(
+                f"  {source:12s}: none"
+            )
+
+            continue
+
+        print(
+            f"  {source:12s}: "
+            f"{source_total:5d}"
+        )
+
+        for reason, count in counter.most_common():
+
+            print(
+                f"      - "
+                f"{reason}: "
+                f"{count}"
+            )
+
+    print()
+    print(
+        f"Total removed:   "
+        f"{total_removed:,}"
+    )
+
+    print(
+        f"Canonical groups: "
+        f"{len(grouped):,}"
+    )
+
+    print(
+        f"Final channels:   "
+        f"{len(entries):,}"
+    )
+
+    print()
+    print(
+        "Final groups:"
+    )
+
+    group_counts = Counter(
+        e.canonical_group
+        for e in entries
+    )
+
+    for group, count in sorted(
+        group_counts.items(),
+        key=lambda x: (
+            GROUP_ORDER.get(
+                x[0],
+                999,
+            ),
+            x[0],
+        ),
+    ):
+
+        print(
+            f"  {group:20s}: "
+            f"{count:4d}"
+        )
+
+    print()
+    print(
+        "Priority group verification:"
+    )
+
+    for key in (
+        "VTV",
+        "HTV",
+        "SCTV",
+        "VTVCAB",
+        "HTVC",
+        "THIET_YEU",
+        "DIA_PHUONG",
+    ):
+
+        label = FINAL_GROUPS[
+            key
+        ]
+
+        count = group_counts.get(
+            label,
+            0,
+        )
+
+        print(
+            f"  {label:20s}: "
+            f"{count:4d}"
+        )
+
+    print()
+    print("=" * 70)
+    print()
 
 
 # ============================================================
@@ -3066,9 +3128,62 @@ def optimize(
     output_path: Path,
 ) -> None:
 
+    print("=" * 70)
+    print(
+        "IPTV M3U OPTIMIZER"
+    )
+    print("=" * 70)
+
+    print()
+
     resolver = CanonicalResolver(
         mapping_path
     )
+
+    print(
+        "[OK] Loaded canonical mapping: "
+        f"{mapping_path}"
+    )
+
+    print(
+        "[OK] Canonical channels: "
+        f"{len(resolver.channels):,}"
+    )
+
+    print()
+    print(
+        "[CONFIG] Priority groups:"
+    )
+
+    for key in (
+        "VTV",
+        "HTV",
+        "SCTV",
+        "VTVCAB",
+        "HTVC",
+        "THIET_YEU",
+        "DIA_PHUONG",
+    ):
+
+        print(
+            f"  {key:12s} "
+            f"-> {FINAL_GROUPS[key]}"
+        )
+
+    print()
+    print(
+        "[CONFIG] vmttv blocked:"
+    )
+
+    print(
+        "  - LIVE EVENTS"
+    )
+
+    print(
+        "  - COLA TV SV2"
+    )
+
+    print()
 
     session = requests.Session()
 
@@ -3094,9 +3209,26 @@ def optimize(
         M3UEntry
     ] = []
 
-    # --------------------------------------------------------
-    # FETCH
-    # --------------------------------------------------------
+    raw_counts: Dict[
+        str,
+        int,
+    ] = {}
+
+    after_filter: Dict[
+        str,
+        int,
+    ] = {}
+
+    removed_counts: Dict[
+        str,
+        Counter,
+    ] = defaultdict(
+        Counter
+    )
+
+    # ========================================================
+    # FETCH + PARSE + FILTER
+    # ========================================================
 
     for source, url in SOURCE_URLS.items():
 
@@ -3113,16 +3245,59 @@ def optimize(
                 source,
             )
 
+            raw_counts[
+                source
+            ] = len(entries)
+
+            print(
+                f"[PARSE] {source}: "
+                f"{len(entries):,} entries"
+            )
+
             kept: List[
                 M3UEntry
             ] = []
 
             for entry in entries:
 
-                if should_remove(entry):
+                if should_remove(
+                    entry
+                ):
+
+                    reason = (
+                        filter_reason(
+                            entry
+                        )
+                    )
+
+                    removed_counts[
+                        source
+                    ][reason] += 1
+
+                    # KHONG con in tung dong "[FILTER] source | reason |
+                    # ten kenh" cho MOI entry bi loai (qua dai dong khi
+                    # co hang tram kenh bi loc, lam log kho doc). Van
+                    # dem so luong theo tung ly do (removed_counts) de
+                    # hien thi trong bang tong ket cuoi cung
+                    # (OPTIMIZE M3U STATISTICS -> "Removed by reason") -
+                    # do la thong so CAN THIET, khong phai chi tiet
+                    # tung dong.
+
                     continue
 
-                kept.append(entry)
+                kept.append(
+                    entry
+                )
+
+            after_filter[
+                source
+            ] = len(kept)
+
+            print(
+                f"[FILTER] {source}: "
+                f"{len(entries):,} -> "
+                f"{len(kept):,}"
+            )
 
             all_entries.extend(
                 kept
@@ -3130,12 +3305,24 @@ def optimize(
 
         except Exception as exc:
 
-            # Keep error short.
             print(
-                f"FETCH {source} FAILED: "
+                f"[ERROR] {source}: "
                 f"{exc}",
                 file=sys.stderr,
             )
+
+            github_error(
+                "Source failed",
+                f"{source}: {exc}",
+            )
+
+            raw_counts[
+                source
+            ] = 0
+
+            after_filter[
+                source
+            ] = 0
 
     if not all_entries:
 
@@ -3144,9 +3331,22 @@ def optimize(
             "or were empty."
         )
 
-    # --------------------------------------------------------
+    print()
+    print(
+        "[TOTAL] Entries after "
+        "filtering: "
+        f"{len(all_entries):,}"
+    )
+
+    # ========================================================
     # CANONICALIZE BEFORE DEDUPE
-    # --------------------------------------------------------
+    # ========================================================
+
+    print()
+    print(
+        "[CANONICAL] Resolving "
+        "channel identities..."
+    )
 
     for entry in all_entries:
 
@@ -3155,50 +3355,182 @@ def optimize(
             resolver,
         )
 
-        log_canonical(entry)
+    canonical_sources = (
+        defaultdict(set)
+    )
+
+    for entry in all_entries:
+
+        canonical_sources[
+            entry.canonical_id
+        ].add(
+            entry.source
+        )
+
+    collisions = {
+        cid: sources
+        for cid, sources
+        in canonical_sources.items()
+        if len(sources) > 1
+    }
+
+    print(
+        "[CANONICAL] "
+        f"{len(collisions):,} "
+        "canonical channels have "
+        "multiple source candidates."
+    )
 
     # --------------------------------------------------------
+    # Canonical resolution diagnostics
+    # --------------------------------------------------------
+
+    print_canonical_diagnostic(
+        all_entries,
+        limit=50,
+    )
+
+    # ========================================================
     # DEDUPE
-    # --------------------------------------------------------
+    # ========================================================
 
-    final_entries, _grouped = (
+    print()
+    print(
+        "[DEDUPE] Selecting ONE "
+        "stream per canonical channel..."
+    )
+
+    final_entries, grouped = (
         deduplicate(
             all_entries
         )
     )
 
-    # --------------------------------------------------------
-    # FINAL GROUP
-    # --------------------------------------------------------
+    print(
+        "[DEDUPE] "
+        f"{len(all_entries):,} "
+        "input entries -> "
+        f"{len(final_entries):,} "
+        "canonical streams"
+    )
+
+    # ========================================================
+    # OUTPUT METADATA / GROUP LOCK
+    # ========================================================
+
+    print()
+    print(
+        "[GROUP] Resolving final groups..."
+    )
+
+    group_changes = Counter()
 
     for entry in final_entries:
+
+        before = (
+            entry.group_title
+        )
 
         prepare_output_entry(
             entry,
             resolver,
         )
 
-        log_final(entry)
+        after = (
+            entry.canonical_group
+        )
 
-    # --------------------------------------------------------
-    # SORT
-    # --------------------------------------------------------
+        group_changes[
+            after
+        ] += 1
+
+        display = (
+            entry.canonical_name
+            or entry.original_name
+            or entry.tvg_name
+            or entry.tvg_id
+        )
+
+        # Explicit event logging.
+        mapping = resolver.get(
+            entry.canonical_id
+        )
+
+        if (
+            after
+            == FINAL_GROUPS["SU_KIEN"]
+        ):
+
+            print(
+                "[EVENT] "
+                f"{display} "
+                f"-> {after} "
+                f"source={entry.source}"
+            )
+
+            github_notice(
+                "Event channel",
+                (
+                    f"{display} "
+                    f"-> {after}"
+                ),
+            )
+
+        # Warn when an otherwise identifiable channel
+        # ends up in KHAC.
+        if (
+            after
+            == FINAL_GROUPS["KHAC"]
+            and entry.canonical_score
+            >= 70
+        ):
+
+            print(
+                "[WARN] Strong canonical "
+                "match still classified "
+                f"as KHAC: {display} "
+                f"canonical={entry.canonical_id} "
+                f"score={entry.canonical_score}"
+            )
+
+            github_warning(
+                "Unexpected KHAC",
+                (
+                    f"{display} | "
+                    f"canonical="
+                    f"{entry.canonical_id} | "
+                    f"score="
+                    f"{entry.canonical_score}"
+                ),
+            )
+
+    # ========================================================
+    # SORT + VALIDATE
+    # ========================================================
 
     final_entries = sort_entries(
         final_entries
     )
 
-    # --------------------------------------------------------
-    # VALIDATE
-    # --------------------------------------------------------
-
     validate_output(
         final_entries
     )
 
-    # --------------------------------------------------------
+    # ========================================================
+    # STATISTICS
+    # ========================================================
+
+    print_statistics(
+        raw_counts,
+        after_filter,
+        final_entries,
+        grouped,
+        removed_counts,
+    )
+
+    # ========================================================
     # RENDER
-    # --------------------------------------------------------
+    # ========================================================
 
     output_text = render_m3u(
         final_entries
@@ -3223,6 +3555,24 @@ def optimize(
         output_path
     )
 
+    print(
+        "[OK] Output written: "
+        f"{output_path}"
+    )
+
+    print(
+        "[OK] Final unique channels: "
+        f"{len(final_entries):,}"
+    )
+
+    github_notice(
+        "M3U optimizer completed",
+        (
+            f"{len(final_entries):,} "
+            "unique channels written."
+        ),
+    )
+
 
 # ============================================================
 # CLI
@@ -3244,12 +3594,20 @@ def parse_args():
         default=str(
             DEFAULT_MAPPING
         ),
+        help=(
+            "Canonical mapping. "
+            f"Default: {DEFAULT_MAPPING}"
+        ),
     )
 
     parser.add_argument(
         "--output",
         default=str(
             DEFAULT_OUTPUT
+        ),
+        help=(
+            "Output M3U. "
+            f"Default: {DEFAULT_OUTPUT}"
         ),
     )
 
@@ -3276,7 +3634,7 @@ def main() -> int:
     except KeyboardInterrupt:
 
         print(
-            "FATAL Interrupted.",
+            "\n[ABORTED] Interrupted.",
             file=sys.stderr,
         )
 
@@ -3285,8 +3643,13 @@ def main() -> int:
     except Exception as exc:
 
         print(
-            f"FATAL {exc}",
+            f"\n[FATAL] {exc}",
             file=sys.stderr,
+        )
+
+        github_error(
+            "Optimizer failed",
+            str(exc),
         )
 
         return 1
