@@ -364,13 +364,14 @@ LOCAL_PROVINCE_SLUGS = (
     "bariavungtau", "bentre", "binhdinh", "binhduong", "binhphuoc",
     "binhthuan", "camau", "cantho", "caobang", "danang", "daklak",
     "daknong", "dienbien", "dongnai", "dongthap", "gialai", "hagiang",
-    "hanam", "hanoi", "hatinh", "haiduong", "haiphong", "hoabinh",
-    "hungyen", "khanhhoa", "kiengiang", "kontum", "laichau", "lamdong",
-    "langson", "laocai", "namdinh", "nghean", "ninhbinh", "ninhthuan",
-    "phutho", "phuyen", "quangbinh", "quangnam", "quangngai",
-    "quangninh", "quangtri", "soctrang", "sonla", "tayninh",
-    "thaibinh", "thainguyen", "thanhhoa", "tiengiang",
-    "travinh", "tuyenquang", "vinhlong", "vinhphuc", "yenbai", "hue",
+    "hanam", "hanoi", "hatinh", "haiduong", "haiphong", "haugiang",
+    "hoabinh", "hungyen", "khanhhoa", "kiengiang", "kontum", "laichau",
+    "lamdong", "langson", "laocai", "longan", "namdinh", "nghean",
+    "ninhbinh", "ninhthuan", "phutho", "phuyen", "quangbinh",
+    "quangnam", "quangngai", "quangninh", "quangtri", "soctrang",
+    "sonla", "tayninh", "thaibinh", "thainguyen", "thanhhoa",
+    "tiengiang", "travinh", "tuyenquang", "vinhlong", "vinhphuc",
+    "yenbai", "hue", "tphcm", "hochiminh", "saigon",
 )
 
 _NUMBER_RE = re.compile(r"\d{1,2}")
@@ -2393,20 +2394,6 @@ def prepare_output_entry(
 
         final_group = locked_group
 
-        print(
-            "[GROUP LOCK] "
-            f"{display_name} "
-            f"-> {final_group}"
-        )
-
-        github_notice(
-            "GROUP LOCK",
-            (
-                f"{display_name} "
-                f"-> {final_group}"
-            ),
-        )
-
     else:
 
         final_group = classify_group(
@@ -2639,16 +2626,6 @@ def fetch_source(
 
         try:
 
-            print(
-                f"[FETCH] {source}: "
-                f"{url}"
-                + (
-                    f" (UA={headers['User-Agent']})"
-                    if source == "easport"
-                    else ""
-                )
-            )
-
             response = session.get(
                 url,
                 headers=headers,
@@ -2699,32 +2676,11 @@ def fetch_source(
                     f"like M3U: {preview}"
                 )
 
-            print(
-                f"[OK] {source}: "
-                f"{len(text):,} bytes"
-            )
-
             return text
 
         except Exception as exc:
 
             last_error = exc
-
-            print(
-                f"[WARN] {source} attempt "
-                f"{attempt}/{retries} failed: "
-                f"{exc}",
-                file=sys.stderr,
-            )
-
-            github_warning(
-                "Source fetch failed",
-                (
-                    f"{source} "
-                    f"attempt {attempt}/"
-                    f"{retries}: {exc}"
-                ),
-            )
 
             if attempt < retries:
 
@@ -2874,86 +2830,16 @@ def validate_output(
 
     if duplicates:
 
-        github_error(
-            "Duplicate canonical IDs",
-            str(
-                duplicates[:20]
-            ),
-        )
-
         raise RuntimeError(
             "Canonical deduplication "
             "failed. Duplicate IDs: "
             f"{duplicates[:20]}"
         )
 
-    urls = [
-        url_key(e.url)
-        for e in entries
-    ]
-
-    duplicate_urls = [
-        item
-        for item, count
-        in Counter(urls).items()
-        if item and count > 1
-    ]
-
-    # Same URL across different canonical
-    # channels is allowed.
-    if duplicate_urls:
-
-        print(
-            "[WARN] "
-            f"{len(duplicate_urls)} "
-            "stream URL(s) are shared "
-            "by multiple canonical "
-            "channels."
-        )
-
-        github_warning(
-            "Shared stream URLs",
-            (
-                f"{len(duplicate_urls)} "
-                "URL(s) are shared by "
-                "different canonical "
-                "channels."
-            ),
-        )
-
 
 # ============================================================
 # DIAGNOSTICS
 # ============================================================
-
-def print_canonical_diagnostic(
-    entries: List[M3UEntry],
-    limit: int = 50,
-) -> None:
-
-    print()
-    print(
-        "[CANONICAL] "
-        "Sample resolution:"
-    )
-
-    for entry in entries[:limit]:
-
-        display = (
-            entry.original_name
-            or entry.tvg_name
-            or entry.tvg_id
-        )
-
-        print(
-            f"  {display} "
-            f"-> {entry.canonical_id} "
-            f"-> {entry.canonical_group} "
-            f"score={entry.canonical_score} "
-            f"reason={entry.canonical_reason} "
-            f"source={entry.source}"
-        )
-
 
 def print_statistics(
     raw_counts: Dict[str, int],
@@ -2969,154 +2855,7 @@ def print_statistics(
     ],
 ) -> None:
 
-    print()
-    print("=" * 70)
-    print(
-        "OPTIMIZE M3U STATISTICS"
-    )
-    print("=" * 70)
-
-    print()
-    print(
-        "Remote source entries:"
-    )
-
-    for source in SOURCE_URLS:
-
-        print(
-            f"  {source:12s}: "
-            f"{raw_counts.get(source, 0):5d}"
-        )
-
-    print()
-    print(
-        "After filtering:"
-    )
-
-    for source in SOURCE_URLS:
-
-        print(
-            f"  {source:12s}: "
-            f"{after_filter.get(source, 0):5d}"
-        )
-
-    print()
-    print(
-        "Removed by reason:"
-    )
-
-    total_removed = 0
-
-    for source in SOURCE_URLS:
-
-        counter = removed_counts.get(
-            source,
-            Counter(),
-        )
-
-        source_total = sum(
-            counter.values()
-        )
-
-        total_removed += (
-            source_total
-        )
-
-        if source_total == 0:
-
-            print(
-                f"  {source:12s}: none"
-            )
-
-            continue
-
-        print(
-            f"  {source:12s}: "
-            f"{source_total:5d}"
-        )
-
-        for reason, count in counter.most_common():
-
-            print(
-                f"      - "
-                f"{reason}: "
-                f"{count}"
-            )
-
-    print()
-    print(
-        f"Total removed:   "
-        f"{total_removed:,}"
-    )
-
-    print(
-        f"Canonical groups: "
-        f"{len(grouped):,}"
-    )
-
-    print(
-        f"Final channels:   "
-        f"{len(entries):,}"
-    )
-
-    print()
-    print(
-        "Final groups:"
-    )
-
-    group_counts = Counter(
-        e.canonical_group
-        for e in entries
-    )
-
-    for group, count in sorted(
-        group_counts.items(),
-        key=lambda x: (
-            GROUP_ORDER.get(
-                x[0],
-                999,
-            ),
-            x[0],
-        ),
-    ):
-
-        print(
-            f"  {group:20s}: "
-            f"{count:4d}"
-        )
-
-    print()
-    print(
-        "Priority group verification:"
-    )
-
-    for key in (
-        "VTV",
-        "HTV",
-        "SCTV",
-        "VTVCAB",
-        "HTVC",
-        "THIET_YEU",
-        "DIA_PHUONG",
-    ):
-
-        label = FINAL_GROUPS[
-            key
-        ]
-
-        count = group_counts.get(
-            label,
-            0,
-        )
-
-        print(
-            f"  {label:20s}: "
-            f"{count:4d}"
-        )
-
-    print()
-    print("=" * 70)
-    print()
+    print(f"[final] channels={len(entries):,}")
 
 
 # ============================================================
@@ -3128,62 +2867,9 @@ def optimize(
     output_path: Path,
 ) -> None:
 
-    print("=" * 70)
-    print(
-        "IPTV M3U OPTIMIZER"
-    )
-    print("=" * 70)
-
-    print()
-
     resolver = CanonicalResolver(
         mapping_path
     )
-
-    print(
-        "[OK] Loaded canonical mapping: "
-        f"{mapping_path}"
-    )
-
-    print(
-        "[OK] Canonical channels: "
-        f"{len(resolver.channels):,}"
-    )
-
-    print()
-    print(
-        "[CONFIG] Priority groups:"
-    )
-
-    for key in (
-        "VTV",
-        "HTV",
-        "SCTV",
-        "VTVCAB",
-        "HTVC",
-        "THIET_YEU",
-        "DIA_PHUONG",
-    ):
-
-        print(
-            f"  {key:12s} "
-            f"-> {FINAL_GROUPS[key]}"
-        )
-
-    print()
-    print(
-        "[CONFIG] vmttv blocked:"
-    )
-
-    print(
-        "  - LIVE EVENTS"
-    )
-
-    print(
-        "  - COLA TV SV2"
-    )
-
-    print()
 
     session = requests.Session()
 
@@ -3249,11 +2935,6 @@ def optimize(
                 source
             ] = len(entries)
 
-            print(
-                f"[PARSE] {source}: "
-                f"{len(entries):,} entries"
-            )
-
             kept: List[
                 M3UEntry
             ] = []
@@ -3274,15 +2955,6 @@ def optimize(
                         source
                     ][reason] += 1
 
-                    # KHONG con in tung dong "[FILTER] source | reason |
-                    # ten kenh" cho MOI entry bi loai (qua dai dong khi
-                    # co hang tram kenh bi loc, lam log kho doc). Van
-                    # dem so luong theo tung ly do (removed_counts) de
-                    # hien thi trong bang tong ket cuoi cung
-                    # (OPTIMIZE M3U STATISTICS -> "Removed by reason") -
-                    # do la thong so CAN THIET, khong phai chi tiet
-                    # tung dong.
-
                     continue
 
                 kept.append(
@@ -3294,9 +2966,8 @@ def optimize(
             ] = len(kept)
 
             print(
-                f"[FILTER] {source}: "
-                f"{len(entries):,} -> "
-                f"{len(kept):,}"
+                f"[{source}] fetch=ok "
+                f"list={len(kept):,}"
             )
 
             all_entries.extend(
@@ -3306,14 +2977,8 @@ def optimize(
         except Exception as exc:
 
             print(
-                f"[ERROR] {source}: "
-                f"{exc}",
+                f"[{source}] fetch=FAILED: {exc}",
                 file=sys.stderr,
-            )
-
-            github_error(
-                "Source failed",
-                f"{source}: {exc}",
             )
 
             raw_counts[
@@ -3331,22 +2996,11 @@ def optimize(
             "or were empty."
         )
 
-    print()
-    print(
-        "[TOTAL] Entries after "
-        "filtering: "
-        f"{len(all_entries):,}"
-    )
+    print(f"[list] total={len(all_entries):,}")
 
     # ========================================================
     # CANONICALIZE BEFORE DEDUPE
     # ========================================================
-
-    print()
-    print(
-        "[CANONICAL] Resolving "
-        "channel identities..."
-    )
 
     for entry in all_entries:
 
@@ -3375,30 +3029,13 @@ def optimize(
     }
 
     print(
-        "[CANONICAL] "
-        f"{len(collisions):,} "
-        "canonical channels have "
-        "multiple source candidates."
-    )
-
-    # --------------------------------------------------------
-    # Canonical resolution diagnostics
-    # --------------------------------------------------------
-
-    print_canonical_diagnostic(
-        all_entries,
-        limit=50,
+        f"[canonical] merged={len(collisions):,} "
+        f"total={len(canonical_sources):,}"
     )
 
     # ========================================================
     # DEDUPE
     # ========================================================
-
-    print()
-    print(
-        "[DEDUPE] Selecting ONE "
-        "stream per canonical channel..."
-    )
 
     final_entries, grouped = (
         deduplicate(
@@ -3406,103 +3043,16 @@ def optimize(
         )
     )
 
-    print(
-        "[DEDUPE] "
-        f"{len(all_entries):,} "
-        "input entries -> "
-        f"{len(final_entries):,} "
-        "canonical streams"
-    )
-
     # ========================================================
     # OUTPUT METADATA / GROUP LOCK
     # ========================================================
 
-    print()
-    print(
-        "[GROUP] Resolving final groups..."
-    )
-
-    group_changes = Counter()
-
     for entry in final_entries:
-
-        before = (
-            entry.group_title
-        )
 
         prepare_output_entry(
             entry,
             resolver,
         )
-
-        after = (
-            entry.canonical_group
-        )
-
-        group_changes[
-            after
-        ] += 1
-
-        display = (
-            entry.canonical_name
-            or entry.original_name
-            or entry.tvg_name
-            or entry.tvg_id
-        )
-
-        # Explicit event logging.
-        mapping = resolver.get(
-            entry.canonical_id
-        )
-
-        if (
-            after
-            == FINAL_GROUPS["SU_KIEN"]
-        ):
-
-            print(
-                "[EVENT] "
-                f"{display} "
-                f"-> {after} "
-                f"source={entry.source}"
-            )
-
-            github_notice(
-                "Event channel",
-                (
-                    f"{display} "
-                    f"-> {after}"
-                ),
-            )
-
-        # Warn when an otherwise identifiable channel
-        # ends up in KHAC.
-        if (
-            after
-            == FINAL_GROUPS["KHAC"]
-            and entry.canonical_score
-            >= 70
-        ):
-
-            print(
-                "[WARN] Strong canonical "
-                "match still classified "
-                f"as KHAC: {display} "
-                f"canonical={entry.canonical_id} "
-                f"score={entry.canonical_score}"
-            )
-
-            github_warning(
-                "Unexpected KHAC",
-                (
-                    f"{display} | "
-                    f"canonical="
-                    f"{entry.canonical_id} | "
-                    f"score="
-                    f"{entry.canonical_score}"
-                ),
-            )
 
     # ========================================================
     # SORT + VALIDATE
@@ -3555,23 +3105,7 @@ def optimize(
         output_path
     )
 
-    print(
-        "[OK] Output written: "
-        f"{output_path}"
-    )
-
-    print(
-        "[OK] Final unique channels: "
-        f"{len(final_entries):,}"
-    )
-
-    github_notice(
-        "M3U optimizer completed",
-        (
-            f"{len(final_entries):,} "
-            "unique channels written."
-        ),
-    )
+    print(f"[OK] written {output_path}")
 
 
 # ============================================================
