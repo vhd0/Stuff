@@ -122,7 +122,7 @@ https://freem3u.xyz/api/live/play.m3u8?vid=182
 #KODIPROP:inputstream.adaptive.manifest_type=dash
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=https://tv.vietanhtv.top/sex/cleankey.php?id=tv360174&token=039fe0fa95ee8356c9aa1686f7ece261
-https://tv.vietanhtv.top/tv360/tv360.php?id=174&expires=1789202133&token=10ba129576a7bfa15e1c7ce5ac389847
+https://tv.vietanhtv.top/tv360/tv360.php?id=174&expires=1789205731&token=a2b0bdfefcc9364e669e1673f2b8f651
 #EXTINF:-1 tvg-id="ongolf" group-title="📡 VTVCab" tvg-logo="https://img.lichphatsong.site/logo/on-golf.jpg" tvg-name="ON Golf",ON Golf
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://vmttv.dpdns.org/tv360/?id=vtvcab-23-golf-channel
@@ -151,21 +151,21 @@ https://vmttv.dpdns.org/tv360/?id=vtvcab-2-phim-viet-hd
 #KODIPROP:inputstream.adaptive.manifest_type=dash
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=https://tv.vietanhtv.top/sex/cleankey.php?id=tv360173&token=039fe0fa95ee8356c9aa1686f7ece261
-https://tv.vietanhtv.top/tv360/tv360.php?id=173&expires=1789202133&token=0565f1e89264507bcb328fc915eb7365
+https://tv.vietanhtv.top/tv360/tv360.php?id=173&expires=1789205731&token=d9e400f81a4c61490d0a6101183c2a4d
 #EXTINF:-1 tvg-id="onsportsnews" group-title="📡 VTVCab" tvg-logo="https://assets-vtvcab.gviet.vn/images/v2/channel/20220613/2022061306/Logo_ONSPORTSNEWS_150x904_1675158858.webp" tvg-name="ON Sports News",ON Sports News
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=dash
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=https://tv.vietanhtv.top/sex/cleankey.php?id=tv360170&token=039fe0fa95ee8356c9aa1686f7ece261
-https://tv.vietanhtv.top/tv360/tv360.php?id=170&expires=1789202133&token=861285880f8e0b9f08db2aa121f212d8
+https://tv.vietanhtv.top/tv360/tv360.php?id=170&expires=1789205731&token=d6b25874d7c0f5a4af022735f31b21d3
 #EXTINF:-1 tvg-id="onsportsplus" group-title="📡 VTVCab" tvg-logo="https://assets-vtvcab.gviet.vn/images/hq/posters/onsportscongmoi1.jpg" tvg-name="ON Sports+",ON Sports+
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=dash
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=https://tv.vietanhtv.top/sex/cleankey.php?id=tv360183&token=039fe0fa95ee8356c9aa1686f7ece261
-https://tv.vietanhtv.top/tv360/tv360.php?id=183&expires=1789202133&token=3073c94657025c2ceeb4f1dfe86f915d
+https://tv.vietanhtv.top/tv360/tv360.php?id=183&expires=1789205731&token=3c81981461a1683999afe3128d598a18
 #EXTINF:-1 tvg-id="onstyle" group-title="📡 VTVCab" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/Logo/refs/heads/main/onstyle.png" catchup="append" catchup-days="2" catchup-source="https://api.vthanhtivi.pw/v1/dvr/vieon/vtvcab12-style-tv/${start}/${offset}" tvg-name="ON Style",ON Style
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://freem3u.xyz/api/live/play.m3u8?vid=184
@@ -356,8 +356,14 @@ https://freem3u.xyz/api/live/play.m3u8?vid=51
 #EXTINF:-1 tvg-id="dongthap" group-title="🏙️ Địa phương" tvg-logo="https://freem3u.xyz/static/images/diaphuong/dongthap1.png" tvg-name="Đồng Tháp",Đồng Tháp
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36
 https://live.fptplay53.net/epzhd2/dongthap01_vhls.smil/chunklist_b5000000.m3u8
+#EXTINF:-1 group-title="🎟️ Sự kiện" tvg-logo="https://images.fptplay53.net/media/home_event/OTT_ECS/2026/09/11/thumbnail-live_1789098511068.jpg" tvg-id="" tvg-name="Event 2",Event 2
+https://vips-livecdn.fptplay.net/live/media/event-02/hls_avc_v6/index.m3u8
+#EXTINF:-1 group-title="🎟️ Sự kiện" tvg-logo="https://images.fptplay53.net/media/home_event/OTT_ECS/2026/09/09/slide-thumb_1788938379580.jpg" tvg-id="" tvg-name="Event 6",Event 6
+https://vips-livecdn.fptplay.net/live/media/event-06/hls_avc_v6/index.m3u8
 #EXTINF:-1 tvg-id="SkySpMainEvHD.uk" group-logo="https://upload.wikimedia.org/wikipedia/commons/2/2d/Animated-Flag-United-Kingdom.gif" tvg-logo="https://livesport.io.vn/logo/sport/smain.png" group-title="🎟️ Sự kiện"  tvg-name="SKY SPORTS MAIN EVENT",SKY SPORTS MAIN EVENT
 https://livesport.io.vn/ok/smart.php?id=skymain
+#EXTINF:-1 group-title="🎟️ Sự kiện" tvg-logo="https://images.fptplay53.net/media/home_event/OTT_ECS/2026/09/11/thumbnail-live_1789098218754.jpg" tvg-id="" tvg-name="Sự Kiện 1",Sự Kiện 1
+https://vips-livecdn.fptplay.net/live/media/su-kien-01/hls_avc_v6/index.m3u8
 #EXTINF:-1 group-title="🎟️ Sự kiện" tvg-logo="https://images.fptplay53.net/media/home_event/OTT_ECS/2026/09/09/slide-thumb_1788937557369.jpg" tvg-id="" tvg-name="Sự Kiện 2",Sự Kiện 2
 https://vips-livecdn.fptplay.net/live/media/su-kien-02/hls_avc_v6/index.m3u8
 #EXTINF:-1 group-title="🎟️ Sự kiện" tvg-logo="https://images.fptplay53.net/media/home_event/OTT_ECS/2026/09/10/11_1788977594212.jpg" tvg-id="" tvg-name="Sự Kiện 6",Sự Kiện 6
@@ -552,6 +558,8 @@ https://livesport.io.vn/ok/apo.php?id=are6
 https://livesport.io.vn/ok/apo.php?id=are7
 #EXTINF:-1 group-logo="https://livesport.io.vn/logo/test.png" tvg-logo="https://livesport.io.vn/logo/sport/a8.png" group-title="🏆 Thể thao"  tvg-id="" tvg-name="ARENA SPORT 8",ARENA SPORT 8
 https://livesport.io.vn/ok/apo.php?id=are8
+#EXTINF:-1 tvg-id="sd-6MxjZAJW4kZ2ZPz6go" tvg-logo="https://livesport.io.vn/logo/epl.png" group-title="🏆 Thể thao"  tvg-name="Australia Victorian Women's Premier League Box Hill Women 0-0 FC Bulleen Lions Women",Australia Victorian Women's Premier League Box Hill Women 0-0 FC Bulleen Lions Women
+https://livesport.io.vn/event.php?id=sd-6MxjZAJW4kZ2ZPz6go
 #EXTINF:-1 group-logo="https://upload.wikimedia.org/wikipedia/commons/4/42/Animated-Flag-USA.gif" tvg-logo="https://livesport.io.vn/logo/sport/bxtraes.png" group-title="🏆 Thể thao"  tvg-id="" tvg-name="BEIN ES",BEIN ES
 https://livesport.io.vn/ok/smart.php?id=beines
 #EXTINF:-1 group-logo="https://upload.wikimedia.org/wikipedia/commons/1/19/Animated-Flag-Saudi-Arabia.gif" tvg-logo="https://livesport.io.vn/logo/sport/be1.png" group-title="🏆 Thể thao"  tvg-id="" tvg-name="BEIN SPORT 1",BEIN SPORT 1
@@ -716,6 +724,10 @@ http://3bb.engatetv.com:25461/hstn/line/14
 https://livesport.io.vn/ok/stalkvip.php?id=mutv
 #EXTINF:-1 group-title="🏆 Thể thao" tvg-logo="https://m.media-amazon.com/images/I/611NwkDJjOL.png" tvg-id="" tvg-name="MUTV",MUTV
 http://line.ciao-ott.net:80/play/live.php?mac=00:1A:79:C8:7B:30&stream=1312824&extension=ts&play_token=3ouilCRXf9
+#EXTINF:-1 tvg-id="sd-6MxjZGsTLgETCT81tT" tvg-logo="https://livesport.io.vn/logo/epl.png" group-title="🏆 Thể thao"  tvg-name="National Premier Leagues Victoria 2 Melbourne Victory FC Youth 0-0 Eltham Redbacks",National Premier Leagues Victoria 2 Melbourne Victory FC Youth 0-0 Eltham Redbacks
+https://livesport.io.vn/event.php?id=sd-6MxjZGsTLgETCT81tT
+#EXTINF:-1 tvg-id="sd-6MxjZGsTLnptotbmM9" tvg-logo="https://livesport.io.vn/logo/epl.png" group-title="🏆 Thể thao"  tvg-name="National Premier Leagues Victoria 2 Northcote City 0-0 FC Bulleen Lions",National Premier Leagues Victoria 2 Northcote City 0-0 FC Bulleen Lions
+https://livesport.io.vn/event.php?id=sd-6MxjZGsTLnptotbmM9
 #EXTINF:-1 tvg-id="Nova.Sport.1.cz" group-logo="https://upload.wikimedia.org/wikipedia/commons/5/57/Animated-Flag-Czech.gif" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-nova-sport-1-563.png" group-title="🏆 Thể thao"  tvg-name="NOVA SPORT 1",NOVA SPORT 1
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=dash
