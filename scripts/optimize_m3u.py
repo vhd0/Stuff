@@ -406,8 +406,13 @@ def detect_province_number(
 
         number_match = _NUMBER_RE.search(combined)
 
+        # Kenh dia phuong KHONG danh so ngam dinh la kenh so 1 (quy uoc
+        # thuc te: kenh chinh cua tinh thuong duoc goi tron khong kem so,
+        # vd "Lâm Đồng" == "LTV1"/"Lâm Đồng 1", "Tây Ninh" ==
+        # "Tây Ninh TV" == "tayninh1"). Neu khong mac dinh "1", 2 kieu
+        # dat ten nay se tao 2 canonical_id khac nhau va khong gop lai.
         return slug_match.group(0) + (
-            number_match.group(0) if number_match else ""
+            number_match.group(0) if number_match else "1"
             )
 
     return None
@@ -2576,6 +2581,40 @@ def build_headers(
     return headers
 
 
+_VN_PROXY_CACHE: List[str] = []
+
+
+def fetch_vn_proxies(limit: int = 8) -> List[str]:
+    """Lay danh sach proxy Viet Nam mien phi (ProxyScrape) - dung lam
+    PHUONG AN CUOI CUNG khi fetch truc tiep that bai het (vd nguon bi
+    chan theo IP nuoc ngoai). Loi mang o day KHONG duoc lam sap build -
+    tra ve list rong neu that bai, cache lai trong 1 lan chay de khong
+    goi lap lai cho nhieu nguon."""
+
+    global _VN_PROXY_CACHE
+
+    if _VN_PROXY_CACHE:
+        return _VN_PROXY_CACHE[:limit]
+
+    try:
+        resp = requests.get(
+            "https://api.proxyscrape.com/v4/free-proxy-list/get"
+            "?request=display_proxies&proxy_format=protocolipport"
+            "&format=text&country=vn",
+            timeout=10,
+        )
+        proxies = [
+            p.strip()
+            for p in resp.text.splitlines()
+            if p.strip()
+        ]
+        _VN_PROXY_CACHE = proxies
+        return proxies[:limit]
+
+    except Exception:
+        return []
+
+
 def fetch_source(
     session: requests.Session,
     source: str,
@@ -2690,6 +2729,34 @@ def fetch_source(
                         8,
                     )
                 )
+
+    # PHUONG AN CUOI CUNG: fetch truc tiep that bai het (vd bi chan IP
+    # nuoc ngoai) - thu qua vai proxy Viet Nam mien phi truoc khi bo cuoc.
+    for proxy in fetch_vn_proxies():
+
+        try:
+            response = requests.get(
+                url,
+                headers=build_headers(source),
+                timeout=timeout,
+                allow_redirects=True,
+                proxies={
+                    "http": proxy,
+                    "https": proxy,
+                },
+            )
+
+            response.raise_for_status()
+
+            text = response.content.decode(
+                "utf-8-sig", errors="replace"
+            )
+
+            if "#EXTINF" in text.upper():
+                return text
+
+        except Exception:
+            continue
 
     raise FetchError(
         f"Unable to fetch {source}: "
