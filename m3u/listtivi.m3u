@@ -15,7 +15,7 @@ https://live-a.fptplay53.net/live/media/vtv5tnb/live-hls-avc/index.m3u8
 #EXTINF:-1 tvg-id="VTV5TayNguyen.vn@HD" tvg-name="VTV5 Tây Nguyên" group-title="📺 VTV",VTV5 Tây Nguyên
 https://vips-livecdn.fptplay.net/live/media/vtv5tn/live-hls-avc/index.m3u8
 #EXTINF:-1 tvg-id="vtv6hd" group-title="📺 VTV" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/Logo/refs/heads/main/VTV6_logo2026.jpg" tvg-name="VTV6",VTV6
-https://vmttv.dpdns.org/VTVGo/?vtv6-hd
+https://vmttv.dpdns.org/tv360/?id=vtv6-hd
 #EXTINF:-1 tvg-id="vtv7hd" group-title="📺 VTV" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/Logo/refs/heads/main/VTV7_logo2026.jpg" tvg-name="VTV7",VTV7
 https://vips-livecdn.fptplay.net/live/media/vtv7/live247-hls-avc/vtv7-avc1_5600000=10000-mp4a_140800_vie=20000.m3u8
 #EXTINF:-1 tvg-id="vtv8hd" group-title="📺 VTV" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/Logo/refs/heads/main/VTV8.jpg" catchup="default" catchup-days="2" tvg-name="VTV8",VTV8
@@ -122,7 +122,7 @@ https://freem3u.xyz/api/live/play.m3u8?vid=182
 #KODIPROP:inputstream.adaptive.manifest_type=dash
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=https://tv.vietanhtv.top/sex/cleankey.php?id=tv360174&token=766d6c916b6e17296913afa333a27030
-https://tv.vietanhtv.top/tv360/tv360.php?id=174&expires=1789648530&token=8146022a80126f99e246eb7e12adbb5a
+https://tv.vietanhtv.top/tv360/tv360.php?id=174&expires=1789652137&token=526b81fcec69057a767cd3104d9616fd
 #EXTINF:-1 tvg-id="ongolf" group-title="📡 VTVCab" tvg-logo="https://img.lichphatsong.site/logo/on-golf.jpg" tvg-name="ON Golf",ON Golf
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://vmttv.dpdns.org/tv360/?id=vtvcab-23-golf-channel
@@ -151,21 +151,21 @@ https://vmttv.dpdns.org/tv360/?id=vtvcab-2-phim-viet-hd
 #KODIPROP:inputstream.adaptive.manifest_type=dash
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=https://tv.vietanhtv.top/sex/cleankey.php?id=tv360173&token=766d6c916b6e17296913afa333a27030
-https://tv.vietanhtv.top/tv360/tv360.php?id=173&expires=1789648530&token=42ebada765b8070816397a9dde6d7b45
+https://tv.vietanhtv.top/tv360/tv360.php?id=173&expires=1789652137&token=dca1f1ea59a82a94a309855ad0fd1cc1
 #EXTINF:-1 tvg-id="onsportsnews" group-title="📡 VTVCab" tvg-logo="https://assets-vtvcab.gviet.vn/images/v2/channel/20220613/2022061306/Logo_ONSPORTSNEWS_150x904_1675158858.webp" tvg-name="ON Sports News",ON Sports News
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=dash
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=https://tv.vietanhtv.top/sex/cleankey.php?id=tv360170&token=766d6c916b6e17296913afa333a27030
-https://tv.vietanhtv.top/tv360/tv360.php?id=170&expires=1789648530&token=36feaaf144b8d49344938a824a23c730
+https://tv.vietanhtv.top/tv360/tv360.php?id=170&expires=1789652137&token=d3c33c047e869fe46df7175958d8b1ea
 #EXTINF:-1 tvg-id="onsportsplus" group-title="📡 VTVCab" tvg-logo="https://assets-vtvcab.gviet.vn/images/hq/posters/onsportscongmoi1.jpg" tvg-name="ON Sports+",ON Sports+
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=dash
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=https://tv.vietanhtv.top/sex/cleankey.php?id=tv360183&token=766d6c916b6e17296913afa333a27030
-https://tv.vietanhtv.top/tv360/tv360.php?id=183&expires=1789648530&token=3fb11010a75144f8818da80f083889a3
+https://tv.vietanhtv.top/tv360/tv360.php?id=183&expires=1789652137&token=c104c928856003f8f0553c28986e5bc9
 #EXTINF:-1 tvg-id="onstyle" group-title="📡 VTVCab" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/Logo/refs/heads/main/onstyle.png" catchup="append" catchup-days="2" catchup-source="https://api.vthanhtivi.pw/v1/dvr/vieon/vtvcab12-style-tv/${start}/${offset}" tvg-name="ON Style",ON Style
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://freem3u.xyz/api/live/play.m3u8?vid=184
@@ -675,6 +675,8 @@ https://dash3.antik.sk/stream/hisi_arena_sport1/playlist_cbcs.mpd
 https://dash2.antik.sk/stream/hisi_as2/playlist_cbcs.mpd
 #EXTINF:-1 group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://livesport.io.vn/logo/laliga.png" group-title="🏆 Thể thao"  tvg-id="" tvg-name="LALIGA",LALIGA
 https://livesport.io.vn/ok/smart.php?id=mlaliga
+#EXTINF:-1 tvg-id="sd-6Mxj4xb8c6GFmh7j7D" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" group-title="🏆 Thể thao"  tvg-name="Malaysian FA Cup Terengganu FC 0-1 DPMM FC",Malaysian FA Cup Terengganu FC 0-1 DPMM FC
+https://livesport.io.vn/event.php?id=sd-6Mxj4xb8c6GFmh7j7D
 #EXTINF:-1 group-title="🏆 Thể thao" tvg-logo="https://r2.thesportsdb.com/images/media/channel/logo/er6tz11641505761.png" tvg-id="" tvg-name="Max Sport 1 HD",Max Sport 1 HD
 http://line.watchtivo-8k.com:80/play/live.php?mac=00:1A:79:3F:0C:96&stream=228727&extension=ts&play_token=mwh0b4DmEo
 #EXTINF:-1 group-title="🏆 Thể thao" tvg-logo="https://r2.thesportsdb.com/images/media/channel/logo/8qhlj81641505795.png" tvg-id="" tvg-name="Max Sport 2 HD",Max Sport 2 HD
