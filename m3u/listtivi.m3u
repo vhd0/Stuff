@@ -20,7 +20,7 @@ https://vips-livecdn.fptplay.net/live/media/vtv6/live247-hls-avc/vtv6-avc1_56000
 https://vips-livecdn.fptplay.net/live/media/vtv7/live247-hls-avc/vtv7-avc1_5600000=10000-mp4a_140800_vie=20000.m3u8
 #EXTINF:-1 tvg-id="vtv8hd" group-title="📺 VTV" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/Logo/refs/heads/main/VTV8.jpg" catchup="default" catchup-days="2" tvg-name="VTV8",VTV8
 https://vips-livecdn.fptplay.net/live/media/vtv8/live-hls-avc/vtv8-avc1_4000000=10000-mp4a_131600=20000.m3u8
-#EXTINF:-1 tvg-id="vtv9hd" group-title="📺 VTV" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/Logo/refs/heads/main/VTV9.png" catchup="default" catchup-days="2" catchup-source="http://sv.cvtv.xyz:3000/mytvod.m3u8?id=381&time=${start}&offset=${duration}" tvg-name="VTV9",VTV9
+#EXTINF:-1 tvg-id="vtv9hd" group-title="📺 VTV" tvg-logo="1" tvg-name="VTV9",VTV9
 https://vips-livecdn.fptplay.net/live/media/vtv9/live247-hls-avc/vtv9-avc1_5600000=10000-mp4a_131600=20000.m3u8
 #EXTINF:-1 tvg-id="vtv10hd" group-title="📺 VTV" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/vuminhthanh12/refs/heads/main/VTV10.png" tvg-name="VTV10",VTV10
 https://vips-livecdn.fptplay.net/live/media/vtv10/live247-hls-avc/vtv10-avc1_5600000=10000-mp4a_131600=20000.m3u8
@@ -122,7 +122,7 @@ https://freem3u.xyz/api/live/play.m3u8?vid=182
 #KODIPROP:inputstream.adaptive.manifest_type=dash
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=https://tv.vietanhtv.top/sex/cleankey.php?id=tv360174&token=17eb47346a7811ebd64a4dedd0cba445
-https://tv.vietanhtv.top/tv360/tv360.php?id=174&expires=1789720530&token=f75f9dc157de216ea7741e7b0058c2d4
+https://tv.vietanhtv.top/tv360/tv360.php?id=174&expires=1789724132&token=90f5df58d59fda1ecf1fe47503a04f6b
 #EXTINF:-1 tvg-id="ongolf" group-title="📡 VTVCab" tvg-logo="https://img.lichphatsong.site/logo/on-golf.jpg" tvg-name="ON Golf",ON Golf
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://vmttv.dpdns.org/tv360/?id=vtvcab-23-golf-channel
@@ -151,21 +151,21 @@ https://vmttv.dpdns.org/tv360/?id=vtvcab-2-phim-viet-hd
 #KODIPROP:inputstream.adaptive.manifest_type=dash
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=https://tv.vietanhtv.top/sex/cleankey.php?id=tv360173&token=17eb47346a7811ebd64a4dedd0cba445
-https://tv.vietanhtv.top/tv360/tv360.php?id=173&expires=1789720530&token=69e387acdad7b0096369f7207240fb06
+https://tv.vietanhtv.top/tv360/tv360.php?id=173&expires=1789724132&token=cffaf1b6755e27e4a41a3cb26383459c
 #EXTINF:-1 tvg-id="onsportsnews" group-title="📡 VTVCab" tvg-logo="https://assets-vtvcab.gviet.vn/images/v2/channel/20220613/2022061306/Logo_ONSPORTSNEWS_150x904_1675158858.webp" tvg-name="ON Sports News",ON Sports News
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=dash
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=https://tv.vietanhtv.top/sex/cleankey.php?id=tv360170&token=17eb47346a7811ebd64a4dedd0cba445
-https://tv.vietanhtv.top/tv360/tv360.php?id=170&expires=1789720530&token=1d9ae1939996d7b7ee766c039a52a310
+https://tv.vietanhtv.top/tv360/tv360.php?id=170&expires=1789724132&token=881006090d6d79d9a40140294ca13d87
 #EXTINF:-1 tvg-id="onsportsplus" group-title="📡 VTVCab" tvg-logo="https://assets-vtvcab.gviet.vn/images/hq/posters/onsportscongmoi1.jpg" tvg-name="ON Sports+",ON Sports+
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=dash
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=https://tv.vietanhtv.top/sex/cleankey.php?id=tv360183&token=17eb47346a7811ebd64a4dedd0cba445
-https://tv.vietanhtv.top/tv360/tv360.php?id=183&expires=1789720530&token=8dce948cb26c30c1f6af1f5eb41cf00e
+https://tv.vietanhtv.top/tv360/tv360.php?id=183&expires=1789724132&token=fc8468248d13409d279434071792ffb8
 #EXTINF:-1 tvg-id="onstyle" group-title="📡 VTVCab" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/Logo/refs/heads/main/onstyle.png" catchup="append" catchup-days="2" catchup-source="https://api.vthanhtivi.pw/v1/dvr/vieon/vtvcab12-style-tv/${start}/${offset}" tvg-name="ON Style",ON Style
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://freem3u.xyz/api/live/play.m3u8?vid=184
@@ -575,8 +575,6 @@ https://livesport.io.vn/ok/stalkvip.php?id=be10fr
 https://livesport.io.vn/ok/smart.php?id=beinus
 #EXTINF:-1 group-logo="https://upload.wikimedia.org/wikipedia/commons/1/19/Animated-Flag-Saudi-Arabia.gif" tvg-logo="https://livesport.io.vn/logo/sport/be4.png" group-title="🏆 Thể thao"  tvg-id="" tvg-name="BEINSPORT 4",BEINSPORT 4
 https://livesport.io.vn/ok/live.php?id=b4
-#EXTINF:-1 group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://livesport.io.vn/logo/bun.png" group-title="🏆 Thể thao"  tvg-id="" tvg-name="BUNDESLIGA",BUNDESLIGA
-https://livesport.io.vn/ok/smart.php?id=skybun
 #EXTINF:-1 group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-sky-bundesliga-1-1804.png" group-title="🏆 Thể thao"  tvg-id="" tvg-name="BUNGDESLIGA 1",BUNGDESLIGA 1
 https://livesport.io.vn/ok/apo.php?id=bun1
 #EXTINF:-1 group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-sky-bundesliga-2-1805.png" group-title="🏆 Thể thao"  tvg-id="" tvg-name="BUNGDESLIGA 2",BUNGDESLIGA 2
@@ -673,8 +671,6 @@ https://dash3.antik.sk/stream/hisi_arena_sport1/playlist_cbcs.mpd
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=https://livesport.io.vn/ok/xxx.xml
 https://dash2.antik.sk/stream/hisi_as2/playlist_cbcs.mpd
-#EXTINF:-1 group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://livesport.io.vn/logo/laliga.png" group-title="🏆 Thể thao"  tvg-id="" tvg-name="LALIGA",LALIGA
-https://livesport.io.vn/ok/smart.php?id=mlaliga
 #EXTINF:-1 group-title="🏆 Thể thao" tvg-logo="https://r2.thesportsdb.com/images/media/channel/logo/er6tz11641505761.png" tvg-id="" tvg-name="Max Sport 1 HD",Max Sport 1 HD
 http://line.watchtivo-8k.com:80/play/live.php?mac=00:1A:79:3F:0C:96&stream=228727&extension=ts&play_token=mwh0b4DmEo
 #EXTINF:-1 group-title="🏆 Thể thao" tvg-logo="https://r2.thesportsdb.com/images/media/channel/logo/8qhlj81641505795.png" tvg-id="" tvg-name="Max Sport 2 HD",Max Sport 2 HD
@@ -1121,8 +1117,6 @@ http://211.33.246.4:32954/cj_live/myStream.sdp/playlist.m3u8
 https://cdn3.skygo.mn/live/disk1/NHK_World_Premium/HLSv3-FTA/NHK_World_Premium.m3u8
 #EXTINF:-1 tvg-id="" group-title="🌍 Quốc tế" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/Logo/refs/heads/main/nhkworld.png" tvg-name="NHK World",NHK World
 https://live.fptplay53.net/fnxhd2/nhkworld_vhls.smil/chunklist_b5000000.m3u8
-#EXTINF:-1 group-title="🌍 Quốc tế" tvg-logo="https://turanews.kz/wp-content/uploads/2025/07/r2hnnhtmmwlpewv2lenia9v2orbntsguxssmaj4h.webp" tvg-id="" tvg-name="Nữ Thái Lan vs Nữ Đài Bắc Trung Hoa (Bảng E môn bóng đá nữ Asiad 20)",Nữ Thái Lan vs Nữ Đài Bắc Trung Hoa (Bảng E môn bóng đá nữ Asiad 20)
-https://live2.zundrixmediapipeline.com/live/channel19.m3u8
 #EXTINF:-1 tvg-id="outdoor" group-title="🌍 Quốc tế" tvg-logo="https://images.fptplay53.net/media/channels/icon_channel_outdoor-channel_165649323545.png" tvg-name="Outdoor Channel",Outdoor Channel
 #EXTVLCOPT:http-user-agent=VThanhTivi
 https://live.fptplay53.net/epzhd2/outdoorfhd_vhls.smil/chunklist_b5000000.m3u8
@@ -1180,6 +1174,42 @@ https://vmttv.dpdns.org/tv360/?id=360-hanh-dong-chau-a
 #EXTINF:-1 group-title="📦 Khác" tvg-logo="https://img-zlr1.tv360.vn/image1/2026/04/09/21/1775744591740/79928f9b003f_640_360.png" tvg-id="" tvg-name="360 K-Drama",360 K-Drama
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://vmttv.dpdns.org/tv360/?id=360-k-drama
+#EXTINF:-1 group-logo="https://media-cdn-v2.laodong.vn/storage/newsportal/2026/5/27/1708909/Asiad-20-01.jpeg" tvg-logo="https://media-cdn-v2.laodong.vn/storage/newsportal/2026/5/27/1708909/Asiad-20-01.jpeg" group-title="📦 Khác"  tvg-id="" tvg-name="Asian Games 1",Asian Games 1
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=dash
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=https://livesport.io.vn/ok/xxx.xml
+https://tglmp03.akamaized.net/out/v1/7cfe6d15c127407588568af9f4574a21/manifest.mpd
+#EXTINF:-1 group-logo="https://livesport.io.vn/logo/asia-games-2026.gif" tvg-logo="https://media-cdn-v2.laodong.vn/storage/newsportal/2026/5/27/1708909/Asiad-20-01.jpeg" group-title="📦 Khác"  tvg-id="" tvg-name="Asian Games 2",Asian Games 2
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=dash
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=https://livesport.io.vn/ok/xxx.xml
+https://tglmp01.akamaized.net/out/v1/5fa3fdc8720b4317b14df756e81b78c1/manifest.mpd
+#EXTINF:-1 group-logo="https://livesport.io.vn/logo/asia-games-2026.gif" tvg-logo="https://media-cdn-v2.laodong.vn/storage/newsportal/2026/5/27/1708909/Asiad-20-01.jpeg" group-title="📦 Khác"  tvg-id="" tvg-name="Asian Games 3",Asian Games 3
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=dash
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=https://livesport.io.vn/ok/xxx.xml
+https://tglmp02.akamaized.net/out/v1/2f39077458694b06bdfb15ef16f55d45/manifest.mpd
+#EXTINF:-1 group-logo="https://livesport.io.vn/logo/asia-games-2026.gif" tvg-logo="https://media-cdn-v2.laodong.vn/storage/newsportal/2026/5/27/1708909/Asiad-20-01.jpeg" group-title="📦 Khác"  tvg-id="" tvg-name="Asian Games 4",Asian Games 4
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=dash
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=https://livesport.io.vn/ok/xxx.xml
+https://tglmp04.akamaized.net/out/v1/4604623e7ff4462a962275664ccd8ee5/manifest.mpd
+#EXTINF:-1 group-logo="https://media-cdn-v2.laodong.vn/storage/newsportal/2026/5/27/1708909/Asiad-20-01.jpeg" tvg-logo="https://media-cdn-v2.laodong.vn/storage/newsportal/2026/5/27/1708909/Asiad-20-01.jpeg" group-title="📦 Khác"  tvg-id="" tvg-name="Asian Games 5",Asian Games 5
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=dash
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=https://livesport.io.vn/ok/xxx.xml
+https://tglmp03.akamaized.net/out/v1/926637c1aba44cffa74adc74bf786816/manifest.mpd
+#EXTINF:-1 group-logo="https://livesport.io.vn/logo/asia-games-2026.gif" tvg-logo="https://media-cdn-v2.laodong.vn/storage/newsportal/2026/5/27/1708909/Asiad-20-01.jpeg" group-title="📦 Khác"  tvg-id="" tvg-name="Asian Games 6",Asian Games 6
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=dash
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=https://livesport.io.vn/ok/xxx.xml
+https://tglmp01.akamaized.net/out/v1/d43dbc5da1334ec088ed9eb5796eee7c/manifest.mpd
 #EXTINF:-1 group-title="📦 Khác" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/Logo/refs/heads/main/AsianGamesCh01.jpg" tvg-id="" tvg-name="Asian Games CH01",Asian Games CH01
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 #KODIPROP:inputstream.adaptive.manifest_type=mpd
@@ -1279,8 +1309,6 @@ https://wowza.jejumbc.com/live/tv_jejumbc/playlist.m3u8
 http://vod.mpmbc.co.kr:1935/live/encoder-tv/playlist.m3u8
 #EXTINF:-1 group-title="📦 Khác" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/b/b8/MBC_logo.png" tvg-id="" tvg-name="MBC Yeosu",MBC Yeosu
 https://5c3639aa99149.streamlock.net/live_TV/tv/playlist.m3u8
-#EXTINF:-1 group-title="📦 Khác" tvg-logo="https://turanews.kz/wp-content/uploads/2025/07/r2hnnhtmmwlpewv2lenia9v2orbntsguxssmaj4h.webp" tvg-id="" tvg-name="Nữ Bangladesh vs Nữ Hàn Quốc (Bảng F môn bóng đá nữ Asiad 20)",Nữ Bangladesh vs Nữ Hàn Quốc (Bảng F môn bóng đá nữ Asiad 20)
-https://live2.domaincdn.cc/livecdn/channel-6.m3u8?auth_key=3000001789628674-0-0-122713ef4a0f168627fc45bab7051ce7
 #EXTINF:-1 tvg-id="thanhhoa" group-title="📦 Khác" tvg-logo="https://img-zlr1.tv360.vn/image1/2020_09_23/1600821878406/58ff77e57117_640_360.png" tvg-name="TTV HD - Báo và PTTH Thanh Hóa",TTV HD - Báo và PTTH Thanh Hóa
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://freem3u.xyz/api/live/play.m3u8?vid=89
