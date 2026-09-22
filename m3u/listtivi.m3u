@@ -122,7 +122,7 @@ https://freem3u.xyz/api/live/play.m3u8?vid=182
 #KODIPROP:inputstream.adaptive.manifest_type=dash
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=https://tv.vietanhtv.top/sex/cleankey.php?id=tv360174&token=ccd03863e26c4bcf686a6d06d4e0948d
-https://tv.vietanhtv.top/tv360/tv360.php?id=174&expires=1790123736&token=c86bcc4d6061312c46b0d5e29ee37d8a
+https://tv.vietanhtv.top/tv360/tv360.php?id=174&expires=1790127333&token=cb9c4776f208a037379f514e2b421087
 #EXTINF:-1 tvg-id="ongolf" group-title="📡 VTVCab" tvg-logo="https://img.lichphatsong.site/logo/on-golf.jpg" tvg-name="ON Golf",ON Golf
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://vmttv.dpdns.org/tv360/?id=vtvcab-23-golf-channel
@@ -151,21 +151,21 @@ https://vmttv.dpdns.org/tv360/?id=vtvcab-2-phim-viet-hd
 #KODIPROP:inputstream.adaptive.manifest_type=dash
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=https://tv.vietanhtv.top/sex/cleankey.php?id=tv360173&token=ccd03863e26c4bcf686a6d06d4e0948d
-https://tv.vietanhtv.top/tv360/tv360.php?id=173&expires=1790123736&token=4d4a4b28450d4d57e1c3e6e0d440fa4f
+https://tv.vietanhtv.top/tv360/tv360.php?id=173&expires=1790127333&token=789cb38e21f5263899b848854ecc0fe6
 #EXTINF:-1 tvg-id="onsportsnews" group-title="📡 VTVCab" tvg-logo="https://assets-vtvcab.gviet.vn/images/v2/channel/20220613/2022061306/Logo_ONSPORTSNEWS_150x904_1675158858.webp" tvg-name="ON Sports News",ON Sports News
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=dash
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=https://tv.vietanhtv.top/sex/cleankey.php?id=tv360170&token=ccd03863e26c4bcf686a6d06d4e0948d
-https://tv.vietanhtv.top/tv360/tv360.php?id=170&expires=1790123736&token=90670d25cdbf78ef17dc379534c7a55a
+https://tv.vietanhtv.top/tv360/tv360.php?id=170&expires=1790127333&token=eafb28cb32b813883cd9105e5e639e42
 #EXTINF:-1 tvg-id="onsportsplus" group-title="📡 VTVCab" tvg-logo="https://assets-vtvcab.gviet.vn/images/hq/posters/onsportscongmoi1.jpg" tvg-name="ON Sports+",ON Sports+
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=dash
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=https://tv.vietanhtv.top/sex/cleankey.php?id=tv360183&token=ccd03863e26c4bcf686a6d06d4e0948d
-https://tv.vietanhtv.top/tv360/tv360.php?id=183&expires=1790123736&token=7286c9e4092e6d46f6c05ae115be2f66
+https://tv.vietanhtv.top/tv360/tv360.php?id=183&expires=1790127333&token=620d73f06e59ea3c222720831a454ed7
 #EXTINF:-1 tvg-id="onstyle" group-title="📡 VTVCab" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/Logo/refs/heads/main/onstyle.png" catchup="append" catchup-days="2" catchup-source="https://api.vthanhtivi.pw/v1/dvr/vieon/vtvcab12-style-tv/${start}/${offset}" tvg-name="ON Style",ON Style
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://freem3u.xyz/api/live/play.m3u8?vid=184
@@ -1498,6 +1498,8 @@ https://wowza.jejumbc.com/live/tv_jejumbc/playlist.m3u8
 http://vod.mpmbc.co.kr:1935/live/encoder-tv/playlist.m3u8
 #EXTINF:-1 group-title="📦 Khác" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/b/b8/MBC_logo.png" tvg-id="" tvg-name="MBC Yeosu",MBC Yeosu
 https://5c3639aa99149.streamlock.net/live_TV/tv/playlist.m3u8
+#EXTINF:-1 group-title="📦 Khác" tvg-logo="https://thumb.vtvdigital.org/transform?url=https://vtvgo-assets.vtvdigital.vn/assets/images/v2/metadata/20260921/2026092123/JqjIUtLL0T-sang1.webp&width=1080" tvg-id="" tvg-name="TRỰC TIẾP | ASIAD 20 - Ngày thi đấu 22/9 | Luồng 1",TRỰC TIẾP | ASIAD 20 - Ngày thi đấu 22/9 | Luồng 1
+https://vtvgoliveapp1-aws-plus-tn.vtvdigital.vn/aws-sk/asiad_1_paid/live/asiad_1_1080p/chunks.m3u8
 #EXTINF:-1 tvg-id="thanhhoa" group-title="📦 Khác" tvg-logo="https://img-zlr1.tv360.vn/image1/2020_09_23/1600821878406/58ff77e57117_640_360.png" tvg-name="TTV HD - Báo và PTTH Thanh Hóa",TTV HD - Báo và PTTH Thanh Hóa
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://freem3u.xyz/api/live/play.m3u8?vid=89
