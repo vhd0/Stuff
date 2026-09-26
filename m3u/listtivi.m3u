@@ -122,7 +122,7 @@ https://freem3u.xyz/api/live/play.m3u8?vid=182
 #KODIPROP:inputstream.adaptive.manifest_type=dash
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=https://tv.vietanhtv.top/sex/cleankey.php?id=tv360174&token=aa0e395c623a8812a6ed0d3cd549b0bf
-https://tv.vietanhtv.top/tv360/tv360.php?id=174&expires=1790508933&token=d81d48c97ba77a67b66f9ad73e9f9722
+https://tv.vietanhtv.top/tv360/tv360.php?id=174&expires=1790512530&token=cf1e97d97a631cff5734d31c666aa92c
 #EXTINF:-1 tvg-id="ongolf" group-title="📡 VTVCab" tvg-logo="https://img.lichphatsong.site/logo/on-golf.jpg" tvg-name="ON Golf",ON Golf
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://vmttv.dpdns.org/tv360/?id=vtvcab-23-golf-channel
@@ -151,21 +151,21 @@ https://vmttv.dpdns.org/tv360/?id=vtvcab-2-phim-viet-hd
 #KODIPROP:inputstream.adaptive.manifest_type=dash
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=https://tv.vietanhtv.top/sex/cleankey.php?id=tv360173&token=aa0e395c623a8812a6ed0d3cd549b0bf
-https://tv.vietanhtv.top/tv360/tv360.php?id=173&expires=1790508933&token=05838c65d53fb215052b2f243143624c
+https://tv.vietanhtv.top/tv360/tv360.php?id=173&expires=1790512530&token=c201cc9575520196a7d4bc5e16d07e9a
 #EXTINF:-1 tvg-id="onsportsnews" group-title="📡 VTVCab" tvg-logo="https://assets-vtvcab.gviet.vn/images/v2/channel/20220613/2022061306/Logo_ONSPORTSNEWS_150x904_1675158858.webp" tvg-name="ON Sports News",ON Sports News
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=dash
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=https://tv.vietanhtv.top/sex/cleankey.php?id=tv360170&token=aa0e395c623a8812a6ed0d3cd549b0bf
-https://tv.vietanhtv.top/tv360/tv360.php?id=170&expires=1790508933&token=3b252167acf48a500fe428fb258f7467
+https://tv.vietanhtv.top/tv360/tv360.php?id=170&expires=1790512530&token=989d9ee2ca51684547edc893f3f9188a
 #EXTINF:-1 tvg-id="onsportsplus" group-title="📡 VTVCab" tvg-logo="https://assets-vtvcab.gviet.vn/images/hq/posters/onsportscongmoi1.jpg" tvg-name="ON Sports+",ON Sports+
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=dash
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=https://tv.vietanhtv.top/sex/cleankey.php?id=tv360183&token=aa0e395c623a8812a6ed0d3cd549b0bf
-https://tv.vietanhtv.top/tv360/tv360.php?id=183&expires=1790508933&token=bbad4f80d4cbb000caf5a4e51a1d3e35
+https://tv.vietanhtv.top/tv360/tv360.php?id=183&expires=1790512530&token=62dcd726ffa7a35350c4b420ff3fefa3
 #EXTINF:-1 tvg-id="onstyle" group-title="📡 VTVCab" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/Logo/refs/heads/main/onstyle.png" catchup="append" catchup-days="2" catchup-source="https://api.vthanhtivi.pw/v1/dvr/vieon/vtvcab12-style-tv/${start}/${offset}" tvg-name="ON Style",ON Style
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://freem3u.xyz/api/live/play.m3u8?vid=184
@@ -346,6 +346,10 @@ https://vips-livecdn.fptplay.net/live/media/su-kien-01-4k/dash_hvc/index.mpd
 https://livesport.io.vn/ok/iptv.php?id=skymain
 #EXTINF:-1 group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" tvg-logo="https://livesport.io.vn/logo/sport/sktop.png" group-title="🎟️ Sự kiện"  tvg-id="" tvg-name="SKYSPORT TOP EVENT",SKYSPORT TOP EVENT
 https://livesport.io.vn/ok/apo.php?id=skytop
+#EXTINF:-1 group-title="🎟️ Sự kiện" tvg-logo="https://images.fptplay53.net/media/home_event/OTT_ECS/2026/09/23/slide-thumb_1790150131303.jpg" tvg-id="" tvg-name="Sự Kiện 1",Sự Kiện 1
+https://vips-livecdn.fptplay.net/live/media/su-kien-01/hls_avc_v6/index.m3u8
+#EXTINF:-1 group-title="🎟️ Sự kiện" tvg-logo="https://images.fptplay53.net/media/home_event/OTT_ECS/2026/09/26/thumbnail-live_1790422970744.jpg" tvg-id="" tvg-name="Sự Kiện 3",Sự Kiện 3
+https://vips-livecdn.fptplay.net/live/media/su-kien-03/hls_avc_v6/index.m3u8
 #EXTINF:-1 group-title="🎟️ Sự kiện" tvg-logo="https://img-zlr1.tv360.vn/image1/2025/09/17/17/175810574912/a5f8181388ab_640_360.png" tvg-id="" tvg-name="TV360 Promo",TV360 Promo
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://freem3u.xyz/api/live/play.m3u8?vid=9904
@@ -555,13 +559,13 @@ https://livesport.io.vn/ok/apo.php?id=are7
 #EXTINF:-1 group-logo="https://livesport.io.vn/logo/test.png" tvg-logo="https://livesport.io.vn/logo/sport/a8.png" group-title="🏆 Thể thao"  tvg-id="" tvg-name="ARENA SPORT 8",ARENA SPORT 8
 https://livesport.io.vn/ok/apo.php?id=are8
 #EXTINF:-1 tvg-name="Astro SuperSport 1" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",Astro SuperSport 1
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2F6rzbg6b8dby6g.m3u8%3Fs%3D9-Dh2OcOuU1nWUmao9Lggw%26e%3D1790441120%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2F6rzbg6b8dby6g.m3u8%3Fs%3DiVz_QHZR6G8Sk5qzGmDZ1Q%26e%3D1790444721%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 tvg-name="Astro SuperSport 2" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",Astro SuperSport 2
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fb1k4jblm0uk8o.m3u8%3Fs%3DK5ROX2pr3p1ruXyCOAQYfw%26e%3D1790441123%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fb1k4jblm0uk8o.m3u8%3Fs%3DZhWH6Ju1oymCSWsUPgIS8g%26e%3D1790444724%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 tvg-name="Astro SuperSport 3" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",Astro SuperSport 3
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fithsxzm7ri73i.m3u8%3Fs%3DOp3RbVFAA1IgFNtLwxTyvg%26e%3D1790441127%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fithsxzm7ri73i.m3u8%3Fs%3DL4Xe3WecVDxwIDLy1NK2Fg%26e%3D1790444727%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 tvg-name="Astro SuperSport 4" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",Astro SuperSport 4
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fd269llgcnq6i1.m3u8%3Fs%3DgHlwmsCyam4YsNr0AnOnIA%26e%3D1790441131%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fd269llgcnq6i1.m3u8%3Fs%3DvNn-BCXsvpWKeVsBgW5vlg%26e%3D1790444731%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 group-logo="https://upload.wikimedia.org/wikipedia/commons/4/42/Animated-Flag-USA.gif" tvg-logo="https://livesport.io.vn/logo/sport/bxtraes.png" group-title="🏆 Thể thao"  tvg-id="" tvg-name="BEIN ES",BEIN ES
 https://livesport.io.vn/ok/smart.php?id=beinxtra
 #EXTINF:-1 group-logo="https://upload.wikimedia.org/wikipedia/commons/1/19/Animated-Flag-Saudi-Arabia.gif" tvg-logo="https://livesport.io.vn/logo/sport/be1.png" group-title="🏆 Thể thao"  tvg-id="" tvg-name="BEIN SPORT 1",BEIN SPORT 1
@@ -573,43 +577,43 @@ https://livesport.io.vn/ok/live.php?id=b3
 #EXTINF:-1 tvg-id="beINSports1.mena" group-logo="https://upload.wikimedia.org/wikipedia/commons/a/a4/Animated-Flag-France.gif" tvg-logo="https://livesport.io.vn/logo/sport/befr1.png" group-title="🏆 Thể thao"  tvg-name="BEIN SPORTS 1",BEIN SPORTS 1
 https://livesport.io.vn/ok/vip3.php?id=be1fr
 #EXTINF:-1 tvg-name="beIN Sports 1 Arabic" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",beIN Sports 1 Arabic
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2F7i35xyez1bkd8.m3u8%3Fs%3DjmkIxFFyG1FmAiJaoqz2pg%26e%3D1790441236%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2F7i35xyez1bkd8.m3u8%3Fs%3D-tBANe3rSNktUypC2uTCNw%26e%3D1790444842%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 tvg-name="beIN Sports 1 Malaysia" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",beIN Sports 1 Malaysia
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fd269e9dcs9kf7.m3u8%3Fs%3Dk662QRHjKgzHSyi2rGGmxw%26e%3D1790441366%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fd269e9dcs9kf7.m3u8%3Fs%3DTMfF8dZSPkcwj6K1DYVgvQ%26e%3D1790444968%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 tvg-id="beINSports2.mena" group-logo="https://upload.wikimedia.org/wikipedia/commons/a/a4/Animated-Flag-France.gif" tvg-logo="https://livesport.io.vn/logo/sport/befr2.png" group-title="🏆 Thể thao"  tvg-name="BEIN SPORTS 2",BEIN SPORTS 2
 https://livesport.io.vn/ok/vip3.php?id=be2fr
 #EXTINF:-1 tvg-name="beIN Sports 2 Arabic" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",beIN Sports 2 Arabic
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fyxter8r45omui.m3u8%3Fs%3DiMLRk0bUE5MBUWMAU5ijNQ%26e%3D1790441238%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fyxter8r45omui.m3u8%3Fs%3Dzk9O4Y9733lKaNBb-xarRA%26e%3D1790444844%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 tvg-name="beIN Sports 2 Malaysia" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",beIN Sports 2 Malaysia
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fefuzox9npfyti.m3u8%3Fs%3Dry3CXpm-iYprzW4cTIO02g%26e%3D1790441369%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fefuzox9npfyti.m3u8%3Fs%3DZLsh1wO_4PDBnh3jPy2ZUw%26e%3D1790444970%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 tvg-id="beIN.SPORTS.3.fr" group-logo="https://upload.wikimedia.org/wikipedia/commons/a/a4/Animated-Flag-France.gif" tvg-logo="https://livesport.io.vn/logo/sport/befr3.png" group-title="🏆 Thể thao"  tvg-name="BEIN SPORTS 3",BEIN SPORTS 3
 https://livesport.io.vn/ok/vip3.php?id=be3fr
 #EXTINF:-1 tvg-name="beIN Sports 3 Arabic" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",beIN Sports 3 Arabic
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fvg4qdak2ng4n6.m3u8%3Fs%3Dkk1GPn7j-Ta_PEpOL6TXQg%26e%3D1790441241%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fvg4qdak2ng4n6.m3u8%3Fs%3DCuys99uKZJgfbGJr9svLSQ%26e%3D1790444846%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 tvg-name="beIN Sports 3 Malaysia" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",beIN Sports 3 Malaysia
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fg8yj5qpvmxn73.m3u8%3Fs%3DUKx5EqKySvSUHYZzNCO7yg%26e%3D1790441371%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fg8yj5qpvmxn73.m3u8%3Fs%3D-YNqooM0ft324C6mAeJ6hg%26e%3D1790444972%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 tvg-name="beIN Sports 4 Arabic" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",beIN Sports 4 Arabic
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2F7i35x4uz69j1n.m3u8%3Fs%3DmK1PKyvwIYJgcYlZOJsn_Q%26e%3D1790441243%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2F7i35x4uz69j1n.m3u8%3Fs%3D3YfJ6iCjQD8IH5Q8PFRMwg%26e%3D1790444848%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 tvg-id="beIN.SPORTS.MAX.4.fr" group-logo="https://upload.wikimedia.org/wikipedia/commons/a/a4/Animated-Flag-France.gif" tvg-logo="https://livesport.io.vn/logo/sport/m4.png" group-title="🏆 Thể thao"  tvg-name="BEIN SPORTS 4 MAX",BEIN SPORTS 4 MAX
 https://livesport.io.vn/ok/vip3.php?id=be4fr
 #EXTINF:-1 tvg-name="beIN Sports 5 Arabic" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",beIN Sports 5 Arabic
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fd269au3ckpaj.m3u8%3Fs%3D_9GtzqHGpXrLEYu3s8DbpQ%26e%3D1790441245%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fd269au3ckpaj.m3u8%3Fs%3D0IRBAn3R4gE4pYv7aZuEog%26e%3D1790444850%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 tvg-id="beIN.SPORTS.MAX.5.fr" group-logo="https://upload.wikimedia.org/wikipedia/commons/a/a4/Animated-Flag-France.gif" tvg-logo="https://livesport.io.vn/logo/sport/m5.png" group-title="🏆 Thể thao"  tvg-name="BEIN SPORTS 5 MAX",BEIN SPORTS 5 MAX
 https://livesport.io.vn/ok/vip3.php?id=be5fr
 #EXTINF:-1 tvg-name="beIN Sports 6 Arabic" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",beIN Sports 6 Arabic
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2F7i35x4mz6qbki.m3u8%3Fs%3DrU5JsF_ydF7VuRRgYk2hcQ%26e%3D1790441247%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2F7i35x4mz6qbki.m3u8%3Fs%3D-IerUtSXqACg_np0pYxkIg%26e%3D1790444852%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 tvg-id="beIN.SPORTS.MAX.6.fr" group-logo="https://upload.wikimedia.org/wikipedia/commons/a/a4/Animated-Flag-France.gif" tvg-logo="https://livesport.io.vn/logo/sport/m6.png" group-title="🏆 Thể thao"  tvg-name="BEIN SPORTS 6 MAX",BEIN SPORTS 6 MAX
 https://livesport.io.vn/ok/vip3.php?id=be6fr
 #EXTINF:-1 tvg-name="beIN Sports 7 Arabic" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",beIN Sports 7 Arabic
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2F1n5ymqkb4tt2e.m3u8%3Fs%3D9eYhWGa4tuxT__oNxClSbw%26e%3D1790441249%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2F1n5ymqkb4tt2e.m3u8%3Fs%3DA7Jy4rOc3PY4tB_RSglthQ%26e%3D1790444854%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 tvg-id="beIN.SPORTS.MAX.7.fr" group-logo="https://upload.wikimedia.org/wikipedia/commons/a/a4/Animated-Flag-France.gif" tvg-logo="https://livesport.io.vn/logo/sport/m7.png" group-title="🏆 Thể thao"  tvg-name="BEIN SPORTS 7 MAX",BEIN SPORTS 7 MAX
 https://livesport.io.vn/ok/vip3.php?id=be7fr
 #EXTINF:-1 tvg-name="beIN Sports 8 Arabic" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",beIN Sports 8 Arabic
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Ful205ekst1wdh.m3u8%3Fs%3D3M3jGTT8dnfnmeBXAxpzDQ%26e%3D1790441251%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Ful205ekst1wdh.m3u8%3Fs%3DtWpydbxfXwoyZBryfK_a6g%26e%3D1790444856%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 tvg-id="beIN.SPORTS.MAX.8.fr" group-logo="https://upload.wikimedia.org/wikipedia/commons/a/a4/Animated-Flag-France.gif" tvg-logo="https://livesport.io.vn/logo/sport/m8.png" group-title="🏆 Thể thao"  tvg-name="BEIN SPORTS 8 MAX",BEIN SPORTS 8 MAX
 https://livesport.io.vn/ok/vip3.php?id=be8fr
 #EXTINF:-1 tvg-name="beIN Sports 9 Arabic" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",beIN Sports 9 Arabic
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2F1n5ymp3b4t60e.m3u8%3Fs%3D2rGxzVEZD1fUDr_XEVBGTA%26e%3D1790441253%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2F1n5ymp3b4t60e.m3u8%3Fs%3DppeTJgKvXG69X_x5v8C6fQ%26e%3D1790444859%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 tvg-id="beIN.SPORTS.MAX.9.fr" group-logo="https://upload.wikimedia.org/wikipedia/commons/a/a4/Animated-Flag-France.gif" tvg-logo="https://livesport.io.vn/logo/sport/m9.png" group-title="🏆 Thể thao"  tvg-name="BEIN SPORTS 9 MAX",BEIN SPORTS 9 MAX
 https://livesport.io.vn/ok/vip3.php?id=be9fr
 #EXTINF:-1 tvg-id="beIN.SPORTS.MAX.10.fr" group-logo="https://upload.wikimedia.org/wikipedia/commons/a/a4/Animated-Flag-France.gif" tvg-logo="https://livesport.io.vn/logo/sport/m10.png" group-title="🏆 Thể thao"  tvg-name="BEIN SPORTS 10 MAX",BEIN SPORTS 10 MAX
@@ -843,17 +847,17 @@ https://live.fptplay53.net/live/media/htvthethao/live247-hls-avc/htvthethao-avc1
 #EXTINF:-1 tvg-id="HTVSports.vn@SD" tvg-name="HTV Thể thao (1080p) [Geo-blocked]" group-title="🏆 Thể thao",HTV Thể thao (1080p) [Geo-blocked]
 https://live.fptplay53.net/epzhd1/htvcthethao_vhls.smil/chunklist.m3u8
 #EXTINF:-1 tvg-name="Max Sport 1 Bulgaria" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",Max Sport 1 Bulgaria
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Facghewildpob2.m3u8%3Fs%3DdokERmrfBXvKzjVDJ73Lxg%26e%3D1790442362%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Facghewildpob2.m3u8%3Fs%3DHonrlh-cHGNYopHIr4wFTw%26e%3D1790445924%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 group-title="🏆 Thể thao" tvg-logo="https://r2.thesportsdb.com/images/media/channel/logo/er6tz11641505761.png" tvg-id="" tvg-name="Max Sport 1 HD",Max Sport 1 HD
 http://line.watchtivo-8k.com:80/play/live.php?mac=00:1A:79:3F:0C:96&stream=228727&extension=ts&play_token=mwh0b4DmEo
 #EXTINF:-1 tvg-name="Max Sport 2 Bulgaria" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",Max Sport 2 Bulgaria
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fg8yju9xvwt0sc.m3u8%3Fs%3DjxZ7sV4nd8qFLGfBYiAyug%26e%3D1790442364%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fg8yju9xvwt0sc.m3u8%3Fs%3DFIC5auKYLlYPFhioRV9RBg%26e%3D1790445926%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 group-title="🏆 Thể thao" tvg-logo="https://r2.thesportsdb.com/images/media/channel/logo/8qhlj81641505795.png" tvg-id="" tvg-name="Max Sport 2 HD",Max Sport 2 HD
 http://line.watchtivo-8k.com:80/play/live.php?mac=00:1A:79:3F:0C:96&stream=228726&extension=ts&play_token=1WFblY6SIm
 #EXTINF:-1 tvg-name="Max Sport 3 Bulgaria" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",Max Sport 3 Bulgaria
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fz70kg1kx6w1ey.m3u8%3Fs%3DgzwPDYW1iepSV5N4VWeEqw%26e%3D1790442366%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fz70kg1kx6w1ey.m3u8%3Fs%3D4aKq6se90apnHXYVU7Rwyg%26e%3D1790445928%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 tvg-name="Max Sport 4 Bulgaria" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",Max Sport 4 Bulgaria
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fmbfr3v1jxr7fz.m3u8%3Fs%3DQE-DcfitqKx5vXyKDiZ5Rg%26e%3D1790442368%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fmbfr3v1jxr7fz.m3u8%3Fs%3DA5g2HYCpr-KCx_UYr7YCqw%26e%3D1790445930%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 group-title="🏆 Thể thao" tvg-logo="https://msatcable.com/wp-content/uploads/2023/05/xoceudhlccd61ha1z10u8orii5.png" tvg-id="" tvg-name="Max Sport 4 HD",Max Sport 4 HD
 http://line.watchtivo-8k.com:80/play/live.php?mac=00:1A:79:3F:0C:96&stream=228724&extension=ts&play_token=TJrfSv76Xi
 #EXTINF:-1 group-title="🏆 Thể thao" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/MONOMAX_Sports_2026.svg/500px-MONOMAX_Sports_2026.svg.png" tvg-id="" tvg-name="MONOMAX SPORT",MONOMAX SPORT
@@ -895,27 +899,27 @@ https://dash2.antik.sk/stream/nvidia_nova_sport1/playlist_cenc.mpd
 #KODIPROP:inputstream.adaptive.license_key=https://livesport.io.vn/ok/kids.xml
 https://dash2.antik.sk/stream/nvidia_nova_sport2/playlist_cenc.mpd
 #EXTINF:-1 tvg-name="Nova Sport 3 CZ" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",Nova Sport 3 CZ
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fefuz001ntvom.m3u8%3Fs%3D7I4WpOzlFm03QpsfivX4IA%26e%3D1790442485%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fefuz001ntvom.m3u8%3Fs%3DEmHDIzSAu6lknNBsEUsfQQ%26e%3D1790446046%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 tvg-name="Nova Sport 4 CZ" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",Nova Sport 4 CZ
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fithsddd7uo7ff.m3u8%3Fs%3DEE6UH23pHFzyKVpkVap-JQ%26e%3D1790442487%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fithsddd7uo7ff.m3u8%3Fs%3DgyTCpOy4GXJX-J52SZG_fw%26e%3D1790446048%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 tvg-name="Nova Sport 5 CZ" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",Nova Sport 5 CZ
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fb1k4ii8md5ttk.m3u8%3Fs%3Dz89E8Bzzk2rnZoBmcJPpKQ%26e%3D1790442489%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fb1k4ii8md5ttk.m3u8%3Fs%3D19D0BOjRTIcyStCRo0r44g%26e%3D1790446050%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 tvg-name="Nova Sport 6 CZ" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",Nova Sport 6 CZ
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2F86xmffzgsraqu.m3u8%3Fs%3DlclYSBZh0vgblKSfV532PA%26e%3D1790442491%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2F86xmffzgsraqu.m3u8%3Fs%3DezMiwIBHvHLrmGDFk57GtA%26e%3D1790446052%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 tvg-name="Nova Sports 1 Greece" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",Nova Sports 1 Greece
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fw09lrpftjgr9g.m3u8%3Fs%3Dczad9GLGJy45WfnkJDfHcw%26e%3D1790442401%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fw09lrpftjgr9g.m3u8%3Fs%3DwYKdKJhVD5cdcWYEJE_nzA%26e%3D1790445964%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 tvg-name="Nova Sports 2 Greece" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",Nova Sports 2 Greece
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fg8yjsxzvmn0vq.m3u8%3Fs%3DGJ99Hw6kSQnt5rNuiwdKMg%26e%3D1790442403%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fg8yjsxzvmn0vq.m3u8%3Fs%3DosmzrgysIXfGhv9nNQf9KA%26e%3D1790445966%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 tvg-name="Nova Sports 3 Greece" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",Nova Sports 3 Greece
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fyxtedtr4vf85y.m3u8%3Fs%3DU_PdzTG8MpcTow61rXLyWw%26e%3D1790442405%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fyxtedtr4vf85y.m3u8%3Fs%3DbvM7x9RYWtqP6r8suDkwfQ%26e%3D1790445968%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 tvg-name="Nova Sports 4 Greece" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",Nova Sports 4 Greece
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2F9pbv7byo77bp3.m3u8%3Fs%3DNxnk8lJ5k4Qrw9zLe8A1CQ%26e%3D1790442408%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2F9pbv7byo77bp3.m3u8%3Fs%3D7Dw9eXgYbSl3jDPxV9Zpdg%26e%3D1790445970%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 tvg-name="Nova Sports 5 Greece" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",Nova Sports 5 Greece
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Ffkl7plye1976w.m3u8%3Fs%3DpTEbGDPxnzqpyhO9EcNo-A%26e%3D1790442410%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Ffkl7plye1976w.m3u8%3Fs%3DtUh0rwpKl_obC0ti5fdnZw%26e%3D1790445972%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 tvg-name="Nova Sports 6 Greece" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",Nova Sports 6 Greece
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fb1k43knm09dab.m3u8%3Fs%3DAO0YX7cctzhY47bZd-8p0w%26e%3D1790442412%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fb1k43knm09dab.m3u8%3Fs%3DvkxI-KAjAZGob0mnzDGQqQ%26e%3D1790445975%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 tvg-name="Nova Sports Premier League Greece" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",Nova Sports Premier League Greece
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fo9m2zdph1ew2q.m3u8%3Fs%3DplRe5nMjKAnUtQZnhD3pSA%26e%3D1790442414%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fo9m2zdph1ew2q.m3u8%3Fs%3DO4_Km9g60-C950XOSQ7yKg%26e%3D1790445976%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 group-title="🏆 Thể thao" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Polsat_Sport_1_2024.svg/250px-Polsat_Sport_1_2024.svg.png" tvg-id="" tvg-name="Polsat Sport 1",Polsat Sport 1
 http://line.watchtivo-8k.com:80/play/live.php?mac=00:1A:79:3F:0C:96&stream=1729162&extension=ts&play_token=9JXfYd9pyq
 #EXTINF:-1 group-title="🏆 Thể thao" tvg-logo="https://ipla-e2-42.pluscdn.pl/p/cms_thumbnails/qx/qxn4b9d2175hjjvvy4ehpa92nztaynba.png" tvg-id="" tvg-name="Polsat Sport 2",Polsat Sport 2
@@ -985,19 +989,19 @@ https://dash2.antik.sk/stream/nvidia_sport2/playlist_cenc.mpd
 #EXTINF:-1 group-logo="https://upload.wikimedia.org/wikipedia/commons/c/c9/Animated_Flag_of_Serbia.gif" tvg-logo="https://livesport.io.vn/logo/sport/sk1.png" group-title="🏆 Thể thao"  tvg-id="" tvg-name="SPORT KLUB 1",SPORT KLUB 1
 https://livesport.io.vn/ok/apo.php?id=sk1
 #EXTINF:-1 tvg-name="Sport Klub 1 Croatia" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",Sport Klub 1 Croatia
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fnesxb9l1lj1m6.m3u8%3Fs%3DsdBU8TBpTa4i3rYCXYgybg%26e%3D1790442993%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fnesxb9l1lj1m6.m3u8%3Fs%3DTDiu0NQjyvwSdHAVC9NKjQ%26e%3D1790446552%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 group-logo="https://livesport.io.vn/logo/test.png" tvg-logo="https://livesport.io.vn/logo/sport/sk2.png" group-title="🏆 Thể thao"  tvg-id="" tvg-name="SPORT KLUB 2",SPORT KLUB 2
 https://livesport.io.vn/ok/apo.php?id=sk2
 #EXTINF:-1 tvg-name="Sport Klub 2 Croatia" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",Sport Klub 2 Croatia
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2F5sctfjhkm9g22.m3u8%3Fs%3DwU2WWjh1aoXPwmdOmmVheQ%26e%3D1790442996%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2F5sctfjhkm9g22.m3u8%3Fs%3DHNaZVOhq_kPVj4GXDnsv6A%26e%3D1790446555%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 group-logo="https://livesport.io.vn/logo/test.png" tvg-logo="https://livesport.io.vn/logo/sport/sk3.png" group-title="🏆 Thể thao"  tvg-id="" tvg-name="SPORT KLUB 3",SPORT KLUB 3
 https://livesport.io.vn/ok/apo.php?id=sk3
 #EXTINF:-1 tvg-name="Sport Klub 3 Croatia" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",Sport Klub 3 Croatia
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fmbfrq0gjv6nx8.m3u8%3Fs%3DWppwNEWP08SrBGrbew3vhw%26e%3D1790443000%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fmbfrq0gjv6nx8.m3u8%3Fs%3DraNXB1ccdZpOMP0rvB7lug%26e%3D1790446559%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 group-logo="https://livesport.io.vn/logo/test.png" tvg-logo="https://livesport.io.vn/logo/sport/sk4.png" group-title="🏆 Thể thao"  tvg-id="" tvg-name="SPORT KLUB 4",SPORT KLUB 4
 https://livesport.io.vn/ok/apo.php?id=sk4
 #EXTINF:-1 tvg-name="Sport Klub 4 Croatia" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",Sport Klub 4 Croatia
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2F2vrpck4de7jp2.m3u8%3Fs%3DMFPOunpIngBa4NNl9cwg3A%26e%3D1790443003%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2F2vrpck4de7jp2.m3u8%3Fs%3DbgCRWYCA6vFqkRdeUnd6Ag%26e%3D1790446562%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 tvg-id="SPORT.TV1.HD.pt" group-logo="https://upload.wikimedia.org/wikipedia/commons/e/e5/Animated-Flag-Portugal.gif" tvg-logo="https://livesport.io.vn/logo/sport/spo1.png" group-title="🏆 Thể thao"  tvg-name="SPORTTV 1",SPORTTV 1
 https://livesport.io.vn/ok/iptv.php?id=spo1
 #EXTINF:-1 tvg-id="SPORT.TV2.HD.pt" group-logo="https://upload.wikimedia.org/wikipedia/commons/e/e5/Animated-Flag-Portugal.gif" tvg-logo="https://livesport.io.vn/logo/sport/spo2.png" group-title="🏆 Thể thao"  tvg-name="SPORTTV 2",SPORTTV 2
@@ -1027,7 +1031,7 @@ https://live-pv-ta.amazon.fastly-edge.com/iad-nitro/live/clients/dash/enc/dsa3hw
 #KODIPROP:inputstream.adaptive.license_key=https://livesport.io.vn/ok/kids.xml
 https://live-pv-ta.amazon.fastly-edge.com/iad-nitro/live/clients/dash/enc/6otiglnptp/out/v1/add7499679b0422cb6791f7701f95ecc/cenc.mpd
 #EXTINF:-1 tvg-name="SuperSport Premier league" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",SuperSport Premier league
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2F86xmld7g16xne.m3u8%3Fs%3DvB5X_W0Y1aljooRzvMlH6g%26e%3D1790443027%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2F86xmld7g16xne.m3u8%3Fs%3DiMdjw8H3MV9pGcUrmWqdUw%26e%3D1790446585%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" tvg-logo="https://livesport.io.vn/logo/sport/tn1.png" group-title="🏆 Thể thao"  tvg-id="" tvg-name="TNT SPORT 1",TNT SPORT 1
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=dash
@@ -1079,17 +1083,17 @@ https://live-pv-ta.amazon.fastly-edge.com/iad-nitro/live/clients/dash/enc/8mxwjn
 #EXTINF:-1 tvg-id="USA.Network.HD.us2" group-logo="https://upload.wikimedia.org/wikipedia/commons/4/42/Animated-Flag-USA.gif" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-usa-network-74.png" group-title="🏆 Thể thao"  tvg-name="USA NETWORK",USA NETWORK
 https://livesport.io.vn/ok/iptv.php?id=usa
 #EXTINF:-1 tvg-name="Ziggo Sport 2 NL" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",Ziggo Sport 2 NL
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fpq1gwqk9y649u.m3u8%3Fs%3DxPey2u7baqGSyldnLDmB0Q%26e%3D1790443556%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fpq1gwqk9y649u.m3u8%3Fs%3DC1Nas6_2P8AWmYXWV8EJfQ%26e%3D1790447131%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 tvg-name="Ziggo Sport 3 NL" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",Ziggo Sport 3 NL
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fmbfriw7jztowk.m3u8%3Fs%3D88IAW0JR_LiG0EaKmmmMIQ%26e%3D1790443558%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fmbfriw7jztowk.m3u8%3Fs%3DWC42-mBmbucAidbIMMH70A%26e%3D1790447134%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 tvg-name="Ziggo Sport 4 NL" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",Ziggo Sport 4 NL
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fqjn80jzpuhtvw.m3u8%3Fs%3Dn8ZfwAG6ppS_OVzdKJqHoQ%26e%3D1790443560%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fqjn80jzpuhtvw.m3u8%3Fs%3DSbnZfzyGPzzZjrleRO2uvQ%26e%3D1790447136%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 tvg-name="Ziggo Sport 5 NL" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",Ziggo Sport 5 NL
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2F7i35606z19goe.m3u8%3Fs%3DLf8XDee5N1ffC61SGECMRQ%26e%3D1790443563%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2F7i35606z19goe.m3u8%3Fs%3D-fKQoIbQCm74ae3qoc4YUA%26e%3D1790447138%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 tvg-name="Ziggo Sport 6 NL" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",Ziggo Sport 6 NL
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fnesx0m71s79qv.m3u8%3Fs%3DrFXCEZrDQohGasswuw9_cA%26e%3D1790443565%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2Fnesx0m71s79qv.m3u8%3Fs%3DPvzCXVKJ4JtAbgRLGxO_DQ%26e%3D1790447141%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 tvg-name="Ziggo Sport NL" tvg-logo="https://logos-world.net/wp-content/uploads/2023/05/EA-Sports-Logo.png" group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" group-title="🏆 Thể thao" tvg-id="",Ziggo Sport NL
-https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2F1n5y9e6b3cxhb.m3u8%3Fs%3D9OjdtzUfF-XPuWpNBnoNdg%26e%3D1790443552%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
+https://dlhd2.streamingscripts.xyz/dlhd/proxy.php?url=https%3A%2F%2F8z09jo.7odxv0l067ka.net%3A8443%2Fhls%2F1n5y9e6b3cxhb.m3u8%3Fs%3DIdQl-PeneehG-9nxM57Gbg%26e%3D1790447128%26referer%3Dhttps%3A%2F%2Ftiestep.top%2F%26origin%3Dhttps%3A%2F%2Ftiestep.top&referer=https%3A%2F%2Ftiestep.top%2F
 #EXTINF:-1 group-title="🎬 Phim" tvg-logo="https://img-zlr1.tv360.vn/image1/2026/07/30/10/1785382803894/362700e9107b_640_360.png" tvg-id="" tvg-name="360 Phim 4K",360 Phim 4K
 https://vmttv.dpdns.org/tv360/?id=360-phim-4k
 #EXTINF:-1 group-title="🎬 Phim" tvg-logo="https://img-zlr1.tv360.vn/image1/2026/04/09/08/1775697736867/3854900b7263_640_360.png" tvg-id="" tvg-name="360 Phim Hoa Ngữ",360 Phim Hoa Ngữ
@@ -1399,8 +1403,6 @@ https://live.fptplay53.net/epzhd2/outdoorfhd_vhls.smil/chunklist_b5000000.m3u8
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=a7c942778e874d43be92b8d0a0cd11b4:6d54358306571658ffdb952c6560688b
 https://livevlisctcdnw.seenow.vn/mean/OUTDOORCHANNEL/manifest.mpd
-#EXTINF:-1 group-title="🌍 Quốc tế" tvg-logo="https://hongkongfp.com/wp-content/uploads/2026/09/brave_bJwrT9j1Op-1050x589.jpg" tvg-id="" tvg-name="Pakistan vs Thái Lan",Pakistan vs Thái Lan
-https://eqr2hdarxfliv.vcdn.cloud/1790398599_hd/1790398599_hd@720p.m3u8
 #EXTINF:-1 group-title="🌍 Quốc tế" tvg-logo="https://image.makewebcdn.com/makeweb/m_1920x0/fwsVrxqVa/3PPTV36/PPTV_By_HSTN.jpg" tvg-id="" tvg-name="PPTV36",PPTV36
 http://3bb.engatetv.com:25461/hstn/line/21
 #EXTINF:-1 group-title="🌍 Quốc tế" tvg-logo="https://www.thairath.co.th/assets/tv/img/share_tv.jpg" tvg-id="" tvg-name="Thairath TV 32",Thairath TV 32
@@ -1452,7 +1454,7 @@ https://vmttv.dpdns.org/tv360/?id=360-k-drama
 #EXTINF:-1 group-logo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSTEMqanIDQi9wU5N0f8SMypPqU9TgxaclBSKHUKCtMu4u3DrURy_mpsYKJ&s=10" tvg-logo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSTEMqanIDQi9wU5N0f8SMypPqU9TgxaclBSKHUKCtMu4u3DrURy_mpsYKJ&s=10" group-title="📦 Khác"  tvg-id="" tvg-name="ASEAN CUP 1",ASEAN CUP 1
 https://10.fast.hidns.vip/163189/viu6/index.php
 #EXTINF:-1 group-logo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSTEMqanIDQi9wU5N0f8SMypPqU9TgxaclBSKHUKCtMu4u3DrURy_mpsYKJ&s=10" tvg-logo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSTEMqanIDQi9wU5N0f8SMypPqU9TgxaclBSKHUKCtMu4u3DrURy_mpsYKJ&s=10" group-title="📦 Khác"  tvg-id="" tvg-name="ASEAN CUP 2",ASEAN CUP 2
-https://livesport.io.vn/event.php?id=sd-6MxipX7m8H7Bmp27BD_md
+https://vips-livecdn.fptplay.net/live/media/su-kien-03/hls_avc_v6/index.m3u8
 #EXTINF:-1 group-logo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSTEMqanIDQi9wU5N0f8SMypPqU9TgxaclBSKHUKCtMu4u3DrURy_mpsYKJ&s=10" tvg-logo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSTEMqanIDQi9wU5N0f8SMypPqU9TgxaclBSKHUKCtMu4u3DrURy_mpsYKJ&s=10" group-title="📦 Khác"  tvg-id="" tvg-name="ASEAN CUP 3",ASEAN CUP 3
 https://op-flashcon-digdayahd-1.dens.tv/h/h207/index.m3u8
 #EXTINF:-1 group-logo="https://media-cdn-v2.laodong.vn/storage/newsportal/2026/5/27/1708909/Asiad-20-01.jpeg" tvg-logo="https://media-cdn-v2.laodong.vn/storage/newsportal/2026/5/27/1708909/Asiad-20-01.jpeg" group-title="📦 Khác"  tvg-id="" tvg-name="ASIAN GAMES 1",ASIAN GAMES 1
@@ -1613,8 +1615,6 @@ http://onair.cdn.tvchosun.com/origin1/_definst_/tvchosun_s1/playlist.m3u8
 http://onair2.cdn.tvchosun.com/origin2/_definst_/tvchosun_s3/playlist.m3u8
 #EXTINF:-1 tvg-id="vietnamtoday" group-title="📦 Khác" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/vuminhthanh12/refs/heads/main/VietnamToday.jpg" tvg-name="Vietnam Today",Vietnam Today
 https://vips-livecdn.fptplay.net/live/media/vietnamtoday/live-hls-avc/vietnamtoday-avc1_4000000=10000-mp4a_131600=20000.m3u8
-#EXTINF:-1 group-title="📦 Khác" tvg-logo="https://hongkongfp.com/wp-content/uploads/2026/09/brave_bJwrT9j1Op-1050x589.jpg" tvg-id="" tvg-name="ViuTV Six",ViuTV Six
-https://cdn.qd.je/163189/viu6
 #EXTINF:-1 tvg-id="youtv" group-title="📦 Khác" tvg-logo="https://img-ali1.tv360.vn/image1/2020_09_23/1600823396313/7b474bf7bbce_640_360.png" tvg-name="YouTV",YouTV
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://freem3u.xyz/api/live/play.m3u8?vid=31
