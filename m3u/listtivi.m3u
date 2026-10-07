@@ -40,7 +40,7 @@ https://freem3u.xyz/api/live/play.m3u8?vid=9
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://freem3u.xyz/api/live/play.m3u8?vid=151
 #EXTINF:-1 tvg-id="htv7hd" group-title="📺 HTV" tvg-logo="https://img-zlr1.tv360.vn/image1/2020_09_23/1600822381421/47d2615f6141_640_360.png" catchup="append" catchup-days="2" catchup-source="https://tshift.fptplay.net/dvr/htv7hd_1000.stream/chunks_dvr_range-${start}-${offset}.m3u8" tvg-name="HTV7",HTV7
-https://live.fptplay53.net/live/media/htv7/live247-hls-avc/htv7-avc1_5600000=10000-mp4a_131600=20000.m3u8
+https://vips-livecdn.fptplay.net/live/media/htv7/live247-hls-avc/htv7-avc1_5600000=10000-mp4a_131600=20000.m3u8
 #EXTINF:-1 tvg-id="htv9hd" group-title="📺 HTV" tvg-logo="https://img-zlr1.tv360.vn/image1/2020_09_23/1600822390705/a9fc59138d3b_640_360.png" catchup="append" catchup-days="2" catchup-source="https://tshift.fptplay.net/dvr/htv9hd_1000.stream/chunks_dvr_range-${start}-${offset}.m3u8" tvg-name="HTV9",HTV9
 https://live-a.fptplay53.net/live/media/htv9/live247-hls-avc/htv9-avc1_5600000=10000-mp4a_131600=20000.m3u8
 #EXTINF:-1 tvg-id="sctv1hd" group-title="📺 SCTV" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/vuminhthanh12/refs/heads/main/sctv1.png" tvg-name="SCTV1",SCTV1
@@ -58,7 +58,7 @@ https://vietanhtv.id.vn/sctv/sctv-4k/index.m3u8
 https://liveh34.vtvprime.vn/hls/SCTV5/01.m3u8?note=TheWavesIPTV
 #EXTINF:-1 tvg-id="sctv6hd" group-title="📺 SCTV" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/vuminhthanh12/refs/heads/main/sctv6.png" catchup="append" catchup-days="2" catchup-source="https://tshift.fptplay.net/dvr/film360_1000.stream/chunks_dvr_range-${start}-${offset}.m3u8" tvg-name="SCTV6",SCTV6
 #EXTVLCOPT:http-user-agent=VThanhTivi
-https://live.fptplay53.net/epzhd2/film360_vhls.smil/chunklist_b5000000.m3u8
+https://freem3u.xyz/api/live/play.m3u8?vid=232
 #EXTINF:-1 tvg-id="sctv7hd" group-title="📺 SCTV" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/vuminhthanh12/refs/heads/main/sctv7.webp" tvg-name="SCTV7",SCTV7
 https://vmttv.dpdns.org/VTVGo/?sctv7
 #EXTINF:-1 tvg-id="sctv8hd" group-title="📺 SCTV" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/vuminhthanh12/refs/heads/main/sctv8.png" tvg-name="SCTV8",SCTV8
@@ -176,8 +176,6 @@ https://live.fptplay53.net/epzhd1/htvcdulich_vhls.smil/chunklist_b5000000.m3u8
 https://live.fptplay53.net/epzhd1/htvcgiadinh_vhls.smil/chunklist.m3u8
 #EXTINF:-1 tvg-id="htvcphunuhd" group-title="📡 HTVC" tvg-logo="https://img-zlr1.tv360.vn/image1/2020_09_23/1600823432136/86f5cc6afcf6_640_360.png" catchup="append" catchup-days="2" catchup-source="https://api.vthanhtivi.pw/v1/dvr/vieon/htvc-phu-nu/${start}/${offset}" tvg-name="HTVC Phụ Nữ",HTVC Phụ Nữ
 https://live.fptplay53.net/epzhd1/htvcphunu_vhls.smil/chunklist.m3u8
-#EXTINF:-1 tvg-id="htvcplushd" group-title="📡 HTVC" tvg-logo="https://vietanhtv.id.vn/logo/htvcplus.png" tvg-name="HTVC Plus HD",HTVC Plus HD
-https://live.fptplay53.net/epzhd1/htvcplus_vhls.smil/chunklist_b5000000.m3u8
 #EXTINF:-1 tvg-id="htvcthuanviet" group-title="📡 HTVC" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/Logo/refs/heads/main/htvcthuanviet.png" catchup="append" catchup-days="2" catchup-source="https://tshift.fptplay.net/dvr/htvcthuanviet_1000.stream/chunks_dvr_range-${start}-${offset}.m3u8" tvg-name="HTVC Thuần Việt",HTVC Thuần Việt
 https://live.fptplay53.net/epzhd1/htvcthuanviethd_vhls.smil/chunklist.m3u8
 #EXTINF:-1 tvg-id="AnNinhTV.vn@HD" tvg-name="ANTV" group-title="⭐ Thiết yếu",ANTV
@@ -322,6 +320,10 @@ https://liveh34.vtvprime.vn/hls/DONGTHAPTV/index.m3u8
 https://livesport.io.vn/ott/viptv.php?id=skymain
 #EXTINF:-1 group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" tvg-logo="https://livesport.io.vn/logo/sport/sktop.png" group-title="🎟️ Sự kiện"  tvg-id="" tvg-name="SKYSPORT TOP EVENT",SKYSPORT TOP EVENT
 https://livesport.io.vn/ott/apo.php?id=skytop
+#EXTINF:-1 group-title="🎟️ Sự kiện" tvg-logo="https://images.fptplay53.net/media/home_event/OTT_ECS/2026/10/06/slide-thumb_1791260127371.jpg" tvg-id="" tvg-name="Sự Kiện 2",Sự Kiện 2
+https://vips-livecdn.fptplay.net/live/media/su-kien-02/hls_avc_v6/index.m3u8
+#EXTINF:-1 group-title="🎟️ Sự kiện" tvg-logo="https://images.fptplay53.net/media/home_event/OTT_ECS/2026/10/06/slide-thumb_1791260262043.jpg" tvg-id="" tvg-name="Sự Kiện 3",Sự Kiện 3
+https://vips-livecdn.fptplay.net/live/media/su-kien-03/hls_avc_v6/index.m3u8
 #EXTINF:-1 group-title="🎟️ Sự kiện" tvg-logo="https://img-zlr1.tv360.vn/image1/2025/09/17/17/175810574912/a5f8181388ab_640_360.png" tvg-id="" tvg-name="TV360 Promo",TV360 Promo
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://freem3u.xyz/api/live/play.m3u8?vid=9904
@@ -490,22 +492,24 @@ https://livevliatmcdw.seenow.vn/live/data8/SKSS3/Live_DASHDRM/SKSS3.mpd
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=ca0576ec419f490789860894bb50c977:25d2e703eee38718240e7038d1908fef
 https://livevliatmcdw.seenow.vn/live/data8/SKSS4/Live_DASHDRM/SKSS4.mpd
-#EXTINF:-1 tvg-id="sd-6MxjZGom5Qm71z71Km" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/b6025970c665a7640122d6b3d156b0b8.png" group-title="🏆 Thể thao"  tvg-name="15:00 Chinese Football League 2 Tai'an Tiankuang 3-0 Ganzhou Ruishi",15:00 Chinese Football League 2 Tai'an Tiankuang 3-0 Ganzhou Ruishi
-https://livesport.io.vn/ott/event.php?id=sd-6MxjZGom5Qm71z71Km
-#EXTINF:-1 tvg-id="sd-6MxjK4PsDc1NsLxpwZ" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/e6b58b5bfee1910ebdf86bb542ab3776.png" group-title="🏆 Thể thao"  tvg-name="15:00 Indian Bangalore Super Division MEG 3-2 Bengaluru B",15:00 Indian Bangalore Super Division MEG 3-2 Bengaluru B
-https://livesport.io.vn/ott/event.php?id=sd-6MxjK4PsDc1NsLxpwZ
-#EXTINF:-1 tvg-id="sd-6MxiKUTkXgjg5HCzw9" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/d5fcd3349b18dfb4e171868492c512a3.png" group-title="🏆 Thể thao"  tvg-name="15:00 UEFA European U19 Women's Championship Georgia Women U19 1-0 Bulgaria Women U19",15:00 UEFA European U19 Women's Championship Georgia Women U19 1-0 Bulgaria Women U19
-https://livesport.io.vn/ott/event.php?id=sd-6MxiKUTkXgjg5HCzw9
-#EXTINF:-1 tvg-id="sd-6MxipX8WwvwsXPbaxw" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/1e9a51d3d03ef9f42d71fea656aeff8a.png" group-title="🏆 Thể thao"  tvg-name="16:00 Japanese Emperor's Cup Urawa Red Diamonds 0-0 RB Omiya Ardija",16:00 Japanese Emperor's Cup Urawa Red Diamonds 0-0 RB Omiya Ardija
+#EXTINF:-1 tvg-id="sd-6MxipX8WwvwsXPbaxw" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/1e9a51d3d03ef9f42d71fea656aeff8a.png" group-title="🏆 Thể thao"  tvg-name="16:00 Japanese Emperor's Cup Urawa Red Diamonds 2-1 RB Omiya Ardija",16:00 Japanese Emperor's Cup Urawa Red Diamonds 2-1 RB Omiya Ardija
 https://livesport.io.vn/ott/event.php?id=sd-6MxipX8WwvwsXPbaxw
-#EXTINF:-1 tvg-id="sd-6MxjK4PrPQE9o677q9" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/3ece2f66192f1b997bb16a1d786857cc.png" group-title="🏆 Thể thao"  tvg-name="16:00 Myanmar U20 League Dagon Star United U20 0-1 ISPE FC U20",16:00 Myanmar U20 League Dagon Star United U20 0-1 ISPE FC U20
-https://livesport.io.vn/ott/event.php?id=sd-6MxjK4PrPQE9o677q9
-#EXTINF:-1 tvg-id="sd-6MxjK4PrizZam8Dv8f" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/3ece2f66192f1b997bb16a1d786857cc.png" group-title="🏆 Thể thao"  tvg-name="16:00 Myanmar U20 League Thitsar Arman FC U20 0-0 Shan Utd U20",16:00 Myanmar U20 League Thitsar Arman FC U20 0-0 Shan Utd U20
+#EXTINF:-1 tvg-id="sd-6MxjK4PrizZam8Dv8f" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/3ece2f66192f1b997bb16a1d786857cc.png" group-title="🏆 Thể thao"  tvg-name="16:00 Myanmar U20 League Thitsar Arman FC U20 1-1 Shan Utd U20",16:00 Myanmar U20 League Thitsar Arman FC U20 1-1 Shan Utd U20
 https://livesport.io.vn/ott/event.php?id=sd-6MxjK4PrizZam8Dv8f
-#EXTINF:-1 tvg-id="sd-6MwcqewWmgioNg8zGo" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/7c47816625ae0772db06ebabb51a2e33.png" group-title="🏆 Thể thao"  tvg-name="16:55 Korean WK League Sejong Sportstoto WFC 0-0 Incheon Hyundai Steel Red Angels Women",16:55 Korean WK League Sejong Sportstoto WFC 0-0 Incheon Hyundai Steel Red Angels Women
-https://livesport.io.vn/ott/event.php?id=sd-6MwcqewWmgioNg8zGo
+#EXTINF:-1 tvg-id="sd-6MxjJn5QBHjfzNmdq1" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/4e7c9460ee862d47c2ce6debfef6aace.png" group-title="🏆 Thể thao"  tvg-name="17:00 International Friendly Argentina U17 1-0 China U17",17:00 International Friendly Argentina U17 1-0 China U17
+https://livesport.io.vn/ott/event.php?id=sd-6MxjJn5QBHjfzNmdq1
 #EXTINF:-1 tvg-id="sd-6MxjK4PrPSRdfZw2z3" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/e6b58b5bfee1910ebdf86bb542ab3776.png" group-title="🏆 Thể thao"  tvg-name="17:30 Indian Bangalore Super Division Stride 0-0 SC Bengaluru",17:30 Indian Bangalore Super Division Stride 0-0 SC Bengaluru
 https://livesport.io.vn/ott/event.php?id=sd-6MxjK4PrPSRdfZw2z3
+#EXTINF:-1 tvg-id="sd-6Mwd5yqCqMGBdPYNaT" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/aef1f7c3d09f7d1f60e0dde1ee3f1cbc.png" group-title="🏆 Thể thao"  tvg-name="18:00 Chinese Football League 1 Shenzhen Juniors 0-0 Guangdong Guangzhou Power",18:00 Chinese Football League 1 Shenzhen Juniors 0-0 Guangdong Guangzhou Power
+https://livesport.io.vn/ott/event.php?id=sd-6Mwd5yqCqMGBdPYNaT
+#EXTINF:-1 tvg-id="sd-6MxjJqQ6hSqQyd9Gbq" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/2428a315eb323a2de54573e8107866a3.png" group-title="🏆 Thể thao"  tvg-name="18:00 Shandong Qilu Football Super League Liaocheng Team 0-0 Weihai Team",18:00 Shandong Qilu Football Super League Liaocheng Team 0-0 Weihai Team
+https://livesport.io.vn/ott/event.php?id=sd-6MxjJqQ6hSqQyd9Gbq
+#EXTINF:-1 tvg-id="sd-6MxjZirxiURVDwZxtP" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/df788219029240c7d067b3e9c69cc56e.png" group-title="🏆 Thể thao"  tvg-name="18:00 Turkish Cup Zonguldak 0-0 Duzcespor",18:00 Turkish Cup Zonguldak 0-0 Duzcespor
+https://livesport.io.vn/ott/event.php?id=sd-6MxjZirxiURVDwZxtP
+#EXTINF:-1 tvg-id="sd-6MxjZfff5CZUyFsUcP" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/85422afb467e9456013a2a51d4dff702.jpg" group-title="🏆 Thể thao"  tvg-name="18:00 UEFA European U17 Women's Championship Estonia Women U17 0-0 Faroe Islands Women U17",18:00 UEFA European U17 Women's Championship Estonia Women U17 0-0 Faroe Islands Women U17
+https://livesport.io.vn/ott/event.php?id=sd-6MxjZfff5CZUyFsUcP
+#EXTINF:-1 tvg-id="sd-6MxjZfff5K9vahME55" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/85422afb467e9456013a2a51d4dff702.jpg" group-title="🏆 Thể thao"  tvg-name="18:00 UEFA European U17 Women's Championship Latvia U17 Women 0-0 Lithuania U17 Women",18:00 UEFA European U17 Women's Championship Latvia U17 Women 0-0 Lithuania U17 Women
+https://livesport.io.vn/ott/event.php?id=sd-6MxjZfff5K9vahME55
 #EXTINF:-1 group-title="🏆 Thể thao" tvg-logo="https://img-zlr1.tv360.vn/image1/2026/04/16/08/1776301510855/e14eaed5c4d8_640_360.png" tvg-id="" tvg-name="360 Bundesliga",360 Bundesliga
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://vmttv.dpdns.org/tv360/?id=360-bundesliga
