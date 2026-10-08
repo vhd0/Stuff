@@ -174,6 +174,9 @@ https://live.fptplay53.net/epzhd1/htvcmusic_vhls.smil/chunklist.m3u8
 https://freem3u.xyz/api/live/play.m3u8?vid=133
 #EXTINF:-1 tvg-id="htvcgiadinhhd" group-title="📡 HTVC" tvg-logo=https://img-zlr1.tv360.vn/image1/2020_09_23/160082347056/e8ce9503d96a_640_360.png" catchup="append" catchup-days="2" catchup-source="https://tshift.fptplay.net/dvr/htvcgiadinh_1000.stream/chunks_dvr_range-${start}-${offset}.m3u8" tvg-name="HTVC Gia Đình",HTVC Gia Đình
 https://freem3u.xyz/api/live/play.m3u8?vid=11
+#EXTINF:-1 tvg-id="htvcphimhd" group-title="📡 HTVC" tvg-logo="https://img-ali1.tv360.vn/image1/2021/07/01/15/1625129239161/48401c7a9ce3_480_270.png" tvg-name="HTVC Phim",HTVC Phim
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:92.0) Gecko/20100101 Firefox/92.0
+https://live.fptplay53.net/epzhd1/htvcmovieshd_vhls.smil/chunklist_b5000000.m3u8
 #EXTINF:-1 tvg-id="htvcphunuhd" group-title="📡 HTVC" tvg-logo="https://img-zlr1.tv360.vn/image1/2020_09_23/1600823432136/86f5cc6afcf6_640_360.png" catchup="append" catchup-days="2" catchup-source="https://api.vthanhtivi.pw/v1/dvr/vieon/htvc-phu-nu/${start}/${offset}" tvg-name="HTVC Phụ Nữ",HTVC Phụ Nữ
 https://freem3u.xyz/api/live/play.m3u8?vid=12
 #EXTINF:-1 tvg-id="htvcthuanviet" group-title="📡 HTVC" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/Logo/refs/heads/main/htvcthuanviet.png" catchup="append" catchup-days="2" catchup-source="https://tshift.fptplay.net/dvr/htvcthuanviet_1000.stream/chunks_dvr_range-${start}-${offset}.m3u8" tvg-name="HTVC Thuần Việt",HTVC Thuần Việt
@@ -182,8 +185,10 @@ https://freem3u.xyz/api/live/play.m3u8?vid=13
 https://live.fptplay53.net/fnxhd2/anninhtv_vhls.smil/chunklist.m3u8
 #EXTINF:-1 tvg-id="QPVN.vn@HD" tvg-name="QPVN" group-title="⭐ Thiết yếu",QPVN
 https://liveh12.vtvprime.vn/hls/QPTV/index.m3u8
-#EXTINF:-1 tvg-id="sd-6Mwdpr9p9X8DKxYNrj" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/40121ad4dae08e4bef3bb8d4a46606d1.png" group-title="🏙️ Địa phương"  tvg-name="16:00 Women's National League Hồ Chí Minh City Women 0-0 Than KSVN Women",16:00 Women's National League Hồ Chí Minh City Women 0-0 Than KSVN Women
+#EXTINF:-1 tvg-id="sd-6Mwdpr9p9X8DKxYNrj" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/40121ad4dae08e4bef3bb8d4a46606d1.png" group-title="🏙️ Địa phương"  tvg-name="16:00 Women's National League Hồ Chí Minh City Women 1-0 Than KSVN Women",16:00 Women's National League Hồ Chí Minh City Women 1-0 Than KSVN Women
 https://livesport.io.vn/ott/event.php?id=sd-6Mwdpr9p9X8DKxYNrj
+#EXTINF:-1 tvg-id="sd-6MxipEoK6AsZjknZfm" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/0402fbeb5c375de21ee74f868d2b5f0b.png" group-title="🏙️ Địa phương"  tvg-name="19:15 Vietnam National Champion League The Cong-Viettel 0-0 Hong Linh Ha Tinh",19:15 Vietnam National Champion League The Cong-Viettel 0-0 Hong Linh Ha Tinh
+https://livesport.io.vn/ott/event.php?id=sd-6MxipEoK6AsZjknZfm
 #EXTINF:-1 tvg-id="angiang1" group-title="🏙️ Địa phương" tvg-logo="https://angiangtv.vn/wp-content/uploads/2025/06/H4.png" tvg-name="An Giang",An Giang
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://freem3u.xyz/api/live/play.m3u8?vid=66
@@ -494,16 +499,16 @@ https://livevliatmcdw.seenow.vn/live/data8/SKSS3/Live_DASHDRM/SKSS3.mpd
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=ca0576ec419f490789860894bb50c977:25d2e703eee38718240e7038d1908fef
 https://livevliatmcdw.seenow.vn/live/data8/SKSS4/Live_DASHDRM/SKSS4.mpd
-#EXTINF:-1 tvg-id="sd-6MxjJiq9FrgTQELfHZ" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/2de8faad8618dac7fc49201518af49e6.png" group-title="🏆 Thể thao"  tvg-name="14:30 AFC U17 Women's Asian Cup Syria U17 Women 0-2 India Women U17",14:30 AFC U17 Women's Asian Cup Syria U17 Women 0-2 India Women U17
-https://livesport.io.vn/ott/event.php?id=sd-6MxjJiq9FrgTQELfHZ
-#EXTINF:-1 tvg-id="sd-6MxjJiq9FpUyXkWk8f" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/2de8faad8618dac7fc49201518af49e6.png" group-title="🏆 Thể thao"  tvg-name="15:00 AFC U17 Women's Asian Cup Bhutan Women U17 0-5 Lebanon U17 Women",15:00 AFC U17 Women's Asian Cup Bhutan Women U17 0-5 Lebanon U17 Women
-https://livesport.io.vn/ott/event.php?id=sd-6MxjJiq9FpUyXkWk8f
-#EXTINF:-1 tvg-id="sd-6MxjJiq9RDa9NjQ2B1" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/2de8faad8618dac7fc49201518af49e6.png" group-title="🏆 Thể thao"  tvg-name="15:00 AFC U17 Women's Asian Cup Palestine U17 Women 1-2 Kyrgyzstan U17 Women",15:00 AFC U17 Women's Asian Cup Palestine U17 Women 1-2 Kyrgyzstan U17 Women
-https://livesport.io.vn/ott/event.php?id=sd-6MxjJiq9RDa9NjQ2B1
-#EXTINF:-1 tvg-id="sd-6MxjK4RLXaqoPGxBmR" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/e6b58b5bfee1910ebdf86bb542ab3776.png" group-title="🏆 Thể thao"  tvg-name="15:00 Indian Bangalore Super Division Technico FF 0-6 South United",15:00 Indian Bangalore Super Division Technico FF 0-6 South United
-https://livesport.io.vn/ott/event.php?id=sd-6MxjK4RLXaqoPGxBmR
-#EXTINF:-1 tvg-id="sd-6Mwdpr9p9UvjTUiThq" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/40121ad4dae08e4bef3bb8d4a46606d1.png" group-title="🏆 Thể thao"  tvg-name="16:00 Women's National League Phong Phu Ha Nam Women 1-1 Ha Noi Women",16:00 Women's National League Phong Phu Ha Nam Women 1-1 Ha Noi Women
+#EXTINF:-1 tvg-id="sd-6Mwdpr9p9UvjTUiThq" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/40121ad4dae08e4bef3bb8d4a46606d1.png" group-title="🏆 Thể thao"  tvg-name="16:00 Women's National League Phong Phu Ha Nam Women 2-2 Ha Noi Women",16:00 Women's National League Phong Phu Ha Nam Women 2-2 Ha Noi Women
 https://livesport.io.vn/ott/event.php?id=sd-6Mwdpr9p9UvjTUiThq
+#EXTINF:-1 tvg-id="sd-6MxjZiryj6dre8chBM" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/df788219029240c7d067b3e9c69cc56e.png" group-title="🏆 Thể thao"  tvg-name="18:00 Turkish Cup Erciyes 38 0-0 Kahta 02 Spor",18:00 Turkish Cup Erciyes 38 0-0 Kahta 02 Spor
+https://livesport.io.vn/ott/event.php?id=sd-6MxjZiryj6dre8chBM
+#EXTINF:-1 tvg-id="sd-6MxjJiq9FZ6cSPjL4P" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/2de8faad8618dac7fc49201518af49e6.png" group-title="🏆 Thể thao"  tvg-name="19:00 AFC U17 Women's Asian Cup Malaysia U17 Women 0-0 Iraqi Women U17",19:00 AFC U17 Women's Asian Cup Malaysia U17 Women 0-0 Iraqi Women U17
+https://livesport.io.vn/ott/event.php?id=sd-6MxjJiq9FZ6cSPjL4P
+#EXTINF:-1 tvg-id="sd-6Mwea3yRzVKbtKenH5" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/6576e6760af08813364f0ed07fdb8fe0.png" group-title="🏆 Thể thao"  tvg-name="19:00 Asean Club Championship Shopee Cup Johor Darul Ta'zim FC 0-0 Preah Khan Reach Svay Rieng FC",19:00 Asean Club Championship Shopee Cup Johor Darul Ta'zim FC 0-0 Preah Khan Reach Svay Rieng FC
+https://livesport.io.vn/ott/event.php?id=sd-6Mwea3yRzVKbtKenH5
+#EXTINF:-1 tvg-id="sd-6Mwea3yRzZiZdHJcas" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/6576e6760af08813364f0ed07fdb8fe0.png" group-title="🏆 Thể thao"  tvg-name="19:00 Asean Club Championship Shopee Cup Port FC 0-0 Persib Bandung",19:00 Asean Club Championship Shopee Cup Port FC 0-0 Persib Bandung
+https://livesport.io.vn/ott/event.php?id=sd-6Mwea3yRzZiZdHJcas
 #EXTINF:-1 group-title="🏆 Thể thao" tvg-logo="https://img-zlr1.tv360.vn/image1/2026/04/16/08/1776301510855/e14eaed5c4d8_640_360.png" tvg-id="" tvg-name="360 Bundesliga",360 Bundesliga
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://vmttv.dpdns.org/tv360/?id=360-bundesliga
