@@ -273,7 +273,7 @@ https://vips-livecdn.fptplay.net/live/media/vinhlong3/live247-hls-avc/vinhlong3-
 #EXTINF:-1 tvg-id="vinhlong4hd" group-title="🏙️ Địa phương" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/vuminhthanh12/refs/heads/main/THVL4.webp" tvg-name="THVL4 - Báo và PTTH Vĩnh Long",THVL4 - Báo và PTTH Vĩnh Long
 https://freem3u.xyz/api/live/play.m3u8?vid=220
 #EXTINF:-1 tvg-id="vinhlong5hd" group-title="🏙️ Địa phương" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/vuminhthanh12/refs/heads/main/THVL5.webp" tvg-name="THVL5 - Báo và PTTH Vĩnh Long",THVL5 - Báo và PTTH Vĩnh Long
-https://live.fptplay53.net/epzhd2/vinhlong5hd_vhls.smil/chunklist_b5000000.m3u8
+https://freem3u.xyz/api/live/play.m3u8?vid=91
 #EXTINF:-1 tvg-id="dongthap2" group-title="🏙️ Địa phương" tvg-logo="https://images.fptplay53.net/media/channels/icon_channel_mien-tay-thdt2_165666993738.png" tvg-name="THĐT2 - Báo và PTTH Đồng Tháp",THĐT2 - Báo và PTTH Đồng Tháp
 https://live.fptplay53.net/epzhd2/mientaythdt02_vhls.smil/chunklist_b5000000.m3u8
 #EXTINF:-1 tvg-id="TienGiangTV.vn@SD" tvg-name="Tiền Giang" group-title="🏙️ Địa phương",Tiền Giang
@@ -327,6 +327,8 @@ https://vips-livecdn.fptplay.net/live/media/fptplay/live247-hls-avc/fptplay-avc1
 https://livesport.io.vn/ott/viptv.php?id=skymain
 #EXTINF:-1 group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" tvg-logo="https://livesport.io.vn/logo/sport/sktop.png" group-title="🎟️ Sự kiện"  tvg-id="" tvg-name="SKYSPORT TOP EVENT",SKYSPORT TOP EVENT
 https://livesport.io.vn/ott/apo.php?id=skytop
+#EXTINF:-1 group-title="🎟️ Sự kiện" tvg-logo="https://images.fptplay53.net/media/home_event/OTT_ECS/2026/10/09/slide-thumb_1791485412679.jpg" tvg-id="" tvg-name="Sự Kiện 2",Sự Kiện 2
+https://vips-livecdn.fptplay.net/live/media/su-kien-02/hls_avc_v6/index.m3u8
 #EXTINF:-1 group-title="🎟️ Sự kiện" tvg-logo="https://img-zlr1.tv360.vn/image1/2025/09/17/17/175810574912/a5f8181388ab_640_360.png" tvg-id="" tvg-name="TV360 Promo",TV360 Promo
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://freem3u.xyz/api/live/play.m3u8?vid=9904
@@ -495,6 +497,34 @@ https://livevliatmcdw.seenow.vn/live/data8/SKSS3/Live_DASHDRM/SKSS3.mpd
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=ca0576ec419f490789860894bb50c977:25d2e703eee38718240e7038d1908fef
 https://livevliatmcdw.seenow.vn/live/data8/SKSS4/Live_DASHDRM/SKSS4.mpd
+#EXTINF:-1 tvg-id="sd-6MxjK7faxHrnFmAW3H" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/2306ef7d4d452c1bd2871e89e91ffc83.jpg" group-title="🏆 Thể thao"  tvg-name="14:00 Chinese Taiwan Mulan Football League Kaohsiung Attackers Women 2-0 Hualien Women",14:00 Chinese Taiwan Mulan Football League Kaohsiung Attackers Women 2-0 Hualien Women
+https://livesport.io.vn/ott/event.php?id=sd-6MxjK7faxHrnFmAW3H
+#EXTINF:-1 tvg-id="sd-6MvVcpXewzGe314imD" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/c080bb97363f9be7ca4fca327c56ec0d.png" group-title="🏆 Thể thao"  tvg-name="14:30 Korean K League 1 Gangwon FC 0-0 Bucheon FC 1995",14:30 Korean K League 1 Gangwon FC 0-0 Bucheon FC 1995
+https://livesport.io.vn/ott/event.php?id=sd-6MvVcpXewzGe314imD
+#EXTINF:-1 tvg-id="sd-6MvVcmFC4XfZsEuqFd" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/cd536caf88f06782e8e5b2a89c0a5579.png" group-title="🏆 Thể thao"  tvg-name="14:30 Korean K League 2 Chungbuk Cheongju FC 1-0 Seongnam FC",14:30 Korean K League 2 Chungbuk Cheongju FC 1-0 Seongnam FC
+https://livesport.io.vn/ott/event.php?id=sd-6MvVcmFC4XfZsEuqFd
+#EXTINF:-1 tvg-id="sd-6MvVcmFC4eG1UgPaiK" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/cd536caf88f06782e8e5b2a89c0a5579.png" group-title="🏆 Thể thao"  tvg-name="14:30 Korean K League 2 Gimpo FC 0-0 Seoul E-Land FC",14:30 Korean K League 2 Gimpo FC 0-0 Seoul E-Land FC
+https://livesport.io.vn/ott/event.php?id=sd-6MvVcmFC4eG1UgPaiK
+#EXTINF:-1 tvg-id="sd-6MxjK7faxQTDsCeFVy" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/2306ef7d4d452c1bd2871e89e91ffc83.jpg" group-title="🏆 Thể thao"  tvg-name="15:00 Chinese Taiwan Mulan Football League Sunny Bank Athletic Club Taipei (w) 0-0 Valkyrie (W)",15:00 Chinese Taiwan Mulan Football League Sunny Bank Athletic Club Taipei (w) 0-0 Valkyrie (W)
+https://livesport.io.vn/ott/event.php?id=sd-6MxjK7faxQTDsCeFVy
+#EXTINF:-1 tvg-id="sd-6MxjK4S5X2uG4bfxSj" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/e6b58b5bfee1910ebdf86bb542ab3776.png" group-title="🏆 Thể thao"  tvg-name="15:00 Indian Bangalore Super Division Rebels FC 0-0 Bangalore Dream United FC",15:00 Indian Bangalore Super Division Rebels FC 0-0 Bangalore Dream United FC
+https://livesport.io.vn/ott/event.php?id=sd-6MxjK4S5X2uG4bfxSj
+#EXTINF:-1 tvg-id="sd-6MweKiwfmWbWXtQM8K" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/9f3ed1ce238c76a26ddf7044e3ab8299.png" group-title="🏆 Thể thao"  tvg-name="15:30 Czech U19 League Viktoria Plzen U19 0-0 Dukla Praha U19",15:30 Czech U19 League Viktoria Plzen U19 0-0 Dukla Praha U19
+https://livesport.io.vn/ott/event.php?id=sd-6MweKiwfmWbWXtQM8K
+#EXTINF:-1 tvg-id="sd-6MxiKav4vv3dgiv24w" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/b1e228ad69b6a2c235047e0a13ceb391.png" group-title="🏆 Thể thao"  tvg-name="15:30 Liga 1 Persatuan sepak bola Indonesia Kediri 0-0 Madura United",15:30 Liga 1 Persatuan sepak bola Indonesia Kediri 0-0 Madura United
+https://livesport.io.vn/ott/event.php?id=sd-6MxiKav4vv3dgiv24w
+#EXTINF:-1 tvg-id="sd-6MxjK7faxNFjzipLM5" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/2306ef7d4d452c1bd2871e89e91ffc83.jpg" group-title="🏆 Thể thao"  tvg-name="16:00 Chinese Taiwan Mulan Football League Taichung Sakura (W) 0-0 Taipei Brao Women",16:00 Chinese Taiwan Mulan Football League Taichung Sakura (W) 0-0 Taipei Brao Women
+https://livesport.io.vn/ott/event.php?id=sd-6MxjK7faxNFjzipLM5
+#EXTINF:-1 tvg-id="sd-6MweKiwfmQ14vSvbfd" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/9f3ed1ce238c76a26ddf7044e3ab8299.png" group-title="🏆 Thể thao"  tvg-name="17:00 Czech U19 League Hradec Kralove U19 0-0 Tescoma Zlin U19",17:00 Czech U19 League Hradec Kralove U19 0-0 Tescoma Zlin U19
+https://livesport.io.vn/ott/event.php?id=sd-6MweKiwfmQ14vSvbfd
+#EXTINF:-1 tvg-id="sd-6Mwdq8NN8byrTwvMQK" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/aad52ee6d650628d65f1cc2b5cda10ab.png" group-title="🏆 Thể thao"  tvg-name="17:00 Japanese J1 League Kashima Antlers 0-0 Gamba Osaka",17:00 Japanese J1 League Kashima Antlers 0-0 Gamba Osaka
+https://livesport.io.vn/ott/event.php?id=sd-6Mwdq8NN8byrTwvMQK
+#EXTINF:-1 tvg-id="sd-6Mwdq8NMJ6cnRrTK4j" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/aad52ee6d650628d65f1cc2b5cda10ab.png" group-title="🏆 Thể thao"  tvg-name="17:00 Japanese J1 League Kashiwa Reysol 0-0 Vissel Kobe",17:00 Japanese J1 League Kashiwa Reysol 0-0 Vissel Kobe
+https://livesport.io.vn/ott/event.php?id=sd-6Mwdq8NMJ6cnRrTK4j
+#EXTINF:-1 tvg-id="sd-6Mxia8uREYnLTz8tud" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/0b3d4c605b5a516dd91b09b6719e453e.png" group-title="🏆 Thể thao"  tvg-name="17:00 Portuguese U23 League Estoril U23 0-0 Sporting CP U23",17:00 Portuguese U23 League Estoril U23 0-0 Sporting CP U23
+https://livesport.io.vn/ott/event.php?id=sd-6Mxia8uREYnLTz8tud
+#EXTINF:-1 tvg-id="sd-6Mwd5vbgiz2mF7U4gf" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/39f070fc09edd28842e8d7552711e26b.png" group-title="🏆 Thể thao"  tvg-name="17:00 RUS M-League Almaz Antey Youth 0-0 FK Krasnodar Youth",17:00 RUS M-League Almaz Antey Youth 0-0 FK Krasnodar Youth
+https://livesport.io.vn/ott/event.php?id=sd-6Mwd5vbgiz2mF7U4gf
 #EXTINF:-1 group-title="🏆 Thể thao" tvg-logo="https://img-zlr1.tv360.vn/image1/2026/04/16/08/1776301510855/e14eaed5c4d8_640_360.png" tvg-id="" tvg-name="360 Bundesliga",360 Bundesliga
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://vmttv.dpdns.org/tv360/?id=360-bundesliga
