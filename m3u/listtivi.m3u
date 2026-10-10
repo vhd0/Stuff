@@ -184,14 +184,12 @@ https://freem3u.xyz/api/live/play.m3u8?vid=13
 https://live.fptplay53.net/fnxhd2/anninhtv_vhls.smil/chunklist.m3u8
 #EXTINF:-1 tvg-id="QPVN.vn@HD" tvg-name="QPVN" group-title="⭐ Thiết yếu",QPVN
 https://liveh12.vtvprime.vn/hls/QPTV/index.m3u8
-#EXTINF:-1 tvg-id="sd-6MxipX8VwcKM53ABu9" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/0edff1472edca4aeeec7534f0bceb230.png" group-title="🏙️ Địa phương"  tvg-name="15:30 Vietnam National First Class League Dong Tam Long An 0-0 Quang Ninh",15:30 Vietnam National First Class League Dong Tam Long An 0-0 Quang Ninh
-https://livesport.io.vn/ott/event.php?id=sd-6MxipX8VwcKM53ABu9
 #EXTINF:-1 tvg-id="angiang1" group-title="🏙️ Địa phương" tvg-logo="https://angiangtv.vn/wp-content/uploads/2025/06/H4.png" tvg-name="An Giang",An Giang
 https://freem3u.xyz/api/live/play.m3u8?vid=66
-#EXTINF:-1 group-title="🏙️ Địa phương" tvg-logo="https://images.fptplay53.net/media/channels/OTT/2025/11/15/icon_channel_an-giang-3_176314756942.jpg" tvg-id="" tvg-name="An Giang 3",An Giang 3
-https://tv.angiangtv.vn/live/kgtv1/kgtv1.m3u8
 #EXTINF:-1 tvg-id="angiang2" group-title="🏙️ Địa phương" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/vuminhthanh12/refs/heads/main/ATV2.jpg" tvg-name="ATV2 | Báo và PTTH An Giang",ATV2 | Báo và PTTH An Giang
 https://freem3u.xyz/api/live/play.m3u8?vid=35
+#EXTINF:-1 tvg-id="angiang3" group-title="🏙️ Địa phương" tvg-logo="https://angiangtv.vn/wp-content/uploads/2025/06/H5.png" tvg-name="ATV3 - Báo và PTTH An Giang",ATV3 - Báo và PTTH An Giang
+https://247.dpdns.org/module/IPTV/?id=ATV3&accKenh=vuminhthanh1
 #EXTINF:-1 tvg-id="hatinh" group-title="🏙️ Địa phương" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/vuminhthanh12/refs/heads/main/BHTTV.webp" tvg-name="BHTTV - Báo và PTTH Hà Tĩnh",BHTTV - Báo và PTTH Hà Tĩnh
 https://freem3u.xyz/api/live/play.m3u8?vid=58
 #EXTINF:-1 tvg-id="bacninh" group-title="🏙️ Địa phương" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/vuminhthanh12/refs/heads/main/BTVBACNINH.jpg" tvg-name="BTV - Báo và PTTH Thành Phố Bắc Ninh",BTV - Báo và PTTH Thành Phố Bắc Ninh
@@ -261,6 +259,8 @@ https://vips-livecdn.fptplay.net/live/media/vinhlong3/live247-hls-avc/vinhlong3-
 https://freem3u.xyz/api/live/play.m3u8?vid=220
 #EXTINF:-1 tvg-id="vinhlong5hd" group-title="🏙️ Địa phương" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/vuminhthanh12/refs/heads/main/THVL5.webp" tvg-name="THVL5 - Báo và PTTH Vĩnh Long",THVL5 - Báo và PTTH Vĩnh Long
 https://freem3u.xyz/api/live/play.m3u8?vid=91
+#EXTINF:-1 tvg-id="fpt-event-event-18-4k" group-title="🏙️ Địa phương" tvg-logo="https://images.fptplay53.net/media/home_event/OTT_ECS/2026/10/07/thumbnail-live_1791352971808.jpg" tvg-name="Thép Xanh Nam Định vs Ninh Bình (4K)",Thép Xanh Nam Định vs Ninh Bình (4K)
+https://vips-livecdn.fptplay.net/live/media/event-01-4k/dash_hvc/index.m3u8
 #EXTINF:-1 tvg-id="dongthap2" group-title="🏙️ Địa phương" tvg-logo="https://images.fptplay53.net/media/channels/icon_channel_mien-tay-thdt2_165666993738.png" tvg-name="THĐT2 - Báo và PTTH Đồng Tháp",THĐT2 - Báo và PTTH Đồng Tháp
 https://freem3u.xyz/api/live/play.m3u8?vid=90
 #EXTINF:-1 tvg-id="TienGiangTV.vn@SD" tvg-name="Tiền Giang" group-title="🏙️ Địa phương",Tiền Giang
@@ -306,8 +306,12 @@ https://vips-livecdn.fptplay.net/live/media/fptplay/live247-hls-avc/fptplay-avc1
 https://livesport.io.vn/ott/viptv.php?id=skymain
 #EXTINF:-1 group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" tvg-logo="https://livesport.io.vn/logo/sport/sktop.png" group-title="🎟️ Sự kiện"  tvg-id="" tvg-name="SKYSPORT TOP EVENT",SKYSPORT TOP EVENT
 https://livesport.io.vn/ott/apo.php?id=skytop
+#EXTINF:-1 tvg-id="fpt-event-su-kien-03" group-title="🎟️ Sự kiện" tvg-logo="https://images.fptplay53.net/media/home_event/OTT_ECS/2026/10/09/slide-thumb_1791562322620.jpg" tvg-name="Sự Kiện 3",Sự Kiện 3
+https://vips-livecdn.fptplay.net/live/media/su-kien-03/hls_avc_v6/index.m3u8
 #EXTINF:-1 tvg-id="fpt-event-su-kien-04" group-title="🎟️ Sự kiện" tvg-logo="https://images.fptplay53.net/media/home_event/OTT_ECS/2026/10/08/10_1791392907805.jpg" tvg-name="Sự Kiện 4",Sự Kiện 4
 https://vips-livecdn.fptplay.net/live/media/su-kien-04/hls_avc_v6/index.m3u8
+#EXTINF:-1 tvg-id="fpt-event-su-kien-32" group-title="🎟️ Sự kiện" tvg-logo="https://images.fptplay53.net/media/home_event/OTT_ECS/2026/10/07/thumbnail-live_1791345897558.jpg" tvg-name="Sự Kiện 5",Sự Kiện 5
+https://vips-livecdn.fptplay.net/live/media/su-kien-05/hls_avc_v6/index.m3u8
 #EXTINF:-1 tvg-id="fpt-event-su-kien-06" group-title="🎟️ Sự kiện" tvg-logo="https://images.fptplay53.net/media/home_event/OTT_ECS/2026/10/09/slide-thumb_1791530115530.jpg" tvg-name="Sự Kiện 6",Sự Kiện 6
 https://vips-livecdn.fptplay.net/live/media/su-kien-06/hls_avc_v6/index.m3u8
 #EXTINF:-1 group-title="🎟️ Sự kiện" tvg-logo="https://img-zlr1.tv360.vn/image1/2025/09/17/17/175810574912/a5f8181388ab_640_360.png" tvg-id="" tvg-name="TV360 Promo",TV360 Promo
@@ -478,42 +482,58 @@ https://livevliatmcdw.seenow.vn/live/data8/SKSS3/Live_DASHDRM/SKSS3.mpd
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=ca0576ec419f490789860894bb50c977:25d2e703eee38718240e7038d1908fef
 https://livevliatmcdw.seenow.vn/live/data8/SKSS4/Live_DASHDRM/SKSS4.mpd
-#EXTINF:-1 tvg-id="sd-6Mwdq8QZFWzx5nxZaX" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/fc5449dfd156ec45ba2dd46dc7cdc095.png" group-title="🏆 Thể thao"  tvg-name="14:00 Japanese J2 League Ventforet Kofu 2-1 Tochigi City",14:00 Japanese J2 League Ventforet Kofu 2-1 Tochigi City
-https://livesport.io.vn/ott/event.php?id=sd-6Mwdq8QZFWzx5nxZaX
-#EXTINF:-1 tvg-id="sd-6MxjJtdcyFMV5Mvmgs" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/6b13e8b4c1cf4f6333ecc4f5131b7482.png" group-title="🏆 Thể thao"  tvg-name="14:30 CFA Women's League One Shanghai Women B 0-0 Shanghai Shenhua Women",14:30 CFA Women's League One Shanghai Women B 0-0 Shanghai Shenhua Women
-https://livesport.io.vn/ott/event.php?id=sd-6MxjJtdcyFMV5Mvmgs
-#EXTINF:-1 tvg-id="sd-6MxjJtdcTsx5ZYfXp3" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/6b13e8b4c1cf4f6333ecc4f5131b7482.png" group-title="🏆 Thể thao"  tvg-name="14:30 CFA Women's League One Wuhan Sports University Women 1-1 Chongqing Women",14:30 CFA Women's League One Wuhan Sports University Women 1-1 Chongqing Women
-https://livesport.io.vn/ott/event.php?id=sd-6MxjJtdcTsx5ZYfXp3
-#EXTINF:-1 tvg-id="sd-6MvVcmFC4o3vxbhFKu" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/cd536caf88f06782e8e5b2a89c0a5579.png" group-title="🏆 Thể thao"  tvg-name="14:30 Korean K League 2 Gimhae City 1-0 Chungnam Asan",14:30 Korean K League 2 Gimhae City 1-0 Chungnam Asan
-https://livesport.io.vn/ott/event.php?id=sd-6MvVcmFC4o3vxbhFKu
-#EXTINF:-1 tvg-id="sd-6MxjZVq14ufBQ8yHNo" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/455b85f583d273127160e78383f25211.png" group-title="🏆 Thể thao"  tvg-name="15:00 Anh Khovd Western 1-1 Hunters FC",15:00 Anh Khovd Western 1-1 Hunters FC
+#EXTINF:-1 tvg-id="sd-6MxjZVq14ufBQ8yHNo" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/455b85f583d273127160e78383f25211.png" group-title="🏆 Thể thao"  tvg-name="15:00 Anh Khovd Western 2-4 Hunters FC",15:00 Anh Khovd Western 2-4 Hunters FC
 https://livesport.io.vn/ott/event.php?id=sd-6MxjZVq14ufBQ8yHNo
-#EXTINF:-1 tvg-id="sd-6MxiZdYyYPKHBLjYNb" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/f3f3c0903de5b5aa90d328197d8c7610.png" group-title="🏆 Thể thao"  tvg-name="15:00 Anh Kitchee 3-0 Hong Kong Football Club",15:00 Anh Kitchee 3-0 Hong Kong Football Club
+#EXTINF:-1 tvg-id="sd-6MxiZdYyYPKHBLjYNb" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/f3f3c0903de5b5aa90d328197d8c7610.png" group-title="🏆 Thể thao"  tvg-name="15:00 Anh Kitchee 4-0 Hong Kong Football Club",15:00 Anh Kitchee 4-0 Hong Kong Football Club
 https://livesport.io.vn/ott/event.php?id=sd-6MxiZdYyYPKHBLjYNb
-#EXTINF:-1 tvg-id="sd-6MxiZdYyYM7oJrudDh" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/f3f3c0903de5b5aa90d328197d8c7610.png" group-title="🏆 Thể thao"  tvg-name="15:00 Anh Tai Po 0-0 Kowloon City",15:00 Anh Tai Po 0-0 Kowloon City
+#EXTINF:-1 tvg-id="sd-6MxiZdYyYM7oJrudDh" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/f3f3c0903de5b5aa90d328197d8c7610.png" group-title="🏆 Thể thao"  tvg-name="15:00 Anh Tai Po 1-1 Kowloon City",15:00 Anh Tai Po 1-1 Kowloon City
 https://livesport.io.vn/ott/event.php?id=sd-6MxiZdYyYM7oJrudDh
-#EXTINF:-1 tvg-id="sd-6MxjJtdc8Uc3wugKH1" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/c017e7ba7444ebab19abe2d412245032.png" group-title="🏆 Thể thao"  tvg-name="15:00 CFA Women's Super League Liaoning Shenbei Hefeng Women 0-0 Zhejiang Hangzhou Women",15:00 CFA Women's Super League Liaoning Shenbei Hefeng Women 0-0 Zhejiang Hangzhou Women
+#EXTINF:-1 tvg-id="sd-6MxjJtdc8Uc3wugKH1" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/c017e7ba7444ebab19abe2d412245032.png" group-title="🏆 Thể thao"  tvg-name="15:00 CFA Women's Super League Liaoning Shenbei Hefeng Women 1-0 Zhejiang Hangzhou Women",15:00 CFA Women's Super League Liaoning Shenbei Hefeng Women 1-0 Zhejiang Hangzhou Women
 https://livesport.io.vn/ott/event.php?id=sd-6MxjJtdc8Uc3wugKH1
-#EXTINF:-1 tvg-id="sd-6MweKfi8zNsWnpBXKM" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/399fdcf6d58e3ed5086ad401ee1bfbf8.png" group-title="🏆 Thể thao"  tvg-name="15:15 Czech Third League Aritma Praha 0-0 Bohemians1905 B",15:15 Czech Third League Aritma Praha 0-0 Bohemians1905 B
+#EXTINF:-1 tvg-id="sd-6Mwarm91iaCaQoDkUw" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/484e577e79960be6becc45ab3dd12ae3.png" group-title="🏆 Thể thao"  tvg-name="15:00 Romanian Liga II Chindia Targoviste 3-1 Concordia Chiajna",15:00 Romanian Liga II Chindia Targoviste 3-1 Concordia Chiajna
+https://livesport.io.vn/ott/event.php?id=sd-6Mwarm91iaCaQoDkUw
+#EXTINF:-1 tvg-id="sd-6MweKfi8zNsWnpBXKM" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/399fdcf6d58e3ed5086ad401ee1bfbf8.png" group-title="🏆 Thể thao"  tvg-name="15:15 Czech Third League Aritma Praha 2-3 Bohemians1905 B",15:15 Czech Third League Aritma Praha 2-3 Bohemians1905 B
 https://livesport.io.vn/ott/event.php?id=sd-6MweKfi8zNsWnpBXKM
-#EXTINF:-1 tvg-id="sd-6MweKfi8zTGUXmqMd9" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/399fdcf6d58e3ed5086ad401ee1bfbf8.png" group-title="🏆 Thể thao"  tvg-name="15:15 Czech Third League Benesov 1-1 Admira Praha",15:15 Czech Third League Benesov 1-1 Admira Praha
-https://livesport.io.vn/ott/event.php?id=sd-6MweKfi8zTGUXmqMd9
 #EXTINF:-1 tvg-id="sd-6MweKfjc8ErdvebCBq" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/399fdcf6d58e3ed5086ad401ee1bfbf8.png" group-title="🏆 Thể thao"  tvg-name="15:15 Czech Third League FK Horni Redice 0-0 Benatky Nad Jizerou",15:15 Czech Third League FK Horni Redice 0-0 Benatky Nad Jizerou
 https://livesport.io.vn/ott/event.php?id=sd-6MweKfjc8ErdvebCBq
-#EXTINF:-1 tvg-id="sd-6MweKfi8pboYF335k3" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/399fdcf6d58e3ed5086ad401ee1bfbf8.png" group-title="🏆 Thể thao"  tvg-name="15:15 Czech Third League Loko Vltavin 0-0 Slavia Prague C",15:15 Czech Third League Loko Vltavin 0-0 Slavia Prague C
+#EXTINF:-1 tvg-id="sd-6MweKfi8pboYF335k3" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/399fdcf6d58e3ed5086ad401ee1bfbf8.png" group-title="🏆 Thể thao"  tvg-name="15:15 Czech Third League Loko Vltavin 1-1 Slavia Prague C",15:15 Czech Third League Loko Vltavin 1-1 Slavia Prague C
 https://livesport.io.vn/ott/event.php?id=sd-6MweKfi8pboYF335k3
 #EXTINF:-1 tvg-id="sd-6MweKfjc8H47o8R7Lj" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/399fdcf6d58e3ed5086ad401ee1bfbf8.png" group-title="🏆 Thể thao"  tvg-name="15:15 Czech Third League Mlada Boleslav B 1-0 Banik Most-Sous",15:15 Czech Third League Mlada Boleslav B 1-0 Banik Most-Sous
 https://livesport.io.vn/ott/event.php?id=sd-6MweKfjc8H47o8R7Lj
-#EXTINF:-1 tvg-id="sd-6MweKfi8piPyrUWqCj" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/399fdcf6d58e3ed5086ad401ee1bfbf8.png" group-title="🏆 Thể thao"  tvg-name="15:15 Czech Third League Povltava FA 0-2 Dynamo Ceske Budejovice",15:15 Czech Third League Povltava FA 0-2 Dynamo Ceske Budejovice
-https://livesport.io.vn/ott/event.php?id=sd-6MweKfi8piPyrUWqCj
-#EXTINF:-1 tvg-id="sd-6MweKfjc8KFbfcF2Vd" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/399fdcf6d58e3ed5086ad401ee1bfbf8.png" group-title="🏆 Thể thao"  tvg-name="15:15 Czech Third League Slovan Liberec II 0-1 Chrudim",15:15 Czech Third League Slovan Liberec II 0-1 Chrudim
-https://livesport.io.vn/ott/event.php?id=sd-6MweKfjc8KFbfcF2Vd
-#EXTINF:-1 tvg-id="sd-6MweKfjc8PeZQZtroR" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/399fdcf6d58e3ed5086ad401ee1bfbf8.png" group-title="🏆 Thể thao"  tvg-name="15:15 Czech Third League Spolana Neratovice 0-0 Pardubice B",15:15 Czech Third League Spolana Neratovice 0-0 Pardubice B
+#EXTINF:-1 tvg-id="sd-6MweKfjc8PeZQZtroR" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/399fdcf6d58e3ed5086ad401ee1bfbf8.png" group-title="🏆 Thể thao"  tvg-name="15:15 Czech Third League Spolana Neratovice 2-0 Pardubice B",15:15 Czech Third League Spolana Neratovice 2-0 Pardubice B
 https://livesport.io.vn/ott/event.php?id=sd-6MweKfjc8PeZQZtroR
-#EXTINF:-1 tvg-id="sd-6MxiKav4w733383bqR" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/b1e228ad69b6a2c235047e0a13ceb391.png" group-title="🏆 Thể thao"  tvg-name="15:30 Liga 1 Persita Tangerang 0-0 Garudayaksa FC",15:30 Liga 1 Persita Tangerang 0-0 Garudayaksa FC
+#EXTINF:-1 tvg-id="sd-6MxjZDY21TJv1LPiTy" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/06565a2672fc1f85be8c44da526c3820.png" group-title="🏆 Thể thao"  tvg-name="15:30 Indonesian Championship FC Bekasi City 2-0 PSGC Ciamis",15:30 Indonesian Championship FC Bekasi City 2-0 PSGC Ciamis
+https://livesport.io.vn/ott/event.php?id=sd-6MxjZDY21TJv1LPiTy
+#EXTINF:-1 tvg-id="sd-6MxjZDY21VWPspDdcs" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/06565a2672fc1f85be8c44da526c3820.png" group-title="🏆 Thể thao"  tvg-name="15:30 Indonesian Championship Sumsel United 1-1 Persiku Kudus",15:30 Indonesian Championship Sumsel United 1-1 Persiku Kudus
+https://livesport.io.vn/ott/event.php?id=sd-6MxjZDY21VWPspDdcs
+#EXTINF:-1 tvg-id="sd-6MxiKav4vzSbRgZrNj" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/b1e228ad69b6a2c235047e0a13ceb391.png" group-title="🏆 Thể thao"  tvg-name="15:30 Liga 1 Arema FC 0-2 Bhayangkara Presisi Indonesia FC",15:30 Liga 1 Arema FC 0-2 Bhayangkara Presisi Indonesia FC
+https://livesport.io.vn/ott/event.php?id=sd-6MxiKav4vzSbRgZrNj
+#EXTINF:-1 tvg-id="sd-6MxiKav4w733383bqR" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/b1e228ad69b6a2c235047e0a13ceb391.png" group-title="🏆 Thể thao"  tvg-name="15:30 Liga 1 Persita Tangerang 1-0 Garudayaksa FC",15:30 Liga 1 Persita Tangerang 1-0 Garudayaksa FC
 https://livesport.io.vn/ott/event.php?id=sd-6MxiKav4w733383bqR
-#EXTINF:-1 tvg-id="sd-6MxiKav4vaGJrQUmgs" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/b1e228ad69b6a2c235047e0a13ceb391.png" group-title="🏆 Thể thao"  tvg-name="15:30 Liga 1 PSIM Yogyakarta 0-0 Persija Jakarta",15:30 Liga 1 PSIM Yogyakarta 0-0 Persija Jakarta
-https://livesport.io.vn/ott/event.php?id=sd-6MxiKav4vaGJrQUmgs
+#EXTINF:-1 tvg-id="sd-6MxiKav4vaGJrQUmgs_md" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/b1e228ad69b6a2c235047e0a13ceb391.png" group-title="🏆 Thể thao"  tvg-name="15:30 Liga 1 PSIM Yogyakarta 0-0 Persija Jakarta",15:30 Liga 1 PSIM Yogyakarta 0-0 Persija Jakarta
+https://livesport.io.vn/ott/event.php?id=sd-6MxiKav4vaGJrQUmgs_md
+#EXTINF:-1 tvg-id="sd-6MxjK7fb7cYzMnPwmq" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/ee3cb3cef182d0052c5a5f86be6298e2.png" group-title="🏆 Thể thao"  tvg-name="15:30 Thai League 3 Lopburi City FC 0-0 Pathumthani University",15:30 Thai League 3 Lopburi City FC 0-0 Pathumthani University
+https://livesport.io.vn/ott/event.php?id=sd-6MxjK7fb7cYzMnPwmq
+#EXTINF:-1 tvg-id="sd-6MxjZL3Gr7G8hGQgcF" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/ae8b9e6b5113b70d23df8f7769eb31ed.png" group-title="🏆 Thể thao"  tvg-name="15:45 Anh Bangladesh Police Club 3-0 Fakirerpool Young Mens Club",15:45 Anh Bangladesh Police Club 3-0 Fakirerpool Young Mens Club
+https://livesport.io.vn/ott/event.php?id=sd-6MxjZL3Gr7G8hGQgcF
+#EXTINF:-1 tvg-id="sd-6MxjZL3H1zvYrV2seF" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/ae8b9e6b5113b70d23df8f7769eb31ed.png" group-title="🏆 Thể thao"  tvg-name="15:45 Anh Mohammedan Dhaka 2-0 Arambagh KS",15:45 Anh Mohammedan Dhaka 2-0 Arambagh KS
+https://livesport.io.vn/ott/event.php?id=sd-6MxjZL3H1zvYrV2seF
+#EXTINF:-1 tvg-id="sd-6MxjZPQAUTcqmF87eF" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/2c764cfc9ae1beacd2dcb28cb831755a.png" group-title="🏆 Thể thao"  tvg-name="15:50 FA Cup South Melbourne 0-0 Melbourne Victory",15:50 FA Cup South Melbourne 0-0 Melbourne Victory
+https://livesport.io.vn/ott/event.php?id=sd-6MxjZPQAUTcqmF87eF
+#EXTINF:-1 tvg-id="sd-6MweKj24qjQLCEU4Md" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/b0ee786578f1e9c7c648c9536197b452.png" group-title="🏆 Thể thao"  tvg-name="16:00 Italian Campionato Primavera 1 Cesena U20 0-0 Torino U20",16:00 Italian Campionato Primavera 1 Cesena U20 0-0 Torino U20
+https://livesport.io.vn/ott/event.php?id=sd-6MweKj24qjQLCEU4Md
+#EXTINF:-1 tvg-id="sd-6MweKj24qooHwC7tfR" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/b0ee786578f1e9c7c648c9536197b452.png" group-title="🏆 Thể thao"  tvg-name="16:00 Italian Campionato Primavera 1 Inter Milan U20 1-0 Como U19",16:00 Italian Campionato Primavera 1 Inter Milan U20 1-0 Como U19
+https://livesport.io.vn/ott/event.php?id=sd-6MweKj24qooHwC7tfR
+#EXTINF:-1 tvg-id="sd-6Mwdq8RKQeadByB6D5" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/fc5449dfd156ec45ba2dd46dc7cdc095.png" group-title="🏆 Thể thao"  tvg-name="16:00 Japanese J2 League Jubilo Iwata 0-0 Hokkaido Consadole Sapporo",16:00 Japanese J2 League Jubilo Iwata 0-0 Hokkaido Consadole Sapporo
+https://livesport.io.vn/ott/event.php?id=sd-6Mwdq8RKQeadByB6D5
+#EXTINF:-1 tvg-id="sd-6MwcqRtoU6Prs9obwD" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/dafc885b4bf6235f36cd516aa7793df6.png" group-title="🏆 Thể thao"  tvg-name="16:00 Latvian 1.Liga Rigas Futbola skola II 2-0 Marupe",16:00 Latvian 1.Liga Rigas Futbola skola II 2-0 Marupe
+https://livesport.io.vn/ott/event.php?id=sd-6MwcqRtoU6Prs9obwD
+#EXTINF:-1 tvg-id="sd-6Mxj4LjRjeK4xbkgyV" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/0e7b29667e53debdcc13bbcae0c0a35e.png" group-title="🏆 Thể thao"  tvg-name="16:00 Myanmar Professional League Ayeyawady united 0-1 Thitsar Arman FC",16:00 Myanmar Professional League Ayeyawady united 0-1 Thitsar Arman FC
+https://livesport.io.vn/ott/event.php?id=sd-6Mxj4LjRjeK4xbkgyV
+#EXTINF:-1 tvg-id="sd-6Mxj4LjRjkuWa3ESSB" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/0e7b29667e53debdcc13bbcae0c0a35e.png" group-title="🏆 Thể thao"  tvg-name="16:00 Myanmar Professional League Myawady 0-1 Yadanarbon FC",16:00 Myanmar Professional League Myawady 0-1 Yadanarbon FC
+https://livesport.io.vn/ott/event.php?id=sd-6Mxj4LjRjkuWa3ESSB
+#EXTINF:-1 tvg-id="sd-6MweKqXMMhfXvC2SQF" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/c3ca567177713d1924f670d62e5f9da9.png" group-title="🏆 Thể thao"  tvg-name="16:00 Russian First League Ural Yekaterinburg 0-2 Veles Moscow",16:00 Russian First League Ural Yekaterinburg 0-2 Veles Moscow
+https://livesport.io.vn/ott/event.php?id=sd-6MweKqXMMhfXvC2SQF
 #EXTINF:-1 group-title="🏆 Thể thao" tvg-logo="https://img-zlr1.tv360.vn/image1/2026/04/16/08/1776301510855/e14eaed5c4d8_640_360.png" tvg-id="" tvg-name="360 Bundesliga",360 Bundesliga
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://vmttv.dpdns.org/tv360/?id=360-bundesliga
@@ -1117,8 +1137,7 @@ https://s2129134.cdn.mytvnet.vn/pkg20/live_dzones/ap.smil/manifest.mpd
 #EXTINF:-1 tvg-id="arirang" group-title="🌍 Quốc tế" tvg-logo="https://i.ytimg.com/vi/ZqVyukYe4YM/hq720.jpg" tvg-name="Arirang",Arirang
 https://live.fptplay53.net/fnxhd1/airanghd_vhls.smil/chunklist_b5000000.m3u8
 #EXTINF:-1 tvg-id="afnhd" group-title="🌍 Quốc tế" tvg-logo="https://i.vimeocdn.com/video/852785228-36403e3d29153c02a4acfcf0ca4182b0be0bef3e5b43355eafc33614ee972a9b-d?f=webp" tvg-name="Asian Food Network",Asian Food Network
-#EXTVLCOPT:http-user-agent=VThanhTivi
-https://live.fptplay53.net/fnxhd2/afchd_vhls.smil/chunklist_b5000000.m3u8
+https://freem3u.xyz/api/live/play.m3u8?vid=215
 #EXTINF:-1 tvg-id="axnhd" group-title="🌍 Quốc tế" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/Logo/refs/heads/main/axn.png" catchup="append" catchup-days="2" catchup-source="https://tshift.fptplay.net/dvr/axnhd_1000.stream/chunks_dvr_range-${start}-${offset}.m3u8" tvg-name="AXN HD",AXN HD
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 #KODIPROP:inputstream.adaptive.manifest_type=mpd
@@ -1153,8 +1172,7 @@ https://freem3u.xyz/api/live/play.m3u8?vid=112
 #EXTINF:-1 tvg-id="cnbc" group-title="🌍 Quốc tế" tvg-logo="https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/30b1d744249569.56076e09dd31e.png" tvg-name="CNBC",CNBC
 https://live.fptplay53.net/fnxhd1/cnbchd_vhls.smil/chunklist_b5000000.m3u8
 #EXTINF:-1 tvg-id="davincihd" group-title="🌍 Quốc tế" tvg-logo="https://images.fptplay53.net/media/channels/icon_channel_da-vinci-learning_165655659384.png" tvg-name="Da Vinci HD",Da Vinci HD
-#EXTVLCOPT:http-user-agent=VThanhTivi
-https://live.fptplay53.net/fnxhd2/davincihd_vhls.smil/chunklist_b5000000.m3u8
+https://vmttv.dpdns.org/tv360/?id=davinci-hd
 #EXTINF:-1 tvg-id="discoveryhd" group-title="🌍 Quốc tế" tvg-logo="https://s72140.cdn.mytvnet.vn/vimages/c7/7f/fc/c6/69/9b/c7fc6-pdiscoveryhd-channel-unkn.png" catchup="append" catchup-days="2" catchup-source="https://tshift.fptplay.net/dvr/discovrery_1000.stream/chunks_dvr_range-${start}-${offset}.m3u8" tvg-name="Discovery",Discovery
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 #KODIPROP:inputstream.adaptive.manifest_type=mpd
@@ -1213,7 +1231,6 @@ http://211.33.246.4:32954/cj_live/myStream.sdp/playlist.m3u8
 #EXTINF:-1 tvg-id="" group-title="🌍 Quốc tế" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/Logo/refs/heads/main/nhkworld.png" tvg-name="NHK World",NHK World
 https://live.fptplay53.net/fnxhd2/nhkworld_vhls.smil/chunklist_b5000000.m3u8
 #EXTINF:-1 tvg-id="outdoor" group-title="🌍 Quốc tế" tvg-logo="https://images.fptplay53.net/media/channels/icon_channel_outdoor-channel_165649323545.png" tvg-name="Outdoor Channel",Outdoor Channel
-#EXTVLCOPT:http-user-agent=VThanhTivi
 https://live.fptplay53.net/epzhd2/outdoorfhd_vhls.smil/chunklist_b5000000.m3u8
 #EXTINF:-1 group-title="🌍 Quốc tế" tvg-logo="https://image.makewebcdn.com/makeweb/m_1920x0/fwsVrxqVa/3PPTV36/PPTV_By_HSTN.jpg" tvg-id="" tvg-name="PPTV36",PPTV36
 http://3bb.engatetv.com:25461/hstn/line/21
