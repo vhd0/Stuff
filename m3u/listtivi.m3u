@@ -352,10 +352,10 @@ https://freem3u.xyz/api/live/play.m3u8?vid=51
 https://freem3u.xyz/api/live/play.m3u8?vid=53
 #EXTINF:-1 tvg-id="DongThapTV.vn@SD" tvg-name="Đồng Tháp" group-title="🏙️ Địa phương",Đồng Tháp
 https://liveh34.vtvprime.vn/hls/DONGTHAPTV/index.m3u8
-#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/965mkyh40ojr1ge/image/small" group-title="🏙️ Địa phương"  tvg-id="" tvg-name="🟡 15:00 23/10 ⚽ Nữ Hồ Chí Minh 2 vs Nữ TNG Thái Nguyên (JEAN)",🟡 15:00 23/10 ⚽ Nữ Hồ Chí Minh 2 vs Nữ TNG Thái Nguyên (JEAN)
-#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
-#EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
-https://live2.jorvakstreamcache.com/live/channel7.flv
+#EXTINF:-1 tvg-logo="https://s8tvkc.top/wp-json/s8-image/3001e922-360e-49df-a85b-09ef9469d05a" group-title="🏙️ Địa phương"  tvg-id="" tvg-name="🟢 15:00 23/10 ⚽ Ho Chi Minh City B (w) vs Thai Nguyen T&T (w) (NGƯỜI NHỆN) [hls]",🟢 15:00 23/10 ⚽ Ho Chi Minh City B (w) vs Thai Nguyen T&T (w) (NGƯỜI NHỆN) [hls]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://hls.lauthaitv.cc/live/chrnig-voloch-ukr1st/index.m3u8
 #EXTINF:-1 tvg-id="fptplayttgt" group-title="🎟️ Sự kiện" tvg-logo="https://images.fptplay53.net/media/channels/OTT_ECS/2026/09/22/fill-bg-logo-410x230_1790071429252.jpg" tvg-name="FPT PLAY CHUỖI THỂ THAO - GIẢI TRÍ",FPT PLAY CHUỖI THỂ THAO - GIẢI TRÍ
 https://fbox-livecdn.fptplay.net/live/media/fptplay/live247-hls-avc/index.m3u8?sign=1792714262-MDc1OTczMzQ-0-09bd7867dd5f53ceec008c15b01f824f
 #EXTINF:-1 tvg-id="SkySpMainEvHD.uk" group-logo="https://upload.wikimedia.org/wikipedia/commons/2/2d/Animated-Flag-United-Kingdom.gif" tvg-logo="https://livesport.io.vn/logo/sport/smain.png" group-title="🎟️ Sự kiện"  tvg-name="SKY SPORTS MAIN EVENT",SKY SPORTS MAIN EVENT
@@ -1383,6 +1383,10 @@ https://cdnflv.xbdbotv.live/live/MTk3MzUxNDE6ZDBuMm5wczd6c2ZuaXBpZ290dzI4bDd4OmY
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://cdnhls.xbdbotv.live/live/MTk3MzUxNDE6ZDBuMm5wczd6c2ZuaXBpZ290dzI4bDd4OmYwN3AzOXJsbTRpcjRpMGNiNHh1cHc5bQ/index.m3u8
+#EXTINF:-1 tvg-logo="https://images.keovip88.net/images/teams/vfb-stuttgart.png" group-title="📦 Khác"  tvg-id="" tvg-name="01:30 24/10 ⚽ VfB Stuttgart vs Monchengladbach (blv-tri) [hls]",01:30 24/10 ⚽ VfB Stuttgart vs Monchengladbach (blv-tri) [hls]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://freem3u.xyz/static/no-signal/low.m3u8
 #EXTINF:-1 tvg-logo="https://d1c0s7hi3ugzoc.cloudfront.net/teams/brest-266" group-title="📦 Khác"  tvg-id="" tvg-name="01:45 24/10 ⚽ Brest vs OGC Nice (Vịt Nướng) [flv]",01:45 24/10 ⚽ Brest vs OGC Nice (Vịt Nướng) [flv]
 https://cdnflv.xbdbotv.live/live/MTk3MTU1NzI6aGd5eDdwZGEwMmRlNWExZXZhMThvNnRnOm9jYWF1YzRvMXNrNXRmMzlnZHdxMXlrdw.flv
 #EXTINF:-1 tvg-logo="https://d1c0s7hi3ugzoc.cloudfront.net/teams/brest-266" group-title="📦 Khác"  tvg-id="" tvg-name="01:45 24/10 ⚽ Brest vs OGC Nice (Vịt Nướng) [hls]",01:45 24/10 ⚽ Brest vs OGC Nice (Vịt Nướng) [hls]
@@ -1427,6 +1431,10 @@ https://cdnflv.xbdbotv.live/live/MTk3MTM1Mzk6dGljMHIwY2xmNjhsaWxyajl3eDMyeXd6Omt
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://cdnhls.xbdbotv.live/live/MTk3MTM1Mzk6dGljMHIwY2xmNjhsaWxyajl3eDMyeXd6OmtycW5pNjU3NDB6b2ZlMnF5aGNsbnl5dw/index.m3u8
+#EXTINF:-1 tvg-logo="https://images.keovip88.net/images/teams/torino.png" group-title="📦 Khác"  tvg-id="" tvg-name="01:45 24/10 ⚽ Torino vs Monza (blv-beo) [hls]",01:45 24/10 ⚽ Torino vs Monza (blv-beo) [hls]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://freem3u.xyz/static/no-signal/low.m3u8
 #EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/f0856c1b16c32245a8d2c702ffe89ac5.png" group-title="📦 Khác"  tvg-id="" tvg-name="01:45 24/10 ⚽ Torino vs Monza (Gà Siêu Mõm) [flv]",01:45 24/10 ⚽ Torino vs Monza (Gà Siêu Mõm) [flv]
 https://live2.zktsva.app/live/300523.flv
 #EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/f0856c1b16c32245a8d2c702ffe89ac5.png" group-title="📦 Khác"  tvg-id="" tvg-name="01:45 24/10 ⚽ Torino vs Monza (Gà Siêu Mõm) [hls]",01:45 24/10 ⚽ Torino vs Monza (Gà Siêu Mõm) [hls]
@@ -1558,6 +1566,22 @@ https://freem3u.xyz/static/no-signal/low.m3u8
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
 #EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
 https://live2.pro2cdnlive.com/live/channel30.flv
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/ad97b71fe0d8df0e60f7c534fee24132.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="02:45 24/10 ⚽ Vitoria Guimaraes vs Maritimo (BLV SPRITE) [flv]",02:45 24/10 ⚽ Vitoria Guimaraes vs Maritimo (BLV SPRITE) [flv]
+https://live05.qioetj.app/live/75748097_tsc.flv
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/ad97b71fe0d8df0e60f7c534fee24132.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="02:45 24/10 ⚽ Vitoria Guimaraes vs Maritimo (BLV SPRITE) [hls 2]",02:45 24/10 ⚽ Vitoria Guimaraes vs Maritimo (BLV SPRITE) [hls 2]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://live05.miekgo.app/live/75748097_tsc.m3u8
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/ad97b71fe0d8df0e60f7c534fee24132.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="02:45 24/10 ⚽ Vitoria Guimaraes vs Maritimo (BLV SPRITE) [hls]",02:45 24/10 ⚽ Vitoria Guimaraes vs Maritimo (BLV SPRITE) [hls]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://live05.qioetj.app/live/75748097_tsc.m3u8
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/ad97b71fe0d8df0e60f7c534fee24132.png" group-title="📦 Khác"  tvg-id="" tvg-name="02:45 24/10 ⚽ Vitoria Guimaraes vs Maritimo (Gà Siêu Nhí) [flv]",02:45 24/10 ⚽ Vitoria Guimaraes vs Maritimo (Gà Siêu Nhí) [flv]
+https://live2.zktsva.app/live/301263.flv
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/ad97b71fe0d8df0e60f7c534fee24132.png" group-title="📦 Khác"  tvg-id="" tvg-name="02:45 24/10 ⚽ Vitoria Guimaraes vs Maritimo (Gà Siêu Nhí) [hls]",02:45 24/10 ⚽ Vitoria Guimaraes vs Maritimo (Gà Siêu Nhí) [hls]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://live2.zktsva.app/live/301263.m3u8
 #EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/lol/team/n54qleou2okvmvy/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="03:00 24/10 🎮 Anyones Legend vs Karmine Corp (MARTY)",03:00 24/10 🎮 Anyones Legend vs Karmine Corp (MARTY)
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
 #EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
@@ -1664,162 +1688,11 @@ https://wtyi0525.edgemaxcdn.org/live/x31-hd-1111/playlist.m3u8
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://gckc0525.edgemaxcdn.org/live/chuoikemhd/playlist.m3u8
-#EXTINF:-1 tvg-logo="https://static.sportsfeed.pro/football/team/144d2ec9191d3ffe5742433c81d1ed5e.png" group-title="📦 Khác"  tvg-id="" tvg-name="15:30 23/10 ⚽ Adelaide City FC vs A.P.I.A. Leichhardt Tigers (A Long) [flv]",15:30 23/10 ⚽ Adelaide City FC vs A.P.I.A. Leichhardt Tigers (A Long) [flv]
-https://playback.livetl002.com/live/69ef10b47146e04fbe6d4363.flv
-#EXTINF:-1 tvg-logo="https://static.sportsfeed.pro/football/team/144d2ec9191d3ffe5742433c81d1ed5e.png" group-title="📦 Khác"  tvg-id="" tvg-name="15:30 23/10 ⚽ Adelaide City FC vs A.P.I.A. Leichhardt Tigers (A Long) [hls]",15:30 23/10 ⚽ Adelaide City FC vs A.P.I.A. Leichhardt Tigers (A Long) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://playback.livetl002.com/live/69ef10b47146e04fbe6d4363.m3u8
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/144d2ec9191d3ffe5742433c81d1ed5e.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="15:30 23/10 ⚽ Adelaide City FC vs APIA Tigers (BLV SPRITE) [flv]",15:30 23/10 ⚽ Adelaide City FC vs APIA Tigers (BLV SPRITE) [flv]
-https://live05.qioetj.app/live/75748097_tsc.flv
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/144d2ec9191d3ffe5742433c81d1ed5e.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="15:30 23/10 ⚽ Adelaide City FC vs APIA Tigers (BLV SPRITE) [hls 2]",15:30 23/10 ⚽ Adelaide City FC vs APIA Tigers (BLV SPRITE) [hls 2]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live05.miekgo.app/live/75748097_tsc.m3u8
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/144d2ec9191d3ffe5742433c81d1ed5e.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="15:30 23/10 ⚽ Adelaide City FC vs APIA Tigers (BLV SPRITE) [hls]",15:30 23/10 ⚽ Adelaide City FC vs APIA Tigers (BLV SPRITE) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live05.qioetj.app/live/75748097_tsc.m3u8
-#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/965mkyh7j52r1ge/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="15:30 23/10 ⚽ Adelaide City vs A.P.I.A. Leichhardt (TOM)",15:30 23/10 ⚽ Adelaide City vs A.P.I.A. Leichhardt (TOM)
-#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
-#EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
-https://live2.jorvakstreamcache.com/live/channel4.flv
-#EXTINF:-1 tvg-logo="https://images.fotmob.com/image_resources/logo/teamlogo/162276.png" group-title="📦 Khác"  tvg-id="" tvg-name="15:30 23/10 ⚽ Adelaide City vs APIA Leichhardt FC (Tít) [hls]",15:30 23/10 ⚽ Adelaide City vs APIA Leichhardt FC (Tít) [hls]
-#EXTVLCOPT:http-referrer=https://sk.mediastation.live/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://wtyi0525.edgemaxcdn.org/live/x2-hd-1111/playlist.m3u8
-#EXTINF:-1 tvg-logo="https://media.chuoichientv.net/media/uploads/20250623_141345_3b263f88.png" group-title="📦 Khác"  tvg-id="" tvg-name="15:30 23/10 ⚽ Adelaide City vs Wests APIA (Chuối Lá) [FHD] [hls]",15:30 23/10 ⚽ Adelaide City vs Wests APIA (Chuối Lá) [FHD] [hls]
-#EXTVLCOPT:http-referrer=https://live.chuoichien.tv/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://gckc0525.edgemaxcdn.org/live/chuoilahd/playlist.m3u8
-#EXTINF:-1 tvg-logo="https://khoga1.livehttps://apiv3.apifootball.com/badges/4717_persipura.jpg" group-title="📦 Khác"  tvg-id="" tvg-name="15:30 23/10 ⚽ Persipura Jayapura vs Balikpapan (BLV Tam Mao) [hls]",15:30 23/10 ⚽ Persipura Jayapura vs Balikpapan (BLV Tam Mao) [hls]
-#EXTVLCOPT:http-referrer=https://khoga1.live/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://khogalive.b-cdn.net/bcdn_token=FK4zR2467DvcA9Fn4dCuA9l8E2pj4aXUFkktxkc6_GM&expires=1855579061&token_path=%2Flive%2Flivehub8/live/livehub8/index.m3u8
-#EXTINF:-1 tvg-logo="https://static.sportsfeed.pro/football/team/3728683390847f335552d077cf0b8752.png" group-title="📦 Khác"  tvg-id="" tvg-name="15:30 23/10 ⚽ South Melbourne vs Sydney United 58 FC (Khang Hi) [flv]",15:30 23/10 ⚽ South Melbourne vs Sydney United 58 FC (Khang Hi) [flv]
-https://playback.livetl002.com/live/6a7c0d8f65997681f18cacc4.flv
-#EXTINF:-1 tvg-logo="https://static.sportsfeed.pro/football/team/3728683390847f335552d077cf0b8752.png" group-title="📦 Khác"  tvg-id="" tvg-name="15:30 23/10 ⚽ South Melbourne vs Sydney United 58 FC (Khang Hi) [hls]",15:30 23/10 ⚽ South Melbourne vs Sydney United 58 FC (Khang Hi) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://playback.livetl002.com/live/6a7c0d8f65997681f18cacc4.m3u8
-#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/4jwq2gh40z5m0ve/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="15:30 23/10 ⚽ South Melbourne vs Sydney United 58 FC (NEMO)",15:30 23/10 ⚽ South Melbourne vs Sydney United 58 FC (NEMO)
-#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
-#EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
-https://live2.jorvakstreamcache.com/live/channel17.flv
-#EXTINF:-1 tvg-logo="https://xoigac.top/images/football/teams/3811.webp" group-title="📦 Khác"  tvg-id="" tvg-name="15:30 23/10 ⚽ South Melbourne vs Sydney United (Phan Pepsi)",15:30 23/10 ⚽ South Melbourne vs Sydney United (Phan Pepsi)
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://freem3u.xyz/static/no-signal/low.m3u8
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/3728683390847f335552d077cf0b8752.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="15:30 23/10 ⚽ South Melbourne vs Sydney Utd (BLV TEPPY) [flv]",15:30 23/10 ⚽ South Melbourne vs Sydney Utd (BLV TEPPY) [flv]
-https://live05.qioetj.app/live/33860426_tsc.flv
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/3728683390847f335552d077cf0b8752.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="15:30 23/10 ⚽ South Melbourne vs Sydney Utd (BLV TEPPY) [hls 2]",15:30 23/10 ⚽ South Melbourne vs Sydney Utd (BLV TEPPY) [hls 2]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live05.miekgo.app/live/33860426_tsc.m3u8
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/3728683390847f335552d077cf0b8752.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="15:30 23/10 ⚽ South Melbourne vs Sydney Utd (BLV TEPPY) [hls]",15:30 23/10 ⚽ South Melbourne vs Sydney Utd (BLV TEPPY) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live05.qioetj.app/live/33860426_tsc.m3u8
 #EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/n54qllh25jvqvy9/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="15:40 24/10 ⚽ Melbourne Victory vs Melbourne City (LÝ LINH LỰC) [geo]",15:40 24/10 ⚽ Melbourne Victory vs Melbourne City (LÝ LINH LỰC) [geo]
 #EXTVLCOPT:http-referrer=https://phalang.live/
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://pull1.digitalcdn.net/live/93072ec7af7844abb3ed670a0b0c86ff/index.m3u8
-#EXTINF:-1 tvg-logo="https://images.fotmob.com/image_resources/logo/teamlogo/8118.png" group-title="📦 Khác"  tvg-id="" tvg-name="16:00 23/10 ⚽ Brisbane Roar FC vs Perth Glory (Mơ) [hls]",16:00 23/10 ⚽ Brisbane Roar FC vs Perth Glory (Mơ) [hls]
-#EXTVLCOPT:http-referrer=https://sk.mediastation.live/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://wtyi0525.edgemaxcdn.org/live/x68-hd-1111/playlist.m3u8
-#EXTINF:-1 tvg-logo="https://images.keovip88.net/images/teams/brisbane-roar.png" group-title="📦 Khác"  tvg-id="" tvg-name="16:00 23/10 ⚽ Brisbane Roar FC vs Perth Glory FC (blv-ty) [hls]",16:00 23/10 ⚽ Brisbane Roar FC vs Perth Glory FC (blv-ty) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://freem3u.xyz/static/no-signal/low.m3u8
-#EXTINF:-1 tvg-logo="https://khoga1.livehttps://apiv3.apifootball.com/badges/399_brisbane-roar-fc.jpg" group-title="📦 Khác"  tvg-id="" tvg-name="16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (BLV Xôi Gấc) [flv]",16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (BLV Xôi Gấc) [flv]
-#EXTVLCOPT:http-referrer=https://khoga1.live/
-https://live.khoga.space/live/livehub11.flv
-#EXTINF:-1 tvg-logo="https://khoga1.livehttps://apiv3.apifootball.com/badges/399_brisbane-roar-fc.jpg" group-title="📦 Khác"  tvg-id="" tvg-name="16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (BLV Xôi Gấc) [hls]",16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (BLV Xôi Gấc) [hls]
-#EXTVLCOPT:http-referrer=https://khoga1.live/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://khogalive.b-cdn.net/bcdn_token=dRYFWOS8NR3jV1Miob0kGctX5UCvdUiohqB83sdbUfM&expires=1855579061&token_path=%2Flive%2Flivehub11/live/livehub11/index.m3u8
-#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/23xmvkh3vxvqg8n/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (BRADY)",16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (BRADY)
-#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
-#EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
-https://live2.jorvakstreamcache.com/live/channel15.flv
-#EXTINF:-1 tvg-logo="https://media.chuoichientv.net/media/uploads/20250623_130442_411732ef.png" group-title="📦 Khác"  tvg-id="" tvg-name="16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (Chuối Nhỏ) [FHD] [hls]",16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (Chuối Nhỏ) [FHD] [hls]
-#EXTVLCOPT:http-referrer=https://live.chuoichien.tv/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://gckc0525.edgemaxcdn.org/live/chuoinhohd/playlist.m3u8
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/1963b39a28bc14ed984423858194208e.png" group-title="📦 Khác"  tvg-id="" tvg-name="16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (Gà Siêu Kiêu) [flv]",16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (Gà Siêu Kiêu) [flv]
-https://live2.zktsva.app/live/741294.flv
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/1963b39a28bc14ed984423858194208e.png" group-title="📦 Khác"  tvg-id="" tvg-name="16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (Gà Siêu Kiêu) [hls]",16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (Gà Siêu Kiêu) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live2.zktsva.app/live/741294.m3u8
-#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/23xmvkh3vxvqg8n/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (LÝ LINH LỰC) [geo]",16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (LÝ LINH LỰC) [geo]
-#EXTVLCOPT:http-referrer=https://phalang.live/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://pull1.digitalcdn.net/live/3e3776bb232248828693f9bdb3a91119/index.m3u8
-#EXTINF:-1 tvg-logo="https://static.sportsfeed.pro/football/team/50822161edbaa30e6dd8399555c4af52.png" group-title="📦 Khác"  tvg-id="" tvg-name="16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (Mán Núi) [flv]",16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (Mán Núi) [flv]
-https://playback.livetl002.com/live/69cf6331585c5992182f4160.flv
-#EXTINF:-1 tvg-logo="https://static.sportsfeed.pro/football/team/50822161edbaa30e6dd8399555c4af52.png" group-title="📦 Khác"  tvg-id="" tvg-name="16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (Mán Núi) [hls]",16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (Mán Núi) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://playback.livetl002.com/live/69cf6331585c5992182f4160.m3u8
-#EXTINF:-1 tvg-logo="https://s8tvkc.top/wp-json/s8-image/56fd66bc-5edb-4e56-a2d8-1d2eb15818c6" group-title="📦 Khác"  tvg-id="" tvg-name="16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (NGƯỜI THỎ) [flv]",16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (NGƯỜI THỎ) [flv]
-https://flv.lauthaitv.cc/live/brisbane-perth-aleague.flv
-#EXTINF:-1 tvg-logo="https://s8tvkc.top/wp-json/s8-image/56fd66bc-5edb-4e56-a2d8-1d2eb15818c6" group-title="📦 Khác"  tvg-id="" tvg-name="16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (NGƯỜI THỎ) [hls]",16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (NGƯỜI THỎ) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://hls.lauthaitv.cc/live/brisbane-perth-aleague/index.m3u8
-#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/23xmvkh3vxvqg8n/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (Nhà đài)",16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (Nhà đài)
-#EXTVLCOPT:http-referrer=https://phalang.live/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://lilive1.eu.cc/live/7d5b9ed12cd223c29f526ca03f638bac/playlist.m3u8
-#EXTINF:-1 tvg-logo="https://xoigac.top/images/football/teams/947.webp" group-title="📦 Khác"  tvg-id="" tvg-name="16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (Raccoon)",16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (Raccoon)
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://freem3u.xyz/static/no-signal/low.m3u8
-#EXTINF:-1 tvg-logo="https://d1c0s7hi3ugzoc.cloudfront.net/teams/brisbane-roar-1238" group-title="📦 Khác"  tvg-id="" tvg-name="16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (SAPPORO) [flv]",16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (SAPPORO) [flv]
-https://cdnflv.xbdbotv.live/live/MTk3NTg4MTY6eGF6NjVwbnRsYnVzMmFsbGFrMXk3bTdyOnh3NXlvdHh3ejBrbHNhdTZjYzl2ZndjaA.flv
-#EXTINF:-1 tvg-logo="https://d1c0s7hi3ugzoc.cloudfront.net/teams/brisbane-roar-1238" group-title="📦 Khác"  tvg-id="" tvg-name="16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (SAPPORO) [hls]",16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (SAPPORO) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://cdnhls.xbdbotv.live/live/MTk3NTg4MTY6eGF6NjVwbnRsYnVzMmFsbGFrMXk3bTdyOnh3NXlvdHh3ejBrbHNhdTZjYzl2ZndjaA/index.m3u8
-#EXTINF:-1 tvg-logo="https://global-cdn.cdnx.tech/football/team/1963b39a28bc14ed984423858194208e.png" group-title="📦 Khác"  tvg-id="" tvg-name="16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (Tào Duệ)",16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (Tào Duệ)
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://cdn1-global.ebaclofen.org/live/pro1/index.m3u8
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/a6bdb997f37f85a411b14348fb35c2ee.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="16:00 23/10 ⚽ CLB Brisbane Roar vs CLB Perth Glory (BLV GIÀ LÀNG) [flv]",16:00 23/10 ⚽ CLB Brisbane Roar vs CLB Perth Glory (BLV GIÀ LÀNG) [flv]
-https://live05.qioetj.app/live/14830711_tsc.flv
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/a6bdb997f37f85a411b14348fb35c2ee.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="16:00 23/10 ⚽ CLB Brisbane Roar vs CLB Perth Glory (BLV GIÀ LÀNG) [hls 2]",16:00 23/10 ⚽ CLB Brisbane Roar vs CLB Perth Glory (BLV GIÀ LÀNG) [hls 2]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live05.miekgo.app/live/14830711_tsc.m3u8
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/a6bdb997f37f85a411b14348fb35c2ee.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="16:00 23/10 ⚽ CLB Brisbane Roar vs CLB Perth Glory (BLV GIÀ LÀNG) [hls]",16:00 23/10 ⚽ CLB Brisbane Roar vs CLB Perth Glory (BLV GIÀ LÀNG) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live05.qioetj.app/live/14830711_tsc.m3u8
-#EXTINF:-1 tvg-logo="https://media.chuoichientv.net/media/20251011_220656_88a30ccd.png" group-title="📦 Khác"  tvg-id="" tvg-name="16:05 23/10 ⚽ Body Queenseis W vs JT Marvelous W (Teppy) [hls]",16:05 23/10 ⚽ Body Queenseis W vs JT Marvelous W (Teppy) [hls]
-#EXTVLCOPT:http-referrer=https://sk.mediastation.live/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://wtyi0525.edgemaxcdn.org/live/x31-hd-1111/playlist.m3u8
-#EXTINF:-1 tvg-logo="https://media.chuoichientv.net/media/20251011_220656_88a30ccd.png" group-title="📦 Khác"  tvg-id="" tvg-name="16:05 23/10 🏐 Body Queenseis W vs JT Marvelous W (Chuối Tây) [FHD] [hls]",16:05 23/10 🏐 Body Queenseis W vs JT Marvelous W (Chuối Tây) [FHD] [hls]
-#EXTVLCOPT:http-referrer=https://live.chuoichien.tv/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://gckc0525.edgemaxcdn.org/live/chuoitayhd/playlist.m3u8
-#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/volleyball/team/9vjxm8lh1j5q6od/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="16:05 23/10 🏐 Nữ Body Queenseis vs Nữ JT Marvelous (TYSON)",16:05 23/10 🏐 Nữ Body Queenseis vs Nữ JT Marvelous (TYSON)
-#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
-#EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
-https://live2.jorvakstreamcache.com/live/channel33.flv
 #EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/77c049e20cd5b3a779fcf70ac08f21c3.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="17:00 23/10 ⚽ Câu lạc bộ bóng đá Dynamo Kyiv vs Lái xe đi (BLV MONSTER) [flv]",17:00 23/10 ⚽ Câu lạc bộ bóng đá Dynamo Kyiv vs Lái xe đi (BLV MONSTER) [flv]
 https://live05.qioetj.app/live/75915087_tsc.flv
 #EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/77c049e20cd5b3a779fcf70ac08f21c3.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="17:00 23/10 ⚽ Câu lạc bộ bóng đá Dynamo Kyiv vs Lái xe đi (BLV MONSTER) [hls 2]",17:00 23/10 ⚽ Câu lạc bộ bóng đá Dynamo Kyiv vs Lái xe đi (BLV MONSTER) [hls 2]
@@ -1842,6 +1715,10 @@ https://playback.livetl002.com/live/6a704ad865997681f18c2160.flv
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://playback.livetl002.com/live/6a704ad865997681f18c2160.m3u8
+#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/pxwrxlh1dd3ryk0/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="17:00 23/10 ⚽ Polissya Zhytomyr vs Obolon Kyiv (HIRO)",17:00 23/10 ⚽ Polissya Zhytomyr vs Obolon Kyiv (HIRO)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
+#EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
+https://live2.jorvakstreamcache.com/live/channel14.flv
 #EXTINF:-1 tvg-logo="https://static.sportsfeed.pro/basketball/team/624b1a84ff50919f44835640108bdd42.png" group-title="📦 Khác"  tvg-id="" tvg-name="17:00 23/10 🏀 Suwon KT Sonicboom vs Wonju Dongbu Promy (Titan) [flv]",17:00 23/10 🏀 Suwon KT Sonicboom vs Wonju Dongbu Promy (Titan) [flv]
 https://playback.livetl002.com/live/69d37c3a4da3e15776b6db56.flv
 #EXTINF:-1 tvg-logo="https://static.sportsfeed.pro/basketball/team/624b1a84ff50919f44835640108bdd42.png" group-title="📦 Khác"  tvg-id="" tvg-name="17:00 23/10 🏀 Suwon KT Sonicboom vs Wonju Dongbu Promy (Titan) [hls]",17:00 23/10 🏀 Suwon KT Sonicboom vs Wonju Dongbu Promy (Titan) [hls]
@@ -1949,14 +1826,15 @@ https://pull1.digitalcdn.net/live/b62704f3fd09424abeed313253e10571/index.m3u8
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://pull1.digitalcdn.net/live/fb5dd8940ca94742a304c211360e09d1/index.m3u8
-#EXTINF:-1 tvg-logo="https://cdn.keobongvip.digital/images/basketball-teams/af8d9f59130550be6228fcd35c70ae11.png" group-title="📦 Khác"  tvg-id="" tvg-name="18:35 23/10 🏀 Beijing Royal Fighters vs Suzhou Dragons Kentier (blv-vit) [hls]",18:35 23/10 🏀 Beijing Royal Fighters vs Suzhou Dragons Kentier (blv-vit) [hls]
+#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/j1l4rjnh06om7vx/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="18:30 24/10 ⚽ Aston Villa vs Man City (Nhà đài)",18:30 24/10 ⚽ Aston Villa vs Man City (Nhà đài)
+#EXTVLCOPT:http-referrer=https://phalang.live/
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
-https://freem3u.xyz/static/no-signal/low.m3u8
+https://lilive1.eu.cc/live/69ca3038c59be70463af528d317ff62f/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/basketball/team/e4wyrn1tpv0q86p/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="18:35 23/10 🏀 Beijing Royal vs Jiangsu Dragons (TOMMY)",18:35 23/10 🏀 Beijing Royal vs Jiangsu Dragons (TOMMY)
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
 #EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
-https://live2.pro2cdnlive.com/live/channel29.flv
+https://live2.jorvakstreamcache.com/live/channel29.flv
 #EXTINF:-1 tvg-logo="https://cdn.keobongvip.digital/images/basketball-teams/e5b2db0dc53319933071f194e099180f.png" group-title="📦 Khác"  tvg-id="" tvg-name="18:35 23/10 🏀 Liaoning Flying Leopards vs SiChuan Jingqiang Blue Whales (blv-cay) [hls]",18:35 23/10 🏀 Liaoning Flying Leopards vs SiChuan Jingqiang Blue Whales (blv-cay) [hls]
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
@@ -1974,17 +1852,7 @@ https://live05.qioetj.app/live/19919577_tsc.m3u8
 #EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/basketball/team/l965mk8t9p0m1ge/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="18:35 23/10 🏀 Tianjin Pioneers vs Guangzhou Lions (ALAN)",18:35 23/10 🏀 Tianjin Pioneers vs Guangzhou Lions (ALAN)
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
 #EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
-https://live2.pro2cdnlive.com/live/channel25.flv
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/basketball/team/ca7a0200923048ff354ddcce89b8f12b.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="18:35 23/10 🏀 Tianjin Pioneers vs Guangzhou Loong Lions (BLV LIPTON) [flv]",18:35 23/10 🏀 Tianjin Pioneers vs Guangzhou Loong Lions (BLV LIPTON) [flv]
-https://live05.qioetj.app/live/89756030_tsc.flv
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/basketball/team/ca7a0200923048ff354ddcce89b8f12b.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="18:35 23/10 🏀 Tianjin Pioneers vs Guangzhou Loong Lions (BLV LIPTON) [hls 2]",18:35 23/10 🏀 Tianjin Pioneers vs Guangzhou Loong Lions (BLV LIPTON) [hls 2]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live05.miekgo.app/live/89756030_tsc.m3u8
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/basketball/team/ca7a0200923048ff354ddcce89b8f12b.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="18:35 23/10 🏀 Tianjin Pioneers vs Guangzhou Loong Lions (BLV LIPTON) [hls]",18:35 23/10 🏀 Tianjin Pioneers vs Guangzhou Loong Lions (BLV LIPTON) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live05.qioetj.app/live/89756030_tsc.m3u8
+https://live2.jorvakstreamcache.com/live/channel25.flv
 #EXTINF:-1 tvg-logo="https://cdn.keobongvip.digital/images/basketball-teams/c95a72565d21fd4797acfbfb63c829e8.PNG" group-title="📦 Khác"  tvg-id="" tvg-name="18:35 23/10 🏀 Tianjin Pioneers vs Guangzhou Loong Lions (blv-vit) [hls]",18:35 23/10 🏀 Tianjin Pioneers vs Guangzhou Loong Lions (blv-vit) [hls]
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
@@ -2026,7 +1894,7 @@ https://live05.qioetj.app/live/87547578_tsc.m3u8
 #EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/tennis/team/318q6jf0gg5ro9j/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="19:00 23/10 🥎 Clement Chidekh vs Francisco Cerundolo (LUCAS)",19:00 23/10 🥎 Clement Chidekh vs Francisco Cerundolo (LUCAS)
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
 #EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
-https://live2.pro2cdnlive.com/live/channel31.flv
+https://live2.jorvakstreamcache.com/live/channel31.flv
 #EXTINF:-1 tvg-logo="https://xoigac.top/images/football/teams/4202.webp" group-title="📦 Khác"  tvg-id="" tvg-name="19:15 23/10 ⚽ DPMM FC Brunei vs Johor Darul Takzim FC (Phan Pepsi)",19:15 23/10 ⚽ DPMM FC Brunei vs Johor Darul Takzim FC (Phan Pepsi)
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
@@ -2079,9 +1947,9 @@ https://live2.zktsva.app/live/304565.flv
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://live2.zktsva.app/live/304565.m3u8
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/4e9f55c1006ca24b2b535054a52187e8.png" group-title="📦 Khác"  tvg-id="" tvg-name="20:30 23/10 ⚽ Al Faisaly vs Al Nassr (Gà Siêu Son) [flv]",20:30 23/10 ⚽ Al Faisaly vs Al Nassr (Gà Siêu Son) [flv]
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/4e9f55c1006ca24b2b535054a52187e8.png" group-title="📦 Khác"  tvg-id="" tvg-name="20:30 23/10 ⚽ Al Faisaly vs Al Nassr (Gà Siêu Son + Gà Siêu Péo) [flv]",20:30 23/10 ⚽ Al Faisaly vs Al Nassr (Gà Siêu Son + Gà Siêu Péo) [flv]
 https://live2.zktsva.app/live/306290.flv
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/4e9f55c1006ca24b2b535054a52187e8.png" group-title="📦 Khác"  tvg-id="" tvg-name="20:30 23/10 ⚽ Al Faisaly vs Al Nassr (Gà Siêu Son) [hls]",20:30 23/10 ⚽ Al Faisaly vs Al Nassr (Gà Siêu Son) [hls]
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/4e9f55c1006ca24b2b535054a52187e8.png" group-title="📦 Khác"  tvg-id="" tvg-name="20:30 23/10 ⚽ Al Faisaly vs Al Nassr (Gà Siêu Son + Gà Siêu Péo) [hls]",20:30 23/10 ⚽ Al Faisaly vs Al Nassr (Gà Siêu Son + Gà Siêu Péo) [hls]
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://live2.zktsva.app/live/306290.m3u8
@@ -2134,10 +2002,6 @@ https://live05.miekgo.app/live/59444581_tsc.m3u8
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://live05.qioetj.app/live/59444581_tsc.m3u8
-#EXTINF:-1 tvg-logo="https://images.keovip88.net/images/teams/buxoro-fk.png" group-title="📦 Khác"  tvg-id="" tvg-name="21:00 23/10 ⚽ Buxoro FK vs Termez Surkhon (blv-beo) [hls]",21:00 23/10 ⚽ Buxoro FK vs Termez Surkhon (blv-beo) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://freem3u.xyz/static/no-signal/low.m3u8
 #EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/78dd333913352de8fc4e8b0834636245.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="21:00 23/10 ⚽ CLB Pakhtakor vs Neftchi Fargona (BLV REDBULL) [flv]",21:00 23/10 ⚽ CLB Pakhtakor vs Neftchi Fargona (BLV REDBULL) [flv]
 https://live05.qioetj.app/live/49572724_tsc.flv
 #EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/78dd333913352de8fc4e8b0834636245.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="21:00 23/10 ⚽ CLB Pakhtakor vs Neftchi Fargona (BLV REDBULL) [hls 2]",21:00 23/10 ⚽ CLB Pakhtakor vs Neftchi Fargona (BLV REDBULL) [hls 2]
@@ -2152,7 +2016,7 @@ https://live05.qioetj.app/live/49572724_tsc.m3u8
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://cdn-global.ebaclofen.org/vsc/vsc-vuong-tu-neil/index.m3u8
-#EXTINF:-1 tvg-logo="https://images.keovip88.net/images/teams/pakhtakor.png" group-title="📦 Khác"  tvg-id="" tvg-name="21:00 23/10 ⚽ Pakhtakor Tashkent vs Neftchi Fargona (blv-tri) [hls]",21:00 23/10 ⚽ Pakhtakor Tashkent vs Neftchi Fargona (blv-tri) [hls]
+#EXTINF:-1 tvg-logo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSgbxqAZiSMPjKtwruEvmFmwSaWL5vAsvCQXPww6Ycb3Q&s=10" group-title="📦 Khác"  tvg-id="" tvg-name="21:00 23/10 ⚽ Istiqlol Dushanbe (TAJ) vs Homs Al Fidaa (SYR) (blv-beo) [hls]",21:00 23/10 ⚽ Istiqlol Dushanbe (TAJ) vs Homs Al Fidaa (SYR) (blv-beo) [hls]
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://freem3u.xyz/static/no-signal/low.m3u8
@@ -2170,6 +2034,10 @@ https://live05.miekgo.app/live/16226575_tsc.m3u8
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://live05.qioetj.app/live/16226575_tsc.m3u8
+#EXTINF:-1 tvg-logo="https://images.keovip88.net/images/teams/al-shamal.png" group-title="📦 Khác"  tvg-id="" tvg-name="21:30 23/10 ⚽ Al-Shamal vs Qatar SC (daucaumu) [hls]",21:30 23/10 ⚽ Al-Shamal vs Qatar SC (daucaumu) [hls]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://freem3u.xyz/static/no-signal/low.m3u8
 #EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/tennis/team/4jwq2pf1vo3m0ve/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="21:30 23/10 🥎 Alexander Bublik vs Karen Khachanov (VIC)",21:30 23/10 🥎 Alexander Bublik vs Karen Khachanov (VIC)
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
 #EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
@@ -2214,7 +2082,7 @@ https://flv.lauthaitv.cc/live/itti-dirai-ksapro.flv
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://hls.lauthaitv.cc/live/itti-dirai-ksapro/index.m3u8
-#EXTINF:-1 tvg-logo="https://images.keovip88.net/images/teams/al-ittihad.png" group-title="📦 Khác"  tvg-id="" tvg-name="22:30 23/10 ⚽ Al Ittihad Jeddah vs Al-Draih (daucaumu) [hls]",22:30 23/10 ⚽ Al Ittihad Jeddah vs Al-Draih (daucaumu) [hls]
+#EXTINF:-1 tvg-logo="https://images.keovip88.net/images/teams/al-ittihad.png" group-title="📦 Khác"  tvg-id="" tvg-name="22:30 23/10 ⚽ Al Ittihad Jeddah vs Al-Draih (blv-ty) [hls]",22:30 23/10 ⚽ Al Ittihad Jeddah vs Al-Draih (blv-ty) [hls]
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://freem3u.xyz/static/no-signal/low.m3u8
@@ -2318,11 +2186,6 @@ https://live05.miekgo.app/live/82054853_tsc.m3u8
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://live05.qioetj.app/live/82054853_tsc.m3u8
-#EXTINF:-1 tvg-logo="https://images.fotmob.com/image_resources/logo/teamlogo/8708.png" group-title="📦 Khác"  tvg-id="" tvg-name="23:30 23/10 ⚽ FK Akhmat vs FC Orenburg (Mơ) [hls]",23:30 23/10 ⚽ FK Akhmat vs FC Orenburg (Mơ) [hls]
-#EXTVLCOPT:http-referrer=https://sk.mediastation.live/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://wtyi0525.edgemaxcdn.org/live/x68-hd-1111/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://global-cdn.cdnx.tech/football/team/da5997a60373a56628e684ae3c16f2c8.png" group-title="📦 Khác"  tvg-id="" tvg-name="23:30 23/10 ⚽ SV Darmstadt 98 vs FC St. Pauli (Dương Kiên)",23:30 23/10 ⚽ SV Darmstadt 98 vs FC St. Pauli (Dương Kiên)
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
@@ -2473,7 +2336,7 @@ http://onair.cdn.tvchosun.com/origin1/_definst_/tvchosun_s1/playlist.m3u8
 #EXTINF:-1 group-title="📦 Khác" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/8/83/TVN_Logo.png" tvg-id="" tvg-name="TVN",TVN
 #EXTVLCOPT:http-referrer=http://broadcast.tvchosun.com/onair/on2.cstv
 http://onair2.cdn.tvchosun.com/origin2/_definst_/tvchosun_s3/playlist.m3u8
-#EXTINF:-1 group-title="📦 Khác"  tvg-id="" tvg-name="Updated 23/10 14:22",Updated 23/10 14:22
+#EXTINF:-1 group-title="📦 Khác"  tvg-id="" tvg-name="Updated 23/10 15:22",Updated 23/10 15:22
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://freem3u.xyz/static/no-signal/low.m3u8
@@ -2481,20 +2344,93 @@ https://freem3u.xyz/static/no-signal/low.m3u8
 https://freem3u.xyz/api/live/play.m3u8?vid=9951
 #EXTINF:-1 tvg-id="youtv" group-title="📦 Khác" tvg-logo="https://img-ali1.tv360.vn/image1/2020_09_23/1600823396313/7b474bf7bbce_640_360.png" tvg-name="YouTV",YouTV
 https://freem3u.xyz/api/live/play.m3u8?vid=31
-#EXTINF:-1 tvg-logo="https://s8tvkc.top/wp-json/s8-image/32c9a193-5305-4afd-9dae-d166e69f46a0" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 15:00 23/10 ⚽ Chernigiv FC vs Ahrobiznes Volochysk (NGƯỜI NHỆN) [flv]",🟡 15:00 23/10 ⚽ Chernigiv FC vs Ahrobiznes Volochysk (NGƯỜI NHỆN) [flv]
-https://flv.lauthaitv.cc/live/chrnig-voloch-ukr1st.flv
-#EXTINF:-1 tvg-logo="https://s8tvkc.top/wp-json/s8-image/32c9a193-5305-4afd-9dae-d166e69f46a0" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 15:00 23/10 ⚽ Chernigiv FC vs Ahrobiznes Volochysk (NGƯỜI NHỆN) [hls]",🟡 15:00 23/10 ⚽ Chernigiv FC vs Ahrobiznes Volochysk (NGƯỜI NHỆN) [hls]
+#EXTINF:-1 tvg-logo="https://images.keovip88.net/images/teams/brisbane-roar.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 16:00 23/10 ⚽ Brisbane Roar FC vs Perth Glory FC (blv-ty) [hls]",🟡 16:00 23/10 ⚽ Brisbane Roar FC vs Perth Glory FC (blv-ty) [hls]
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
-https://hls.lauthaitv.cc/live/chrnig-voloch-ukr1st/index.m3u8
-#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/basketball/team/yl5ergyt69gr8k0/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 15:00 23/10 🏀 Nữ Sydney Uni vs Nữ UC Capitals (TOMMY)",🟡 15:00 23/10 🏀 Nữ Sydney Uni vs Nữ UC Capitals (TOMMY)
+https://freem3u.xyz/static/no-signal/low.m3u8
+#EXTINF:-1 tvg-logo="https://khoga1.livehttps://apiv3.apifootball.com/badges/399_brisbane-roar-fc.jpg" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (BLV Xôi Gấc) [flv]",🟡 16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (BLV Xôi Gấc) [flv]
+#EXTVLCOPT:http-referrer=https://khoga1.live/
+https://live.khoga.space/live/livehub11.flv
+#EXTINF:-1 tvg-logo="https://khoga1.livehttps://apiv3.apifootball.com/badges/399_brisbane-roar-fc.jpg" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (BLV Xôi Gấc) [hls]",🟡 16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (BLV Xôi Gấc) [hls]
+#EXTVLCOPT:http-referrer=https://khoga1.live/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://khogalive.b-cdn.net/bcdn_token=dRYFWOS8NR3jV1Miob0kGctX5UCvdUiohqB83sdbUfM&expires=1855579061&token_path=%2Flive%2Flivehub11/live/livehub11/index.m3u8
+#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/23xmvkh3vxvqg8n/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (BRADY)",🟡 16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (BRADY)
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
 #EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
-https://live2.jorvakstreamcache.com/live/channel29.flv
-#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/ednm9whe4ezryox/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 13:00 23/10 ⚽ Nữ Zhejiang Hangzhou B vs Nữ Shandong Jinghua (ZANE)",🟢 13:00 23/10 ⚽ Nữ Zhejiang Hangzhou B vs Nữ Shandong Jinghua (ZANE)
+https://live2.jorvakstreamcache.com/live/channel15.flv
+#EXTINF:-1 tvg-logo="https://media.chuoichientv.net/media/uploads/20250623_130442_411732ef.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (Chuối Nhỏ) [FHD] [hls]",🟡 16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (Chuối Nhỏ) [FHD] [hls]
+#EXTVLCOPT:http-referrer=https://live.chuoichien.tv/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://gckc0525.edgemaxcdn.org/live/chuoinhohd/playlist.m3u8
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/1963b39a28bc14ed984423858194208e.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (Gà Siêu Kiêu) [flv]",🟡 16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (Gà Siêu Kiêu) [flv]
+https://live2.zktsva.app/live/741294.flv
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/1963b39a28bc14ed984423858194208e.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (Gà Siêu Kiêu) [hls]",🟡 16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (Gà Siêu Kiêu) [hls]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://live2.zktsva.app/live/741294.m3u8
+#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/23xmvkh3vxvqg8n/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (LÝ LINH LỰC) [geo]",🟡 16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (LÝ LINH LỰC) [geo]
+#EXTVLCOPT:http-referrer=https://phalang.live/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://pull1.digitalcdn.net/live/3e3776bb232248828693f9bdb3a91119/index.m3u8
+#EXTINF:-1 tvg-logo="https://static.sportsfeed.pro/football/team/50822161edbaa30e6dd8399555c4af52.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (Mán Núi) [flv]",🟡 16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (Mán Núi) [flv]
+https://playback.livetl002.com/live/69cf6331585c5992182f4160.flv
+#EXTINF:-1 tvg-logo="https://static.sportsfeed.pro/football/team/50822161edbaa30e6dd8399555c4af52.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (Mán Núi) [hls]",🟡 16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (Mán Núi) [hls]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://playback.livetl002.com/live/69cf6331585c5992182f4160.m3u8
+#EXTINF:-1 tvg-logo="https://s8tvkc.top/wp-json/s8-image/56fd66bc-5edb-4e56-a2d8-1d2eb15818c6" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (NGƯỜI THỎ) [flv]",🟡 16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (NGƯỜI THỎ) [flv]
+https://flv.lauthaitv.cc/live/brisbane-perth-aleague.flv
+#EXTINF:-1 tvg-logo="https://s8tvkc.top/wp-json/s8-image/56fd66bc-5edb-4e56-a2d8-1d2eb15818c6" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (NGƯỜI THỎ) [hls]",🟡 16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (NGƯỜI THỎ) [hls]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://hls.lauthaitv.cc/live/brisbane-perth-aleague/index.m3u8
+#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/23xmvkh3vxvqg8n/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (Nhà đài)",🟡 16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (Nhà đài)
+#EXTVLCOPT:http-referrer=https://phalang.live/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://lilive1.eu.cc/live/7d5b9ed12cd223c29f526ca03f638bac/playlist.m3u8
+#EXTINF:-1 tvg-logo="https://xoigac.top/images/football/teams/947.webp" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (Raccoon)",🟡 16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (Raccoon)
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://freem3u.xyz/static/no-signal/low.m3u8
+#EXTINF:-1 tvg-logo="https://d1c0s7hi3ugzoc.cloudfront.net/teams/brisbane-roar-1238" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (SAPPORO) [flv]",🟡 16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (SAPPORO) [flv]
+https://cdnflv.xbdbotv.live/live/MTk3NTg4MTY6eGF6NjVwbnRsYnVzMmFsbGFrMXk3bTdyOnh3NXlvdHh3ejBrbHNhdTZjYzl2ZndjaA.flv
+#EXTINF:-1 tvg-logo="https://d1c0s7hi3ugzoc.cloudfront.net/teams/brisbane-roar-1238" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (SAPPORO) [hls]",🟡 16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (SAPPORO) [hls]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://cdnhls.xbdbotv.live/live/MTk3NTg4MTY6eGF6NjVwbnRsYnVzMmFsbGFrMXk3bTdyOnh3NXlvdHh3ejBrbHNhdTZjYzl2ZndjaA/index.m3u8
+#EXTINF:-1 tvg-logo="https://global-cdn.cdnx.tech/football/team/1963b39a28bc14ed984423858194208e.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (Tào Duệ)",🟡 16:00 23/10 ⚽ Brisbane Roar vs Perth Glory (Tào Duệ)
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://cdn1-global.ebaclofen.org/live/pro1/index.m3u8
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/a6bdb997f37f85a411b14348fb35c2ee.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 16:00 23/10 ⚽ CLB Brisbane Roar vs CLB Perth Glory (BLV GIÀ LÀNG) [flv]",🟡 16:00 23/10 ⚽ CLB Brisbane Roar vs CLB Perth Glory (BLV GIÀ LÀNG) [flv]
+https://live05.qioetj.app/live/14830711_tsc.flv
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/a6bdb997f37f85a411b14348fb35c2ee.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 16:00 23/10 ⚽ CLB Brisbane Roar vs CLB Perth Glory (BLV GIÀ LÀNG) [hls 2]",🟡 16:00 23/10 ⚽ CLB Brisbane Roar vs CLB Perth Glory (BLV GIÀ LÀNG) [hls 2]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://live05.miekgo.app/live/14830711_tsc.m3u8
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/a6bdb997f37f85a411b14348fb35c2ee.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 16:00 23/10 ⚽ CLB Brisbane Roar vs CLB Perth Glory (BLV GIÀ LÀNG) [hls]",🟡 16:00 23/10 ⚽ CLB Brisbane Roar vs CLB Perth Glory (BLV GIÀ LÀNG) [hls]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://live05.qioetj.app/live/14830711_tsc.m3u8
+#EXTINF:-1 tvg-logo="https://media.chuoichientv.net/media/20251011_220656_88a30ccd.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 16:05 23/10 ⚽ Body Queenseis W vs JT Marvelous W (Teppy) [hls]",🟡 16:05 23/10 ⚽ Body Queenseis W vs JT Marvelous W (Teppy) [hls]
+#EXTVLCOPT:http-referrer=https://sk.mediastation.live/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://wtyi0525.edgemaxcdn.org/live/x31-hd-1111/playlist.m3u8
+#EXTINF:-1 tvg-logo="https://media.chuoichientv.net/media/20251011_220656_88a30ccd.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 16:05 23/10 🏐 Body Queenseis W vs JT Marvelous W (Chuối Tây) [FHD] [hls]",🟡 16:05 23/10 🏐 Body Queenseis W vs JT Marvelous W (Chuối Tây) [FHD] [hls]
+#EXTVLCOPT:http-referrer=https://live.chuoichien.tv/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://gckc0525.edgemaxcdn.org/live/chuoitayhd/playlist.m3u8
+#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/volleyball/team/9vjxm8lh1j5q6od/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 16:05 23/10 🏐 Nữ Body Queenseis vs Nữ JT Marvelous (TYSON)",🟡 16:05 23/10 🏐 Nữ Body Queenseis vs Nữ JT Marvelous (TYSON)
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
 #EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
-https://live2.jorvakstreamcache.com/live/channel22.flv
+https://live2.jorvakstreamcache.com/live/channel33.flv
 #EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/tennis/team/zp5rz3f734pm82w/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 13:10 23/10 🥎 Leylah Fernandez vs Ekaterina Alexandrova (VIC)",🟢 13:10 23/10 🥎 Leylah Fernandez vs Ekaterina Alexandrova (VIC)
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
 #EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
@@ -2502,18 +2438,76 @@ https://live2.jorvakstreamcache.com/live/channel32.flv
 #EXTINF:-1 tvg-logo="https://xoigac.tophttps://media.api-sports.io/basketball/teams/4950.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 13:30 23/10 🏀 Mainland Pouakai W vs Tokomanawa Queens W (The Flash)",🟢 13:30 23/10 🏀 Mainland Pouakai W vs Tokomanawa Queens W (The Flash)
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
-https://4ac07980a95d.ap-northeast-1.playback.live-video.net/api/video/v1/ap-northeast-1.256097482755.channel.iFpn0i4HdYfF.m3u8?expires=1792754430&signature=LyzMDBHEWePNmJq-JklOnvAMm_JksAkAu29qT_YBvaE
+https://4ac07980a95d.ap-northeast-1.playback.live-video.net/api/video/v1/ap-northeast-1.256097482755.channel.iFpn0i4HdYfF.m3u8?expires=1792758031&signature=X4c2GXV4cYK-4JQ5kqnXF1sRI-3p83gM4RkUu72nudg
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/fef70eb7dee84d19446f52cb3490fd71.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 14:30 23/10 ⚽ Shanghai Port B vs Hangzhou Linping Wuyue (BLV MONSTER) [flv]",🟢 14:30 23/10 ⚽ Shanghai Port B vs Hangzhou Linping Wuyue (BLV MONSTER) [flv]
+https://live05.qioetj.app/live/75915087_tsc.flv
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/fef70eb7dee84d19446f52cb3490fd71.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 14:30 23/10 ⚽ Shanghai Port B vs Hangzhou Linping Wuyue (BLV MONSTER) [hls 2]",🟢 14:30 23/10 ⚽ Shanghai Port B vs Hangzhou Linping Wuyue (BLV MONSTER) [hls 2]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://live05.miekgo.app/live/75915087_tsc.m3u8
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/fef70eb7dee84d19446f52cb3490fd71.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 14:30 23/10 ⚽ Shanghai Port B vs Hangzhou Linping Wuyue (BLV MONSTER) [hls]",🟢 14:30 23/10 ⚽ Shanghai Port B vs Hangzhou Linping Wuyue (BLV MONSTER) [hls]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://live05.qioetj.app/live/75915087_tsc.m3u8
 #EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/k82rekh3xwgrepz/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 14:30 23/10 ⚽ Shanghai Port B vs Langfang City (SILVA)",🟢 14:30 23/10 ⚽ Shanghai Port B vs Langfang City (SILVA)
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
 #EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
 https://live2.jorvakstreamcache.com/live/channel20.flv
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/fef70eb7dee84d19446f52cb3490fd71.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 14:30 23/10 ⚽ Shanghai Port B vs Thành phố vinh quang Lang Phường (BLV MONSTER) [flv]",🟢 14:30 23/10 ⚽ Shanghai Port B vs Thành phố vinh quang Lang Phường (BLV MONSTER) [flv]
-https://live05.qioetj.app/live/75915087_tsc.flv
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/fef70eb7dee84d19446f52cb3490fd71.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 14:30 23/10 ⚽ Shanghai Port B vs Thành phố vinh quang Lang Phường (BLV MONSTER) [hls 2]",🟢 14:30 23/10 ⚽ Shanghai Port B vs Thành phố vinh quang Lang Phường (BLV MONSTER) [hls 2]
+#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/basketball/team/yl5ergyt69gr8k0/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 15:00 23/10 🏀 Nữ Sydney Uni vs Nữ UC Capitals (TOMMY)",🟢 15:00 23/10 🏀 Nữ Sydney Uni vs Nữ UC Capitals (TOMMY)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
+#EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
+https://live2.jorvakstreamcache.com/live/channel29.flv
+#EXTINF:-1 tvg-logo="https://static.sportsfeed.pro/football/team/144d2ec9191d3ffe5742433c81d1ed5e.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 15:30 23/10 ⚽ Adelaide City FC vs A.P.I.A. Leichhardt Tigers (A Long) [flv]",🟢 15:30 23/10 ⚽ Adelaide City FC vs A.P.I.A. Leichhardt Tigers (A Long) [flv]
+https://playback.livetl002.com/live/69ef10b47146e04fbe6d4363.flv
+#EXTINF:-1 tvg-logo="https://static.sportsfeed.pro/football/team/144d2ec9191d3ffe5742433c81d1ed5e.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 15:30 23/10 ⚽ Adelaide City FC vs A.P.I.A. Leichhardt Tigers (A Long) [hls]",🟢 15:30 23/10 ⚽ Adelaide City FC vs A.P.I.A. Leichhardt Tigers (A Long) [hls]
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live05.miekgo.app/live/75915087_tsc.m3u8
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/fef70eb7dee84d19446f52cb3490fd71.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 14:30 23/10 ⚽ Shanghai Port B vs Thành phố vinh quang Lang Phường (BLV MONSTER) [hls]",🟢 14:30 23/10 ⚽ Shanghai Port B vs Thành phố vinh quang Lang Phường (BLV MONSTER) [hls]
+https://playback.livetl002.com/live/69ef10b47146e04fbe6d4363.m3u8
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/144d2ec9191d3ffe5742433c81d1ed5e.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 15:30 23/10 ⚽ Adelaide City FC vs APIA Tigers (BLV SPRITE) [flv]",🟢 15:30 23/10 ⚽ Adelaide City FC vs APIA Tigers (BLV SPRITE) [flv]
+https://live05.qioetj.app/live/75748097_tsc.flv
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/144d2ec9191d3ffe5742433c81d1ed5e.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 15:30 23/10 ⚽ Adelaide City FC vs APIA Tigers (BLV SPRITE) [hls 2]",🟢 15:30 23/10 ⚽ Adelaide City FC vs APIA Tigers (BLV SPRITE) [hls 2]
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live05.qioetj.app/live/75915087_tsc.m3u8
+https://live05.miekgo.app/live/75748097_tsc.m3u8
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/144d2ec9191d3ffe5742433c81d1ed5e.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 15:30 23/10 ⚽ Adelaide City FC vs APIA Tigers (BLV SPRITE) [hls]",🟢 15:30 23/10 ⚽ Adelaide City FC vs APIA Tigers (BLV SPRITE) [hls]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://live05.qioetj.app/live/75748097_tsc.m3u8
+#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/965mkyh7j52r1ge/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 15:30 23/10 ⚽ Adelaide City vs A.P.I.A. Leichhardt (TOM)",🟢 15:30 23/10 ⚽ Adelaide City vs A.P.I.A. Leichhardt (TOM)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
+#EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
+https://live2.jorvakstreamcache.com/live/channel4.flv
+#EXTINF:-1 tvg-logo="https://images.fotmob.com/image_resources/logo/teamlogo/162276.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 15:30 23/10 ⚽ Adelaide City vs APIA Leichhardt FC (Tít) [hls]",🟢 15:30 23/10 ⚽ Adelaide City vs APIA Leichhardt FC (Tít) [hls]
+#EXTVLCOPT:http-referrer=https://sk.mediastation.live/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://wtyi0525.edgemaxcdn.org/live/x2-hd-1111/playlist.m3u8
+#EXTINF:-1 tvg-logo="https://media.chuoichientv.net/media/uploads/20250623_141345_3b263f88.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 15:30 23/10 ⚽ Adelaide City vs Wests APIA (Chuối Lá) [FHD] [hls]",🟢 15:30 23/10 ⚽ Adelaide City vs Wests APIA (Chuối Lá) [FHD] [hls]
+#EXTVLCOPT:http-referrer=https://live.chuoichien.tv/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://gckc0525.edgemaxcdn.org/live/chuoilahd/playlist.m3u8
+#EXTINF:-1 tvg-logo="https://static.sportsfeed.pro/football/team/3728683390847f335552d077cf0b8752.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 15:30 23/10 ⚽ South Melbourne vs Sydney United 58 FC (Khang Hi) [flv]",🟢 15:30 23/10 ⚽ South Melbourne vs Sydney United 58 FC (Khang Hi) [flv]
+https://playback.livetl002.com/live/6a7c0d8f65997681f18cacc4.flv
+#EXTINF:-1 tvg-logo="https://static.sportsfeed.pro/football/team/3728683390847f335552d077cf0b8752.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 15:30 23/10 ⚽ South Melbourne vs Sydney United 58 FC (Khang Hi) [hls]",🟢 15:30 23/10 ⚽ South Melbourne vs Sydney United 58 FC (Khang Hi) [hls]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://playback.livetl002.com/live/6a7c0d8f65997681f18cacc4.m3u8
+#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/4jwq2gh40z5m0ve/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 15:30 23/10 ⚽ South Melbourne vs Sydney United 58 FC (NEMO)",🟢 15:30 23/10 ⚽ South Melbourne vs Sydney United 58 FC (NEMO)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
+#EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
+https://live2.jorvakstreamcache.com/live/channel17.flv
+#EXTINF:-1 tvg-logo="https://xoigac.top/images/football/teams/3811.webp" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 15:30 23/10 ⚽ South Melbourne vs Sydney United (Phan Pepsi)",🟢 15:30 23/10 ⚽ South Melbourne vs Sydney United (Phan Pepsi)
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://4ac07980a95d.ap-northeast-1.playback.live-video.net/api/video/v1/ap-northeast-1.256097482755.channel.lZcquS2bWe6F.m3u8?expires=1792758033&signature=j_aXs3u7xJLpXOliz75D0BTH2G6qOccLa1Wr_qkwbAE
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/3728683390847f335552d077cf0b8752.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 15:30 23/10 ⚽ South Melbourne vs Sydney Utd (BLV TEPPY) [flv]",🟢 15:30 23/10 ⚽ South Melbourne vs Sydney Utd (BLV TEPPY) [flv]
+https://live05.qioetj.app/live/33860426_tsc.flv
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/3728683390847f335552d077cf0b8752.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 15:30 23/10 ⚽ South Melbourne vs Sydney Utd (BLV TEPPY) [hls 2]",🟢 15:30 23/10 ⚽ South Melbourne vs Sydney Utd (BLV TEPPY) [hls 2]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://live05.miekgo.app/live/33860426_tsc.m3u8
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/3728683390847f335552d077cf0b8752.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 15:30 23/10 ⚽ South Melbourne vs Sydney Utd (BLV TEPPY) [hls]",🟢 15:30 23/10 ⚽ South Melbourne vs Sydney Utd (BLV TEPPY) [hls]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://live05.qioetj.app/live/33860426_tsc.m3u8
