@@ -576,18 +576,18 @@ http://line.watchtivo-8k.com:80/play/live.php?mac=00:1A:79:3F:0C:96&stream=89497
 http://line.watchtivo-8k.com:80/play/live.php?mac=00:1A:79:3F:0C:96&stream=894980&extension=ts&play_token=4ofwEIdTU4
 #EXTINF:-1 group-title="🏆 Thể thao" tvg-logo="https://television.com.ar/wp-content/uploads/2024/01/276279.jpg" tvg-id="" tvg-name="Tyc Sport Argentina",Tyc Sport Argentina
 http://line.watchtivo-8k.com:80/play/live.php?mac=00:1A:79:3F:0C:96&stream=1090711&extension=ts&play_token=jusk0cPyp1
-#EXTINF:-1 group-title="🎬 Phim" tvg-logo="https://img-zlr1.tv360.vn/image1/2026/07/30/10/1785382803894/362700e9107b_640_360.png" tvg-id="" tvg-name="360 Phim 4K",360 Phim 4K
+#EXTINF:-1 tvg-id="360phim4k" group-title="🎬 Phim" tvg-logo="https://img-zlr1.tv360.vn/image1/2026/07/30/10/1785382803894/362700e9107b_640_360.png" tvg-name="360 Phim 4K",360 Phim 4K
 https://vmttv.dpdns.org/tv360/?id=360-phim-4k
-#EXTINF:-1 group-title="🎬 Phim" tvg-logo="https://img-zlr1.tv360.vn/image1/2026/04/09/08/1775697736867/3854900b7263_640_360.png" tvg-id="" tvg-name="360 Phim Hoa Ngữ",360 Phim Hoa Ngữ
+#EXTINF:-1 tvg-id="360phimhoangu" group-title="🎬 Phim" tvg-logo="https://img-zlr1.tv360.vn/image1/2026/04/09/08/1775697736867/3854900b7263_640_360.png" tvg-name="360 Phim Hoa Ngữ",360 Phim Hoa Ngữ
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://vmttv.dpdns.org/tv360/?id=360-hoa-ngu
-#EXTINF:-1 group-title="🎬 Phim" tvg-logo="https://img-zlr1.tv360.vn/image1/2026/04/13/13/1776063200976/6ced2ef539a4_640_360.png" tvg-id="" tvg-name="360 Phim Kinh Điển",360 Phim Kinh Điển
+#EXTINF:-1 tvg-id="360phimkinhdien" group-title="🎬 Phim" tvg-logo="https://img-zlr1.tv360.vn/image1/2026/04/13/13/1776063200976/6ced2ef539a4_640_360.png" tvg-name="360 Phim Kinh Điển",360 Phim Kinh Điển
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://vmttv.dpdns.org/tv360/?id=360-phim-kinh-dien
-#EXTINF:-1 group-title="🎬 Phim" tvg-logo="https://img-zlr1.tv360.vn/image1/2026/04/07/15/1775549899305/f54a93a767c5_640_360.png" tvg-id="" tvg-name="360 Phim Việt",360 Phim Việt
+#EXTINF:-1 tvg-id="360phimviet" group-title="🎬 Phim" tvg-logo="https://img-zlr1.tv360.vn/image1/2026/04/07/15/1775549899305/f54a93a767c5_640_360.png" tvg-name="360 Phim Việt",360 Phim Việt
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://vmttv.dpdns.org/tv360/?id=phim-viet
-#EXTINF:-1 group-title="🎬 Phim" tvg-logo="https://img-zlr1.tv360.vn/image1/2026/04/09/08/1775697767861/9a6dc88794cf_640_360.png" tvg-id="" tvg-name="360 Phim Âu Mỹ",360 Phim Âu Mỹ
+#EXTINF:-1 tvg-id="360phimaumy" group-title="🎬 Phim" tvg-logo="https://img-zlr1.tv360.vn/image1/2026/04/09/08/1775697767861/9a6dc88794cf_640_360.png" tvg-name="360 Phim Âu Mỹ",360 Phim Âu Mỹ
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://vmttv.dpdns.org/tv360/?id=phim-au-my
 #EXTINF:-1 tvg-id="boxhits" group-title="🎬 Phim" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/Logo/refs/heads/main/boxhits.png" tvg-name="Box Hits",Box Hits
@@ -638,7 +638,7 @@ https://amg01868-amg01868c3-tvbanywhere-us-4491.playouts.now.amagi.tv/playlist/a
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=a7c942778e874d43be92b8d0a0cd11b4:6d54358306571658ffdb952c6560688b
 https://livevlisctcdnw.seenow.vn/Live_DASHDRM1/WO/manifest.mpd
-#EXTINF:-1 group-title="👧 Thiếu nhi" tvg-logo="https://img-zlr1.tv360.vn/image1/2026/06/18/13/1781765362332/737c1501b0c5_640_360.png" tvg-id="" tvg-name="360 Thiếu Nhi",360 Thiếu Nhi
+#EXTINF:-1 tvg-id="360thieunhi" group-title="👧 Thiếu nhi" tvg-logo="https://img-zlr1.tv360.vn/image1/2026/06/18/13/1781765362332/737c1501b0c5_640_360.png" tvg-name="360 Thiếu Nhi",360 Thiếu Nhi
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://vmttv.dpdns.org/tv360/?id=360-thieu-nhi
 #EXTINF:-1 tvg-id="babytvhd" group-title="👧 Thiếu nhi" tvg-logo="https://cdn-images.vtv.vn/zoom/700_390/2018/3/23/baby-tv-crop-15217904812391954901115.jpg" tvg-name="BabyTV",BabyTV
@@ -808,19 +808,19 @@ https://freem3u.xyz/api/live/play.m3u8?vid=9852
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key={"keys":[{"kty":"oct","k":"NPGQjP4uBe4GAEbUDxSuyQ","kid":"CG0JpAv/OgCqbdTbr5wTsg"}],"type":"temporary"}
 https://s2129134.cdn.mytvnet.vn/pkg20/live_dzones/wtv.smil/manifest.mpd
-#EXTINF:-1 group-title="📦 Khác" tvg-logo="https://img-zlr1.tv360.vn/image1/2026/04/13/13/1776063223569/462daff06d9d_640_360.png" tvg-id="" tvg-name="360 Anime",360 Anime
+#EXTINF:-1 tvg-id="360anime" group-title="📦 Khác" tvg-logo="https://img-zlr1.tv360.vn/image1/2026/04/13/13/1776063223569/462daff06d9d_640_360.png" tvg-name="360 Anime",360 Anime
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://vmttv.dpdns.org/tv360/?id=360-anime
-#EXTINF:-1 group-title="📦 Khác" tvg-logo="https://img-zlr1.tv360.vn/image1/2026/04/07/15/1775549978212/fcfc9c6d7919_640_360.png" tvg-id="" tvg-name="360 Hoạt hình",360 Hoạt hình
+#EXTINF:-1 tvg-id="360hoathinh" group-title="📦 Khác" tvg-logo="https://img-zlr1.tv360.vn/image1/2026/04/07/15/1775549978212/fcfc9c6d7919_640_360.png" tvg-name="360 Hoạt hình",360 Hoạt hình
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://vmttv.dpdns.org/tv360/?id=hoat-hinh
-#EXTINF:-1 group-title="📦 Khác" tvg-logo="https://img-zlr1.tv360.vn/image1/2026/04/13/13/1776063183880/03439dc9da19_640_360.png" tvg-id="" tvg-name="360 Hài - Tình Cảm",360 Hài - Tình Cảm
+#EXTINF:-1 tvg-id="360haitinhcam" group-title="📦 Khác" tvg-logo="https://img-zlr1.tv360.vn/image1/2026/04/13/13/1776063183880/03439dc9da19_640_360.png" tvg-name="360 Hài - Tình Cảm",360 Hài - Tình Cảm
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://vmttv.dpdns.org/tv360/?id=360-hai-tinh-cam
-#EXTINF:-1 group-title="📦 Khác" tvg-logo="https://img-zlr1.tv360.vn/image1/2026/04/08/10/1775617851169/1f38a5af77c1_640_360.png" tvg-id="" tvg-name="360 Hành Động Châu Á",360 Hành Động Châu Á
+#EXTINF:-1 tvg-id="360hanhdongchaua" group-title="📦 Khác" tvg-logo="https://img-zlr1.tv360.vn/image1/2026/04/08/10/1775617851169/1f38a5af77c1_640_360.png" tvg-name="360 Hành Động Châu Á",360 Hành Động Châu Á
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://vmttv.dpdns.org/tv360/?id=360-hanh-dong-chau-a
-#EXTINF:-1 group-title="📦 Khác" tvg-logo="https://img-zlr1.tv360.vn/image1/2026/04/09/21/1775744591740/79928f9b003f_640_360.png" tvg-id="" tvg-name="360 K-Drama",360 K-Drama
+#EXTINF:-1 tvg-id="360kdrama" group-title="📦 Khác" tvg-logo="https://img-zlr1.tv360.vn/image1/2026/04/09/21/1775744591740/79928f9b003f_640_360.png" tvg-name="360 K-Drama",360 K-Drama
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://vmttv.dpdns.org/tv360/?id=360-k-drama
 #EXTINF:-1 group-title="📦 Khác" tvg-logo="https://images.now-tv.com/shares/channelPreview/img/en_hk/color/ch541_425_305" tvg-id="" tvg-name="CCTV1",CCTV1
