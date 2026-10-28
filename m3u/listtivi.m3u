@@ -135,9 +135,8 @@ https://freem3u.xyz/api/live/play.m3u8?vid=181
 https://freem3u.xyz/api/live/play.m3u8?vid=185
 #EXTINF:-1 tvg-id="ONO2TV.vn@SD" tvg-name="ON O2TV" group-title="📡 VTVCab",ON O2TV
 https://freem3u.xyz/api/live/play.m3u8?vid=136
-#EXTINF:-1 tvg-id="onphimviet" group-title="📡 VTVCab" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/Logo/refs/heads/main/ONPHIMVIET.png" tvg-name="ON Phim Việt",ON Phim Việt
-#EXTVLCOPT:http-user-agent=Dalvik/2.1.0
-https://vmttv.dpdns.org/tv360/?id=vtvcab-2-phim-viet-hd
+#EXTINF:-1 tvg-id="ONPhimViet.vn@SD" tvg-name="ON Phim Việt" group-title="📡 VTVCab",ON Phim Việt
+https://vmttv.dpdns.org/tv360/?id=175
 #EXTINF:-1 tvg-id="onsports" group-title="📡 VTVCab" tvg-logo="https://r2.epg.io.vn/2026-09-17/16.png" tvg-name="On Sports 50fps",On Sports 50fps
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 #KODIPROP:inputstream.adaptive.manifest_type=mpd
@@ -187,7 +186,8 @@ https://freem3u.xyz/api/live/play.m3u8?vid=13
 #EXTINF:-1 tvg-id="HTVCWomen.vn@SD" tvg-name="HTVC Women (720p)" group-title="📡 HTVC",HTVC Women (720p)
 https://dethich.pw/htvcphunu/index.m3u8
 #EXTINF:-1 tvg-id="AnNinhTV.vn@HD" tvg-name="ANTV" group-title="⭐ Thiết yếu",ANTV
-https://freem3u.xyz/api/live/play.m3u8?vid=20
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 16; Pixel 10) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Mobile Safari/537.36
+https://live.tvon.vn/g2/vtv1/video_hd_compat/playlist.m3u8
 #EXTINF:-1 tvg-id="QPVN.vn@HD" tvg-name="QPVN" group-title="⭐ Thiết yếu",QPVN
 https://liveh12.vtvprime.vn/hls/QPTV/index.m3u8
 #EXTINF:-1 tvg-id="angiang1" group-title="🏙️ Địa phương" tvg-logo="https://angiangtv.vn/wp-content/uploads/2025/06/H4.png" tvg-name="An Giang",An Giang
@@ -223,12 +223,10 @@ https://vmttv.dpdns.org/tv360/?id=hung-yen
 https://freem3u.xyz/api/live/play.m3u8?vid=33
 #EXTINF:-1 tvg-id="hanoi2" group-title="🏙️ Địa phương" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/vuminhthanh12/refs/heads/main/H2.jpg" tvg-name="Hà Nội 2",Hà Nội 2
 https://freem3u.xyz/api/live/play.m3u8?vid=34
-#EXTINF:-1 tvg-id="haiphong" group-title="🏙️ Địa phương" tvg-logo="https://upload.wikimedia.org/wikipedia/vi/9/90/THP-Logo.png" tvg-name="Hải Phòng",Hải Phòng
+#EXTINF:-1 tvg-id="haiphong" group-title="🏙️ Địa phương" tvg-logo="https://r2.epg.io.vn/2026-09-17/101.png" tvg-name="Hải Phòng",Hải Phòng
 https://freem3u.xyz/api/live/play.m3u8?vid=60
 #EXTINF:-1 tvg-id="khanhhoa" group-title="🏙️ Địa phương" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/vuminhthanh12/refs/heads/main/KTV_KhanhHoa.png" tvg-name="Khánh Hòa",Khánh Hòa
 https://vmttv.dpdns.org/tv360/?id=khanh-hoa
-#EXTINF:-1 tvg-id="KonTumTV.vn@SD" tvg-name="Kon Tum TV (720p) [Geo-blocked]" group-title="🏙️ Địa phương",Kon Tum TV (720p) [Geo-blocked]
-https://247.dpdns.org/module/IPTV/?id=QNgTV2&accKenh=vuminhthanh1
 #EXTINF:-1 tvg-id="langson" group-title="🏙️ Địa phương" tvg-logo="https://langsontv.vn/templates/frontend/lstv/Assets/img/video_bg.png" tvg-name="LSTV HD - Báo và PTTH Lạng Sơn",LSTV HD - Báo và PTTH Lạng Sơn
 https://stream.langsontv.vn/live/285c78da0c246524c90917842f8de03bd21/chunklist.m3u8
 #EXTINF:-1 tvg-id="lamdong2" group-title="🏙️ Địa phương" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/vuminhthanh12/refs/heads/main/LTV2.jpg" tvg-name="LTV2 HD - Báo và PTTH Lâm Đồng",LTV2 HD - Báo và PTTH Lâm Đồng
@@ -287,8 +285,6 @@ https://vmttv.dpdns.org/tv360/?id=tuyen-quang
 https://live-hq.evgcdn.net/live/2851dc2c9af68834814a89e61db0faee561/chunklist.m3u8
 #EXTINF:-1 tvg-id="vinhlong1hd" group-title="🏙️ Địa phương" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/vuminhthanh12/refs/heads/main/THVL1.webp" tvg-name="Vĩnh Long",Vĩnh Long
 https://freem3u.xyz/api/live/play.m3u8?vid=25
-#EXTINF:-1 tvg-id="DienBienTV.vn@SD" tvg-name="Điện Biên TV (406p)" group-title="🏙️ Địa phương",Điện Biên TV (406p)
-https://truyenhinh.vnptvas.vn/live.m3u8?c=vstv362&deviceId=&deviceType=&gcId=1532&location=NA&pkg=pkg11.hni&q=high&requestTime=1586309420781&time=1586395820&token=LX-ibJYRUq9pflRtYAxfYQ&type=tv&userId=
 #EXTINF:-1 tvg-id="dongnai2" group-title="🏙️ Địa phương" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/vuminhthanh12/refs/heads/main/ĐNNRTV2.png" tvg-name="ĐNNRTV2 - Báo và PTTH Đồng Nai",ĐNNRTV2 - Báo và PTTH Đồng Nai
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://freem3u.xyz/api/live/play.m3u8?vid=255
