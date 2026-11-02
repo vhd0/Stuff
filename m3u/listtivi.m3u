@@ -188,10 +188,6 @@ https://dethich.pw/htvcphunu/index.m3u8
 https://live.tvon.vn/g2/vtv1/video_hd_compat/playlist.m3u8
 #EXTINF:-1 tvg-id="QPVN.vn@HD" tvg-name="QPVN" group-title="⭐ Thiết yếu",QPVN
 https://liveh12.vtvprime.vn/hls/QPTV/index.m3u8
-#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/volleyball/team/zp5rzdhjz82wq82/image/small" group-title="🏙️ Địa phương"  tvg-id="" tvg-name="19:30 02/11 🏐 Hà Nội vs LP Bank Ninh Bình (TYSON)",19:30 02/11 🏐 Hà Nội vs LP Bank Ninh Bình (TYSON)
-#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
-#EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
-https://live2.jorvakstreamcache.com/live/channel33.flv
 #EXTINF:-1 tvg-id="angiang1" group-title="🏙️ Địa phương" tvg-logo="https://angiangtv.vn/wp-content/uploads/2025/06/H4.png" tvg-name="An Giang",An Giang
 https://freem3u.xyz/api/live/play.m3u8?vid=66
 #EXTINF:-1 tvg-id="angiang2" group-title="🏙️ Địa phương" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/vuminhthanh12/refs/heads/main/ATV2.jpg" tvg-name="ATV2 | Báo và PTTH An Giang",ATV2 | Báo và PTTH An Giang
@@ -307,6 +303,10 @@ https://freem3u.xyz/api/live/play.m3u8?vid=53
 #EXTINF:-1 tvg-id="DongThapTV.vn@SD" tvg-name="Đồng Tháp" group-title="🏙️ Địa phương",Đồng Tháp
 https://liveh34.vtvprime.vn/hls/DONGTHAPTV/index.m3u8
 #EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/volleyball/team/3glrwjhwjdydqdy/image/small" group-title="🏙️ Địa phương"  tvg-id="" tvg-name="🟢 17:00 02/11 🏐 Đà Nẵng vs Sanest Khánh Hòa (TYSON)",🟢 17:00 02/11 🏐 Đà Nẵng vs Sanest Khánh Hòa (TYSON)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
+#EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
+https://live2.jorvakstreamcache.com/live/channel33.flv
+#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/volleyball/team/zp5rzdhjz82wq82/image/small" group-title="🏙️ Địa phương"  tvg-id="" tvg-name="🟢 19:30 02/11 🏐 Hà Nội vs LP Bank Ninh Bình (TYSON)",🟢 19:30 02/11 🏐 Hà Nội vs LP Bank Ninh Bình (TYSON)
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
 #EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
 https://live2.jorvakstreamcache.com/live/channel33.flv
@@ -520,11 +520,9 @@ https://freem3u.xyz/static/no-signal/low.m3u8
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://freem3u.xyz/static/no-signal/low.m3u8
-#EXTINF:-1 tvg-id="sd-6MweKj2qW1CXbLzKwd" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/b0ee786578f1e9c7c648c9536197b452.png" group-title="🏆 Thể thao"  tvg-name="17:00 Italian Campionato Primavera 1 Empoli Youth 1-3 Cagliari U20",17:00 Italian Campionato Primavera 1 Empoli Youth 1-3 Cagliari U20
-https://livesport.io.vn/ott/event.php?id=sd-6MweKj2qW1CXbLzKwd
-#EXTINF:-1 tvg-id="sd-6MwdaoRid3NmCUTxQo" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/9e7ae98de79a878ad70d2cb8297aee68.png" group-title="🏆 Thể thao"  tvg-name="18:00 Belarusian First League FC Gomel B 0-0 FK Minsk B",18:00 Belarusian First League FC Gomel B 0-0 FK Minsk B
+#EXTINF:-1 tvg-id="sd-6MwdaoRid3NmCUTxQo" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/9e7ae98de79a878ad70d2cb8297aee68.png" group-title="🏆 Thể thao"  tvg-name="18:00 Belarusian First League FC Gomel B 1-4 FK Minsk B",18:00 Belarusian First League FC Gomel B 1-4 FK Minsk B
 https://livesport.io.vn/ott/event.php?id=sd-6MwdaoRid3NmCUTxQo
-#EXTINF:-1 tvg-id="sd-6MwdaoRiTeHbMVagNT" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/9e7ae98de79a878ad70d2cb8297aee68.png" group-title="🏆 Thể thao"  tvg-name="19:00 Belarusian First League FC Molodechno 0-0 Osipovichy",19:00 Belarusian First League FC Molodechno 0-0 Osipovichy
+#EXTINF:-1 tvg-id="sd-6MwdaoRiTeHbMVagNT" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/9e7ae98de79a878ad70d2cb8297aee68.png" group-title="🏆 Thể thao"  tvg-name="19:00 Belarusian First League FC Molodechno 1-0 Osipovichy",19:00 Belarusian First League FC Molodechno 1-0 Osipovichy
 https://livesport.io.vn/ott/event.php?id=sd-6MwdaoRiTeHbMVagNT
 #EXTINF:-1 tvg-id="sd-6MxiZaJi7YfBCuDQoR" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/eeff411759fcef3be14861e55069675c.png" group-title="🏆 Thể thao"  tvg-name="19:00 Serbian Mozzart Bet Prva Liga Bor 1919 0-0 FK Spartak Subotica",19:00 Serbian Mozzart Bet Prva Liga Bor 1919 0-0 FK Spartak Subotica
 https://livesport.io.vn/ott/event.php?id=sd-6MxiZaJi7YfBCuDQoR
@@ -532,16 +530,6 @@ https://livesport.io.vn/ott/event.php?id=sd-6MxiZaJi7YfBCuDQoR
 https://livesport.io.vn/ott/event.php?id=sd-6MxiZaJi78Utdd8L7Z
 #EXTINF:-1 tvg-id="sd-6MxipX9Fm5AdUDc5vP" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/568f4b544f3d286be88ecffebb132726.png" group-title="🏆 Thể thao"  tvg-name="19:00 Thai League 1 Chonburi FC 0-0 BG Pathum United",19:00 Thai League 1 Chonburi FC 0-0 BG Pathum United
 https://livesport.io.vn/ott/event.php?id=sd-6MxipX9Fm5AdUDc5vP
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/7e92753882d8a918ac49204a5b8e8ef7.png" group-title="🏆 Thể thao"  tvg-id="" tvg-name="19:30 02/11 ⚽ Sportist Svoge vs Ludogorets Razgrad II (Gà Siêu Nhí) [flv]",19:30 02/11 ⚽ Sportist Svoge vs Ludogorets Razgrad II (Gà Siêu Nhí) [flv]
-https://live2.zktsva.app/live/301263.flv
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/7e92753882d8a918ac49204a5b8e8ef7.png" group-title="🏆 Thể thao"  tvg-id="" tvg-name="19:30 02/11 ⚽ Sportist Svoge vs Ludogorets Razgrad II (Gà Siêu Nhí) [hls]",19:30 02/11 ⚽ Sportist Svoge vs Ludogorets Razgrad II (Gà Siêu Nhí) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live2.zktsva.app/live/301263.m3u8
-#EXTINF:-1 tvg-id="sd-6MxiZdWkkJn81PTaud" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/21d45d61bedc9b55780ced7ac5284099.png" group-title="🏆 Thể thao"  tvg-name="19:30 Saudi First Division League Al Orobah 0-0 Al-Anwar Club",19:30 Saudi First Division League Al Orobah 0-0 Al-Anwar Club
-https://livesport.io.vn/ott/event.php?id=sd-6MxiZdWkkJn81PTaud
-#EXTINF:-1 tvg-id="sd-6MxiZdWkkTa3VJmFXD" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/21d45d61bedc9b55780ced7ac5284099.png" group-title="🏆 Thể thao"  tvg-name="19:30 Saudi First Division League Al-Jabalain 0-0 Al Bukayriyah",19:30 Saudi First Division League Al-Jabalain 0-0 Al Bukayriyah
-https://livesport.io.vn/ott/event.php?id=sd-6MxiZdWkkTa3VJmFXD
 #EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/5c794bfbf3227563c85323bb624721ec.png" group-title="🏆 Thể thao"  tvg-id="" tvg-name="23:00 02/11 ⚽ Al-Sadd Sports Club vs Al Ahli SC (Gà Ô Long) [flv]",23:00 02/11 ⚽ Al-Sadd Sports Club vs Al Ahli SC (Gà Ô Long) [flv]
 https://live2.zktsva.app/live/432017.flv
 #EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/5c794bfbf3227563c85323bb624721ec.png" group-title="🏆 Thể thao"  tvg-id="" tvg-name="23:00 02/11 ⚽ Al-Sadd Sports Club vs Al Ahli SC (Gà Ô Long) [hls]",23:00 02/11 ⚽ Al-Sadd Sports Club vs Al Ahli SC (Gà Ô Long) [hls]
@@ -1129,46 +1117,6 @@ https://s2129134.cdn.mytvnet.vn/pkg20/live_dzones/bloomberg.smil/manifest.mpd
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=714cc8ed05a03abb9ac61bd4bbd1d8a0:1acf58ff8d4cd87c2d3c12d22248efb1
 https://s7771.cdn.mytvnet.vn/pkg20/live_dzones/cnn.smil/manifest.mpd
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/ff21a5b966039a14fa4cd721d29b40ee.png!w80" group-title="🌍 Quốc tế"  tvg-id="" tvg-name="19:30 02/11 ⚽ Al Jabalain vs Al Bukayriyah (BLV REDBULL) [flv]",19:30 02/11 ⚽ Al Jabalain vs Al Bukayriyah (BLV REDBULL) [flv]
-https://live05.miekgo.app/live/49572724.flv
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/ff21a5b966039a14fa4cd721d29b40ee.png!w80" group-title="🌍 Quốc tế"  tvg-id="" tvg-name="19:30 02/11 ⚽ Al Jabalain vs Al Bukayriyah (BLV REDBULL) [hls 2]",19:30 02/11 ⚽ Al Jabalain vs Al Bukayriyah (BLV REDBULL) [hls 2]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live05.yefpwmc.app/live/49572724_tsc.m3u8
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/ff21a5b966039a14fa4cd721d29b40ee.png!w80" group-title="🌍 Quốc tế"  tvg-id="" tvg-name="19:30 02/11 ⚽ Al Jabalain vs Al Bukayriyah (BLV REDBULL) [hls]",19:30 02/11 ⚽ Al Jabalain vs Al Bukayriyah (BLV REDBULL) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live05.miekgo.app/live/49572724.m3u8
-#EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261029/eee3ceab5437aa51c9cbd46c49f4ea76.png" group-title="🌍 Quốc tế"  tvg-id="" tvg-name="19:30 02/11 ⚽ Al-Jabalain vs Al Bukayriyah (BLV XO)",19:30 02/11 ⚽ Al-Jabalain vs Al Bukayriyah (BLV XO)
-#EXTVLCOPT:http-referrer=https://sutbong-tv.net/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://freem3u.xyz/static/no-signal/low.m3u8
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/ff21a5b966039a14fa4cd721d29b40ee.png" group-title="🌍 Quốc tế"  tvg-id="" tvg-name="19:30 02/11 ⚽ Al-Jabalain vs Al Bukayriyah (Gà Siêu Kiêu) [flv]",19:30 02/11 ⚽ Al-Jabalain vs Al Bukayriyah (Gà Siêu Kiêu) [flv]
-https://live2.zktsva.app/live/741294.flv
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/ff21a5b966039a14fa4cd721d29b40ee.png" group-title="🌍 Quốc tế"  tvg-id="" tvg-name="19:30 02/11 ⚽ Al-Jabalain vs Al Bukayriyah (Gà Siêu Kiêu) [hls]",19:30 02/11 ⚽ Al-Jabalain vs Al Bukayriyah (Gà Siêu Kiêu) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live2.zktsva.app/live/741294.m3u8
-#EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261029/eee3ceab5437aa51c9cbd46c49f4ea76.png" group-title="🌍 Quốc tế"  tvg-id="" tvg-name="19:30 02/11 ⚽ Al-Jabalain vs Al Bukayriyah (KINH VÂN)",19:30 02/11 ⚽ Al-Jabalain vs Al Bukayriyah (KINH VÂN)
-#EXTVLCOPT:http-referrer=https://sutbong-tv.net/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://freem3u.xyz/static/no-signal/low.m3u8
-#EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261029/eee3ceab5437aa51c9cbd46c49f4ea76.png" group-title="🌍 Quốc tế"  tvg-id="" tvg-name="19:30 02/11 ⚽ Al-Jabalain vs Al Bukayriyah (TRÀ ĐÁ)",19:30 02/11 ⚽ Al-Jabalain vs Al Bukayriyah (TRÀ ĐÁ)
-#EXTVLCOPT:http-referrer=https://sutbong-tv.net/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://freem3u.xyz/static/no-signal/low.m3u8
-#EXTINF:-1 tvg-logo="https://global-cdn.cdnx.tech/football/team/ff21a5b966039a14fa4cd721d29b40ee.png" group-title="🌍 Quốc tế"  tvg-id="" tvg-name="19:30 02/11 ⚽ Al-Jabalain vs Al Bukayriyah (Trần Hoàng)",19:30 02/11 ⚽ Al-Jabalain vs Al Bukayriyah (Trần Hoàng)
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://wncdnhls-global.ebaclofen.org/live/vsc-channel-19.m3u8
-#EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261029/eee3ceab5437aa51c9cbd46c49f4ea76.png" group-title="🌍 Quốc tế"  tvg-id="" tvg-name="19:30 02/11 ⚽ Al-Jabalain vs Al Bukayriyah (VINFAST)",19:30 02/11 ⚽ Al-Jabalain vs Al Bukayriyah (VINFAST)
-#EXTVLCOPT:http-referrer=https://sutbong-tv.net/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://freem3u.xyz/static/no-signal/low.m3u8
 #EXTINF:-1 tvg-logo="17b767b98695df2fb512e992dd8a7af4.webp" group-title="🌍 Quốc tế"  tvg-id="" tvg-name="23:00 02/11 ⚽ Al-Wasl SC vs Al Quwa Al Jawiya (BLV WUKONG)",23:00 02/11 ⚽ Al-Wasl SC vs Al Quwa Al Jawiya (BLV WUKONG)
 #EXTVLCOPT:http-referrer=https://sutbong-tv.net/
 #KODIPROP:inputstream=inputstream.adaptive
@@ -1305,22 +1253,26 @@ https://freem3u.xyz/api/live/play.m3u8?vid=9852
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key={"keys":[{"kty":"oct","k":"NPGQjP4uBe4GAEbUDxSuyQ","kid":"CG0JpAv/OgCqbdTbr5wTsg"}],"type":"temporary"}
 https://s2129134.cdn.mytvnet.vn/pkg20/live_dzones/wtv.smil/manifest.mpd
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/59d954b4e0f648530960462a6ca6a835.png!w80" group-title="🌍 Quốc tế"  tvg-id="" tvg-name="🟢 16:25 02/11 ⚽ Bukhara State University vs Jayhun (BLV BÍ ĐAO) [flv]",🟢 16:25 02/11 ⚽ Bukhara State University vs Jayhun (BLV BÍ ĐAO) [flv]
-https://live05.miekgo.app/live/99121525.flv
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/59d954b4e0f648530960462a6ca6a835.png!w80" group-title="🌍 Quốc tế"  tvg-id="" tvg-name="🟢 16:25 02/11 ⚽ Bukhara State University vs Jayhun (BLV BÍ ĐAO) [hls 2]",🟢 16:25 02/11 ⚽ Bukhara State University vs Jayhun (BLV BÍ ĐAO) [hls 2]
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/ff21a5b966039a14fa4cd721d29b40ee.png!w80" group-title="🌍 Quốc tế"  tvg-id="" tvg-name="🟢 19:30 02/11 ⚽ Al Jabalain vs Al Bukayriyah (BLV REDBULL) [flv]",🟢 19:30 02/11 ⚽ Al Jabalain vs Al Bukayriyah (BLV REDBULL) [flv]
+https://live05.miekgo.app/live/49572724.flv
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/ff21a5b966039a14fa4cd721d29b40ee.png!w80" group-title="🌍 Quốc tế"  tvg-id="" tvg-name="🟢 19:30 02/11 ⚽ Al Jabalain vs Al Bukayriyah (BLV REDBULL) [hls 2]",🟢 19:30 02/11 ⚽ Al Jabalain vs Al Bukayriyah (BLV REDBULL) [hls 2]
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live05.yefpwmc.app/live/99121525_tsc.m3u8
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/59d954b4e0f648530960462a6ca6a835.png!w80" group-title="🌍 Quốc tế"  tvg-id="" tvg-name="🟢 16:25 02/11 ⚽ Bukhara State University vs Jayhun (BLV BÍ ĐAO) [hls]",🟢 16:25 02/11 ⚽ Bukhara State University vs Jayhun (BLV BÍ ĐAO) [hls]
+https://live05.yefpwmc.app/live/49572724_tsc.m3u8
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/ff21a5b966039a14fa4cd721d29b40ee.png!w80" group-title="🌍 Quốc tế"  tvg-id="" tvg-name="🟢 19:30 02/11 ⚽ Al Jabalain vs Al Bukayriyah (BLV REDBULL) [hls]",🟢 19:30 02/11 ⚽ Al Jabalain vs Al Bukayriyah (BLV REDBULL) [hls]
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live05.miekgo.app/live/99121525.m3u8
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/59d954b4e0f648530960462a6ca6a835.png" group-title="🌍 Quốc tế"  tvg-id="" tvg-name="🟢 16:25 02/11 ⚽ Bukhara State University vs QMU Jayxun (Gà Siêu Tồ) [flv]",🟢 16:25 02/11 ⚽ Bukhara State University vs QMU Jayxun (Gà Siêu Tồ) [flv]
-https://live2.zktsva.app/live/796315.flv
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/59d954b4e0f648530960462a6ca6a835.png" group-title="🌍 Quốc tế"  tvg-id="" tvg-name="🟢 16:25 02/11 ⚽ Bukhara State University vs QMU Jayxun (Gà Siêu Tồ) [hls]",🟢 16:25 02/11 ⚽ Bukhara State University vs QMU Jayxun (Gà Siêu Tồ) [hls]
+https://live05.miekgo.app/live/49572724.m3u8
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/ff21a5b966039a14fa4cd721d29b40ee.png" group-title="🌍 Quốc tế"  tvg-id="" tvg-name="🟢 19:30 02/11 ⚽ Al-Jabalain vs Al Bukayriyah (Gà Siêu Kiêu) [flv]",🟢 19:30 02/11 ⚽ Al-Jabalain vs Al Bukayriyah (Gà Siêu Kiêu) [flv]
+https://live2.zktsva.app/live/741294.flv
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/ff21a5b966039a14fa4cd721d29b40ee.png" group-title="🌍 Quốc tế"  tvg-id="" tvg-name="🟢 19:30 02/11 ⚽ Al-Jabalain vs Al Bukayriyah (Gà Siêu Kiêu) [hls]",🟢 19:30 02/11 ⚽ Al-Jabalain vs Al Bukayriyah (Gà Siêu Kiêu) [hls]
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live2.zktsva.app/live/796315.m3u8
+https://live2.zktsva.app/live/741294.m3u8
+#EXTINF:-1 tvg-logo="https://global-cdn.cdnx.tech/football/team/ff21a5b966039a14fa4cd721d29b40ee.png" group-title="🌍 Quốc tế"  tvg-id="" tvg-name="🟢 19:30 02/11 ⚽ Al-Jabalain vs Al Bukayriyah (Trần Hoàng)",🟢 19:30 02/11 ⚽ Al-Jabalain vs Al Bukayriyah (Trần Hoàng)
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://wncdnhls-global.ebaclofen.org/live/vsc-channel-19.m3u8
 #EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261031/77b70c99b3a38c5278f974d313a1a197.png" group-title="📦 Khác"  tvg-id="" tvg-name="00:00 03/11 ⚽ Genclerbirligi vs Alanyaspor (BLV LUCAS)",00:00 03/11 ⚽ Genclerbirligi vs Alanyaspor (BLV LUCAS)
 #EXTVLCOPT:http-referrer=https://sutbong-tv.net/
 #KODIPROP:inputstream=inputstream.adaptive
@@ -1765,26 +1717,6 @@ https://flv.lauthaitv.cc/live/lorient-stade29-ligue1.flv
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://hls.lauthaitv.cc/live/lorient-stade29-ligue1/index.m3u8
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/5dbe320855e3ba772dbce54f940c6fa5.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="03:00 03/11 ⚽ Câu lạc bộ bóng đá Newcastle United vs Everton (BLV 7UP) [flv]",03:00 03/11 ⚽ Câu lạc bộ bóng đá Newcastle United vs Everton (BLV 7UP) [flv]
-https://live05.miekgo.app/live/78905744.flv
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/5dbe320855e3ba772dbce54f940c6fa5.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="03:00 03/11 ⚽ Câu lạc bộ bóng đá Newcastle United vs Everton (BLV 7UP) [hls 2]",03:00 03/11 ⚽ Câu lạc bộ bóng đá Newcastle United vs Everton (BLV 7UP) [hls 2]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live05.yefpwmc.app/live/78905744_tsc.m3u8
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/5dbe320855e3ba772dbce54f940c6fa5.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="03:00 03/11 ⚽ Câu lạc bộ bóng đá Newcastle United vs Everton (BLV 7UP) [hls]",03:00 03/11 ⚽ Câu lạc bộ bóng đá Newcastle United vs Everton (BLV 7UP) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live05.miekgo.app/live/78905744.m3u8
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/5dbe320855e3ba772dbce54f940c6fa5.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="03:00 03/11 ⚽ Câu lạc bộ bóng đá Newcastle United vs Everton (BLV C2) [flv]",03:00 03/11 ⚽ Câu lạc bộ bóng đá Newcastle United vs Everton (BLV C2) [flv]
-https://live05.miekgo.app/live/08552895.flv
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/5dbe320855e3ba772dbce54f940c6fa5.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="03:00 03/11 ⚽ Câu lạc bộ bóng đá Newcastle United vs Everton (BLV C2) [hls 2]",03:00 03/11 ⚽ Câu lạc bộ bóng đá Newcastle United vs Everton (BLV C2) [hls 2]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live05.yefpwmc.app/live/08552895_tsc.m3u8
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/5dbe320855e3ba772dbce54f940c6fa5.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="03:00 03/11 ⚽ Câu lạc bộ bóng đá Newcastle United vs Everton (BLV C2) [hls]",03:00 03/11 ⚽ Câu lạc bộ bóng đá Newcastle United vs Everton (BLV C2) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live05.miekgo.app/live/08552895.m3u8
 #EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/e28443c9a1a5b87394ed79c3690ebbd7.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="03:00 03/11 ⚽ Dep. La Coruna vs Osasuna (BLV SODA) [flv]",03:00 03/11 ⚽ Dep. La Coruna vs Osasuna (BLV SODA) [flv]
 https://live05.miekgo.app/live/02456966.flv
 #EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/e28443c9a1a5b87394ed79c3690ebbd7.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="03:00 03/11 ⚽ Dep. La Coruna vs Osasuna (BLV SODA) [hls 2]",03:00 03/11 ⚽ Dep. La Coruna vs Osasuna (BLV SODA) [hls 2]
@@ -1816,6 +1748,26 @@ https://cdnhls.xbdbotv.live/live/MTk3MzI2NDA6dGljMHIwY2xmNjhsaWxyajl3eDMyeXd6Om1
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://freem3u.xyz/static/no-signal/low.m3u8
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/5dbe320855e3ba772dbce54f940c6fa5.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="03:00 03/11 ⚽ Newcastle United vs Everton (BLV 7UP) [flv]",03:00 03/11 ⚽ Newcastle United vs Everton (BLV 7UP) [flv]
+https://live05.miekgo.app/live/78905744.flv
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/5dbe320855e3ba772dbce54f940c6fa5.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="03:00 03/11 ⚽ Newcastle United vs Everton (BLV 7UP) [hls 2]",03:00 03/11 ⚽ Newcastle United vs Everton (BLV 7UP) [hls 2]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://live05.yefpwmc.app/live/78905744_tsc.m3u8
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/5dbe320855e3ba772dbce54f940c6fa5.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="03:00 03/11 ⚽ Newcastle United vs Everton (BLV 7UP) [hls]",03:00 03/11 ⚽ Newcastle United vs Everton (BLV 7UP) [hls]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://live05.miekgo.app/live/78905744.m3u8
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/5dbe320855e3ba772dbce54f940c6fa5.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="03:00 03/11 ⚽ Newcastle United vs Everton (BLV C2) [flv]",03:00 03/11 ⚽ Newcastle United vs Everton (BLV C2) [flv]
+https://live05.miekgo.app/live/08552895.flv
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/5dbe320855e3ba772dbce54f940c6fa5.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="03:00 03/11 ⚽ Newcastle United vs Everton (BLV C2) [hls 2]",03:00 03/11 ⚽ Newcastle United vs Everton (BLV C2) [hls 2]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://live05.yefpwmc.app/live/08552895_tsc.m3u8
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/5dbe320855e3ba772dbce54f940c6fa5.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="03:00 03/11 ⚽ Newcastle United vs Everton (BLV C2) [hls]",03:00 03/11 ⚽ Newcastle United vs Everton (BLV C2) [hls]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://live05.miekgo.app/live/08552895.m3u8
 #EXTINF:-1 tvg-logo="https://images.keovip88.net/images/teams/newcastle-united.png" group-title="📦 Khác"  tvg-id="" tvg-name="03:00 03/11 ⚽ Newcastle United vs Everton (blv-ben) [hls]",03:00 03/11 ⚽ Newcastle United vs Everton (blv-ben) [hls]
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
@@ -2134,20 +2086,146 @@ https://freem3u.xyz/static/no-signal/low.m3u8
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://freem3u.xyz/static/no-signal/low.m3u8
+#EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261101/6ded4667e60396f5f967d6bf373726e1.png" group-title="📦 Khác"  tvg-id="" tvg-name="07:00 03/11 🏀 Cleveland Cavaliers vs Oklahoma City Thunder (BLV HENRY)",07:00 03/11 🏀 Cleveland Cavaliers vs Oklahoma City Thunder (BLV HENRY)
+#EXTVLCOPT:http-referrer=https://sutbong-tv.net/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://freem3u.xyz/static/no-signal/low.m3u8
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/basketball/team/57c938e35ceb2ee92562a09c4165fb47.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="07:00 03/11 🏀 Cleveland Cavaliers vs Oklahoma City Thunder (BLV ROCKSTAR) [flv]",07:00 03/11 🏀 Cleveland Cavaliers vs Oklahoma City Thunder (BLV ROCKSTAR) [flv]
+https://live05.miekgo.app/live/82054853.flv
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/basketball/team/57c938e35ceb2ee92562a09c4165fb47.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="07:00 03/11 🏀 Cleveland Cavaliers vs Oklahoma City Thunder (BLV ROCKSTAR) [hls 2]",07:00 03/11 🏀 Cleveland Cavaliers vs Oklahoma City Thunder (BLV ROCKSTAR) [hls 2]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://live05.yefpwmc.app/live/82054853_tsc.m3u8
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/basketball/team/57c938e35ceb2ee92562a09c4165fb47.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="07:00 03/11 🏀 Cleveland Cavaliers vs Oklahoma City Thunder (BLV ROCKSTAR) [hls]",07:00 03/11 🏀 Cleveland Cavaliers vs Oklahoma City Thunder (BLV ROCKSTAR) [hls]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://live05.miekgo.app/live/82054853.m3u8
+#EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261101/6ded4667e60396f5f967d6bf373726e1.png" group-title="📦 Khác"  tvg-id="" tvg-name="07:00 03/11 🏀 Cleveland Cavaliers vs Oklahoma City Thunder (CHAN SENA)",07:00 03/11 🏀 Cleveland Cavaliers vs Oklahoma City Thunder (CHAN SENA)
+#EXTVLCOPT:http-referrer=https://sutbong-tv.net/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://freem3u.xyz/static/no-signal/low.m3u8
+#EXTINF:-1 tvg-logo="https://xoigac.top/images/basketball/teams/137.webp" group-title="📦 Khác"  tvg-id="" tvg-name="07:00 03/11 🏀 Cleveland Cavaliers vs Oklahoma City Thunder (The Flash)",07:00 03/11 🏀 Cleveland Cavaliers vs Oklahoma City Thunder (The Flash)
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://freem3u.xyz/static/no-signal/low.m3u8
 #EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/basketball/team/gy0or5gtd87qwzv/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="07:00 03/11 🏀 Cleveland Cavaliers vs Oklahoma City Thunder (TOMMY)",07:00 03/11 🏀 Cleveland Cavaliers vs Oklahoma City Thunder (TOMMY)
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
 #EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
 https://live2.pro2cdnlive.com/live/channel29.flv
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/2d87cf3b426597f02435e2c72e8def93.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="07:15 03/11 ⚽ Atl. Tucuman vs Argentinos Jrs (BLV PEPSI) [flv]",07:15 03/11 ⚽ Atl. Tucuman vs Argentinos Jrs (BLV PEPSI) [flv]
+https://live05.miekgo.app/live/59444581.flv
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/2d87cf3b426597f02435e2c72e8def93.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="07:15 03/11 ⚽ Atl. Tucuman vs Argentinos Jrs (BLV PEPSI) [hls 2]",07:15 03/11 ⚽ Atl. Tucuman vs Argentinos Jrs (BLV PEPSI) [hls 2]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://live05.yefpwmc.app/live/59444581_tsc.m3u8
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/2d87cf3b426597f02435e2c72e8def93.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="07:15 03/11 ⚽ Atl. Tucuman vs Argentinos Jrs (BLV PEPSI) [hls]",07:15 03/11 ⚽ Atl. Tucuman vs Argentinos Jrs (BLV PEPSI) [hls]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://live05.miekgo.app/live/59444581.m3u8
+#EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261031/9133e202db9d5763e3cbf646af1539e2.png" group-title="📦 Khác"  tvg-id="" tvg-name="07:15 03/11 ⚽ Atletico Tucuman vs Argentinos Juniors (BLV ENZO)",07:15 03/11 ⚽ Atletico Tucuman vs Argentinos Juniors (BLV ENZO)
+#EXTVLCOPT:http-referrer=https://sutbong-tv.net/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://freem3u.xyz/static/no-signal/low.m3u8
+#EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261031/9133e202db9d5763e3cbf646af1539e2.png" group-title="📦 Khác"  tvg-id="" tvg-name="07:15 03/11 ⚽ Atletico Tucuman vs Argentinos Juniors (BLV VOI)",07:15 03/11 ⚽ Atletico Tucuman vs Argentinos Juniors (BLV VOI)
+#EXTVLCOPT:http-referrer=https://sutbong-tv.net/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://freem3u.xyz/static/no-signal/low.m3u8
+#EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261031/9133e202db9d5763e3cbf646af1539e2.png" group-title="📦 Khác"  tvg-id="" tvg-name="07:15 03/11 ⚽ Atletico Tucuman vs Argentinos Juniors (BLV YONE)",07:15 03/11 ⚽ Atletico Tucuman vs Argentinos Juniors (BLV YONE)
+#EXTVLCOPT:http-referrer=https://sutbong-tv.net/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://freem3u.xyz/static/no-signal/low.m3u8
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/59c0d1f66ce24214b14ab12ddc9a3ccd.png" group-title="📦 Khác"  tvg-id="" tvg-name="07:15 03/11 ⚽ Atletico Tucuman vs Argentinos Juniors (Gà Siêu Tốc) [flv]",07:15 03/11 ⚽ Atletico Tucuman vs Argentinos Juniors (Gà Siêu Tốc) [flv]
+https://live2.zktsva.app/live/307240.flv
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/59c0d1f66ce24214b14ab12ddc9a3ccd.png" group-title="📦 Khác"  tvg-id="" tvg-name="07:15 03/11 ⚽ Atletico Tucuman vs Argentinos Juniors (Gà Siêu Tốc) [hls]",07:15 03/11 ⚽ Atletico Tucuman vs Argentinos Juniors (Gà Siêu Tốc) [hls]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://live2.zktsva.app/live/307240.m3u8
+#EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261031/9133e202db9d5763e3cbf646af1539e2.png" group-title="📦 Khác"  tvg-id="" tvg-name="07:15 03/11 ⚽ Atletico Tucuman vs Argentinos Juniors (TYPN)",07:15 03/11 ⚽ Atletico Tucuman vs Argentinos Juniors (TYPN)
+#EXTVLCOPT:http-referrer=https://sutbong-tv.net/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://freem3u.xyz/static/no-signal/low.m3u8
+#EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261031/569796f4c82e6b6bd3c971b4495420ea.png" group-title="📦 Khác"  tvg-id="" tvg-name="07:15 03/11 ⚽ Independiente Rivadavia vs CA Banfield (BLV A TINH)",07:15 03/11 ⚽ Independiente Rivadavia vs CA Banfield (BLV A TINH)
+#EXTVLCOPT:http-referrer=https://sutbong-tv.net/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://freem3u.xyz/static/no-signal/low.m3u8
+#EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261031/569796f4c82e6b6bd3c971b4495420ea.png" group-title="📦 Khác"  tvg-id="" tvg-name="07:15 03/11 ⚽ Independiente Rivadavia vs CA Banfield (BLV CÁO)",07:15 03/11 ⚽ Independiente Rivadavia vs CA Banfield (BLV CÁO)
+#EXTVLCOPT:http-referrer=https://sutbong-tv.net/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://freem3u.xyz/static/no-signal/low.m3u8
+#EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261031/569796f4c82e6b6bd3c971b4495420ea.png" group-title="📦 Khác"  tvg-id="" tvg-name="07:15 03/11 ⚽ Independiente Rivadavia vs CA Banfield (BLV KAN)",07:15 03/11 ⚽ Independiente Rivadavia vs CA Banfield (BLV KAN)
+#EXTVLCOPT:http-referrer=https://sutbong-tv.net/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://freem3u.xyz/static/no-signal/low.m3u8
+#EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261031/569796f4c82e6b6bd3c971b4495420ea.png" group-title="📦 Khác"  tvg-id="" tvg-name="07:15 03/11 ⚽ Independiente Rivadavia vs CA Banfield (CHAN ĐÊ)",07:15 03/11 ⚽ Independiente Rivadavia vs CA Banfield (CHAN ĐÊ)
+#EXTVLCOPT:http-referrer=https://sutbong-tv.net/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://freem3u.xyz/static/no-signal/low.m3u8
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/df85f430a4bb46f28cb8a9b2e2aef198.png" group-title="📦 Khác"  tvg-id="" tvg-name="07:15 03/11 ⚽ Independiente Rivadavia vs CA Banfield (Gà Siêu Son) [flv]",07:15 03/11 ⚽ Independiente Rivadavia vs CA Banfield (Gà Siêu Son) [flv]
+https://live2.zktsva.app/live/306290.flv
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/df85f430a4bb46f28cb8a9b2e2aef198.png" group-title="📦 Khác"  tvg-id="" tvg-name="07:15 03/11 ⚽ Independiente Rivadavia vs CA Banfield (Gà Siêu Son) [hls]",07:15 03/11 ⚽ Independiente Rivadavia vs CA Banfield (Gà Siêu Son) [hls]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://live2.zktsva.app/live/306290.m3u8
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/basketball/team/e52f6ac53681289c91703501a960cb3c.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="07:30 03/11 🏀 Charlotte Hornets vs Detroit Pistons (BLV POCARI) [flv]",07:30 03/11 🏀 Charlotte Hornets vs Detroit Pistons (BLV POCARI) [flv]
+https://live05.miekgo.app/live/19919577.flv
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/basketball/team/e52f6ac53681289c91703501a960cb3c.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="07:30 03/11 🏀 Charlotte Hornets vs Detroit Pistons (BLV POCARI) [hls 2]",07:30 03/11 🏀 Charlotte Hornets vs Detroit Pistons (BLV POCARI) [hls 2]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://live05.yefpwmc.app/live/19919577_tsc.m3u8
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/basketball/team/e52f6ac53681289c91703501a960cb3c.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="07:30 03/11 🏀 Charlotte Hornets vs Detroit Pistons (BLV POCARI) [hls]",07:30 03/11 🏀 Charlotte Hornets vs Detroit Pistons (BLV POCARI) [hls]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://live05.miekgo.app/live/19919577.m3u8
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/basketball/team/6f313b682482799762cf60dbc30dbfae.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="07:30 03/11 🏀 Indiana Pacers vs Atlanta Hawks (BLV TARZAAN) [flv]",07:30 03/11 🏀 Indiana Pacers vs Atlanta Hawks (BLV TARZAAN) [flv]
+https://live05.miekgo.app/live/56998120.flv
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/basketball/team/6f313b682482799762cf60dbc30dbfae.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="07:30 03/11 🏀 Indiana Pacers vs Atlanta Hawks (BLV TARZAAN) [hls 2]",07:30 03/11 🏀 Indiana Pacers vs Atlanta Hawks (BLV TARZAAN) [hls 2]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://live05.yefpwmc.app/live/56998120_tsc.m3u8
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/basketball/team/6f313b682482799762cf60dbc30dbfae.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="07:30 03/11 🏀 Indiana Pacers vs Atlanta Hawks (BLV TARZAAN) [hls]",07:30 03/11 🏀 Indiana Pacers vs Atlanta Hawks (BLV TARZAAN) [hls]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://live05.miekgo.app/live/56998120.m3u8
+#EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261101/422783a6098777cac49d01e45999c01f.png" group-title="📦 Khác"  tvg-id="" tvg-name="07:30 03/11 🏀 New York Knicks vs Brooklyn Nets (A CHÈ)",07:30 03/11 🏀 New York Knicks vs Brooklyn Nets (A CHÈ)
+#EXTVLCOPT:http-referrer=https://sutbong-tv.net/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://freem3u.xyz/static/no-signal/low.m3u8
+#EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261101/422783a6098777cac49d01e45999c01f.png" group-title="📦 Khác"  tvg-id="" tvg-name="07:30 03/11 🏀 New York Knicks vs Brooklyn Nets (HUNTER)",07:30 03/11 🏀 New York Knicks vs Brooklyn Nets (HUNTER)
+#EXTVLCOPT:http-referrer=https://sutbong-tv.net/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://freem3u.xyz/static/no-signal/low.m3u8
 #EXTINF:-1 tvg-logo="https://static.sportsfeed.pro/basketball/team/49f8b0ef2ed529b44dba6ebb99a0d5ff.png" group-title="📦 Khác"  tvg-id="" tvg-name="07:30 03/11 🏀 New York Knicks vs Brooklyn Nets (Titan) [flv]",07:30 03/11 🏀 New York Knicks vs Brooklyn Nets (Titan) [flv]
 https://playback.livetl002.com/live/69d37c3a4da3e15776b6db56.flv
 #EXTINF:-1 tvg-logo="https://static.sportsfeed.pro/basketball/team/49f8b0ef2ed529b44dba6ebb99a0d5ff.png" group-title="📦 Khác"  tvg-id="" tvg-name="07:30 03/11 🏀 New York Knicks vs Brooklyn Nets (Titan) [hls]",07:30 03/11 🏀 New York Knicks vs Brooklyn Nets (Titan) [hls]
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://playback.livetl002.com/live/69d37c3a4da3e15776b6db56.m3u8
+#EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261101/90c059f6e5f2a80a80ddfa5e5a8aba16.png" group-title="📦 Khác"  tvg-id="" tvg-name="07:30 03/11 🏀 Orlando Magic vs Washington Wizards (KING)",07:30 03/11 🏀 Orlando Magic vs Washington Wizards (KING)
+#EXTVLCOPT:http-referrer=https://sutbong-tv.net/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://freem3u.xyz/static/no-signal/low.m3u8
 #EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/basketball/team/yl5ergytj4wr8k0/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="07:30 03/11 🏀 Philadelphia 76ers vs Chicago Bulls (ALAN)",07:30 03/11 🏀 Philadelphia 76ers vs Chicago Bulls (ALAN)
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
 #EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
 https://live2.pro2cdnlive.com/live/channel25.flv
+#EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261101/0a7b9de914ea40db524a8e6e39bbad7f.png" group-title="📦 Khác"  tvg-id="" tvg-name="07:30 03/11 🏀 Philadelphia 76ers vs Chicago Bulls (BRIAN)",07:30 03/11 🏀 Philadelphia 76ers vs Chicago Bulls (BRIAN)
+#EXTVLCOPT:http-referrer=https://sutbong-tv.net/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://freem3u.xyz/static/no-signal/low.m3u8
 #EXTINF:-1 tvg-logo="https://s8tvkc.top/wp-json/s8-image/2c9754e1-ff45-4ffc-9660-609ff70f490b" group-title="📦 Khác"  tvg-id="" tvg-name="08:15 03/11 ⚽ Atletico Bucaramanga vs Atletico Nacional Medellin (NGƯỜI SÓI) [flv]",08:15 03/11 ⚽ Atletico Bucaramanga vs Atletico Nacional Medellin (NGƯỜI SÓI) [flv]
 https://flv.lauthaitv.cc/live/buca-mede-cate.flv
 #EXTINF:-1 tvg-logo="https://s8tvkc.top/wp-json/s8-image/2c9754e1-ff45-4ffc-9660-609ff70f490b" group-title="📦 Khác"  tvg-id="" tvg-name="08:15 03/11 ⚽ Atletico Bucaramanga vs Atletico Nacional Medellin (NGƯỜI SÓI) [hls]",08:15 03/11 ⚽ Atletico Bucaramanga vs Atletico Nacional Medellin (NGƯỜI SÓI) [hls]
@@ -2200,26 +2278,26 @@ https://pull.digitalcdn.net/live/3bc2af8b32214605a338f27dbaa14479/index.m3u8
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
 #EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
 https://live2.pro2cdnlive.com/live/channel33.flv
-#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/y0or5jhg362qwzv/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="18:00 03/11 ⚽ Estrela FC U23 vs Santa Clara U23 (LÝ LẠNH LÙNG) (HD2) [geo]",18:00 03/11 ⚽ Estrela FC U23 vs Santa Clara U23 (LÝ LẠNH LÙNG) (HD2) [geo]
+#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/y0or5jhg362qwzv/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="18:00 03/11 ⚽ Estrela FC U23 vs Santa Clara U23 (Unknown) (HD2) [geo]",18:00 03/11 ⚽ Estrela FC U23 vs Santa Clara U23 (Unknown) (HD2) [geo]
 #EXTVLCOPT:http-referrer=https://phalang.live/
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://pull1.digitalcdn.net/live/4a099eb4d1174ff2ab15294191366c28/index.m3u8
-#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/y0or5jhg362qwzv/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="18:00 03/11 ⚽ Estrela FC U23 vs Santa Clara U23 (LÝ LẠNH LÙNG) [geo]",18:00 03/11 ⚽ Estrela FC U23 vs Santa Clara U23 (LÝ LẠNH LÙNG) [geo]
+#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/y0or5jhg362qwzv/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="18:00 03/11 ⚽ Estrela FC U23 vs Santa Clara U23 (Unknown) [geo]",18:00 03/11 ⚽ Estrela FC U23 vs Santa Clara U23 (Unknown) [geo]
 #EXTVLCOPT:http-referrer=https://phalang.live/
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://pull.digitalcdn.net/live/4a099eb4d1174ff2ab15294191366c28/index.m3u8
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/7e92753882d8a918ac49204a5b8e8ef7.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="19:30 02/11 ⚽ Svoge vs Ludogorets II (BLV FANTA) [flv]",19:30 02/11 ⚽ Svoge vs Ludogorets II (BLV FANTA) [flv]
-https://live05.miekgo.app/live/16226575.flv
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/7e92753882d8a918ac49204a5b8e8ef7.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="19:30 02/11 ⚽ Svoge vs Ludogorets II (BLV FANTA) [hls 2]",19:30 02/11 ⚽ Svoge vs Ludogorets II (BLV FANTA) [hls 2]
+#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/e4wyrn4hjy0q86p/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="19:00 03/11 ⚽ Villarreal U19 vs PSG U19 (LÝ LẠNH LÙNG) (HD2) [geo]",19:00 03/11 ⚽ Villarreal U19 vs PSG U19 (LÝ LẠNH LÙNG) (HD2) [geo]
+#EXTVLCOPT:http-referrer=https://phalang.live/
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live05.yefpwmc.app/live/16226575_tsc.m3u8
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/7e92753882d8a918ac49204a5b8e8ef7.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="19:30 02/11 ⚽ Svoge vs Ludogorets II (BLV FANTA) [hls]",19:30 02/11 ⚽ Svoge vs Ludogorets II (BLV FANTA) [hls]
+https://pull1.digitalcdn.net/live/6bce2b330d2f49e18a5be406f95c7cfa/index.m3u8
+#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/e4wyrn4hjy0q86p/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="19:00 03/11 ⚽ Villarreal U19 vs PSG U19 (LÝ LẠNH LÙNG) [geo]",19:00 03/11 ⚽ Villarreal U19 vs PSG U19 (LÝ LẠNH LÙNG) [geo]
+#EXTVLCOPT:http-referrer=https://phalang.live/
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live05.miekgo.app/live/16226575.m3u8
+https://pull.digitalcdn.net/live/6bce2b330d2f49e18a5be406f95c7cfa/index.m3u8
 #EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/78dd333913352de8fc4e8b0834636245.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="20:45 02/11 ⚽ CLB Pakhtakor vs Al-Nassr (BLV C2) [flv]",20:45 02/11 ⚽ CLB Pakhtakor vs Al-Nassr (BLV C2) [flv]
 https://live05.miekgo.app/live/08552895.flv
 #EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/78dd333913352de8fc4e8b0834636245.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="20:45 02/11 ⚽ CLB Pakhtakor vs Al-Nassr (BLV C2) [hls 2]",20:45 02/11 ⚽ CLB Pakhtakor vs Al-Nassr (BLV C2) [hls 2]
@@ -2281,6 +2359,14 @@ https://livecdn321.cdnfastter.xyz/live/live_a7657aeb05/index.m3u8?token=JhV-r8e3
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://freem3u.xyz/static/no-signal/low.m3u8
+#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/dj2ryohk27yq1zp/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="20:45 02/11 ⚽ Pakhtakor vs Al Nassr (FELIX)",20:45 02/11 ⚽ Pakhtakor vs Al Nassr (FELIX)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
+#EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
+https://live2.domaincdn.cc/livecdn/channel-24.flv?auth_key=3000001793622140-0-0-86f0eb6f73a8c49b0b2c5e9633de1dbe
+#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/dj2ryohk27yq1zp/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="20:45 02/11 ⚽ Pakhtakor vs Al Nassr (FULL HD ROY)",20:45 02/11 ⚽ Pakhtakor vs Al Nassr (FULL HD ROY)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
+#EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
+https://live2.domaincdn.cc/livecdn/channel-1.flv?auth_key=3000001793622146-0-0-02a8824df2ded3b5bac3aaecb9bf16d3
 #EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/78dd333913352de8fc4e8b0834636245.png" group-title="📦 Khác"  tvg-id="" tvg-name="20:45 02/11 ⚽ Pakhtakor vs Al Nassr (Gà Siêu Ngố) [flv]",20:45 02/11 ⚽ Pakhtakor vs Al Nassr (Gà Siêu Ngố) [flv]
 https://live2.zktsva.app/live/301238.flv
 #EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/78dd333913352de8fc4e8b0834636245.png" group-title="📦 Khác"  tvg-id="" tvg-name="20:45 02/11 ⚽ Pakhtakor vs Al Nassr (Gà Siêu Ngố) [hls]",20:45 02/11 ⚽ Pakhtakor vs Al Nassr (Gà Siêu Ngố) [hls]
@@ -2319,6 +2405,10 @@ https://lilive1.eu.cc/live/74b2f838605c822f798b7527a714637a/playlist.m3u8
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://freem3u.xyz/static/no-signal/low.m3u8
+#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/dj2ryohk27yq1zp/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="20:45 02/11 ⚽ Pakhtakor vs Al Nassr (ROY)",20:45 02/11 ⚽ Pakhtakor vs Al Nassr (ROY)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
+#EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
+https://live2.jorvakstreamcache.com/live/channel1.flv
 #EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261029/c3ffdd994e4d9bce63d30332747ce967.png" group-title="📦 Khác"  tvg-id="" tvg-name="20:45 02/11 ⚽ Pakhtakor vs Al Nassr (TẠ BIÊN GIỚI)",20:45 02/11 ⚽ Pakhtakor vs Al Nassr (TẠ BIÊN GIỚI)
 #EXTVLCOPT:http-referrer=https://sutbong-tv.net/
 #KODIPROP:inputstream=inputstream.adaptive
@@ -2562,16 +2652,26 @@ https://live05.miekgo.app/live/07808742.m3u8
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
 #EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
 https://live2.jorvakstreamcache.com/live/channel25.flv
-#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/vjxm8gh47epr6od/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="22:00 03/11 ⚽ Al Raed vs Al-Wehda FC (LÝ LÊN LỬA) (HD2) [geo]",22:00 03/11 ⚽ Al Raed vs Al-Wehda FC (LÝ LÊN LỬA) (HD2) [geo]
+#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/vjxm8gh47epr6od/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="22:00 03/11 ⚽ Al Raed vs Al-Wehda FC (Unknown) (HD2) [geo]",22:00 03/11 ⚽ Al Raed vs Al-Wehda FC (Unknown) (HD2) [geo]
 #EXTVLCOPT:http-referrer=https://phalang.live/
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://pull1.digitalcdn.net/live/171517509bc94169b71d20ab2de8d69d/index.m3u8
-#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/vjxm8gh47epr6od/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="22:00 03/11 ⚽ Al Raed vs Al-Wehda FC (LÝ LÊN LỬA) [geo]",22:00 03/11 ⚽ Al Raed vs Al-Wehda FC (LÝ LÊN LỬA) [geo]
+#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/vjxm8gh47epr6od/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="22:00 03/11 ⚽ Al Raed vs Al-Wehda FC (Unknown) [geo]",22:00 03/11 ⚽ Al Raed vs Al-Wehda FC (Unknown) [geo]
 #EXTVLCOPT:http-referrer=https://phalang.live/
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://pull.digitalcdn.net/live/171517509bc94169b71d20ab2de8d69d/index.m3u8
+#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/6ypq3nh0ngkmd7o/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="22:00 03/11 ⚽ Barcelona U19 vs Aston Villa U19 (LÝ LÊN LỬA) (HD2) [geo]",22:00 03/11 ⚽ Barcelona U19 vs Aston Villa U19 (LÝ LÊN LỬA) (HD2) [geo]
+#EXTVLCOPT:http-referrer=https://phalang.live/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://pull1.digitalcdn.net/live/cbcfa8d9fe53443195ebffbbc8972d33/index.m3u8
+#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/6ypq3nh0ngkmd7o/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="22:00 03/11 ⚽ Barcelona U19 vs Aston Villa U19 (LÝ LÊN LỬA) [geo]",22:00 03/11 ⚽ Barcelona U19 vs Aston Villa U19 (LÝ LÊN LỬA) [geo]
+#EXTVLCOPT:http-referrer=https://phalang.live/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://pull.digitalcdn.net/live/cbcfa8d9fe53443195ebffbbc8972d33/index.m3u8
 #EXTINF:-1 tvg-logo="https://xoigac.top/images/football/teams/718.webp" group-title="📦 Khác"  tvg-id="" tvg-name="22:15 02/11 ⚽ Oviedo vs Las Palmas (Black Panther)",22:15 02/11 ⚽ Oviedo vs Las Palmas (Black Panther)
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
@@ -2977,16 +3077,6 @@ https://pull.digitalcdn.net/live/aab6f79f2fe84b599823146be0ed7f37/index.m3u8
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://lilive1.eu.cc/live/249f6b4d8806c8e146c253c2b402a0dd/playlist.m3u8
-#EXTINF:-1 tvg-logo="https://img0.aiscore.com/volleyball/team/509aa9190a2b64dac9ffa248906a94d9.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="23:00 03/11 🏐 Ziraat Bankasi vs Sungurlu (LÝ LIỀU LĨNH) (HD2) [geo]",23:00 03/11 🏐 Ziraat Bankasi vs Sungurlu (LÝ LIỀU LĨNH) (HD2) [geo]
-#EXTVLCOPT:http-referrer=https://phalang.live/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://pull1.digitalcdn.net/live/7140dc4277c44a2ea77dcdef95da4356/index.m3u8
-#EXTINF:-1 tvg-logo="https://img0.aiscore.com/volleyball/team/509aa9190a2b64dac9ffa248906a94d9.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="23:00 03/11 🏐 Ziraat Bankasi vs Sungurlu (LÝ LIỀU LĨNH) [geo]",23:00 03/11 🏐 Ziraat Bankasi vs Sungurlu (LÝ LIỀU LĨNH) [geo]
-#EXTVLCOPT:http-referrer=https://phalang.live/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://pull.digitalcdn.net/live/7140dc4277c44a2ea77dcdef95da4356/index.m3u8
 #EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/volleyball/team/j1l4rjdh7e8r7vx/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="23:00 03/11 🏐 Ziraat Bankasi vs Sungurlu (TYSON)",23:00 03/11 🏐 Ziraat Bankasi vs Sungurlu (TYSON)
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
 #EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
@@ -3078,7 +3168,7 @@ http://onair.cdn.tvchosun.com/origin1/_definst_/tvchosun_s1/playlist.m3u8
 #EXTINF:-1 group-title="📦 Khác" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/8/83/TVN_Logo.png" tvg-id="" tvg-name="TVN",TVN
 #EXTVLCOPT:http-referrer=http://broadcast.tvchosun.com/onair/on2.cstv
 http://onair2.cdn.tvchosun.com/origin2/_definst_/tvchosun_s3/playlist.m3u8
-#EXTINF:-1 group-title="📦 Khác"  tvg-id="" tvg-name="Updated 02/11 18:22",Updated 02/11 18:22
+#EXTINF:-1 group-title="📦 Khác"  tvg-id="" tvg-name="Updated 02/11 19:22",Updated 02/11 19:22
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://freem3u.xyz/static/no-signal/low.m3u8
@@ -3086,142 +3176,6 @@ https://freem3u.xyz/static/no-signal/low.m3u8
 https://freem3u.xyz/api/live/play.m3u8?vid=9951
 #EXTINF:-1 tvg-id="youtv" group-title="📦 Khác" tvg-logo="https://img-ali1.tv360.vn/image1/2020_09_23/1600823396313/7b474bf7bbce_640_360.png" tvg-name="YouTV",YouTV
 https://freem3u.xyz/api/live/play.m3u8?vid=31
-#EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261029/c6a962c3172a802f6ad9f23a24f200cc.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 19:00 02/11 ⚽ Bor 1919 vs FK Spartak Subotica (BLV CHIVAS)",🟡 19:00 02/11 ⚽ Bor 1919 vs FK Spartak Subotica (BLV CHIVAS)
-#EXTVLCOPT:http-referrer=https://sutbong-tv.net/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://freem3u.xyz/static/no-signal/low.m3u8
-#EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261029/c6a962c3172a802f6ad9f23a24f200cc.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 19:00 02/11 ⚽ Bor 1919 vs FK Spartak Subotica (TUẤN CÙI)",🟡 19:00 02/11 ⚽ Bor 1919 vs FK Spartak Subotica (TUẤN CÙI)
-#EXTVLCOPT:http-referrer=https://sutbong-tv.net/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://freem3u.xyz/static/no-signal/low.m3u8
-#EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261029/15e40beff0e0180ae5cf4529b499dc97.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (BLV MESSI)",🟡 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (BLV MESSI)
-#EXTVLCOPT:http-referrer=https://sutbong-tv.net/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://freem3u.xyz/static/no-signal/low.m3u8
-#EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261029/15e40beff0e0180ae5cf4529b499dc97.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (BLV ĐỐM)",🟡 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (BLV ĐỐM)
-#EXTVLCOPT:http-referrer=https://sutbong-tv.net/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://freem3u.xyz/static/no-signal/low.m3u8
-#EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261029/15e40beff0e0180ae5cf4529b499dc97.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (CR Bưởi)",🟡 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (CR Bưởi)
-#EXTVLCOPT:http-referrer=https://sutbong-tv.net/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://freem3u.xyz/static/no-signal/low.m3u8
-#EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261029/15e40beff0e0180ae5cf4529b499dc97.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (CURRY)",🟡 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (CURRY)
-#EXTVLCOPT:http-referrer=https://sutbong-tv.net/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://freem3u.xyz/static/no-signal/low.m3u8
-#EXTINF:-1 tvg-logo="https://static.sportsfeed.pro/football/team/d410490bcdb98830e91041cfa544b809.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (Cố Tư Nghiêm) [flv]",🟡 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (Cố Tư Nghiêm) [flv]
-https://playback.livetl002.com/live/69a1aaa7230584579e2d5ce1.flv
-#EXTINF:-1 tvg-logo="https://static.sportsfeed.pro/football/team/d410490bcdb98830e91041cfa544b809.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (Cố Tư Nghiêm) [hls]",🟡 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (Cố Tư Nghiêm) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://playback.livetl002.com/live/69a1aaa7230584579e2d5ce1.m3u8
-#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/1l4rjnh61z5m7vx/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (FABIO)",🟡 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (FABIO)
-#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
-#EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
-https://live2.jorvakstreamcache.com/live/channel2.flv
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/d410490bcdb98830e91041cfa544b809.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (Gà Ô Long) [flv]",🟡 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (Gà Ô Long) [flv]
-https://live2.zktsva.app/live/432017.flv
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/d410490bcdb98830e91041cfa544b809.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (Gà Ô Long) [hls]",🟡 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (Gà Ô Long) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live2.zktsva.app/live/432017.m3u8
-#EXTINF:-1 tvg-logo="https://xoigac.top/images/football/teams/2772.webp" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (Hawkeye)",🟡 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (Hawkeye)
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://freem3u.xyz/static/no-signal/low.m3u8
-#EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261029/15e40beff0e0180ae5cf4529b499dc97.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (HẢI THANH)",🟡 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (HẢI THANH)
-#EXTVLCOPT:http-referrer=https://sutbong-tv.net/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://freem3u.xyz/static/no-signal/low.m3u8
-#EXTINF:-1 tvg-logo="https://global-cdn.cdnx.tech/football/team/d410490bcdb98830e91041cfa544b809.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (Lê Hoàn)",🟡 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (Lê Hoàn)
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://wncdnhls-global.ebaclofen.org/live/vsc-channel-5.m3u8
-#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/1l4rjnh61z5m7vx/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (LÝ LẠNH LÙNG) (HD2) [geo]",🟡 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (LÝ LẠNH LÙNG) (HD2) [geo]
-#EXTVLCOPT:http-referrer=https://phalang.live/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://pull1.digitalcdn.net/live/b94b0f929dc34b988c70171b86858860/index.m3u8
-#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/1l4rjnh61z5m7vx/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (LÝ LẠNH LÙNG) [geo]",🟡 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (LÝ LẠNH LÙNG) [geo]
-#EXTVLCOPT:http-referrer=https://phalang.live/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://pull.digitalcdn.net/live/b94b0f929dc34b988c70171b86858860/index.m3u8
-#EXTINF:-1 tvg-logo="https://s8tvkc.top/wp-json/s8-image/c334bcf4-e54f-4089-be51-97cad5802d97" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (NGƯỜI CHIẾN) [flv]",🟡 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (NGƯỜI CHIẾN) [flv]
-https://flv.lauthaitv.cc/live/chonburi-pathum-thait1.flv
-#EXTINF:-1 tvg-logo="https://s8tvkc.top/wp-json/s8-image/c334bcf4-e54f-4089-be51-97cad5802d97" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (NGƯỜI CHIẾN) [hls]",🟡 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (NGƯỜI CHIẾN) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://hls.lauthaitv.cc/live/chonburi-pathum-thait1/index.m3u8
-#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/1l4rjnh61z5m7vx/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (Nhà đài)",🟡 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (Nhà đài)
-#EXTVLCOPT:http-referrer=https://phalang.live/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://lilive1.eu.cc/live/9cd74e8bd06f1f67af301b31c7375683/playlist.m3u8
-#EXTINF:-1 tvg-logo="https://images.fotmob.com/image_resources/logo/teamlogo/109378.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (Teppy) [hls]",🟡 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (Teppy) [hls]
-#EXTVLCOPT:http-referrer=https://sk.mediastation.live/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://wtyi0525.edgemaxcdn.org/live/x31-hd-1111/playlist.m3u8
-#EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261029/15e40beff0e0180ae5cf4529b499dc97.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (THẠCH TÚ)",🟡 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (THẠCH TÚ)
-#EXTVLCOPT:http-referrer=https://sutbong-tv.net/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://freem3u.xyz/static/no-signal/low.m3u8
-#EXTINF:-1 tvg-logo="https://media.chuoichientv.net/media/uploads/20250623_131737_5298595d.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 19:00 02/11 ⚽ Chonburi FC vs Pathum United (Chuối Kem) [FHD] [hls]",🟡 19:00 02/11 ⚽ Chonburi FC vs Pathum United (Chuối Kem) [FHD] [hls]
-#EXTVLCOPT:http-referrer=https://live.chuoichien.tv/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://gckc0525.edgemaxcdn.org/live/chuoikemhd/playlist.m3u8
-#EXTINF:-1 tvg-logo="https://apiv3.apifootball.com/badges/7572_chonburi.jpg" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 19:00 02/11 ⚽ Chonburi vs Pathum United (BLV Tam Mao) [hls]",🟡 19:00 02/11 ⚽ Chonburi vs Pathum United (BLV Tam Mao) [hls]
-#EXTVLCOPT:http-referrer=https://khoga1.live/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://livecdn321.cdnfastter.xyz/live/live_65629930db/index.m3u8?token=daKfQOAqMEgkhrfCGDxiHdGWXsymB2dcncgmNkMoACY&expires=1852800615
-#EXTINF:-1 tvg-logo="https://xoigac.top/images/football/teams/25379.webp" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 19:00 02/11 ⚽ FAR Rabat W vs Kawempe Muslim W (Super Man)",🟡 19:00 02/11 ⚽ FAR Rabat W vs Kawempe Muslim W (Super Man)
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://freem3u.xyz/static/no-signal/low.m3u8
-#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/2y8m4zhg3nlql07/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 19:00 02/11 ⚽ FK Graficar Beograd vs FK Napredak (KEN)",🟡 19:00 02/11 ⚽ FK Graficar Beograd vs FK Napredak (KEN)
-#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
-#EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
-https://live2.jorvakstreamcache.com/live/channel18.flv
-#EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261029/eb3b7784b74c0ee3e6cb1c1d66232e4c.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 19:00 02/11 ⚽ FK Graficar Beograd vs FK Napredak Krusevac (BLV ALEX)",🟡 19:00 02/11 ⚽ FK Graficar Beograd vs FK Napredak Krusevac (BLV ALEX)
-#EXTVLCOPT:http-referrer=https://sutbong-tv.net/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://freem3u.xyz/static/no-signal/low.m3u8
-#EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261029/eb3b7784b74c0ee3e6cb1c1d66232e4c.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 19:00 02/11 ⚽ FK Graficar Beograd vs FK Napredak Krusevac (BLV ANH TÀI)",🟡 19:00 02/11 ⚽ FK Graficar Beograd vs FK Napredak Krusevac (BLV ANH TÀI)
-#EXTVLCOPT:http-referrer=https://sutbong-tv.net/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://freem3u.xyz/static/no-signal/low.m3u8
-#EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261029/340efb011bc9efbff6c215340d55bd3f.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 19:00 02/11 ⚽ Teleoptik vs FK Javor Ivanjica (5 LỬA)",🟡 19:00 02/11 ⚽ Teleoptik vs FK Javor Ivanjica (5 LỬA)
-#EXTVLCOPT:http-referrer=https://sutbong-tv.net/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://freem3u.xyz/static/no-signal/low.m3u8
-#EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261029/340efb011bc9efbff6c215340d55bd3f.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 19:00 02/11 ⚽ Teleoptik vs FK Javor Ivanjica (PEANUT)",🟡 19:00 02/11 ⚽ Teleoptik vs FK Javor Ivanjica (PEANUT)
-#EXTVLCOPT:http-referrer=https://sutbong-tv.net/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://freem3u.xyz/static/no-signal/low.m3u8
-#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/tennis/team/4jwq2pfx9x6m0ve/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 19:20 02/11 🥎 Cameron Norrie vs Matteo Arnaldi (VIC)",🟡 19:20 02/11 🥎 Cameron Norrie vs Matteo Arnaldi (VIC)
-#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
-#EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
-https://live2.jorvakstreamcache.com/live/channel32.flv
-#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/tennis/team/vjxm85fpv09m6od/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 19:20 02/11 🥎 Casper Ruud vs Juan Manuel Cerundolo (LUCAS)",🟡 19:20 02/11 🥎 Casper Ruud vs Juan Manuel Cerundolo (LUCAS)
-#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
-#EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
-https://live2.jorvakstreamcache.com/live/channel31.flv
 #EXTINF:-1 tvg-logo="/media/matches/ballon_dor_2024.jpg" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 02:00 27/10 ⚽ Lễ Trao Giải vs Quả Bóng Vàng 2026 (BLV Tam Mao) [hls]",🟢 02:00 27/10 ⚽ Lễ Trao Giải vs Quả Bóng Vàng 2026 (BLV Tam Mao) [hls]
 #EXTVLCOPT:http-referrer=https://khoga1.live/
 #KODIPROP:inputstream=inputstream.adaptive
@@ -3231,30 +3185,6 @@ https://livecdn321.cdnfastter.xyz/live/live_65629930db/index.m3u8?token=daKfQOAq
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
 #EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
 https://live2.jorvakstreamcache.com/live/channel33.flv
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/ba333b6635e4a6683a519fffe65b6f12.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 17:00 02/11 ⚽ Empoli U19 vs Cagliari U19 (BLV FANTA) [flv]",🟢 17:00 02/11 ⚽ Empoli U19 vs Cagliari U19 (BLV FANTA) [flv]
-https://live05.miekgo.app/live/16226575.flv
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/ba333b6635e4a6683a519fffe65b6f12.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 17:00 02/11 ⚽ Empoli U19 vs Cagliari U19 (BLV FANTA) [hls 2]",🟢 17:00 02/11 ⚽ Empoli U19 vs Cagliari U19 (BLV FANTA) [hls 2]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live05.yefpwmc.app/live/16226575_tsc.m3u8
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/ba333b6635e4a6683a519fffe65b6f12.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 17:00 02/11 ⚽ Empoli U19 vs Cagliari U19 (BLV FANTA) [hls]",🟢 17:00 02/11 ⚽ Empoli U19 vs Cagliari U19 (BLV FANTA) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live05.miekgo.app/live/16226575.m3u8
-#EXTINF:-1 tvg-logo="https://cdn.keobongvip.digital/images/basketball-teams/a322b3f45e8fc272b36c48003e467f20.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 17:00 02/11 🏀 Daegu KoGas Pegasus vs Anyang Jung Kwan Jang Red Boosters (Cận) [hls]",🟢 17:00 02/11 🏀 Daegu KoGas Pegasus vs Anyang Jung Kwan Jang Red Boosters (Cận) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://pzhgifbkllliv.vcdn.cloud/1793510195_hd/1793510195_hd@720p.m3u8
-#EXTINF:-1 tvg-logo="https://static.sportsfeed.pro/basketball/team/64656d413393bbf84730b123a43cb876.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 17:00 02/11 🏀 Daegu KOGAS Pegasus vs Anyang JungKwanJang Red Boosters (Titan) [flv]",🟢 17:00 02/11 🏀 Daegu KOGAS Pegasus vs Anyang JungKwanJang Red Boosters (Titan) [flv]
-https://playback.livetl002.com/live/69d37c3a4da3e15776b6db56.flv
-#EXTINF:-1 tvg-logo="https://static.sportsfeed.pro/basketball/team/64656d413393bbf84730b123a43cb876.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 17:00 02/11 🏀 Daegu KOGAS Pegasus vs Anyang JungKwanJang Red Boosters (Titan) [hls]",🟢 17:00 02/11 🏀 Daegu KOGAS Pegasus vs Anyang JungKwanJang Red Boosters (Titan) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://playback.livetl002.com/live/69d37c3a4da3e15776b6db56.m3u8
-#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/basketball/team/z318q6ntd12mo9j/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 17:00 02/11 🏀 Daegu KOGAS vs Anyang JungKwanJang (KOBE)",🟢 17:00 02/11 🏀 Daegu KOGAS vs Anyang JungKwanJang (KOBE)
-#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
-#EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
-https://live2.jorvakstreamcache.com/live/channel27.flv
 #EXTINF:-1 tvg-logo="https://media.chuoichientv.net/media/uploads/20250623_134019_adea8faa.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 17:45 02/11 ⚽ Talant vs Asia Talas (Chuối Nhỏ) [FHD] [hls]",🟢 17:45 02/11 ⚽ Talant vs Asia Talas (Chuối Nhỏ) [FHD] [hls]
 #EXTVLCOPT:http-referrer=https://live.chuoichien.tv/
 #KODIPROP:inputstream=inputstream.adaptive
@@ -3269,16 +3199,6 @@ https://wtyi0525.edgemaxcdn.org/live/x00-hd-1111/playlist.m3u8
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
 #EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
 https://live2.jorvakstreamcache.com/live/channel19.flv
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/af3ce39628baa47fdcac155123ed60e5.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 18:00 02/11 ⚽ FK Zorya Luhansk vs Dunaivtsi (BLV MONSTER) [flv]",🟢 18:00 02/11 ⚽ FK Zorya Luhansk vs Dunaivtsi (BLV MONSTER) [flv]
-https://live05.miekgo.app/live/75915087.flv
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/af3ce39628baa47fdcac155123ed60e5.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 18:00 02/11 ⚽ FK Zorya Luhansk vs Dunaivtsi (BLV MONSTER) [hls 2]",🟢 18:00 02/11 ⚽ FK Zorya Luhansk vs Dunaivtsi (BLV MONSTER) [hls 2]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live05.yefpwmc.app/live/75915087_tsc.m3u8
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/af3ce39628baa47fdcac155123ed60e5.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 18:00 02/11 ⚽ FK Zorya Luhansk vs Dunaivtsi (BLV MONSTER) [hls]",🟢 18:00 02/11 ⚽ FK Zorya Luhansk vs Dunaivtsi (BLV MONSTER) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live05.miekgo.app/live/75915087.m3u8
 #EXTINF:-1 tvg-logo="https://apiv3.apifootball.com/badges/7798_kryvbas-kr.jpg" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 18:00 02/11 ⚽ Kryvbas vs Dyn. Kyiv (BLV Xôi Gấc) [flv]",🟢 18:00 02/11 ⚽ Kryvbas vs Dyn. Kyiv (BLV Xôi Gấc) [flv]
 #EXTVLCOPT:http-referrer=https://khoga1.live/
 https://live.khoga.space/live/livehub11.flv
@@ -3297,12 +3217,6 @@ https://hls.lauthaitv.cc/live/kryv-kyiv-ukrprem/index.m3u8
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
 #EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
 https://live2.jorvakstreamcache.com/live/channel22.flv
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/fbfddae9d91eaec3d22dd56c95f4067f.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 18:00 02/11 ⚽ Zorya vs FK Epitsentr Dunayivtsi (Gà Siêu Mõm) [flv]",🟢 18:00 02/11 ⚽ Zorya vs FK Epitsentr Dunayivtsi (Gà Siêu Mõm) [flv]
-https://live2.zktsva.app/live/300523.flv
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/fbfddae9d91eaec3d22dd56c95f4067f.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 18:00 02/11 ⚽ Zorya vs FK Epitsentr Dunayivtsi (Gà Siêu Mõm) [hls]",🟢 18:00 02/11 ⚽ Zorya vs FK Epitsentr Dunayivtsi (Gà Siêu Mõm) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live2.zktsva.app/live/300523.m3u8
 #EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/4jwq2gh4107m0ve/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 18:00 02/11 ⚽ Zorya vs FK Epitsentr Dunayivtsi (HIRO)",🟢 18:00 02/11 ⚽ Zorya vs FK Epitsentr Dunayivtsi (HIRO)
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
 #EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
@@ -3398,6 +3312,66 @@ https://live05.miekgo.app/live/19919577.m3u8
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
 #EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
 https://live2.jorvakstreamcache.com/live/channel29.flv
+#EXTINF:-1 tvg-logo="https://static.sportsfeed.pro/football/team/d410490bcdb98830e91041cfa544b809.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (Cố Tư Nghiêm) [flv]",🟢 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (Cố Tư Nghiêm) [flv]
+https://playback.livetl002.com/live/69a1aaa7230584579e2d5ce1.flv
+#EXTINF:-1 tvg-logo="https://static.sportsfeed.pro/football/team/d410490bcdb98830e91041cfa544b809.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (Cố Tư Nghiêm) [hls]",🟢 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (Cố Tư Nghiêm) [hls]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://playback.livetl002.com/live/69a1aaa7230584579e2d5ce1.m3u8
+#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/1l4rjnh61z5m7vx/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (FABIO)",🟢 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (FABIO)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
+#EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
+https://live2.jorvakstreamcache.com/live/channel2.flv
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/d410490bcdb98830e91041cfa544b809.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (Gà Ô Long) [flv]",🟢 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (Gà Ô Long) [flv]
+https://live2.zktsva.app/live/432017.flv
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/d410490bcdb98830e91041cfa544b809.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (Gà Ô Long) [hls]",🟢 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (Gà Ô Long) [hls]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://live2.zktsva.app/live/432017.m3u8
+#EXTINF:-1 tvg-logo="https://xoigac.top/images/football/teams/2772.webp" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (Hawkeye)",🟢 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (Hawkeye)
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://4ac07980a95d.ap-northeast-1.playback.live-video.net/api/video/v1/ap-northeast-1.256097482755.channel.DunS33rAnWPP.m3u8?expires=1793636426&signature=9zKaEwgMGWZ4CAgs1andJgsKfk5XNSTwkiu1_K5Ve8c
+#EXTINF:-1 tvg-logo="https://global-cdn.cdnx.tech/football/team/d410490bcdb98830e91041cfa544b809.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (Lê Hoàn)",🟢 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (Lê Hoàn)
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://wncdnhls-global.ebaclofen.org/live/vsc-channel-5.m3u8
+#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/1l4rjnh61z5m7vx/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (LÝ LẠNH LÙNG) (HD2) [geo]",🟢 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (LÝ LẠNH LÙNG) (HD2) [geo]
+#EXTVLCOPT:http-referrer=https://phalang.live/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://pull1.digitalcdn.net/live/b94b0f929dc34b988c70171b86858860/index.m3u8
+#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/1l4rjnh61z5m7vx/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (LÝ LẠNH LÙNG) [geo]",🟢 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (LÝ LẠNH LÙNG) [geo]
+#EXTVLCOPT:http-referrer=https://phalang.live/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://pull.digitalcdn.net/live/b94b0f929dc34b988c70171b86858860/index.m3u8
+#EXTINF:-1 tvg-logo="https://s8tvkc.top/wp-json/s8-image/c334bcf4-e54f-4089-be51-97cad5802d97" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (NGƯỜI CHIẾN) [flv]",🟢 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (NGƯỜI CHIẾN) [flv]
+https://flv.lauthaitv.cc/live/chonburi-pathum-thait1.flv
+#EXTINF:-1 tvg-logo="https://s8tvkc.top/wp-json/s8-image/c334bcf4-e54f-4089-be51-97cad5802d97" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (NGƯỜI CHIẾN) [hls]",🟢 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (NGƯỜI CHIẾN) [hls]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://hls.lauthaitv.cc/live/chonburi-pathum-thait1/index.m3u8
+#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/1l4rjnh61z5m7vx/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (Nhà đài)",🟢 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (Nhà đài)
+#EXTVLCOPT:http-referrer=https://phalang.live/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://lilive1.eu.cc/live/9cd74e8bd06f1f67af301b31c7375683/playlist.m3u8
+#EXTINF:-1 tvg-logo="https://images.fotmob.com/image_resources/logo/teamlogo/109378.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (Teppy) [hls]",🟢 19:00 02/11 ⚽ Chonburi FC vs BG Pathum United (Teppy) [hls]
+#EXTVLCOPT:http-referrer=https://sk.mediastation.live/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://wtyi0525.edgemaxcdn.org/live/x31-hd-1111/playlist.m3u8
+#EXTINF:-1 tvg-logo="https://media.chuoichientv.net/media/uploads/20250623_131737_5298595d.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 19:00 02/11 ⚽ Chonburi FC vs Pathum United (Chuối Kem) [FHD] [hls]",🟢 19:00 02/11 ⚽ Chonburi FC vs Pathum United (Chuối Kem) [FHD] [hls]
+#EXTVLCOPT:http-referrer=https://live.chuoichien.tv/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://gckc0525.edgemaxcdn.org/live/chuoikemhd/playlist.m3u8
+#EXTINF:-1 tvg-logo="https://apiv3.apifootball.com/badges/7572_chonburi.jpg" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 19:00 02/11 ⚽ Chonburi vs Pathum United (BLV Tam Mao) [hls]",🟢 19:00 02/11 ⚽ Chonburi vs Pathum United (BLV Tam Mao) [hls]
+#EXTVLCOPT:http-referrer=https://khoga1.live/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://livecdn321.cdnfastter.xyz/live/live_65629930db/index.m3u8?token=daKfQOAqMEgkhrfCGDxiHdGWXsymB2dcncgmNkMoACY&expires=1852800615
 #EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/d410490bcdb98830e91041cfa544b809.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 19:00 02/11 ⚽ Chonburi vs Pathum United (BLV WARRIOR) [flv]",🟢 19:00 02/11 ⚽ Chonburi vs Pathum United (BLV WARRIOR) [flv]
 https://live05.miekgo.app/live/97885009.flv
 #EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/d410490bcdb98830e91041cfa544b809.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 19:00 02/11 ⚽ Chonburi vs Pathum United (BLV WARRIOR) [hls 2]",🟢 19:00 02/11 ⚽ Chonburi vs Pathum United (BLV WARRIOR) [hls 2]
@@ -3408,6 +3382,26 @@ https://live05.yefpwmc.app/live/97885009_tsc.m3u8
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://live05.miekgo.app/live/97885009.m3u8
+#EXTINF:-1 tvg-logo="https://xoigac.top/images/football/teams/25379.webp" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 19:00 02/11 ⚽ FAR Rabat W vs Kawempe Muslim W (Super Man)",🟢 19:00 02/11 ⚽ FAR Rabat W vs Kawempe Muslim W (Super Man)
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://4ac07980a95d.ap-northeast-1.playback.live-video.net/api/video/v1/ap-northeast-1.256097482755.channel.WX2xzdmyNOXi.m3u8?expires=1793636428&signature=TzGouWn7k16B8YSjfD7b3FhOYZsC9JkxG2i3UPDzmRM
+#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/k82rekhvdg5repz/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 19:00 02/11 ⚽ FC Molodechno vs Osipovichy (XMEN)",🟢 19:00 02/11 ⚽ FC Molodechno vs Osipovichy (XMEN)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
+#EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
+https://live2.jorvakstreamcache.com/live/channel13.flv
+#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/2y8m4zhg3nlql07/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 19:00 02/11 ⚽ FK Graficar Beograd vs FK Napredak (KEN)",🟢 19:00 02/11 ⚽ FK Graficar Beograd vs FK Napredak (KEN)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
+#EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
+https://live2.jorvakstreamcache.com/live/channel18.flv
+#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/tennis/team/4jwq2pfx9x6m0ve/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 19:20 02/11 🥎 Cameron Norrie vs Matteo Arnaldi (VIC)",🟢 19:20 02/11 🥎 Cameron Norrie vs Matteo Arnaldi (VIC)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
+#EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
+https://live2.jorvakstreamcache.com/live/channel32.flv
+#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/tennis/team/vjxm85fpv09m6od/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 19:20 02/11 🥎 Casper Ruud vs Juan Manuel Cerundolo (LUCAS)",🟢 19:20 02/11 🥎 Casper Ruud vs Juan Manuel Cerundolo (LUCAS)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
+#EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
+https://live2.jorvakstreamcache.com/live/channel31.flv
 #EXTINF:-1 tvg-logo="https://apiv3.apifootball.com/badges/102_manchester-united.jpg" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 21:00 25/10 ⚽ Manchester Utd vs Bournemouth (BLV Khô Cay) [hls]",🟢 21:00 25/10 ⚽ Manchester Utd vs Bournemouth (BLV Khô Cay) [hls]
 #EXTVLCOPT:http-referrer=https://khoga1.live/
 #KODIPROP:inputstream=inputstream.adaptive
