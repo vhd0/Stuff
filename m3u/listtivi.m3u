@@ -205,6 +205,11 @@ https://pull.digitalcdn.net/live/d8d39e4fa79a45709080981778e1539f/index.m3u8
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://pull.digitalcdn.net/live/c7721e795f904d0ca62272dc9d62c9ba/index.m3u8
+#EXTINF:-1 tvg-logo="https://thumb.wikimedia.org/wikipedia/vi/thumb/f/f6/Emblem_of_Da_Nang_City.png/250px-Emblem_of_Da_Nang_City.png" group-title="🏙️ Địa phương"  tvg-id="" tvg-name="19:30 05/11 🏐 Đà Nẵng vs Công an TP. Hồ Chí Minh (LÝ LÊN LỬA) [geo]",19:30 05/11 🏐 Đà Nẵng vs Công an TP. Hồ Chí Minh (LÝ LÊN LỬA) [geo]
+#EXTVLCOPT:http-referrer=https://phalang.live/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://pull.digitalcdn.net/live/34a72f787b5649dbb8a6d66bdbb58003/index.m3u8
 #EXTINF:-1 tvg-id="angiang1" group-title="🏙️ Địa phương" tvg-logo="https://angiangtv.vn/wp-content/uploads/2025/06/H4.png" tvg-name="An Giang",An Giang
 https://freem3u.xyz/api/live/play.m3u8?vid=66
 #EXTINF:-1 tvg-id="angiang2" group-title="🏙️ Địa phương" tvg-logo="https://raw.githubusercontent.com/vuminhthanh12/vuminhthanh12/refs/heads/main/ATV2.jpg" tvg-name="ATV2 | Báo và PTTH An Giang",ATV2 | Báo và PTTH An Giang
@@ -319,10 +324,6 @@ https://freem3u.xyz/api/live/play.m3u8?vid=51
 https://freem3u.xyz/api/live/play.m3u8?vid=53
 #EXTINF:-1 tvg-id="DongThapTV.vn@SD" tvg-name="Đồng Tháp" group-title="🏙️ Địa phương",Đồng Tháp
 https://liveh34.vtvprime.vn/hls/DONGTHAPTV/index.m3u8
-#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/volleyball/team/3glrwjhwjdydqdy/image/small" group-title="🏙️ Địa phương"  tvg-id="" tvg-name="🟢 19:30 04/11 🏐 Đà Nẵng vs Hà Nội (TYSON)",🟢 19:30 04/11 🏐 Đà Nẵng vs Hà Nội (TYSON)
-#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
-#EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
-https://live2.jorvakstreamcache.com/live/channel33.flv
 #EXTINF:-1 tvg-id="SkySpMainEvHD.uk" group-logo="https://upload.wikimedia.org/wikipedia/commons/2/2d/Animated-Flag-United-Kingdom.gif" tvg-logo="https://livesport.io.vn/logo/sport/smain.png" group-title="🎟️ Sự kiện"  tvg-name="SKY SPORTS MAIN EVENT",SKY SPORTS MAIN EVENT
 https://livesport.io.vn/ott/viptv.php?id=skymain
 #EXTINF:-1 group-logo="https://upload.wikimedia.org/wikipedia/commons/7/7c/Animated-Flag-Eu.gif" tvg-logo="https://livesport.io.vn/logo/sport/sktop.png" group-title="🎟️ Sự kiện"  tvg-id="" tvg-name="SKYSPORT TOP EVENT",SKYSPORT TOP EVENT
@@ -513,36 +514,6 @@ https://qipmgzougxliv.vcdn.cloud/app/stream/master.m3u8
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
 #EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
 https://live2.pro2cdnlive.com/live/channel30.flv
-#EXTINF:-1 tvg-id="sd-6Mxj4TBk8qRYhZdnxP" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/9a22d840df32761c127c5cd106203ccf.png" group-title="🏆 Thể thao"  tvg-name="20:45 AFC Champions League Two Arkadag FK 1-0 Gol Gohar FC",20:45 AFC Champions League Two Arkadag FK 1-0 Gol Gohar FC
-https://livesport.io.vn/ott/event.php?id=sd-6Mxj4TBk8qRYhZdnxP
-#EXTINF:-1 tvg-id="sd-6MxipX9EmMhnwYPMJw" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/919c0bcb8feed1b918ee1255949de873.png" group-title="🏆 Thể thao"  tvg-name="21:30 AFC Women’s Champions League East Bengal FC Women 1-1 Hwacheon KSPO WFC Women",21:30 AFC Women’s Champions League East Bengal FC Women 1-1 Hwacheon KSPO WFC Women
-https://livesport.io.vn/ott/event.php?id=sd-6MxipX9EmMhnwYPMJw
-#EXTINF:-1 tvg-id="sd-6MxipX9FGM8PkZPReo" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/919c0bcb8feed1b918ee1255949de873.png" group-title="🏆 Thể thao"  tvg-name="21:30 AFC Women’s Champions League Nasaf Qarshi Women 1-0 Beijing Women",21:30 AFC Women’s Champions League Nasaf Qarshi Women 1-0 Beijing Women
-https://livesport.io.vn/ott/event.php?id=sd-6MxipX9FGM8PkZPReo
-#EXTINF:-1 tvg-id="sd-6MwdaoRj8BbHVQmhNF" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/9e7ae98de79a878ad70d2cb8297aee68.png" group-title="🏆 Thể thao"  tvg-name="22:00 Belarusian First League Uni X-Labs Minsk 0-0 Dinamo-2 Minsk",22:00 Belarusian First League Uni X-Labs Minsk 0-0 Dinamo-2 Minsk
-https://livesport.io.vn/ott/event.php?id=sd-6MwdaoRj8BbHVQmhNF
-#EXTINF:-1 tvg-id="sd-6Mxk4GC1mEjWhw8T9H" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/6052a7371f24baf0cc76c335251a065d.png" group-title="🏆 Thể thao"  tvg-name="22:00 Egypt Cup Ghazl El Mahallah 0-0 Ittihad Alexandria SC",22:00 Egypt Cup Ghazl El Mahallah 0-0 Ittihad Alexandria SC
-https://livesport.io.vn/ott/event.php?id=sd-6Mxk4GC1mEjWhw8T9H
-#EXTINF:-1 tvg-id="sd-6MxjZfbyeUeghN9RYB" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/83de79c5af1aa8e7d2f4f445045c4b9d.png" group-title="🏆 Thể thao"  tvg-name="22:00 Egyptian League Cup ZED FC 0-0 Tala'ea El Gaish",22:00 Egyptian League Cup ZED FC 0-0 Tala'ea El Gaish
-https://livesport.io.vn/ott/event.php?id=sd-6MxjZfbyeUeghN9RYB
-#EXTINF:-1 tvg-id="sd-6Mxk43FxLfQZgNfMwM" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/fed77eb154ae497b5914b11cd4fdc65b.png" group-title="🏆 Thể thao"  tvg-name="22:00 FIFA U17 Women's World Cup Japan U17 Women 0-0 North Korea U17 Women",22:00 FIFA U17 Women's World Cup Japan U17 Women 0-0 North Korea U17 Women
-https://livesport.io.vn/ott/event.php?id=sd-6Mxk43FxLfQZgNfMwM
-#EXTINF:-1 tvg-id="sd-6MxjJws8QotrEN2eWb" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/2a207dc75e6d4da43885870f6cd152d7.png" group-title="🏆 Thể thao"  tvg-name="22:00 GCC Champions League Al-Nasr Dubai 1-0 Qatar Sports Club",22:00 GCC Champions League Al-Nasr Dubai 1-0 Qatar Sports Club
-https://livesport.io.vn/ott/event.php?id=sd-6MxjJws8QotrEN2eWb
-#EXTINF:-1 tvg-id="sd-6Mxia8uRZzKqx6x2bZ" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/0b3d4c605b5a516dd91b09b6719e453e.png" group-title="🏆 Thể thao"  tvg-name="22:00 Portuguese U23 League Uniao Leiria U23 1-1 Estoril U23",22:00 Portuguese U23 League Uniao Leiria U23 1-1 Estoril U23
-https://livesport.io.vn/ott/event.php?id=sd-6Mxia8uRZzKqx6x2bZ
-#EXTINF:-1 tvg-id="sd-6MxipaPWhDyybUjUNs" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/fd18fea857fdfad33df41c112d4455a1.png" group-title="🏆 Thể thao"  tvg-name="22:00 UEFA Youth League Borussia Dortmund U19 2-1 Real Betis U19",22:00 UEFA Youth League Borussia Dortmund U19 2-1 Real Betis U19
-https://livesport.io.vn/ott/event.php?id=sd-6MxipaPWhDyybUjUNs
-#EXTINF:-1 tvg-id="sd-6Mxip8J4Eukf89Yw59_md" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/1792ba5a12171fedc6d543bdf173f37c.png" group-title="🏆 Thể thao"  tvg-name="22:30 C2 Stade Rennais FC 0-0 Olympiacos Piraeus",22:30 C2 Stade Rennais FC 0-0 Olympiacos Piraeus
-https://livesport.io.vn/ott/event.php?id=sd-6Mxip8J4Eukf89Yw59_md
-#EXTINF:-1 tvg-id="sd-6Mxj4TBjod4vSKnABq" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/9a22d840df32761c127c5cd106203ccf.png" group-title="🏆 Thể thao"  tvg-name="23:00 AFC Champions League Two Al Kuwait SC 0-0 Nasaf Qarshi",23:00 AFC Champions League Two Al Kuwait SC 0-0 Nasaf Qarshi
-https://livesport.io.vn/ott/event.php?id=sd-6Mxj4TBjod4vSKnABq
-#EXTINF:-1 tvg-id="sd-6Mxj4TAyUDr2U8gGzK" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/9a22d840df32761c127c5cd106203ccf.png" group-title="🏆 Thể thao"  tvg-name="23:00 AFC Champions League Two Al Wahda(UAE) 0-0 Al Khaldiya",23:00 AFC Champions League Two Al Wahda(UAE) 0-0 Al Khaldiya
-https://livesport.io.vn/ott/event.php?id=sd-6Mxj4TAyUDr2U8gGzK
-#EXTINF:-1 tvg-id="sd-6Mxj4TBjy6Z42GKGXy" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/9a22d840df32761c127c5cd106203ccf.png" group-title="🏆 Thể thao"  tvg-name="23:00 AFC Champions League Two Al-Rayyan Sports Club 0-0 Al Nahda SC",23:00 AFC Champions League Two Al-Rayyan Sports Club 0-0 Al Nahda SC
-https://livesport.io.vn/ott/event.php?id=sd-6Mxj4TBjy6Z42GKGXy
-#EXTINF:-1 tvg-id="sd-6MxjJws8FBcoAWBsYs" group-logo="https://media.tenor.com/KwH4y0yi97wAAAAj/soccer-soccer-ball.gif" tvg-logo="https://img.thesports.com/football/competition/2a207dc75e6d4da43885870f6cd152d7.png" group-title="🏆 Thể thao"  tvg-name="23:00 GCC Champions League Al Ettifaq 0-0 Ajman",23:00 GCC Champions League Al Ettifaq 0-0 Ajman
-https://livesport.io.vn/ott/event.php?id=sd-6MxjJws8FBcoAWBsYs
 #EXTINF:-1 group-title="🏆 Thể thao" tvg-logo="https://img-zlr1.tv360.vn/image1/2026/04/16/08/1776301510855/e14eaed5c4d8_640_360.png" tvg-id="" tvg-name="360 Bundesliga",360 Bundesliga
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://vmttv.dpdns.org/tv360/?id=360-bundesliga
@@ -1023,20 +994,20 @@ http://line.watchtivo-8k.com:80/play/live.php?mac=00:1A:79:3F:0C:96&stream=10907
 https://live-pv-ta.amazon.fastly-edge.com/iad-nitro/live/clients/dash/enc/8mxwjnh2te/out/v1/356704796c0c4bed81f67cd3518d0c8a/cenc.mpd
 #EXTINF:-1 tvg-id="USA.Network.HD.us2" group-logo="https://upload.wikimedia.org/wikipedia/commons/4/42/Animated-Flag-USA.gif" tvg-logo="https://img2.sport-tv-guide.live/images/tv-station-usa-network-74.png" group-title="🏆 Thể thao"  tvg-name="USA NETWORK",USA NETWORK
 https://livesport.io.vn/ott/vall.php?id=usa
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/d36d53da32742efb1d00f27e959603a0.png" group-title="🏆 Thể thao"  tvg-id="" tvg-name="🟡 23:00 04/11 ⚽ Al-Rayyan Sports Club vs Al Nahda SC (Gà Siêu Kiêu) [flv]",🟡 23:00 04/11 ⚽ Al-Rayyan Sports Club vs Al Nahda SC (Gà Siêu Kiêu) [flv]
-https://live2.zktsva.app/live/741294.flv
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/d36d53da32742efb1d00f27e959603a0.png" group-title="🏆 Thể thao"  tvg-id="" tvg-name="🟡 23:00 04/11 ⚽ Al-Rayyan Sports Club vs Al Nahda SC (Gà Siêu Kiêu) [hls]",🟡 23:00 04/11 ⚽ Al-Rayyan Sports Club vs Al Nahda SC (Gà Siêu Kiêu) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live2.zktsva.app/live/741294.m3u8
-#EXTINF:-1 tvg-logo="https://global-cdn.cdnx.tech/football/team/d36d53da32742efb1d00f27e959603a0.png" group-title="🏆 Thể thao"  tvg-id="" tvg-name="🟡 23:00 04/11 ⚽ Al-Rayyan Sports Club vs Al Nahda SC (Lê Hoàn)",🟡 23:00 04/11 ⚽ Al-Rayyan Sports Club vs Al Nahda SC (Lê Hoàn)
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://wncdnhls-global.ebaclofen.org/live/vsc-channel-5.m3u8
 #EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/jw2r09hl6x0rz84/image/small" group-title="🏆 Thể thao"  tvg-id="" tvg-name="🟢 22:00 04/11 ⚽ Al-Nasr Dubai vs Qatar Sports Club (XMEN)",🟢 22:00 04/11 ⚽ Al-Nasr Dubai vs Qatar Sports Club (XMEN)
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
 #EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
 https://live2.jorvakstreamcache.com/live/channel13.flv
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/d36d53da32742efb1d00f27e959603a0.png" group-title="🏆 Thể thao"  tvg-id="" tvg-name="🟢 23:00 04/11 ⚽ Al-Rayyan Sports Club vs Al Nahda SC (Gà Siêu Kiêu) [flv]",🟢 23:00 04/11 ⚽ Al-Rayyan Sports Club vs Al Nahda SC (Gà Siêu Kiêu) [flv]
+https://live2.zktsva.app/live/741294.flv
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/d36d53da32742efb1d00f27e959603a0.png" group-title="🏆 Thể thao"  tvg-id="" tvg-name="🟢 23:00 04/11 ⚽ Al-Rayyan Sports Club vs Al Nahda SC (Gà Siêu Kiêu) [hls]",🟢 23:00 04/11 ⚽ Al-Rayyan Sports Club vs Al Nahda SC (Gà Siêu Kiêu) [hls]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://live2.zktsva.app/live/741294.m3u8
+#EXTINF:-1 tvg-logo="https://global-cdn.cdnx.tech/football/team/d36d53da32742efb1d00f27e959603a0.png" group-title="🏆 Thể thao"  tvg-id="" tvg-name="🟢 23:00 04/11 ⚽ Al-Rayyan Sports Club vs Al Nahda SC (Lê Hoàn)",🟢 23:00 04/11 ⚽ Al-Rayyan Sports Club vs Al Nahda SC (Lê Hoàn)
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://wncdnhls-global.ebaclofen.org/live/vsc-channel-5.m3u8
 #EXTINF:-1 tvg-id="360phim4k" group-title="🎬 Phim" tvg-logo="https://img-zlr1.tv360.vn/image1/2026/07/30/10/1785382803894/362700e9107b_640_360.png" tvg-name="360 Phim 4K",360 Phim 4K
 https://vmttv.dpdns.org/tv360/?id=360-phim-4k
 #EXTINF:-1 tvg-id="360phimhoangu" group-title="🎬 Phim" tvg-logo="https://img-zlr1.tv360.vn/image1/2026/04/09/08/1775697736867/3854900b7263_640_360.png" tvg-name="360 Phim Hoa Ngữ",360 Phim Hoa Ngữ
@@ -1138,14 +1109,6 @@ https://s2129134.cdn.mytvnet.vn/pkg20/live_dzones/bloomberg.smil/manifest.mpd
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=714cc8ed05a03abb9ac61bd4bbd1d8a0:1acf58ff8d4cd87c2d3c12d22248efb1
 https://s7771.cdn.mytvnet.vn/pkg20/live_dzones/cnn.smil/manifest.mpd
-#EXTINF:-1 tvg-logo="/media/teams/logos/bogdanka-luk-lublin-vb.png" group-title="🌍 Quốc tế"  tvg-id="" tvg-name="02:30 05/11 🏐 BOGDANKA LUK Lublin vs PGE GiEK Skra Bełchatów (BLV Khô Bò) [flv]",02:30 05/11 🏐 BOGDANKA LUK Lublin vs PGE GiEK Skra Bełchatów (BLV Khô Bò) [flv]
-#EXTVLCOPT:http-referrer=https://khoga1.live/
-https://live.khoga.space/live/livehub12.flv
-#EXTINF:-1 tvg-logo="/media/teams/logos/bogdanka-luk-lublin-vb.png" group-title="🌍 Quốc tế"  tvg-id="" tvg-name="02:30 05/11 🏐 BOGDANKA LUK Lublin vs PGE GiEK Skra Bełchatów (BLV Khô Bò) [hls]",02:30 05/11 🏐 BOGDANKA LUK Lublin vs PGE GiEK Skra Bełchatów (BLV Khô Bò) [hls]
-#EXTVLCOPT:http-referrer=https://khoga1.live/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://livecdn321.cdnfastter.xyz/live/live_f3d9c6a005/index.m3u8?token=rr1el4pzxOrMeroS7m-gXYnBMw8InO7dtXeJtJksyhA&expires=1852800615
 #EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261101/6350ba8b362af4fd300a7d728b9c5114.png" group-title="🌍 Quốc tế"  tvg-id="" tvg-name="03:00 05/11 ⚽ Borussia Dortmund vs Real Betis (BLV WUKONG)",03:00 05/11 ⚽ Borussia Dortmund vs Real Betis (BLV WUKONG)
 #EXTVLCOPT:http-referrer=https://sutbong-tv.net/
 #KODIPROP:inputstream=inputstream.adaptive
@@ -1311,11 +1274,10 @@ https://freem3u.xyz/api/live/play.m3u8?vid=9852
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key={"keys":[{"kty":"oct","k":"NPGQjP4uBe4GAEbUDxSuyQ","kid":"CG0JpAv/OgCqbdTbr5wTsg"}],"type":"temporary"}
 https://s2129134.cdn.mytvnet.vn/pkg20/live_dzones/wtv.smil/manifest.mpd
-#EXTINF:-1 tvg-logo="/media/teams/logos/manisa-buyuksehir-belediye-spor-vb.png" group-title="🌍 Quốc tế"  tvg-id="" tvg-name="🟢 20:30 04/11 🏐 Manisa Büyükşehir Belediye Spor vs Galatasaray Daikin (BLV Lương Khô) [hls]",🟢 20:30 04/11 🏐 Manisa Büyükşehir Belediye Spor vs Galatasaray Daikin (BLV Lương Khô) [hls]
-#EXTVLCOPT:http-referrer=https://khoga1.live/
+#EXTINF:-1 tvg-logo="https://static.flashscore.com/res/image/data/GAtpKvZg-hEEvdCUk.png" group-title="📦 Khác"  tvg-id="" tvg-name="00:30 05/11 🏓 LIM Jonghoon vs Anton KALLBERG (blv-18) [hls]",00:30 05/11 🏓 LIM Jonghoon vs Anton KALLBERG (blv-18) [hls]
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
-https://livecdn321.cdnfastter.xyz/live/live_f64016ed85/index.m3u8?token=2zFHBLZ7ZQ-fbhTLWfwNITX5zZlxj49JwHBeBRcyALM&expires=1852800615
+https://freem3u.xyz/static/no-signal/low.m3u8
 #EXTINF:-1 tvg-logo="https://xoigac.top/images/football/teams/575.webp" group-title="📦 Khác"  tvg-id="" tvg-name="00:45 05/11 ⚽ AEK Athens FC vs Real Madrid (Black Panther)",00:45 05/11 ⚽ AEK Athens FC vs Real Madrid (Black Panther)
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
@@ -1374,6 +1336,11 @@ https://freem3u.xyz/static/no-signal/low.m3u8
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://freem3u.xyz/static/no-signal/low.m3u8
+#EXTINF:-1 tvg-logo="https://apiv3.apifootball.com/badges/158_aek-athens.jpg" group-title="📦 Khác"  tvg-id="" tvg-name="00:45 05/11 ⚽ AEK Athens vs Real Madrid (BLV Khô Cá) [hls]",00:45 05/11 ⚽ AEK Athens vs Real Madrid (BLV Khô Cá) [hls]
+#EXTVLCOPT:http-referrer=https://khoga1.live/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://livecdn321.cdnfastter.xyz/live/live_062e5de010/index.m3u8?token=M6vDly-jvMUtRrO3xVQUwWJozWVPDQ0yVqDBWtZUbgM&expires=1852800615
 #EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261101/b7979b5f2e6c2487db57a1db1dd15e78.png" group-title="📦 Khác"  tvg-id="" tvg-name="00:45 05/11 ⚽ AEK Athens vs Real Madrid (BLV PIRLO)",00:45 05/11 ⚽ AEK Athens vs Real Madrid (BLV PIRLO)
 #EXTVLCOPT:http-referrer=https://sutbong-tv.net/
 #KODIPROP:inputstream=inputstream.adaptive
@@ -1382,7 +1349,7 @@ https://freem3u.xyz/static/no-signal/low.m3u8
 #EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/v2y8m4zh9y8ql07/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="00:45 05/11 ⚽ AEK Athens vs Real Madrid (BRADY)",00:45 05/11 ⚽ AEK Athens vs Real Madrid (BRADY)
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
 #EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
-https://live1.quickscoreboardz.com/live/channel15.flv?wsSecret=7878c76007a39f6ed816247f2a5a9c08&wsABSTime=1793848912
+https://live1.quickscoreboardz.com/live/channel15.flv?wsSecret=64bf6fd7d60fc7069ea6bbb77087d938&wsABSTime=1793852541
 #EXTINF:-1 tvg-logo="https://images.keovip88.net/images/teams/aek-athens.png" group-title="📦 Khác"  tvg-id="" tvg-name="00:45 05/11 ⚽ AEK Athens vs Real Madrid (daucaureal) [hls]",00:45 05/11 ⚽ AEK Athens vs Real Madrid (daucaureal) [hls]
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
@@ -1399,6 +1366,12 @@ https://live2.zktsva.app/live/294335.flv
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://live2.zktsva.app/live/294335.m3u8
+#EXTINF:-1 tvg-logo="https://d1c0s7hi3ugzoc.cloudfront.net/teams/aek-athens-781" group-title="📦 Khác"  tvg-id="" tvg-name="00:45 05/11 ⚽ AEK Athens vs Real Madrid (HÀU NƯỚNG) [flv]",00:45 05/11 ⚽ AEK Athens vs Real Madrid (HÀU NƯỚNG) [flv]
+https://cdnflv.xbdbotv.live/live/MTk4NzM3MDU6ZjloaXUzaDRjanBxdHhoeGFvY3I1OGZkOm1lOGpyN2E4eGxsOWUxOWZ6dGZzODZvcA.flv
+#EXTINF:-1 tvg-logo="https://d1c0s7hi3ugzoc.cloudfront.net/teams/aek-athens-781" group-title="📦 Khác"  tvg-id="" tvg-name="00:45 05/11 ⚽ AEK Athens vs Real Madrid (HÀU NƯỚNG) [hls]",00:45 05/11 ⚽ AEK Athens vs Real Madrid (HÀU NƯỚNG) [hls]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://cdnhls.xbdbotv.live/live/MTk4NzM3MDU6ZjloaXUzaDRjanBxdHhoeGFvY3I1OGZkOm1lOGpyN2E4eGxsOWUxOWZ6dGZzODZvcA/index.m3u8
 #EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261101/b7979b5f2e6c2487db57a1db1dd15e78.png" group-title="📦 Khác"  tvg-id="" tvg-name="00:45 05/11 ⚽ AEK Athens vs Real Madrid (HẢI THANH)",00:45 05/11 ⚽ AEK Athens vs Real Madrid (HẢI THANH)
 #EXTVLCOPT:http-referrer=https://sutbong-tv.net/
 #KODIPROP:inputstream=inputstream.adaptive
@@ -1457,8 +1430,17 @@ https://freem3u.xyz/static/no-signal/low.m3u8
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://freem3u.xyz/static/no-signal/low.m3u8
+#EXTINF:-1 tvg-logo="https://apiv3.apifootball.com/badges/7694_fenerbahce.jpg" group-title="📦 Khác"  tvg-id="" tvg-name="00:45 05/11 ⚽ Fenerbahce vs Liverpool (BLV Lương Khô) [hls]",00:45 05/11 ⚽ Fenerbahce vs Liverpool (BLV Lương Khô) [hls]
+#EXTVLCOPT:http-referrer=https://khoga1.live/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://livecdn321.cdnfastter.xyz/live/live_f64016ed85/index.m3u8?token=2zFHBLZ7ZQ-fbhTLWfwNITX5zZlxj49JwHBeBRcyALM&expires=1852800615
 #EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261101/df57d4a226f7e60426836461637025a5.png" group-title="📦 Khác"  tvg-id="" tvg-name="00:45 05/11 ⚽ Fenerbahce vs Liverpool (BLV MESSI)",00:45 05/11 ⚽ Fenerbahce vs Liverpool (BLV MESSI)
 #EXTVLCOPT:http-referrer=https://sutbong-tv.net/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://freem3u.xyz/static/no-signal/low.m3u8
+#EXTINF:-1 tvg-logo="https://images.keovip88.net/images/teams/fenerbahce.png" group-title="📦 Khác"  tvg-id="" tvg-name="00:45 05/11 ⚽ Fenerbahce vs Liverpool (blv Mù) [hls]",00:45 05/11 ⚽ Fenerbahce vs Liverpool (blv Mù) [hls]
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://freem3u.xyz/static/no-signal/low.m3u8
@@ -1530,11 +1512,11 @@ https://lilive1.eu.cc/live/a967bf3b1275cf7da7a647b9cf87293f/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/56ypq3nhdpymd7o/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="00:45 05/11 ⚽ Fenerbahce vs Liverpool (NICK)",00:45 05/11 ⚽ Fenerbahce vs Liverpool (NICK)
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
 #EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
-https://live1.quickscoreboardz.com/live/channel5.flv?wsSecret=df3803727082db05d20a382886f0a31f&wsABSTime=1793848923
+https://live1.quickscoreboardz.com/live/channel5.flv?wsSecret=3918d1b159e35ce0f2659e36f109a175&wsABSTime=1793852552
 #EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/56ypq3nhdpymd7o/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="00:45 05/11 ⚽ Fenerbahce vs Liverpool (RIO)",00:45 05/11 ⚽ Fenerbahce vs Liverpool (RIO)
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
 #EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
-https://live1.quickscoreboardz.com/live/channel16.flv?wsSecret=8db0ca444e9c4aebca3fc00a1a3de70b&wsABSTime=1793848933
+https://live1.quickscoreboardz.com/live/channel16.flv?wsSecret=1c29aacf0e3772e91629ad318727d85a&wsABSTime=1793852560
 #EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261101/df57d4a226f7e60426836461637025a5.png" group-title="📦 Khác"  tvg-id="" tvg-name="00:45 05/11 ⚽ Fenerbahce vs Liverpool (THẠCH TÚ)",00:45 05/11 ⚽ Fenerbahce vs Liverpool (THẠCH TÚ)
 #EXTVLCOPT:http-referrer=https://sutbong-tv.net/
 #KODIPROP:inputstream=inputstream.adaptive
@@ -1549,12 +1531,6 @@ https://gckc0525.edgemaxcdn.org/live/troctruhd/playlist.m3u8
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://freem3u.xyz/static/no-signal/low.m3u8
-#EXTINF:-1 tvg-logo="https://d1c0s7hi3ugzoc.cloudfront.net/teams/fenerbahce-88" group-title="📦 Khác"  tvg-id="" tvg-name="00:45 05/11 ⚽ Fenerbahçe vs Liverpool (HÀU NƯỚNG) [flv]",00:45 05/11 ⚽ Fenerbahçe vs Liverpool (HÀU NƯỚNG) [flv]
-https://cdnflv.xbdbotv.live/live/MTk4NzI2MjI6ZjloaXUzaDRjanBxdHhoeGFvY3I1OGZkOm1ubjNjdjRnemdnNW1wOGNkN2V4Njhkdw.flv
-#EXTINF:-1 tvg-logo="https://d1c0s7hi3ugzoc.cloudfront.net/teams/fenerbahce-88" group-title="📦 Khác"  tvg-id="" tvg-name="00:45 05/11 ⚽ Fenerbahçe vs Liverpool (HÀU NƯỚNG) [hls]",00:45 05/11 ⚽ Fenerbahçe vs Liverpool (HÀU NƯỚNG) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://cdnhls.xbdbotv.live/live/MTk4NzI2MjI6ZjloaXUzaDRjanBxdHhoeGFvY3I1OGZkOm1ubjNjdjRnemdnNW1wOGNkN2V4Njhkdw/index.m3u8
 #EXTINF:-1 tvg-logo="https://images.fotmob.com/image_resources/logo/teamlogo/8695.png" group-title="📦 Khác"  tvg-id="" tvg-name="00:45 05/11 ⚽ Fenerbahçe vs Liverpool (Long Ruồi) [hls]",00:45 05/11 ⚽ Fenerbahçe vs Liverpool (Long Ruồi) [hls]
 #EXTVLCOPT:http-referrer=https://sk.mediastation.live/
 #KODIPROP:inputstream=inputstream.adaptive
@@ -1614,24 +1590,6 @@ https://live05.yefpwmc.app/live/75915087_tsc.m3u8
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://live05.miekgo.app/live/75915087.m3u8
-#EXTINF:-1 tvg-logo="https://apiv3.apifootball.com/badges/556_sao-paulo.jpg" group-title="📦 Khác"  tvg-id="" tvg-name="02:30 05/11 ⚽ Sao Paulo vs Corinthians (BLV Khô Bò) [flv]",02:30 05/11 ⚽ Sao Paulo vs Corinthians (BLV Khô Bò) [flv]
-#EXTVLCOPT:http-referrer=https://khoga1.live/
-https://live.khoga.space/live/livehub12.flv
-#EXTINF:-1 tvg-logo="https://apiv3.apifootball.com/badges/556_sao-paulo.jpg" group-title="📦 Khác"  tvg-id="" tvg-name="02:30 05/11 ⚽ Sao Paulo vs Corinthians (BLV Khô Bò) [hls]",02:30 05/11 ⚽ Sao Paulo vs Corinthians (BLV Khô Bò) [hls]
-#EXTVLCOPT:http-referrer=https://khoga1.live/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://livecdn321.cdnfastter.xyz/live/live_f3d9c6a005/index.m3u8?token=rr1el4pzxOrMeroS7m-gXYnBMw8InO7dtXeJtJksyhA&expires=1852800615
-#EXTINF:-1 tvg-logo="/media/teams/logos/cucine-lube-civitanova-vb.png" group-title="📦 Khác"  tvg-id="" tvg-name="02:30 05/11 🏐 Cucine Lube Civitanova vs Valsa Group Modena (BLV Xôi Bắp) [flv]",02:30 05/11 🏐 Cucine Lube Civitanova vs Valsa Group Modena (BLV Xôi Bắp) [flv]
-#EXTVLCOPT:http-referrer=https://khoga1.live/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://livecdn321.cdnfastter.xyz/live/live_9f71176d0e/index.m3u8?token=3MXeEPMRAVdl2yR_TeoKTStkQwOepkXuIthvlnr9Bdw&expires=1852800615
-#EXTINF:-1 tvg-logo="/media/teams/logos/cucine-lube-civitanova-vb.png" group-title="📦 Khác"  tvg-id="" tvg-name="02:30 05/11 🏐 Cucine Lube Civitanova vs Valsa Group Modena (BLV Xôi Bắp) [hls]",02:30 05/11 🏐 Cucine Lube Civitanova vs Valsa Group Modena (BLV Xôi Bắp) [hls]
-#EXTVLCOPT:http-referrer=https://khoga1.live/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://livecdn321.cdnfastter.xyz/live/live_9f71176d0e/index.m3u8?token=3MXeEPMRAVdl2yR_TeoKTStkQwOepkXuIthvlnr9Bdw
 #EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/gpxwrxlhwenryk0/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="02:45 05/11 ⚽ Cardiff City vs West Ham (LÝ LẠNH LÙNG) (HD2) [geo]",02:45 05/11 ⚽ Cardiff City vs West Ham (LÝ LẠNH LÙNG) (HD2) [geo]
 #EXTVLCOPT:http-referrer=https://phalang.live/
 #KODIPROP:inputstream=inputstream.adaptive
@@ -1813,12 +1771,7 @@ https://cdnflv.xbdbotv.live/live/MTk4NzM3MTE6aGY1ODc5dDVoeXprdGJiajd3azBucmU2OmV
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://cdnhls.xbdbotv.live/live/MTk4NzM3MTE6aGY1ODc5dDVoeXprdGJiajd3azBucmU2OmViZDA2NXpoOTI2MjZtcXFhYmp2bTYxMg/index.m3u8
-#EXTINF:-1 tvg-logo="https://apiv3.apifootball.com/badges/3821_lens.jpg" group-title="📦 Khác"  tvg-id="" tvg-name="03:00 05/11 ⚽ Lens vs Como (BLV Khô Cay) [hls]",03:00 05/11 ⚽ Lens vs Como (BLV Khô Cay) [hls]
-#EXTVLCOPT:http-referrer=https://khoga1.live/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://livecdn321.cdnfastter.xyz/live/live_753c90457f/index.m3u8?token=2DSSWeXAxyGpTCzUauOg-F4WPR6MfTkyCr51jCWcnQ0&expires=1852800615
-#EXTINF:-1 tvg-logo="https://images.keovip88.net/images/teams/lens.png" group-title="📦 Khác"  tvg-id="" tvg-name="03:00 05/11 ⚽ Lens vs Como (mickey) [hls]",03:00 05/11 ⚽ Lens vs Como (mickey) [hls]
+#EXTINF:-1 tvg-logo="https://images.keovip88.net/images/teams/lens.png" group-title="📦 Khác"  tvg-id="" tvg-name="03:00 05/11 ⚽ Lens vs Como (blv Mù) [hls]",03:00 05/11 ⚽ Lens vs Como (blv Mù) [hls]
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://freem3u.xyz/static/no-signal/low.m3u8
@@ -1853,10 +1806,6 @@ https://live05.yefpwmc.app/live/16226575_tsc.m3u8
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://live05.miekgo.app/live/16226575.m3u8
-#EXTINF:-1 tvg-logo="https://images.keovip88.net/images/teams/psv-eindhoven.png" group-title="📦 Khác"  tvg-id="" tvg-name="03:00 05/11 ⚽ PSV Eindhoven vs Club Brugge (blv-ngu) [hls]",03:00 05/11 ⚽ PSV Eindhoven vs Club Brugge (blv-ngu) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://freem3u.xyz/static/no-signal/low.m3u8
 #EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261101/499ad63bc428c8294397e50c3b81ea7c.png" group-title="📦 Khác"  tvg-id="" tvg-name="03:00 05/11 ⚽ PSV Eindhoven vs Club Brugge (BOSS)",03:00 05/11 ⚽ PSV Eindhoven vs Club Brugge (BOSS)
 #EXTVLCOPT:http-referrer=https://sutbong-tv.net/
 #KODIPROP:inputstream=inputstream.adaptive
@@ -1868,6 +1817,10 @@ https://live2.zktsva.app/live/300523.flv
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://live2.zktsva.app/live/300523.m3u8
+#EXTINF:-1 tvg-logo="https://images.keovip88.net/images/teams/psv-eindhoven.png" group-title="📦 Khác"  tvg-id="" tvg-name="03:00 05/11 ⚽ PSV Eindhoven vs Club Brugge (riko) [hls]",03:00 05/11 ⚽ PSV Eindhoven vs Club Brugge (riko) [hls]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://freem3u.xyz/static/no-signal/low.m3u8
 #EXTINF:-1 tvg-logo="https://global-cdn.cdnx.tech/football/team/cad5af4d1ff0e6f3119af3d273d95d31.png" group-title="📦 Khác"  tvg-id="" tvg-name="03:00 05/11 ⚽ PSV Eindhoven vs Club Brugge (Triệu Hằng)",03:00 05/11 ⚽ PSV Eindhoven vs Club Brugge (Triệu Hằng)
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
@@ -2059,7 +2012,7 @@ https://live2.zktsva.app/live/294335.m3u8
 #EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/vl7oqdehk56r510/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="03:00 05/11 ⚽ SK Slavia Praha vs Arsenal (JOHAN)",03:00 05/11 ⚽ SK Slavia Praha vs Arsenal (JOHAN)
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
 #EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
-https://live2.pro2cdnlive.com/live/channel12.flv
+https://live2.jorvakstreamcache.com/live/channel12.flv
 #EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261101/d06fc03d5794cc2a8092bbdccc139e4a.png" group-title="📦 Khác"  tvg-id="" tvg-name="03:00 05/11 ⚽ SK Slavia Praha vs Arsenal (LOKA)",03:00 05/11 ⚽ SK Slavia Praha vs Arsenal (LOKA)
 #EXTVLCOPT:http-referrer=https://sutbong-tv.net/
 #KODIPROP:inputstream=inputstream.adaptive
@@ -2072,7 +2025,7 @@ https://wncdnhls-global.ebaclofen.org/live/vsc-channel-7.m3u8
 #EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/vl7oqdehk56r510/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="03:00 05/11 ⚽ SK Slavia Praha vs Arsenal (MAX)",03:00 05/11 ⚽ SK Slavia Praha vs Arsenal (MAX)
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
 #EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
-https://live2.pro2cdnlive.com/live/channel6.flv
+https://live1.quickscoreboardz.com/live/channel6.flv?wsSecret=2b9aa9b760cbc8eb51142d85b00719cb&wsABSTime=1793852572
 #EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261101/d06fc03d5794cc2a8092bbdccc139e4a.png" group-title="📦 Khác"  tvg-id="" tvg-name="03:00 05/11 ⚽ SK Slavia Praha vs Arsenal (NGƯỜI CÁ)",03:00 05/11 ⚽ SK Slavia Praha vs Arsenal (NGƯỜI CÁ)
 #EXTVLCOPT:http-referrer=https://sutbong-tv.net/
 #KODIPROP:inputstream=inputstream.adaptive
@@ -2081,7 +2034,7 @@ https://freem3u.xyz/static/no-signal/low.m3u8
 #EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/vl7oqdehk56r510/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="03:00 05/11 ⚽ SK Slavia Praha vs Arsenal (ROY)",03:00 05/11 ⚽ SK Slavia Praha vs Arsenal (ROY)
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
 #EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
-https://live2.pro2cdnlive.com/live/channel1.flv
+https://live2.jorvakstreamcache.com/live/channel1.flv
 #EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/2080ede2c5d09638a7188913c81075ef.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="03:00 05/11 ⚽ Slavia Prague vs Arsenal (BLV AQUA) [flv]",03:00 05/11 ⚽ Slavia Prague vs Arsenal (BLV AQUA) [flv]
 https://live05.miekgo.app/live/18812304.flv
 #EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/2080ede2c5d09638a7188913c81075ef.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="03:00 05/11 ⚽ Slavia Prague vs Arsenal (BLV AQUA) [hls 2]",03:00 05/11 ⚽ Slavia Prague vs Arsenal (BLV AQUA) [hls 2]
@@ -2176,6 +2129,10 @@ https://live05.miekgo.app/live/07808742.m3u8
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://freem3u.xyz/static/no-signal/low.m3u8
+#EXTINF:-1 tvg-logo="https://images.keovip88.net/images/teams/viking.png" group-title="📦 Khác"  tvg-id="" tvg-name="03:00 05/11 ⚽ Viking vs Sabah FK (blv-beo) [hls]",03:00 05/11 ⚽ Viking vs Sabah FK (blv-beo) [hls]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://freem3u.xyz/static/no-signal/low.m3u8
 #EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261101/78ce166e1191dca1e8f79f77fa96bcd9.png" group-title="📦 Khác"  tvg-id="" tvg-name="05:00 05/11 ⚽ Union La Calera vs Coquimbo Unido (CHAN ĐÊ)",05:00 05/11 ⚽ Union La Calera vs Coquimbo Unido (CHAN ĐÊ)
 #EXTVLCOPT:http-referrer=https://sutbong-tv.net/
 #KODIPROP:inputstream=inputstream.adaptive
@@ -2183,6 +2140,10 @@ https://freem3u.xyz/static/no-signal/low.m3u8
 https://freem3u.xyz/static/no-signal/low.m3u8
 #EXTINF:-1 tvg-logo="https://sta.vnres.co/file/common/20261101/78ce166e1191dca1e8f79f77fa96bcd9.png" group-title="📦 Khác"  tvg-id="" tvg-name="05:00 05/11 ⚽ Union La Calera vs Coquimbo Unido (ĐỖ TÚ TÀI)",05:00 05/11 ⚽ Union La Calera vs Coquimbo Unido (ĐỖ TÚ TÀI)
 #EXTVLCOPT:http-referrer=https://sutbong-tv.net/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://freem3u.xyz/static/no-signal/low.m3u8
+#EXTINF:-1 tvg-logo="https://static.flashscore.com/res/image/data/rglkqMzB-UJqSxlpo.png" group-title="📦 Khác"  tvg-id="" tvg-name="05:00 05/11 🎮 GEN vs LYON (blv-can) [hls]",05:00 05/11 🎮 GEN vs LYON (blv-can) [hls]
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://freem3u.xyz/static/no-signal/low.m3u8
@@ -2718,6 +2679,10 @@ https://playback.livetl002.com/live/6ad310e0f72fb30b98548582.m3u8
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://freem3u.xyz/static/no-signal/low.m3u8
+#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/basketball/team/d23xmv1tzy3mg8n/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="10:30 05/11 🏀 Los Angeles Clippers vs Miami Heat (ALAN)",10:30 05/11 🏀 Los Angeles Clippers vs Miami Heat (ALAN)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
+#EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
+https://live2.pro2cdnlive.com/live/channel25.flv
 #EXTINF:-1 tvg-logo="https://img.cltvap.cc/basketball/team/848b21021b2a1db7bde95ea52a1e021b.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="10:30 05/11 🏀 Los Angeles Clippers vs Miami Heat (BLV LIPTON) [flv]",10:30 05/11 🏀 Los Angeles Clippers vs Miami Heat (BLV LIPTON) [flv]
 https://live05.miekgo.app/live/89756030.flv
 #EXTINF:-1 tvg-logo="https://img.cltvap.cc/basketball/team/848b21021b2a1db7bde95ea52a1e021b.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="10:30 05/11 🏀 Los Angeles Clippers vs Miami Heat (BLV LIPTON) [hls 2]",10:30 05/11 🏀 Los Angeles Clippers vs Miami Heat (BLV LIPTON) [hls 2]
@@ -2791,24 +2756,30 @@ https://pull.digitalcdn.net/live/fa270c3a869c4c088a527cd642e063db/index.m3u8
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://wncdnhls-global.ebaclofen.org/live/vsc-channel-5.m3u8
-#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/y39mp1hjj8kmojx/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="20:25 05/11 ⚽ Al Kholood vs Al Khaleej (LÝ LẠNH LÙNG) (HD2) [geo]",20:25 05/11 ⚽ Al Kholood vs Al Khaleej (LÝ LẠNH LÙNG) (HD2) [geo]
+#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/y39mp1hjj8kmojx/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="20:25 05/11 ⚽ Al Kholood vs Al Khaleej (Unknown) (HD2) [geo]",20:25 05/11 ⚽ Al Kholood vs Al Khaleej (Unknown) (HD2) [geo]
 #EXTVLCOPT:http-referrer=https://phalang.live/
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://pull1.digitalcdn.net/live/e829088c0a5048e098fa2cc41dbfa75d/index.m3u8
-#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/y39mp1hjj8kmojx/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="20:25 05/11 ⚽ Al Kholood vs Al Khaleej (LÝ LẠNH LÙNG) [geo]",20:25 05/11 ⚽ Al Kholood vs Al Khaleej (LÝ LẠNH LÙNG) [geo]
+#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/y39mp1hjj8kmojx/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="20:25 05/11 ⚽ Al Kholood vs Al Khaleej (Unknown) [geo]",20:25 05/11 ⚽ Al Kholood vs Al Khaleej (Unknown) [geo]
 #EXTVLCOPT:http-referrer=https://phalang.live/
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://pull.digitalcdn.net/live/e829088c0a5048e098fa2cc41dbfa75d/index.m3u8
+#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/2y8m4zh34zlql07/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="21:00 05/11 ⚽ ATK Mohun Bagan vs Odisha FC (Unknown) (HD2) [geo]",21:00 05/11 ⚽ ATK Mohun Bagan vs Odisha FC (Unknown) (HD2) [geo]
+#EXTVLCOPT:http-referrer=https://phalang.live/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://pull1.digitalcdn.net/live/1675aec1125346eeacb5fe45f1ec823d/index.m3u8
+#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/2y8m4zh34zlql07/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="21:00 05/11 ⚽ ATK Mohun Bagan vs Odisha FC (Unknown) [geo]",21:00 05/11 ⚽ ATK Mohun Bagan vs Odisha FC (Unknown) [geo]
+#EXTVLCOPT:http-referrer=https://phalang.live/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://pull.digitalcdn.net/live/1675aec1125346eeacb5fe45f1ec823d/index.m3u8
 #EXTINF:-1 tvg-logo="https://global-cdn.cdnx.tech/football/team/59bf3958a6ff253e596c3a9bb9ecd1f2.png" group-title="📦 Khác"  tvg-id="" tvg-name="21:00 05/11 ⚽ Bhutan vs Bangladesh (Ngô Quyền)",21:00 05/11 ⚽ Bhutan vs Bangladesh (Ngô Quyền)
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://wncdnhls-global.ebaclofen.org/live/vsc-channel-10.m3u8
-#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/volleyball/team/e4wyrn3hngpm86p/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="23:30 04/11 🏐 Zawiercie vs Olsztyn (TYSON)",23:30 04/11 🏐 Zawiercie vs Olsztyn (TYSON)
-#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
-#EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
-https://live2.jorvakstreamcache.com/live/channel33.flv
 #EXTINF:-1 tvg-id="360anime" group-title="📦 Khác" tvg-logo="https://img-zlr1.tv360.vn/image1/2026/04/13/13/1776063223569/462daff06d9d_640_360.png" tvg-name="360 Anime",360 Anime
 #EXTVLCOPT:http-user-agent=Dalvik/2.1.0
 https://vmttv.dpdns.org/tv360/?id=360-anime
@@ -2868,10 +2839,6 @@ https://ebsonair.ebs.co.kr/ebs1familypc/familypc1m/playlist.m3u8
 https://ebsonair.ebs.co.kr/ebs2familypc/familypc1m/playlist.m3u8
 #EXTINF:-1 group-title="📦 Khác" tvg-logo="https://cdn.aptoide.com/imgs/6/7/e/67edd0054bd79fb633b11710eeeba298_fgraphic.png" tvg-id="" tvg-name="EBS E",EBS E
 https://ebsonair.ebs.co.kr/plus3familypc/familypc1m/playlist.m3u8
-#EXTINF:-1 tvg-logo="https://gbaike-image.cdn.bcebos.com/91529822720e0cf3d7ca6441021fe51fbe096b637c4a/91529822720e0cf3d7ca6441021fe51fbe096b637c4a_url?x-bce-process=image/format,f_auto/resize,m_lfit,w_400,limit_1" group-title="Giờ Vàng TV" ,f_auto/resize,m_lfit,w_400,limit_1" group-title="Giờ Vàng TV" , 🟢 18:00 04/11 🏸 WEN Ruibo vs AN Jaehyun (Súp) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://pzhgifbkllliv.vcdn.cloud/1793775343_hd/1793775343_hd@720p.m3u8
 #EXTINF:-1 group-title="📦 Khác" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/G1_broadcasting_logo.svg/250px-G1_broadcasting_logo.svg.png" tvg-id="" tvg-name="G1 SBS",G1 SBS
 http://61.82.49.4:1935/live/_definst_/tv.stream/playlist.m3u8
 #EXTINF:-1 tvg-id="hitv" group-title="📦 Khác" tvg-logo="https://img-zlr1.tv360.vn/image1/2020_09_23/1600823412691/61627b84a612_640_360.png" tvg-name="HiTV",HiTV
@@ -2902,7 +2869,7 @@ http://onair.cdn.tvchosun.com/origin1/_definst_/tvchosun_s1/playlist.m3u8
 #EXTINF:-1 group-title="📦 Khác" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/8/83/TVN_Logo.png" tvg-id="" tvg-name="TVN",TVN
 #EXTVLCOPT:http-referrer=http://broadcast.tvchosun.com/onair/on2.cstv
 http://onair2.cdn.tvchosun.com/origin2/_definst_/tvchosun_s3/playlist.m3u8
-#EXTINF:-1 group-title="📦 Khác"  tvg-id="" tvg-name="Updated 04/11 22:22",Updated 04/11 22:22
+#EXTINF:-1 group-title="📦 Khác"  tvg-id="" tvg-name="Updated 04/11 23:23",Updated 04/11 23:23
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://freem3u.xyz/static/no-signal/low.m3u8
@@ -2910,184 +2877,11 @@ https://freem3u.xyz/static/no-signal/low.m3u8
 https://freem3u.xyz/api/live/play.m3u8?vid=9951
 #EXTINF:-1 tvg-id="youtv" group-title="📦 Khác" tvg-logo="https://img-ali1.tv360.vn/image1/2020_09_23/1600823396313/7b474bf7bbce_640_360.png" tvg-name="YouTV",YouTV
 https://freem3u.xyz/api/live/play.m3u8?vid=31
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/b292fe77f1c6c63d12782e565ea3e92f.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 23:00 04/11 ⚽ Al Kuwait SC vs Nasaf Qarshi (Gà Siêu Nhí) [flv]",🟡 23:00 04/11 ⚽ Al Kuwait SC vs Nasaf Qarshi (Gà Siêu Nhí) [flv]
-https://live2.zktsva.app/live/301263.flv
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/b292fe77f1c6c63d12782e565ea3e92f.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 23:00 04/11 ⚽ Al Kuwait SC vs Nasaf Qarshi (Gà Siêu Nhí) [hls]",🟡 23:00 04/11 ⚽ Al Kuwait SC vs Nasaf Qarshi (Gà Siêu Nhí) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live2.zktsva.app/live/301263.m3u8
-#EXTINF:-1 tvg-logo="b292fe77f1c6c63d12782e565ea3e92f.webp" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 23:00 04/11 ⚽ Al Kuwait SC vs Nasaf Qarshi (MP3)",🟡 23:00 04/11 ⚽ Al Kuwait SC vs Nasaf Qarshi (MP3)
-#EXTVLCOPT:http-referrer=https://sutbong-tv.net/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://freem3u.xyz/static/no-signal/low.m3u8
-#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/jw2r09hl21grz84/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 23:00 04/11 ⚽ Al Kuwait SC vs Nasaf Qarshi (Nhà đài)",🟡 23:00 04/11 ⚽ Al Kuwait SC vs Nasaf Qarshi (Nhà đài)
-#EXTVLCOPT:http-referrer=https://phalang.live/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://lilive1.eu.cc/live/5ae2270506bd7c8f97f4ffcb5596a918/playlist.m3u8
-#EXTINF:-1 tvg-logo="b292fe77f1c6c63d12782e565ea3e92f.webp" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 23:00 04/11 ⚽ Al Kuwait SC vs Nasaf Qarshi (REDBULL)",🟡 23:00 04/11 ⚽ Al Kuwait SC vs Nasaf Qarshi (REDBULL)
-#EXTVLCOPT:http-referrer=https://sutbong-tv.net/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://freem3u.xyz/static/no-signal/low.m3u8
-#EXTINF:-1 tvg-logo="https://global-cdn.cdnx.tech/football/team/b292fe77f1c6c63d12782e565ea3e92f.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 23:00 04/11 ⚽ Al Kuwait SC vs Nasaf Qarshi (Tào Duệ)",🟡 23:00 04/11 ⚽ Al Kuwait SC vs Nasaf Qarshi (Tào Duệ)
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://wncdnhls-global.ebaclofen.org/live/vsc-channel-15.m3u8
-#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/jw2r09hl21grz84/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 23:00 04/11 ⚽ Al Kuwait SC vs Nasaf Qarshi (Unknown) (HD2) [geo]",🟡 23:00 04/11 ⚽ Al Kuwait SC vs Nasaf Qarshi (Unknown) (HD2) [geo]
-#EXTVLCOPT:http-referrer=https://phalang.live/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://pull1.digitalcdn.net/live/af77ea8c4a1044119e8fc4ff030c033e/index.m3u8
-#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/jw2r09hl21grz84/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 23:00 04/11 ⚽ Al Kuwait SC vs Nasaf Qarshi (Unknown) [geo]",🟡 23:00 04/11 ⚽ Al Kuwait SC vs Nasaf Qarshi (Unknown) [geo]
-#EXTVLCOPT:http-referrer=https://phalang.live/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://pull.digitalcdn.net/live/af77ea8c4a1044119e8fc4ff030c033e/index.m3u8
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/b292fe77f1c6c63d12782e565ea3e92f.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 23:00 04/11 ⚽ Al Kuwait vs CLB Nasaf Qarshi (BLV FANTA) [flv]",🟡 23:00 04/11 ⚽ Al Kuwait vs CLB Nasaf Qarshi (BLV FANTA) [flv]
-https://live05.miekgo.app/live/16226575.flv
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/b292fe77f1c6c63d12782e565ea3e92f.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 23:00 04/11 ⚽ Al Kuwait vs CLB Nasaf Qarshi (BLV FANTA) [hls 2]",🟡 23:00 04/11 ⚽ Al Kuwait vs CLB Nasaf Qarshi (BLV FANTA) [hls 2]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live05.yefpwmc.app/live/16226575_tsc.m3u8
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/b292fe77f1c6c63d12782e565ea3e92f.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 23:00 04/11 ⚽ Al Kuwait vs CLB Nasaf Qarshi (BLV FANTA) [hls]",🟡 23:00 04/11 ⚽ Al Kuwait vs CLB Nasaf Qarshi (BLV FANTA) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live05.miekgo.app/live/16226575.m3u8
-#EXTINF:-1 tvg-logo="https://media.chuoichientv.net/media/uploads/20250623_130607_27ac2367.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 23:00 04/11 ⚽ Al Kuwait vs Nasaf (Chuối Lá) [FHD] [hls]",🟡 23:00 04/11 ⚽ Al Kuwait vs Nasaf (Chuối Lá) [FHD] [hls]
-#EXTVLCOPT:http-referrer=https://live.chuoichien.tv/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://gckc0525.edgemaxcdn.org/live/chuoilahd/playlist.m3u8
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/d36d53da32742efb1d00f27e959603a0.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 23:00 04/11 ⚽ Al Rayyan vs Al Nahda (BLV WARRIOR) [flv]",🟡 23:00 04/11 ⚽ Al Rayyan vs Al Nahda (BLV WARRIOR) [flv]
-https://live05.miekgo.app/live/97885009.flv
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/d36d53da32742efb1d00f27e959603a0.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 23:00 04/11 ⚽ Al Rayyan vs Al Nahda (BLV WARRIOR) [hls 2]",🟡 23:00 04/11 ⚽ Al Rayyan vs Al Nahda (BLV WARRIOR) [hls 2]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live05.yefpwmc.app/live/97885009_tsc.m3u8
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/d36d53da32742efb1d00f27e959603a0.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 23:00 04/11 ⚽ Al Rayyan vs Al Nahda (BLV WARRIOR) [hls]",🟡 23:00 04/11 ⚽ Al Rayyan vs Al Nahda (BLV WARRIOR) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live05.miekgo.app/live/97885009.m3u8
-#EXTINF:-1 tvg-logo="d36d53da32742efb1d00f27e959603a0.webp" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 23:00 04/11 ⚽ Al Rayyan vs Al Nahda SC (KINH VÂN)",🟡 23:00 04/11 ⚽ Al Rayyan vs Al Nahda SC (KINH VÂN)
-#EXTVLCOPT:http-referrer=https://sutbong-tv.net/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://freem3u.xyz/static/no-signal/low.m3u8
-#EXTINF:-1 tvg-logo="https://s8tvkc.top/wp-json/s8-image/a6d317a0-9910-4723-ad24-d117cdc4bcec" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 23:00 04/11 ⚽ Al Rayyan vs Al Nahda SC (NGƯỜI TRÂU) [flv]",🟡 23:00 04/11 ⚽ Al Rayyan vs Al Nahda SC (NGƯỜI TRÂU) [flv]
-https://flv.lauthaitv.cc/live/rayyan-nahda-afcc2.flv
-#EXTINF:-1 tvg-logo="https://s8tvkc.top/wp-json/s8-image/a6d317a0-9910-4723-ad24-d117cdc4bcec" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 23:00 04/11 ⚽ Al Rayyan vs Al Nahda SC (NGƯỜI TRÂU) [hls]",🟡 23:00 04/11 ⚽ Al Rayyan vs Al Nahda SC (NGƯỜI TRÂU) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://hls.lauthaitv.cc/live/rayyan-nahda-afcc2/index.m3u8
-#EXTINF:-1 tvg-logo="d36d53da32742efb1d00f27e959603a0.webp" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 23:00 04/11 ⚽ Al Rayyan vs Al Nahda SC (XUÂN SON)",🟡 23:00 04/11 ⚽ Al Rayyan vs Al Nahda SC (XUÂN SON)
-#EXTVLCOPT:http-referrer=https://sutbong-tv.net/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://freem3u.xyz/static/no-signal/low.m3u8
-#EXTINF:-1 tvg-logo="https://s8tvkc.top/wp-json/s8-image/6bbf2442-fc3c-4172-87c8-0fec7ba3010c" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 23:00 04/11 ⚽ Al Wahda FC vs Al Khalidiya (NGƯỜI NẶN) [flv]",🟡 23:00 04/11 ⚽ Al Wahda FC vs Al Khalidiya (NGƯỜI NẶN) [flv]
-https://flv.lauthaitv.cc/live/wahda-khali-afcc2.flv
-#EXTINF:-1 tvg-logo="https://s8tvkc.top/wp-json/s8-image/6bbf2442-fc3c-4172-87c8-0fec7ba3010c" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 23:00 04/11 ⚽ Al Wahda FC vs Al Khalidiya (NGƯỜI NẶN) [hls]",🟡 23:00 04/11 ⚽ Al Wahda FC vs Al Khalidiya (NGƯỜI NẶN) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://hls.lauthaitv.cc/live/wahda-khali-afcc2/index.m3u8
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/da5a07224920e4856d3b14e7e1a86741.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 23:00 04/11 ⚽ Al Wahda vs Al Khaldiya (BLV SODA) [flv]",🟡 23:00 04/11 ⚽ Al Wahda vs Al Khaldiya (BLV SODA) [flv]
-https://live05.miekgo.app/live/02456966.flv
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/da5a07224920e4856d3b14e7e1a86741.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 23:00 04/11 ⚽ Al Wahda vs Al Khaldiya (BLV SODA) [hls 2]",🟡 23:00 04/11 ⚽ Al Wahda vs Al Khaldiya (BLV SODA) [hls 2]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live05.yefpwmc.app/live/02456966_tsc.m3u8
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/da5a07224920e4856d3b14e7e1a86741.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 23:00 04/11 ⚽ Al Wahda vs Al Khaldiya (BLV SODA) [hls]",🟡 23:00 04/11 ⚽ Al Wahda vs Al Khaldiya (BLV SODA) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live05.miekgo.app/live/02456966.m3u8
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/21da55d164e80f29bdfd9f8cef55a76b.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 23:00 04/11 ⚽ Al Wahda(UAE) vs Al Khaldiya (Gà Siêu Péo) [flv]",🟡 23:00 04/11 ⚽ Al Wahda(UAE) vs Al Khaldiya (Gà Siêu Péo) [flv]
-https://live2.zktsva.app/live/303098.flv
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/21da55d164e80f29bdfd9f8cef55a76b.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 23:00 04/11 ⚽ Al Wahda(UAE) vs Al Khaldiya (Gà Siêu Péo) [hls]",🟡 23:00 04/11 ⚽ Al Wahda(UAE) vs Al Khaldiya (Gà Siêu Péo) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live2.zktsva.app/live/303098.m3u8
-#EXTINF:-1 tvg-logo="21da55d164e80f29bdfd9f8cef55a76b.webp" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 23:00 04/11 ⚽ Al Wahda(UAE) vs Al Khaldiya (TRÀ ĐÁ)",🟡 23:00 04/11 ⚽ Al Wahda(UAE) vs Al Khaldiya (TRÀ ĐÁ)
-#EXTVLCOPT:http-referrer=https://sutbong-tv.net/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://freem3u.xyz/static/no-signal/low.m3u8
-#EXTINF:-1 tvg-logo="https://global-cdn.cdnx.tech/football/team/da5a07224920e4856d3b14e7e1a86741.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 23:00 04/11 ⚽ Al Wahda(UAE) vs Al Khaldiya (Trần Hoàng)",🟡 23:00 04/11 ⚽ Al Wahda(UAE) vs Al Khaldiya (Trần Hoàng)
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://wncdnhls-global.ebaclofen.org/live/vsc-channel-19.m3u8
-#EXTINF:-1 tvg-logo="21da55d164e80f29bdfd9f8cef55a76b.webp" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 23:00 04/11 ⚽ Al Wahda(UAE) vs Al Khaldiya (VINFAST)",🟡 23:00 04/11 ⚽ Al Wahda(UAE) vs Al Khaldiya (VINFAST)
-#EXTVLCOPT:http-referrer=https://sutbong-tv.net/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://freem3u.xyz/static/no-signal/low.m3u8
-#EXTINF:-1 tvg-logo="https://media.chuoichientv.net/media/uploads/20250623_130843_fb02d191.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 23:00 04/11 ⚽ Al-Rayyan SC vs Al-Nahda (Chuối Tây) [FHD] [hls]",🟡 23:00 04/11 ⚽ Al-Rayyan SC vs Al-Nahda (Chuối Tây) [FHD] [hls]
-#EXTVLCOPT:http-referrer=https://live.chuoichien.tv/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://gckc0525.edgemaxcdn.org/live/chuoitayhd/playlist.m3u8
-#EXTINF:-1 tvg-logo="https://images.fotmob.com/image_resources/logo/teamlogo/101898.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 23:00 04/11 ⚽ Al-Rayyan vs Al-Nahda (Kai) [hls]",🟡 23:00 04/11 ⚽ Al-Rayyan vs Al-Nahda (Kai) [hls]
-#EXTVLCOPT:http-referrer=https://sk.mediastation.live/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://wtyi0525.edgemaxcdn.org/live/x00-hd-1111/playlist.m3u8
-#EXTINF:-1 tvg-logo="https://images.fotmob.com/image_resources/logo/teamlogo/101713.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 23:00 04/11 ⚽ Kuwait SC vs Nasaf Qarshi (Tít) [hls]",🟡 23:00 04/11 ⚽ Kuwait SC vs Nasaf Qarshi (Tít) [hls]
-#EXTVLCOPT:http-referrer=https://sk.mediastation.live/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://wtyi0525.edgemaxcdn.org/live/x2-hd-1111/playlist.m3u8
-#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/basketball/team/jw2r02tlyk9qz84/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 23:00 04/11 🏀 Batumi-RSU vs KK Split (ALAN)",🟡 23:00 04/11 🏀 Batumi-RSU vs KK Split (ALAN)
-#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
-#EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
-https://live2.jorvakstreamcache.com/live/channel25.flv
-#EXTINF:-1 tvg-logo="/media/teams/logos/besiktas-vb.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 23:00 04/11 🏐 Beşiktaş vs Eczacıbaşı Peron İstanbul (BLV Xôi Bắp) [flv]",🟡 23:00 04/11 🏐 Beşiktaş vs Eczacıbaşı Peron İstanbul (BLV Xôi Bắp) [flv]
-#EXTVLCOPT:http-referrer=https://khoga1.live/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://livecdn321.cdnfastter.xyz/live/live_9f71176d0e/index.m3u8?token=3MXeEPMRAVdl2yR_TeoKTStkQwOepkXuIthvlnr9Bdw&expires=1852800615
-#EXTINF:-1 tvg-logo="/media/teams/logos/besiktas-vb.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 23:00 04/11 🏐 Beşiktaş vs Eczacıbaşı Peron İstanbul (BLV Xôi Bắp) [hls]",🟡 23:00 04/11 🏐 Beşiktaş vs Eczacıbaşı Peron İstanbul (BLV Xôi Bắp) [hls]
-#EXTVLCOPT:http-referrer=https://khoga1.live/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://livecdn321.cdnfastter.xyz/live/live_9f71176d0e/index.m3u8?token=3MXeEPMRAVdl2yR_TeoKTStkQwOepkXuIthvlnr9Bdw
-#EXTINF:-1 tvg-logo="/media/teams/logos/vakifbank-sk.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 23:00 04/11 🏐 VakıfBank vs Türk Hava Yolları (BLV Khô Bò) [flv]",🟡 23:00 04/11 🏐 VakıfBank vs Türk Hava Yolları (BLV Khô Bò) [flv]
-#EXTVLCOPT:http-referrer=https://khoga1.live/
-https://live.khoga.space/live/livehub12.flv
-#EXTINF:-1 tvg-logo="/media/teams/logos/vakifbank-sk.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟡 23:00 04/11 🏐 VakıfBank vs Türk Hava Yolları (BLV Khô Bò) [hls]",🟡 23:00 04/11 🏐 VakıfBank vs Türk Hava Yolları (BLV Khô Bò) [hls]
-#EXTVLCOPT:http-referrer=https://khoga1.live/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://livecdn321.cdnfastter.xyz/live/live_f3d9c6a005/index.m3u8?token=rr1el4pzxOrMeroS7m-gXYnBMw8InO7dtXeJtJksyhA&expires=1852800615
 #EXTINF:-1 tvg-logo="/media/matches/ballon_dor_2024.jpg" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 02:00 27/10 ⚽ Lễ Trao Giải vs Quả Bóng Vàng 2026 (BLV Tam Mao) [hls]",🟢 02:00 27/10 ⚽ Lễ Trao Giải vs Quả Bóng Vàng 2026 (BLV Tam Mao) [hls]
 #EXTVLCOPT:http-referrer=https://khoga1.live/
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://livecdn321.cdnfastter.xyz/live/live_65629930db/index.m3u8?token=daKfQOAqMEgkhrfCGDxiHdGWXsymB2dcncgmNkMoACY&expires=1852800615
-#EXTINF:-1 tvg-logo="https://apiv3.apifootball.com/badges/31430_arkadag.jpg" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 15:45 04/11 ⚽ Arkadag vs Gol Gohar (BLV Khô Cay) [hls]",🟢 15:45 04/11 ⚽ Arkadag vs Gol Gohar (BLV Khô Cay) [hls]
-#EXTVLCOPT:http-referrer=https://khoga1.live/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://livecdn321.cdnfastter.xyz/live/live_753c90457f/index.m3u8?token=2DSSWeXAxyGpTCzUauOg-F4WPR6MfTkyCr51jCWcnQ0&expires=1852800615
-#EXTINF:-1 tvg-logo="https://apiv3.apifootball.com/badges/91_rennes.jpg" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 17:30 04/11 ⚽ Rennes vs Olympiacos Piraeus (BLV Khô Cá) [hls]",🟢 17:30 04/11 ⚽ Rennes vs Olympiacos Piraeus (BLV Khô Cá) [hls]
-#EXTVLCOPT:http-referrer=https://khoga1.live/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://livecdn321.cdnfastter.xyz/live/live_062e5de010/index.m3u8?token=M6vDly-jvMUtRrO3xVQUwWJozWVPDQ0yVqDBWtZUbgM&expires=1852800615
-#EXTINF:-1 tvg-logo="https://apiv3.apifootball.com/badges/158_aek-athens.jpg" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 19:45 04/11 ⚽ AEK Athens vs Real Madrid (BLV Khô Cá) [hls]",🟢 19:45 04/11 ⚽ AEK Athens vs Real Madrid (BLV Khô Cá) [hls]
-#EXTVLCOPT:http-referrer=https://khoga1.live/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://livecdn321.cdnfastter.xyz/live/live_062e5de010/index.m3u8?token=M6vDly-jvMUtRrO3xVQUwWJozWVPDQ0yVqDBWtZUbgM&expires=1852800615
-#EXTINF:-1 tvg-logo="https://apiv3.apifootball.com/badges/7694_fenerbahce.jpg" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 19:45 04/11 ⚽ Fenerbahce vs Liverpool (BLV Lương Khô) [hls]",🟢 19:45 04/11 ⚽ Fenerbahce vs Liverpool (BLV Lương Khô) [hls]
-#EXTVLCOPT:http-referrer=https://khoga1.live/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://livecdn321.cdnfastter.xyz/live/live_f64016ed85/index.m3u8?token=2zFHBLZ7ZQ-fbhTLWfwNITX5zZlxj49JwHBeBRcyALM&expires=1852800615
-#EXTINF:-1 tvg-logo="https://static.flashscore.com/res/image/data/tU3wbCh5-fDi1I6CJ.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 20:30 04/11 🏐 Manisa BB Nữ vs Galatasaray Nữ (Bee) [hls]",🟢 20:30 04/11 🏐 Manisa BB Nữ vs Galatasaray Nữ (Bee) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://pzhgifbkllliv.vcdn.cloud/1793590162_hd/1793590162_hd@720p.m3u8
 #EXTINF:-1 tvg-logo="https://static.flashscore.com/res/image/data/tSfwGCdM-MJZajegG.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 20:30 04/11 🥎 Novak Djokovic vs Rinky Hijikata (Điếc) [hls]",🟢 20:30 04/11 🥎 Novak Djokovic vs Rinky Hijikata (Điếc) [hls]
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
@@ -3096,76 +2890,11 @@ https://pzhgifbkllliv.vcdn.cloud/1793797395_hd/1793797395_hd@720p.m3u8
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
 #EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
 https://live2.jorvakstreamcache.com/live/channel31.flv
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/aad022bfac5c480bed8d0dc2a710281e.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 20:45 04/11 ⚽ Arkadag FK vs Gol Gohar (BLV REDBULL) [flv]",🟢 20:45 04/11 ⚽ Arkadag FK vs Gol Gohar (BLV REDBULL) [flv]
-https://live05.miekgo.app/live/49572724.flv
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/aad022bfac5c480bed8d0dc2a710281e.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 20:45 04/11 ⚽ Arkadag FK vs Gol Gohar (BLV REDBULL) [hls 2]",🟢 20:45 04/11 ⚽ Arkadag FK vs Gol Gohar (BLV REDBULL) [hls 2]
+#EXTINF:-1 tvg-logo="https://apiv3.apifootball.com/badges/31430_arkadag.jpg" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 20:45 04/11 ⚽ Arkadag vs Gol Gohar (BLV Khô Cay) [hls]",🟢 20:45 04/11 ⚽ Arkadag vs Gol Gohar (BLV Khô Cay) [hls]
+#EXTVLCOPT:http-referrer=https://khoga1.live/
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live05.yefpwmc.app/live/49572724_tsc.m3u8
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/aad022bfac5c480bed8d0dc2a710281e.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 20:45 04/11 ⚽ Arkadag FK vs Gol Gohar (BLV REDBULL) [hls]",🟢 20:45 04/11 ⚽ Arkadag FK vs Gol Gohar (BLV REDBULL) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live05.miekgo.app/live/49572724.m3u8
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/aad022bfac5c480bed8d0dc2a710281e.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 20:45 04/11 ⚽ Arkadag FK vs Gol Gohar FC (Gà Siêu Son) [flv]",🟢 20:45 04/11 ⚽ Arkadag FK vs Gol Gohar FC (Gà Siêu Son) [flv]
-https://live2.zktsva.app/live/306290.flv
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/aad022bfac5c480bed8d0dc2a710281e.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 20:45 04/11 ⚽ Arkadag FK vs Gol Gohar FC (Gà Siêu Son) [hls]",🟢 20:45 04/11 ⚽ Arkadag FK vs Gol Gohar FC (Gà Siêu Son) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live2.zktsva.app/live/306290.m3u8
-#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/zp5rzghx4gjq82w/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 20:45 04/11 ⚽ Arkadag FK vs Gol Gohar FC (KEN)",🟢 20:45 04/11 ⚽ Arkadag FK vs Gol Gohar FC (KEN)
-#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
-#EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
-https://live2.jorvakstreamcache.com/live/channel18.flv
-#EXTINF:-1 tvg-logo="https://static.sportsfeed.pro/football/team/aad022bfac5c480bed8d0dc2a710281e.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 20:45 04/11 ⚽ Arkadag FK vs Gol Gohar FC (Lữ Bố.Vip) [flv]",🟢 20:45 04/11 ⚽ Arkadag FK vs Gol Gohar FC (Lữ Bố.Vip) [flv]
-https://playback.livetl002.com/live/6a9776215126529dede9bf51.flv
-#EXTINF:-1 tvg-logo="https://static.sportsfeed.pro/football/team/aad022bfac5c480bed8d0dc2a710281e.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 20:45 04/11 ⚽ Arkadag FK vs Gol Gohar FC (Lữ Bố.Vip) [hls]",🟢 20:45 04/11 ⚽ Arkadag FK vs Gol Gohar FC (Lữ Bố.Vip) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://playback.livetl002.com/live/6a9776215126529dede9bf51.m3u8
-#EXTINF:-1 tvg-logo="https://s8tvkc.top/wp-json/s8-image/b7a864e1-b0b1-4882-91dd-9e4dd0ca49cc" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 20:45 04/11 ⚽ Arkadag FK vs Gol Gohar FC (NGƯỜI NHỆN) [flv]",🟢 20:45 04/11 ⚽ Arkadag FK vs Gol Gohar FC (NGƯỜI NHỆN) [flv]
-https://flv.lauthaitv.cc/live/arka-gohar-afcc2.flv
-#EXTINF:-1 tvg-logo="https://s8tvkc.top/wp-json/s8-image/b7a864e1-b0b1-4882-91dd-9e4dd0ca49cc" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 20:45 04/11 ⚽ Arkadag FK vs Gol Gohar FC (NGƯỜI NHỆN) [hls]",🟢 20:45 04/11 ⚽ Arkadag FK vs Gol Gohar FC (NGƯỜI NHỆN) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://hls.lauthaitv.cc/live/arka-gohar-afcc2/index.m3u8
-#EXTINF:-1 tvg-logo="https://global-cdn.cdnx.tech/football/team/aad022bfac5c480bed8d0dc2a710281e.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 20:45 04/11 ⚽ Arkadag FK vs Gol Gohar FC (Trần Cảnh)",🟢 20:45 04/11 ⚽ Arkadag FK vs Gol Gohar FC (Trần Cảnh)
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://wncdnhls-global.ebaclofen.org/live/vsc-channel-18.m3u8
-#EXTINF:-1 tvg-logo="https://images.fotmob.com/image_resources/logo/teamlogo/1689659.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 20:45 04/11 ⚽ Arkadag vs Gol Gohar (Bút Chì) [hls]",🟢 20:45 04/11 ⚽ Arkadag vs Gol Gohar (Bút Chì) [hls]
-#EXTVLCOPT:http-referrer=https://sk.mediastation.live/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://wtyi0525.edgemaxcdn.org/live/x22-hd-1111/playlist.m3u8
-#EXTINF:-1 tvg-logo="https://media.chuoichientv.net/media/uploads/20250623_142148_996053df.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 20:45 04/11 ⚽ Arkadag vs Gol Gohar (Chuối Tây) [FHD] [hls]",🟢 20:45 04/11 ⚽ Arkadag vs Gol Gohar (Chuối Tây) [FHD] [hls]
-#EXTVLCOPT:http-referrer=https://live.chuoichien.tv/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://gckc0525.edgemaxcdn.org/live/chuoitayhd/playlist.m3u8
-#EXTINF:-1 tvg-logo="https://xoigac.top/images/football/teams/21232.webp" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 20:45 04/11 ⚽ Arkadag vs Gol Gohar (Hawkeye)",🟢 20:45 04/11 ⚽ Arkadag vs Gol Gohar (Hawkeye)
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://4ac07980a95d.ap-northeast-1.playback.live-video.net/api/video/v1/ap-northeast-1.256097482755.channel.Bwq4z55rUZe5.m3u8?expires=1793820031&signature=BOm90vgYYivnP4ZAQG1Qfz-JUlyZCEf6ZrEyGx6Nfyo
-#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/6ypq3nh09npmd7o/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 21:00 04/11 ⚽ RB Leipzig U19 vs Manchester City U19 (LÝ LẠNH LÙNG) (HD2) [geo]",🟢 21:00 04/11 ⚽ RB Leipzig U19 vs Manchester City U19 (LÝ LẠNH LÙNG) (HD2) [geo]
-#EXTVLCOPT:http-referrer=https://phalang.live/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://pull1.digitalcdn.net/live/6546cc89b9ef46d090499ef37384fa0a/index.m3u8
-#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/6ypq3nh09npmd7o/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 21:00 04/11 ⚽ RB Leipzig U19 vs Manchester City U19 (LÝ LẠNH LÙNG) [geo]",🟢 21:00 04/11 ⚽ RB Leipzig U19 vs Manchester City U19 (LÝ LẠNH LÙNG) [geo]
-#EXTVLCOPT:http-referrer=https://phalang.live/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://pull.digitalcdn.net/live/6546cc89b9ef46d090499ef37384fa0a/index.m3u8
-#EXTINF:-1 tvg-logo="https://static.sportsfeed.pro/football/team/bd0c22cff2e624f23ac7d4ae4ecbf59a.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 21:00 04/11 ⚽ RB Leipzig U19 vs Manchester City U19 (Đoàn Dự) [flv]",🟢 21:00 04/11 ⚽ RB Leipzig U19 vs Manchester City U19 (Đoàn Dự) [flv]
-https://playback.livetl002.com/live/6a5df755b89dded67b39b8bc.flv
-#EXTINF:-1 tvg-logo="https://static.sportsfeed.pro/football/team/bd0c22cff2e624f23ac7d4ae4ecbf59a.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 21:00 04/11 ⚽ RB Leipzig U19 vs Manchester City U19 (Đoàn Dự) [hls]",🟢 21:00 04/11 ⚽ RB Leipzig U19 vs Manchester City U19 (Đoàn Dự) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://playback.livetl002.com/live/6a5df755b89dded67b39b8bc.m3u8
-#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/basketball/team/318q6nto002mo9j/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 21:00 04/11 🏀 Atyrau leopard vs Almaty Legion (TOMMY)",🟢 21:00 04/11 🏀 Atyrau leopard vs Almaty Legion (TOMMY)
-#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
-#EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
-https://live2.jorvakstreamcache.com/live/channel29.flv
+https://livecdn321.cdnfastter.xyz/live/live_753c90457f/index.m3u8?token=2DSSWeXAxyGpTCzUauOg-F4WPR6MfTkyCr51jCWcnQ0&expires=1852800615
 #EXTINF:-1 tvg-logo="https://apiv3.apifootball.com/badges/102_manchester-united.jpg" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 21:00 25/10 ⚽ Manchester Utd vs Bournemouth (BLV Khô Cay) [hls]",🟢 21:00 25/10 ⚽ Manchester Utd vs Bournemouth (BLV Khô Cay) [hls]
 #EXTVLCOPT:http-referrer=https://khoga1.live/
 #KODIPROP:inputstream=inputstream.adaptive
@@ -3174,7 +2903,7 @@ https://livecdn321.cdnfastter.xyz/live/live_753c90457f/index.m3u8?token=2DSSWeXA
 #EXTINF:-1 tvg-logo="https://xoigac.top/images/football/teams/26440.webp" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 21:30 04/11 ⚽ East Bengal W vs Hwacheon KSPO W (Iron Man)",🟢 21:30 04/11 ⚽ East Bengal W vs Hwacheon KSPO W (Iron Man)
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
-https://4ac07980a95d.ap-northeast-1.playback.live-video.net/api/video/v1/ap-northeast-1.256097482755.channel.sYmD33h5hs3s.m3u8?expires=1793820034&signature=ZE0SAY0xJQbhRqkN81KZASee4e6sucuiC4wCnMXqsjI
+https://4ac07980a95d.ap-northeast-1.playback.live-video.net/api/video/v1/ap-northeast-1.256097482755.channel.sYmD33h5hs3s.m3u8?expires=1793823630&signature=4_ayRQLDFi5swWes4aRM0eHPKS4EGsMD8zXaijhVV74
 #EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/318q66hjp2lqo9j/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 21:30 04/11 ⚽ Nữ East Bengal vs Nữ KSPO (BEE)",🟢 21:30 04/11 ⚽ Nữ East Bengal vs Nữ KSPO (BEE)
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
 #EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
@@ -3221,16 +2950,6 @@ https://flv.lauthaitv.cc/live/dort-betis-uefayouth.flv
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://hls.lauthaitv.cc/live/dort-betis-uefayouth/index.m3u8
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/1c99cfa824629a2c1039a7a61c41ef56.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 22:00 04/11 ⚽ Dortmund U19 vs Real Betis U19 (BLV CASTING) [flv]",🟢 22:00 04/11 ⚽ Dortmund U19 vs Real Betis U19 (BLV CASTING) [flv]
-https://live05.miekgo.app/live/95826384.flv
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/1c99cfa824629a2c1039a7a61c41ef56.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 22:00 04/11 ⚽ Dortmund U19 vs Real Betis U19 (BLV CASTING) [hls 2]",🟢 22:00 04/11 ⚽ Dortmund U19 vs Real Betis U19 (BLV CASTING) [hls 2]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live05.yefpwmc.app/live/95826384_tsc.m3u8
-#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/1c99cfa824629a2c1039a7a61c41ef56.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 22:00 04/11 ⚽ Dortmund U19 vs Real Betis U19 (BLV CASTING) [hls]",🟢 22:00 04/11 ⚽ Dortmund U19 vs Real Betis U19 (BLV CASTING) [hls]
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://live05.miekgo.app/live/95826384.m3u8
 #EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/1c99cfa824629a2c1039a7a61c41ef56.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 22:00 04/11 ⚽ Dortmund U19 vs Real Betis U19 (BLV MONSTER) [flv]",🟢 22:00 04/11 ⚽ Dortmund U19 vs Real Betis U19 (BLV MONSTER) [flv]
 https://live05.miekgo.app/live/75915087.flv
 #EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/1c99cfa824629a2c1039a7a61c41ef56.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 22:00 04/11 ⚽ Dortmund U19 vs Real Betis U19 (BLV MONSTER) [hls 2]",🟢 22:00 04/11 ⚽ Dortmund U19 vs Real Betis U19 (BLV MONSTER) [hls 2]
@@ -3245,22 +2964,14 @@ https://live05.miekgo.app/live/75915087.m3u8
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
 #EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
 https://live2.jorvakstreamcache.com/live/channel7.flv
-#EXTINF:-1 tvg-logo="https://apiv3.apifootball.com/badges/81_porto.jpg" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 22:00 04/11 ⚽ FC Porto vs Napoli (BLV Xôi Gấc) [flv]",🟢 22:00 04/11 ⚽ FC Porto vs Napoli (BLV Xôi Gấc) [flv]
-#EXTVLCOPT:http-referrer=https://khoga1.live/
-https://live.khoga.space/live/livehub11.flv
-#EXTINF:-1 tvg-logo="https://apiv3.apifootball.com/badges/81_porto.jpg" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 22:00 04/11 ⚽ FC Porto vs Napoli (BLV Xôi Gấc) [hls]",🟢 22:00 04/11 ⚽ FC Porto vs Napoli (BLV Xôi Gấc) [hls]
-#EXTVLCOPT:http-referrer=https://khoga1.live/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://livecdn321.cdnfastter.xyz/live/live_5e3f2549e4/index.m3u8?token=pCk_XLBJTDboKaC3LME17XPjU4pgaPXEOkc_CroCj0U&expires=1852800615
 #EXTINF:-1 tvg-logo="https://xoigac.top/uploads/stream-logos/2026-11/dcf516e5d66b44dd9f1690da33c101ee.jpg" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 22:00 04/11 ⚽ Ghazl El Mahallah vs Al Ittihad (Moon Kight)",🟢 22:00 04/11 ⚽ Ghazl El Mahallah vs Al Ittihad (Moon Kight)
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
-https://4ac07980a95d.ap-northeast-1.playback.live-video.net/api/video/v1/ap-northeast-1.256097482755.channel.6d7acT99c4ZW.m3u8?expires=1793820038&signature=wDeId1Huf_R11DeVYPRqO2DuaS3YgrdBlZ4j2C7J7Po
+https://4ac07980a95d.ap-northeast-1.playback.live-video.net/api/video/v1/ap-northeast-1.256097482755.channel.6d7acT99c4ZW.m3u8?expires=1793823634&signature=qxFkVV89jTcJpeohv3gdoJx7B6j4oyUj4YSmmaK26LM
 #EXTINF:-1 tvg-logo="https://xoigac.top/uploads/stream-logos/2026-11/f65f1baa5d89472f91225c66b0cb3ea0.jpg" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 22:00 04/11 ⚽ Ghazl El Mahallah vs Al Ittihad (Thanos)",🟢 22:00 04/11 ⚽ Ghazl El Mahallah vs Al Ittihad (Thanos)
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
-https://4ac07980a95d.ap-northeast-1.playback.live-video.net/api/video/v1/ap-northeast-1.256097482755.channel.6ACBriw5wYUq.m3u8?expires=1793820032&signature=BC_AM2l4aolUXu4CG3Hf2pFJsXEKmA4TWyVagyY0a-o
+https://4ac07980a95d.ap-northeast-1.playback.live-video.net/api/video/v1/ap-northeast-1.256097482755.channel.6ACBriw5wYUq.m3u8?expires=1793823632&signature=zVb2Z-77YK4kf2PliL89nSzH5YxsddWiKN19SeEEUys
 #EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/dc6da5d579f4ffcc2574f14a19ce7a98.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 22:00 04/11 ⚽ Ghazl El Mahallah vs Al Ittihad Alexandria (BLV TEPPY) [flv]",🟢 22:00 04/11 ⚽ Ghazl El Mahallah vs Al Ittihad Alexandria (BLV TEPPY) [flv]
 https://live05.miekgo.app/live/33860426.flv
 #EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/dc6da5d579f4ffcc2574f14a19ce7a98.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 22:00 04/11 ⚽ Ghazl El Mahallah vs Al Ittihad Alexandria (BLV TEPPY) [hls 2]",🟢 22:00 04/11 ⚽ Ghazl El Mahallah vs Al Ittihad Alexandria (BLV TEPPY) [hls 2]
@@ -3279,24 +2990,6 @@ https://live2.jorvakstreamcache.com/live/channel12.flv
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
 #EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
 https://live2.jorvakstreamcache.com/live/channel14.flv
-#EXTINF:-1 tvg-logo="https://apiv3.apifootball.com/badges/150_psv.jpg" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 22:00 04/11 ⚽ PSV vs Club Brugge KV (BLV Khô Chè) [hls]",🟢 22:00 04/11 ⚽ PSV vs Club Brugge KV (BLV Khô Chè) [hls]
-#EXTVLCOPT:http-referrer=https://khoga1.live/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://livecdn321.cdnfastter.xyz/live/live_a7657aeb05/index.m3u8?token=JhV-r8e3ccnFy-WcOqY4LotVZyi-effj_AKbg9uCVjU&expires=1852800615
-#EXTINF:-1 tvg-logo="https://apiv3.apifootball.com/badges/101_rb-leipzig.jpg" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 22:00 04/11 ⚽ RB Leipzig vs Manchester City (BLV Lương Khô) [hls]",🟢 22:00 04/11 ⚽ RB Leipzig vs Manchester City (BLV Lương Khô) [hls]
-#EXTVLCOPT:http-referrer=https://khoga1.live/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://livecdn321.cdnfastter.xyz/live/live_f64016ed85/index.m3u8?token=2zFHBLZ7ZQ-fbhTLWfwNITX5zZlxj49JwHBeBRcyALM&expires=1852800615
-#EXTINF:-1 tvg-logo="https://apiv3.apifootball.com/badges/104_slavia-praha.jpg" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 22:00 04/11 ⚽ Slavia Prague vs Arsenal (BLV Khô Mật) [flv]",🟢 22:00 04/11 ⚽ Slavia Prague vs Arsenal (BLV Khô Mật) [flv]
-#EXTVLCOPT:http-referrer=https://khoga1.live/
-https://live.khoga.space/live/livehub13.flv
-#EXTINF:-1 tvg-logo="https://apiv3.apifootball.com/badges/104_slavia-praha.jpg" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 22:00 04/11 ⚽ Slavia Prague vs Arsenal (BLV Khô Mật) [hls]",🟢 22:00 04/11 ⚽ Slavia Prague vs Arsenal (BLV Khô Mật) [hls]
-#EXTVLCOPT:http-referrer=https://khoga1.live/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://livecdn321.cdnfastter.xyz/live/live_b30ba5315c/index.m3u8?token=ZNaU8SPI--3-JASIZXv-JImAVGukJOEv6T9_GMWMfU0&expires=1852800615
 #EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/0dcf33de2f32bb2d72fe50250c612c31.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 22:00 04/11 ⚽ Uniao Leiria U23 vs Estoril U23 (BLV MOUNTAIN DEW) [flv]",🟢 22:00 04/11 ⚽ Uniao Leiria U23 vs Estoril U23 (BLV MOUNTAIN DEW) [flv]
 https://live05.miekgo.app/live/87547578.flv
 #EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/0dcf33de2f32bb2d72fe50250c612c31.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 22:00 04/11 ⚽ Uniao Leiria U23 vs Estoril U23 (BLV MOUNTAIN DEW) [hls 2]",🟢 22:00 04/11 ⚽ Uniao Leiria U23 vs Estoril U23 (BLV MOUNTAIN DEW) [hls 2]
@@ -3313,20 +3006,20 @@ https://live2.zktsva.app/live/300523.flv
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://live2.zktsva.app/live/300523.m3u8
-#EXTINF:-1 tvg-logo="https://apiv3.apifootball.com/badges/236_viking.jpg" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 22:00 04/11 ⚽ Viking vs Sabah Baku (BLV Xôi Xoài) [hls]",🟢 22:00 04/11 ⚽ Viking vs Sabah Baku (BLV Xôi Xoài) [hls]
-#EXTVLCOPT:http-referrer=https://khoga1.live/
-#KODIPROP:inputstream=inputstream.adaptive
-#KODIPROP:inputstream.adaptive.manifest_type=hls
-https://livecdn321.cdnfastter.xyz/live/live_09982ecf49/index.m3u8?token=5VclvTpM2E-bfUL2cfww643kT_KZYDbKiUUT4C8ng8o&expires=1852800615
 #EXTINF:-1 tvg-logo="https://images.fotmob.com/image_resources/logo/teamlogo/9851.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 22:30 04/11 ⚽ Rennes vs Olympiacos (Nếp Cẩm) [hls]",🟢 22:30 04/11 ⚽ Rennes vs Olympiacos (Nếp Cẩm) [hls]
 #EXTVLCOPT:http-referrer=https://sk.mediastation.live/
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://wtyi0525.edgemaxcdn.org/live/x4-hd-1111/playlist.m3u8
+#EXTINF:-1 tvg-logo="https://apiv3.apifootball.com/badges/91_rennes.jpg" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 22:30 04/11 ⚽ Rennes vs Olympiacos Piraeus (BLV Khô Cá) [hls]",🟢 22:30 04/11 ⚽ Rennes vs Olympiacos Piraeus (BLV Khô Cá) [hls]
+#EXTVLCOPT:http-referrer=https://khoga1.live/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://livecdn321.cdnfastter.xyz/live/live_062e5de010/index.m3u8?token=M6vDly-jvMUtRrO3xVQUwWJozWVPDQ0yVqDBWtZUbgM&expires=1852800615
 #EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/v2y8m4zhyzvql07/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 22:30 04/11 ⚽ Rennes vs Olympiakos (FULL HD MAX)",🟢 22:30 04/11 ⚽ Rennes vs Olympiakos (FULL HD MAX)
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
 #EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
-https://live2.domaincdn.cc/livecdn/channel-6.flv?auth_key=3000001793805643-0-0-1660a13b461e50d8a7c0060525af3420
+https://live2.domaincdn.cc/livecdn/channel-6.flv?auth_key=3000001793809249-0-0-f4dabffbf7ab3101ed54803358f80844
 #EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/v2y8m4zhyzvql07/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 22:30 04/11 ⚽ Rennes vs Olympiakos (LÝ LÊN LỬA) (HD2) [geo]",🟢 22:30 04/11 ⚽ Rennes vs Olympiakos (LÝ LÊN LỬA) (HD2) [geo]
 #EXTVLCOPT:http-referrer=https://phalang.live/
 #KODIPROP:inputstream=inputstream.adaptive
@@ -3340,7 +3033,7 @@ https://pull.digitalcdn.net/live/e77a4b84295b4189888e34d486d3db26/index.m3u8
 #EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/v2y8m4zhyzvql07/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 22:30 04/11 ⚽ Rennes vs Olympiakos (MAX)",🟢 22:30 04/11 ⚽ Rennes vs Olympiakos (MAX)
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
 #EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
-https://live1.quickscoreboardz.com/live/channel6.flv?wsSecret=f34bde038c6cdba52583fbfcff4332c1&wsABSTime=1793848834
+https://live1.quickscoreboardz.com/live/channel6.flv?wsSecret=a26a6e1b57bb19bbf4f3a7054e55f6bf&wsABSTime=1793852440
 #EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/v2y8m4zhyzvql07/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 22:30 04/11 ⚽ Rennes vs Olympiakos (Nhà đài)",🟢 22:30 04/11 ⚽ Rennes vs Olympiakos (Nhà đài)
 #EXTVLCOPT:http-referrer=https://phalang.live/
 #KODIPROP:inputstream=inputstream.adaptive
@@ -3349,12 +3042,18 @@ https://lilive1.eu.cc/live/c26716dc68290758011594756f59202d/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/v2y8m4zhyzvql07/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 22:30 04/11 ⚽ Rennes vs Olympiakos (RAVEN)",🟢 22:30 04/11 ⚽ Rennes vs Olympiakos (RAVEN)
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
 #EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
-https://live2.domaincdn.cc/livecdn/channel-21.flv?auth_key=3000001793805637-0-0-caef83ffecf4f8ff9b2b363d5e2e1e02
+https://live2.domaincdn.cc/livecdn/channel-21.flv?auth_key=3000001793809244-0-0-ddb36a72f6ca393d0e237735f7ac3fd1
 #EXTINF:-1 tvg-logo="https://media.chuoichientv.net/media/uploads/20250623_125515_505c803f.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 22:30 04/11 ⚽ Rennes vs Olympiakos Piraeus (Chuối Kem) [FHD] [hls]",🟢 22:30 04/11 ⚽ Rennes vs Olympiakos Piraeus (Chuối Kem) [FHD] [hls]
 #EXTVLCOPT:http-referrer=https://live.chuoichien.tv/
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://gckc0525.edgemaxcdn.org/live/chuoikemhd/playlist.m3u8
+#EXTINF:-1 tvg-logo="https://static.sportsfeed.pro/football/team/eab8f0e847742fd328bb581299bd99ca.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 22:30 04/11 ⚽ Rennes vs Olympiakos Piraeus (Cris) [flv]",🟢 22:30 04/11 ⚽ Rennes vs Olympiakos Piraeus (Cris) [flv]
+https://playback.livetl002.com/live/69aa9525f5ec459ae275b43f.flv
+#EXTINF:-1 tvg-logo="https://static.sportsfeed.pro/football/team/eab8f0e847742fd328bb581299bd99ca.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 22:30 04/11 ⚽ Rennes vs Olympiakos Piraeus (Cris) [hls]",🟢 22:30 04/11 ⚽ Rennes vs Olympiakos Piraeus (Cris) [hls]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://playback.livetl002.com/live/69aa9525f5ec459ae275b43f.m3u8
 #EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/eab8f0e847742fd328bb581299bd99ca.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 22:30 04/11 ⚽ Stade Rennais FC vs Olympiacos Piraeus (Gà Siêu Bệu) [flv]",🟢 22:30 04/11 ⚽ Stade Rennais FC vs Olympiacos Piraeus (Gà Siêu Bệu) [flv]
 https://live2.zktsva.app/live/289650.flv
 #EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/eab8f0e847742fd328bb581299bd99ca.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 22:30 04/11 ⚽ Stade Rennais FC vs Olympiacos Piraeus (Gà Siêu Bệu) [hls]",🟢 22:30 04/11 ⚽ Stade Rennais FC vs Olympiacos Piraeus (Gà Siêu Bệu) [hls]
@@ -3389,6 +3088,134 @@ https://cdnflv.xbdbotv.live/live/MTk4NzM5MzI6aGd5eDdwZGEwMmRlNWExZXZhMThvNnRnOnI
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://cdnhls.xbdbotv.live/live/MTk4NzM5MzI6aGd5eDdwZGEwMmRlNWExZXZhMThvNnRnOnI1a3g4bGNxZGZocm10Y3Q4cGplaDB2YQ/index.m3u8
+#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/jw2r09hl21grz84/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 23:00 04/11 ⚽ Al Kuwait SC vs Nasaf Qarshi (FILIP)",🟢 23:00 04/11 ⚽ Al Kuwait SC vs Nasaf Qarshi (FILIP)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
+#EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
+https://live2.jorvakstreamcache.com/live/channel19.flv
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/b292fe77f1c6c63d12782e565ea3e92f.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 23:00 04/11 ⚽ Al Kuwait SC vs Nasaf Qarshi (Gà Siêu Nhí) [flv]",🟢 23:00 04/11 ⚽ Al Kuwait SC vs Nasaf Qarshi (Gà Siêu Nhí) [flv]
+https://live2.zktsva.app/live/301263.flv
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/b292fe77f1c6c63d12782e565ea3e92f.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 23:00 04/11 ⚽ Al Kuwait SC vs Nasaf Qarshi (Gà Siêu Nhí) [hls]",🟢 23:00 04/11 ⚽ Al Kuwait SC vs Nasaf Qarshi (Gà Siêu Nhí) [hls]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://live2.zktsva.app/live/301263.m3u8
+#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/jw2r09hl21grz84/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 23:00 04/11 ⚽ Al Kuwait SC vs Nasaf Qarshi (Nhà đài)",🟢 23:00 04/11 ⚽ Al Kuwait SC vs Nasaf Qarshi (Nhà đài)
+#EXTVLCOPT:http-referrer=https://phalang.live/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://lilive1.eu.cc/live/5ae2270506bd7c8f97f4ffcb5596a918/playlist.m3u8
+#EXTINF:-1 tvg-logo="https://global-cdn.cdnx.tech/football/team/b292fe77f1c6c63d12782e565ea3e92f.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 23:00 04/11 ⚽ Al Kuwait SC vs Nasaf Qarshi (Tào Duệ)",🟢 23:00 04/11 ⚽ Al Kuwait SC vs Nasaf Qarshi (Tào Duệ)
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://wncdnhls-global.ebaclofen.org/live/vsc-channel-15.m3u8
+#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/jw2r09hl21grz84/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 23:00 04/11 ⚽ Al Kuwait SC vs Nasaf Qarshi (Unknown) (HD2) [geo]",🟢 23:00 04/11 ⚽ Al Kuwait SC vs Nasaf Qarshi (Unknown) (HD2) [geo]
+#EXTVLCOPT:http-referrer=https://phalang.live/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://pull1.digitalcdn.net/live/af77ea8c4a1044119e8fc4ff030c033e/index.m3u8
+#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/jw2r09hl21grz84/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 23:00 04/11 ⚽ Al Kuwait SC vs Nasaf Qarshi (Unknown) [geo]",🟢 23:00 04/11 ⚽ Al Kuwait SC vs Nasaf Qarshi (Unknown) [geo]
+#EXTVLCOPT:http-referrer=https://phalang.live/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://pull.digitalcdn.net/live/af77ea8c4a1044119e8fc4ff030c033e/index.m3u8
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/b292fe77f1c6c63d12782e565ea3e92f.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 23:00 04/11 ⚽ Al Kuwait vs CLB Nasaf Qarshi (BLV FANTA) [flv]",🟢 23:00 04/11 ⚽ Al Kuwait vs CLB Nasaf Qarshi (BLV FANTA) [flv]
+https://live05.miekgo.app/live/16226575.flv
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/b292fe77f1c6c63d12782e565ea3e92f.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 23:00 04/11 ⚽ Al Kuwait vs CLB Nasaf Qarshi (BLV FANTA) [hls 2]",🟢 23:00 04/11 ⚽ Al Kuwait vs CLB Nasaf Qarshi (BLV FANTA) [hls 2]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://live05.yefpwmc.app/live/16226575_tsc.m3u8
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/b292fe77f1c6c63d12782e565ea3e92f.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 23:00 04/11 ⚽ Al Kuwait vs CLB Nasaf Qarshi (BLV FANTA) [hls]",🟢 23:00 04/11 ⚽ Al Kuwait vs CLB Nasaf Qarshi (BLV FANTA) [hls]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://live05.miekgo.app/live/16226575.m3u8
+#EXTINF:-1 tvg-logo="https://media.chuoichientv.net/media/uploads/20250623_130607_27ac2367.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 23:00 04/11 ⚽ Al Kuwait vs Nasaf (Chuối Lá) [FHD] [hls]",🟢 23:00 04/11 ⚽ Al Kuwait vs Nasaf (Chuối Lá) [FHD] [hls]
+#EXTVLCOPT:http-referrer=https://live.chuoichien.tv/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://gckc0525.edgemaxcdn.org/live/chuoilahd/playlist.m3u8
+#EXTINF:-1 tvg-logo="https://apiv3.apifootball.com/badges/405_al-rayyan.jpg" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 23:00 04/11 ⚽ Al Rayyan vs Al Nahda (BLV Tam Mao) [hls]",🟢 23:00 04/11 ⚽ Al Rayyan vs Al Nahda (BLV Tam Mao) [hls]
+#EXTVLCOPT:http-referrer=https://khoga1.live/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://livecdn321.cdnfastter.xyz/live/live_65629930db/index.m3u8?token=daKfQOAqMEgkhrfCGDxiHdGWXsymB2dcncgmNkMoACY&expires=1852800615
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/d36d53da32742efb1d00f27e959603a0.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 23:00 04/11 ⚽ Al Rayyan vs Al Nahda (BLV WARRIOR) [flv]",🟢 23:00 04/11 ⚽ Al Rayyan vs Al Nahda (BLV WARRIOR) [flv]
+https://live05.miekgo.app/live/97885009.flv
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/d36d53da32742efb1d00f27e959603a0.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 23:00 04/11 ⚽ Al Rayyan vs Al Nahda (BLV WARRIOR) [hls 2]",🟢 23:00 04/11 ⚽ Al Rayyan vs Al Nahda (BLV WARRIOR) [hls 2]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://live05.yefpwmc.app/live/97885009_tsc.m3u8
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/d36d53da32742efb1d00f27e959603a0.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 23:00 04/11 ⚽ Al Rayyan vs Al Nahda (BLV WARRIOR) [hls]",🟢 23:00 04/11 ⚽ Al Rayyan vs Al Nahda (BLV WARRIOR) [hls]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://live05.miekgo.app/live/97885009.m3u8
+#EXTINF:-1 tvg-logo="https://s8tvkc.top/wp-json/s8-image/a6d317a0-9910-4723-ad24-d117cdc4bcec" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 23:00 04/11 ⚽ Al Rayyan vs Al Nahda SC (NGƯỜI TRÂU) [flv]",🟢 23:00 04/11 ⚽ Al Rayyan vs Al Nahda SC (NGƯỜI TRÂU) [flv]
+https://flv.lauthaitv.cc/live/rayyan-nahda-afcc2.flv
+#EXTINF:-1 tvg-logo="https://s8tvkc.top/wp-json/s8-image/a6d317a0-9910-4723-ad24-d117cdc4bcec" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 23:00 04/11 ⚽ Al Rayyan vs Al Nahda SC (NGƯỜI TRÂU) [hls]",🟢 23:00 04/11 ⚽ Al Rayyan vs Al Nahda SC (NGƯỜI TRÂU) [hls]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://hls.lauthaitv.cc/live/rayyan-nahda-afcc2/index.m3u8
+#EXTINF:-1 tvg-logo="https://s8tvkc.top/wp-json/s8-image/6bbf2442-fc3c-4172-87c8-0fec7ba3010c" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 23:00 04/11 ⚽ Al Wahda FC vs Al Khalidiya (NGƯỜI NẶN) [flv]",🟢 23:00 04/11 ⚽ Al Wahda FC vs Al Khalidiya (NGƯỜI NẶN) [flv]
+https://flv.lauthaitv.cc/live/wahda-khali-afcc2.flv
+#EXTINF:-1 tvg-logo="https://s8tvkc.top/wp-json/s8-image/6bbf2442-fc3c-4172-87c8-0fec7ba3010c" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 23:00 04/11 ⚽ Al Wahda FC vs Al Khalidiya (NGƯỜI NẶN) [hls]",🟢 23:00 04/11 ⚽ Al Wahda FC vs Al Khalidiya (NGƯỜI NẶN) [hls]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://hls.lauthaitv.cc/live/wahda-khali-afcc2/index.m3u8
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/da5a07224920e4856d3b14e7e1a86741.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 23:00 04/11 ⚽ Al Wahda vs Al Khaldiya (BLV SODA) [flv]",🟢 23:00 04/11 ⚽ Al Wahda vs Al Khaldiya (BLV SODA) [flv]
+https://live05.miekgo.app/live/02456966.flv
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/da5a07224920e4856d3b14e7e1a86741.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 23:00 04/11 ⚽ Al Wahda vs Al Khaldiya (BLV SODA) [hls 2]",🟢 23:00 04/11 ⚽ Al Wahda vs Al Khaldiya (BLV SODA) [hls 2]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://live05.yefpwmc.app/live/02456966_tsc.m3u8
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/da5a07224920e4856d3b14e7e1a86741.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 23:00 04/11 ⚽ Al Wahda vs Al Khaldiya (BLV SODA) [hls]",🟢 23:00 04/11 ⚽ Al Wahda vs Al Khaldiya (BLV SODA) [hls]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://live05.miekgo.app/live/02456966.m3u8
+#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/football/team/4jwq2gh4152m0ve/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 23:00 04/11 ⚽ Al Wahda vs Al Khaldiya (FELIX)",🟢 23:00 04/11 ⚽ Al Wahda vs Al Khaldiya (FELIX)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
+#EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
+https://live2.jorvakstreamcache.com/live/channel24.flv
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/21da55d164e80f29bdfd9f8cef55a76b.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 23:00 04/11 ⚽ Al Wahda(UAE) vs Al Khaldiya (Gà Siêu Péo) [flv]",🟢 23:00 04/11 ⚽ Al Wahda(UAE) vs Al Khaldiya (Gà Siêu Péo) [flv]
+https://live2.zktsva.app/live/303098.flv
+#EXTINF:-1 tvg-logo="https://img.cltvap.cc/football/team/21da55d164e80f29bdfd9f8cef55a76b.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 23:00 04/11 ⚽ Al Wahda(UAE) vs Al Khaldiya (Gà Siêu Péo) [hls]",🟢 23:00 04/11 ⚽ Al Wahda(UAE) vs Al Khaldiya (Gà Siêu Péo) [hls]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://live2.zktsva.app/live/303098.m3u8
+#EXTINF:-1 tvg-logo="https://global-cdn.cdnx.tech/football/team/da5a07224920e4856d3b14e7e1a86741.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 23:00 04/11 ⚽ Al Wahda(UAE) vs Al Khaldiya (Trần Hoàng)",🟢 23:00 04/11 ⚽ Al Wahda(UAE) vs Al Khaldiya (Trần Hoàng)
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://wncdnhls-global.ebaclofen.org/live/vsc-channel-19.m3u8
+#EXTINF:-1 tvg-logo="https://media.chuoichientv.net/media/uploads/20250623_130843_fb02d191.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 23:00 04/11 ⚽ Al-Rayyan SC vs Al-Nahda (Chuối Tây) [FHD] [hls]",🟢 23:00 04/11 ⚽ Al-Rayyan SC vs Al-Nahda (Chuối Tây) [FHD] [hls]
+#EXTVLCOPT:http-referrer=https://live.chuoichien.tv/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://gckc0525.edgemaxcdn.org/live/chuoitayhd/playlist.m3u8
+#EXTINF:-1 tvg-logo="https://images.fotmob.com/image_resources/logo/teamlogo/101898.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 23:00 04/11 ⚽ Al-Rayyan vs Al-Nahda (Kai) [hls]",🟢 23:00 04/11 ⚽ Al-Rayyan vs Al-Nahda (Kai) [hls]
+#EXTVLCOPT:http-referrer=https://sk.mediastation.live/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://wtyi0525.edgemaxcdn.org/live/x00-hd-1111/playlist.m3u8
+#EXTINF:-1 tvg-logo="https://images.fotmob.com/image_resources/logo/teamlogo/101713.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 23:00 04/11 ⚽ Kuwait SC vs Nasaf Qarshi (Tít) [hls]",🟢 23:00 04/11 ⚽ Kuwait SC vs Nasaf Qarshi (Tít) [hls]
+#EXTVLCOPT:http-referrer=https://sk.mediastation.live/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://wtyi0525.edgemaxcdn.org/live/x2-hd-1111/playlist.m3u8
+#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/basketball/team/jw2r02tlyk9qz84/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 23:00 04/11 🏀 Batumi-RSU vs KK Split (ALAN)",🟢 23:00 04/11 🏀 Batumi-RSU vs KK Split (ALAN)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
+#EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
+https://live2.jorvakstreamcache.com/live/channel25.flv
+#EXTINF:-1 tvg-logo="/media/teams/logos/besiktas-vb.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 23:00 04/11 🏐 Beşiktaş vs Eczacıbaşı Peron İstanbul (BLV Xôi Bắp) [flv]",🟢 23:00 04/11 🏐 Beşiktaş vs Eczacıbaşı Peron İstanbul (BLV Xôi Bắp) [flv]
+#EXTVLCOPT:http-referrer=https://khoga1.live/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://livecdn321.cdnfastter.xyz/live/live_9f71176d0e/index.m3u8?token=3MXeEPMRAVdl2yR_TeoKTStkQwOepkXuIthvlnr9Bdw&expires=1852800615
+#EXTINF:-1 tvg-logo="/media/teams/logos/besiktas-vb.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 23:00 04/11 🏐 Beşiktaş vs Eczacıbaşı Peron İstanbul (BLV Xôi Bắp) [hls]",🟢 23:00 04/11 🏐 Beşiktaş vs Eczacıbaşı Peron İstanbul (BLV Xôi Bắp) [hls]
+#EXTVLCOPT:http-referrer=https://khoga1.live/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://livecdn321.cdnfastter.xyz/live/live_9f71176d0e/index.m3u8?token=3MXeEPMRAVdl2yR_TeoKTStkQwOepkXuIthvlnr9Bdw
+#EXTINF:-1 tvg-logo="https://static.flashscore.com/res/image/data/YRICRqzB-A3UKTsyj.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 23:00 04/11 🏐 Vakifbank Nữ vs THY Nữ (Sún) [hls]",🟢 23:00 04/11 🏐 Vakifbank Nữ vs THY Nữ (Sún) [hls]
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://pzhgifbkllliv.vcdn.cloud/1793806575_hd/1793806575_hd@720p.m3u8
 #EXTINF:-1 tvg-logo="https://img0.aiscore.com/volleyball/team/bf7d5b85601e54fc26df7d6605e3dd01.png!w80" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 23:00 04/11 🏐 Vakifbank Women vs THY Women (LÝ LIỀU LĨNH) (HD2) [geo]",🟢 23:00 04/11 🏐 Vakifbank Women vs THY Women (LÝ LIỀU LĨNH) (HD2) [geo]
 #EXTVLCOPT:http-referrer=https://phalang.live/
 #KODIPROP:inputstream=inputstream.adaptive
@@ -3399,3 +3226,15 @@ https://pull1.digitalcdn.net/live/52bbece6d2984071a1e803e6a5dec713/index.m3u8
 #KODIPROP:inputstream=inputstream.adaptive
 #KODIPROP:inputstream.adaptive.manifest_type=hls
 https://pull.digitalcdn.net/live/52bbece6d2984071a1e803e6a5dec713/index.m3u8
+#EXTINF:-1 tvg-logo="/media/teams/logos/vakifbank-sk.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 23:00 04/11 🏐 VakıfBank vs Türk Hava Yolları (BLV Khô Bò) [flv]",🟢 23:00 04/11 🏐 VakıfBank vs Türk Hava Yolları (BLV Khô Bò) [flv]
+#EXTVLCOPT:http-referrer=https://khoga1.live/
+https://live.khoga.space/live/livehub12.flv
+#EXTINF:-1 tvg-logo="/media/teams/logos/vakifbank-sk.png" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 23:00 04/11 🏐 VakıfBank vs Türk Hava Yolları (BLV Khô Bò) [hls]",🟢 23:00 04/11 🏐 VakıfBank vs Türk Hava Yolları (BLV Khô Bò) [hls]
+#EXTVLCOPT:http-referrer=https://khoga1.live/
+#KODIPROP:inputstream=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=hls
+https://livecdn321.cdnfastter.xyz/live/live_f3d9c6a005/index.m3u8?token=rr1el4pzxOrMeroS7m-gXYnBMw8InO7dtXeJtJksyhA&expires=1852800615
+#EXTINF:-1 tvg-logo="https://imgts.sportpulseapiz.com/volleyball/team/e4wyrn3hngpm86p/image/small" group-title="📦 Khác"  tvg-id="" tvg-name="🟢 23:30 04/11 🏐 Zawiercie vs Olsztyn (TYSON)",🟢 23:30 04/11 🏐 Zawiercie vs Olsztyn (TYSON)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
+#EXTVLCOPT:http-referrer=https://xlz.domainkqt.cc/
+https://live2.jorvakstreamcache.com/live/channel33.flv
